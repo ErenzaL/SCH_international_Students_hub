@@ -1,3 +1,4 @@
+import { resolveApiBaseUrl } from "@/lib/api-url";
 import type {
   AuthorityType,
   LanguageCode,
@@ -77,9 +78,13 @@ export const SOURCE_STATUSES: SourceStatus[] = [
 ];
 export const ROLES: Role[] = ["super_admin", "admin", "supporter", "student"];
 
-export const API_BASE_URL = (
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000"
-).replace(/\/$/, "");
+// Each process.env.NEXT_PUBLIC_* must be referenced literally so Next.js can inline it.
+export const API_BASE_URL = resolveApiBaseUrl({
+  apiUrl: process.env.NEXT_PUBLIC_API_URL,
+  legacyApiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
+  nodeEnv: process.env.NODE_ENV,
+});
+export const isApiConfigured = Boolean(API_BASE_URL);
 export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);

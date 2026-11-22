@@ -3,7 +3,7 @@
 Single source of truth for the HTTP interface between `apps/web` and `backend`.
 Interactive docs are also served by FastAPI at `/docs` (OpenAPI at `/openapi.json`).
 
-* Base URL: `NEXT_PUBLIC_API_BASE_URL` (default `http://localhost:8000`)
+* Base URL: `NEXT_PUBLIC_API_URL` (dev default `http://localhost:8000`; required in production builds)
 * Auth: `Authorization: Bearer <Supabase access token>` for `/api/v1/me` and `/api/v1/admin/*`. Public endpoints need no token.
 * All JSON. Dates are ISO-8601 (`date` fields are `YYYY-MM-DD`, timestamps are UTC with offset).
 * Language codes: `ko`, `en`, `id`, `vi`, `zh-CN`.

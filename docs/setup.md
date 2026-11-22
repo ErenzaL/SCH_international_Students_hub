@@ -42,8 +42,8 @@ The API loads the embedding model **lazily** (first ingestion/search), never at 
 ## 4. Configure environment variables
 
 Copy `.env.example`. Backend (server only): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`
-(only for legacy HS256 projects), `CORS_ALLOWED_ORIGINS`, `ALLOWED_SOURCE_DOMAINS`, `EMBEDDING_*`, `LLM_*`.
-Web (`apps/web/.env.local`): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_API_BASE_URL`.
+(only for legacy HS256 projects), `CORS_ORIGINS` (alias `CORS_ALLOWED_ORIGINS`), `ALLOWED_SOURCE_DOMAINS`, `EMBEDDING_*`, `LLM_*`.
+Web (`apps/web/.env.local`): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_API_URL`.
 The service-role key must never appear in a `NEXT_PUBLIC_*` variable.
 
 ## 5. Bootstrap the first super_admin (manual, secure)
@@ -95,9 +95,9 @@ and seed into a scratch DB, start PostgREST with the same JWT secret as the test
 
 1. Push the repo to GitHub. Render → New → Blueprint → pick the repo → apply.
 2. Backend `sch-hub-api`: set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET` (if HS256),
-   `CORS_ALLOWED_ORIGINS=https://<web-service>.onrender.com`. Build: `pip install -r requirements.txt -r requirements-ml.txt`.
+   `CORS_ORIGINS=https://<web-service>.onrender.com`. Build: `pip install -r requirements.txt -r requirements-ml.txt`.
    Start: `uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers`. Health: `/health`.
-3. Web `sch-hub-web`: set the three `NEXT_PUBLIC_*` variables (the API URL from step 2). Build `npm ci && npm run build`
+3. Web `sch-hub-web`: set the three `NEXT_PUBLIC_*` variables (`NEXT_PUBLIC_API_URL` = the API URL from step 2, without `/api/v1`). These are inlined at build time, so use *Manual Deploy → Clear build cache & deploy* after changing them; a restart is not enough. Build `npm ci && npm run build`
    (no model download). Start `npm run start`.
 4. Supabase → Authentication → URL configuration: add the web URL to Site URL / redirect URLs.
 5. **Memory:** Render free web services have 512 MB. PyTorch + E5-small can exceed that when loaded.

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from pydantic import Field, field_validator
+from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DEFAULT_ALLOWED_DOMAINS = (
@@ -28,7 +28,11 @@ class Settings(BaseSettings):
     source_files_bucket: str = "source-files"
 
     # --- HTTP ---------------------------------------------------------------
-    cors_allowed_origins: str = "http://localhost:3000"
+    # Comma-separated. Read from CORS_ORIGINS or CORS_ALLOWED_ORIGINS (first one set wins).
+    cors_allowed_origins: str = Field(
+        default="http://localhost:3000",
+        validation_alias=AliasChoices("cors_allowed_origins", "cors_origins"),
+    )
     max_request_body_mb: int = 12
 
     # --- Ingestion / SSRF guard ---------------------------------------------
@@ -76,7 +80,8 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> list[str]:
-        return [o.strip() for o in self.cors_allowed_origins.split(",") if o.strip()]
+        # Browsers send Origin without a trailing slash, so "https://x.onrender.com/" must still match.
+        return [o.strip().rstrip("/") for o in self.cors_allowed_origins.split(",") if o.strip()]
 
     @property
     def allowed_domains(self) -> list[str]:

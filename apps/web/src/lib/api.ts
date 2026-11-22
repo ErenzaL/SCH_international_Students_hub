@@ -1,7 +1,11 @@
-import { API_BASE_URL } from "@/lib/constants";
+import { API_BASE_URL, isApiConfigured } from "@/lib/constants";
 import { getAccessToken } from "@/lib/supabase/client";
 
-export type ApiErrorKind = "api" | "network";
+export type ApiErrorKind = "api" | "network" | "config";
+
+export const API_NOT_CONFIGURED_MESSAGE =
+  "The API URL is not configured. Set NEXT_PUBLIC_API_URL (e.g. https://sch-hub-api.onrender.com) " +
+  "on the web service and rebuild it.";
 
 /** Structured error for every failed API interaction. */
 export class ApiError extends Error {
@@ -30,6 +34,9 @@ export class ApiError extends Error {
 
   get isNetwork() {
     return this.kind === "network";
+  }
+  get isApiNotConfigured() {
+    return this.code === "api_not_configured";
   }
   get isSupabaseNotConfigured() {
     return this.code === "supabase_not_configured";
@@ -66,7 +73,17 @@ export function parseApiError(status: number, body: unknown, statusText = ""): A
 
 export type QueryValue = string | number | boolean | null | undefined;
 
+function apiNotConfigured(): ApiError {
+  return new ApiError({
+    kind: "config",
+    status: 0,
+    code: "api_not_configured",
+    message: API_NOT_CONFIGURED_MESSAGE,
+  });
+}
+
 export function buildUrl(path: string, query?: Record<string, QueryValue>): string {
+  if (!isApiConfigured) throw apiNotConfigured();
   const url = new URL(API_BASE_URL + path);
   if (query) {
     for (const [k, v] of Object.entries(query)) {
@@ -95,6 +112,7 @@ export async function apiRequest<T>(
   path: string,
   opts: RequestOptions = {},
 ): Promise<T> {
+  if (!isApiConfigured) throw apiNotConfigured();
   const headers: Record<string, string> = { Accept: "application/json" };
   const wantsAuth = opts.auth ?? needsAuth(path);
   if (wantsAuth) {

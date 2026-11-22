@@ -133,3 +133,25 @@ def test_cors_allows_configured_origin_only(env):
                                                             "Access-Control-Request-Method": "GET"})
     assert ok.headers.get("access-control-allow-origin") == "http://localhost:3000"
     assert "access-control-allow-origin" not in bad.headers
+
+
+PROD_WEB = "https://sch-international-students-hub.onrender.com"
+
+
+@pytest.mark.parametrize("var", ["CORS_ORIGINS", "CORS_ALLOWED_ORIGINS"])
+def test_cors_origins_read_from_either_env_var(monkeypatch, var):
+    from fastapi.testclient import TestClient
+
+    from app.core.config import Settings
+    from app.main import create_app
+    from app.repositories.memory_store import MemoryStore
+
+    monkeypatch.delenv("CORS_ORIGINS", raising=False)
+    monkeypatch.delenv("CORS_ALLOWED_ORIGINS", raising=False)
+    monkeypatch.setenv(var, f" {PROD_WEB}/ ")  # stray whitespace and trailing slash must not break matching
+    settings = Settings(_env_file=None, embedding_provider="hash")
+    assert settings.cors_origins == [PROD_WEB]
+    client = TestClient(create_app(settings, store=MemoryStore()))
+    r = client.options("/api/v1/categories", headers={"Origin": PROD_WEB, "Access-Control-Request-Method": "GET"})
+    assert r.status_code == 200
+    assert r.headers.get("access-control-allow-origin") == PROD_WEB

@@ -18,7 +18,7 @@ npm run dev                         # http://localhost:3000
 | `npm run lint` | ESLint |
 | `npm test` | Vitest + Testing Library |
 
-Only these variables are read by the browser: `NEXT_PUBLIC_API_BASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Never put a service-role key here.
+Only these variables are read by the browser: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Never put a service-role key here.
 
 ## Layout
 

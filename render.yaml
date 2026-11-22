@@ -14,7 +14,7 @@ services:
       - { key: SUPABASE_URL, sync: false }
       - { key: SUPABASE_SERVICE_ROLE_KEY, sync: false }
       - { key: SUPABASE_JWT_SECRET, sync: false }
-      - { key: CORS_ALLOWED_ORIGINS, sync: false }      # e.g. https://sch-hub-web.onrender.com
+      - { key: CORS_ORIGINS, sync: false }      # e.g. https://sch-international-students-hub.onrender.com (CORS_ALLOWED_ORIGINS also accepted)
       - { key: EMBEDDING_PROVIDER, value: e5 }
       - { key: EMBEDDING_MODEL, value: intfloat/multilingual-e5-small }
       - { key: RETRIEVAL_MIN_SIMILARITY, value: "0.80" }
@@ -32,7 +32,8 @@ services:
     envVars:
       - { key: NEXT_PUBLIC_SUPABASE_URL, sync: false }
       - { key: NEXT_PUBLIC_SUPABASE_ANON_KEY, sync: false }
-      - { key: NEXT_PUBLIC_API_BASE_URL, sync: false }  # e.g. https://sch-hub-api.onrender.com
+      # Baked into the bundle at BUILD time: after changing it, redeploy (rebuild), not just restart.
+      - { key: NEXT_PUBLIC_API_URL, sync: false }  # e.g. https://sch-hub-api.onrender.com (no trailing /api/v1)
 
   # Optional scheduled sync (paid Cron Job). Free web services sleep, so the API never schedules work itself.
   # - type: cron

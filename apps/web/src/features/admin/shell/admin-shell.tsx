@@ -69,7 +69,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               <li>{t("notConfiguredStep1")}</li>
               <li>
                 {t("notConfiguredStep2")} <code>NEXT_PUBLIC_SUPABASE_URL</code>, <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code>,{" "}
-                <code>NEXT_PUBLIC_API_BASE_URL</code>
+                <code>NEXT_PUBLIC_API_URL</code>
               </li>
               <li>{t("notConfiguredStep3")}</li>
             </ol>
