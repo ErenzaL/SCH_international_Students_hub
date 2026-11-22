@@ -20,6 +20,7 @@ export function isAdminRole(role: Role) {
 export const ADMIN_NAV = [
   { href: "/admin", key: "overview", icon: "LayoutDashboard", roles: ["admin", "super_admin"] },
   { href: "/admin/knowledge-sources", key: "sources", icon: "Database", roles: ["admin", "super_admin"] },
+  { href: "/admin/support", key: "support", icon: "LifeBuoy", roles: ["admin", "super_admin", "supporter"] },
   { href: "/admin/submissions", key: "submissions", icon: "Inbox", roles: ["admin", "super_admin", "supporter"] },
   { href: "/admin/documents", key: "documents", icon: "FileText", roles: ["admin", "super_admin"] },
   { href: "/admin/announcements", key: "announcements", icon: "Megaphone", roles: ["admin", "super_admin", "supporter"] },
@@ -27,6 +28,7 @@ export const ADMIN_NAV = [
   { href: "/admin/review", key: "review", icon: "ClipboardCheck", roles: ["admin", "super_admin"] },
   { href: "/admin/rag-sync", key: "ragSync", icon: "Activity", roles: ["admin", "super_admin"] },
   { href: "/admin/users", key: "users", icon: "Users", roles: ["admin", "super_admin"] },
+  { href: "/admin/language-teams", key: "languageTeams", icon: "UsersRound", roles: ["admin", "super_admin", "supporter"] },
   { href: "/admin/settings", key: "settings", icon: "Settings", roles: ["admin", "super_admin"] },
 ] as const;
 

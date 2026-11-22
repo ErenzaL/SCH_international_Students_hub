@@ -45,7 +45,7 @@ class PublicService:
         if not announcement_ids:
             return {}
         rows, _ = self.store.select("announcement_translations", Query(
-            in_={"announcement_id": announcement_ids}, eq={"translation_status": "human_approved"},
+            in_={"announcement_id": announcement_ids}, eq={"translation_status": "human_approved", "is_outdated": False},
             cols="announcement_id,language_code"))
         out: dict[str, list[str]] = {}
         for r in rows:
@@ -154,7 +154,7 @@ class PublicService:
             return []
         docs, _ = self.store.select("source_documents", Query(
             in_={"source_id": list(sources)}, eq={"is_canceled": False}, neq={"document_type": "announcement"},
-            is_null={"current_version_id": False}))
+            is_null={"current_version_id": False, "archived_at": True}))
         return [{**d, "_category": sources[d["source_id"]]["category"]} for d in docs]
 
     def list_documents(self, *, q: str | None, category: str | None, scope: str | None, page: int, size: int,
@@ -166,7 +166,7 @@ class PublicService:
             return [], 0
         docs, total = self.store.select("source_documents", Query(
             in_={"source_id": list(sources)}, eq={"is_canceled": False}, neq={"document_type": "announcement"},
-            is_null={"current_version_id": False}, or_ilike=[("title", q)] if q else [],
+            is_null={"current_version_id": False, "archived_at": True}, or_ilike=[("title", q)] if q else [],
             order=[("updated_at", True)], limit=size, offset=(page - 1) * size), count=True)
         versions = get_many(self.store, "document_versions", [d["current_version_id"] for d in docs])
         return [self._doc_summary(d, sources[d["source_id"]], versions.get(d["current_version_id"], {}))
@@ -187,7 +187,8 @@ class PublicService:
 
     def get_document(self, document_id: str) -> dict[str, Any]:
         d = get_one(self.store, "source_documents", id=document_id)
-        if d is None or d["is_canceled"] or not d["current_version_id"] or d["document_type"] == "announcement":
+        if d is None or d["is_canceled"] or d.get("archived_at") or not d["current_version_id"] \
+                or d["document_type"] == "announcement":
             raise NotFound("Document not found.")
         s = get_one(self.store, "knowledge_sources", id=d["source_id"])
         if s is None or not s["is_active"] or s["authority_type"] == "supporter_submitted" \

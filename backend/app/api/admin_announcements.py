@@ -9,6 +9,7 @@ from app.schemas.api import (
     Lang,
     NoteBody,
     ReasonBody,
+    TranslationApprove,
     TranslationUpsert,
 )
 from app.security.auth import AuthUser, require_admin, require_staff
@@ -40,7 +41,9 @@ def get_announcement(announcement_id: str, svc: Services = Depends(get_services)
 @router.patch("/announcements/{announcement_id}")
 def patch_announcement(announcement_id: str, body: AnnouncementPatch, svc: Services = Depends(get_services),
                        user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
-    return svc.announcements.update(announcement_id, body.model_dump(exclude_unset=True), user)
+    out = svc.announcements.update(announcement_id, body.model_dump(exclude_unset=True), user)
+    svc.translations.mark_outdated(announcement_id, user)  # translations of the old text need re-review
+    return out
 
 
 @router.post("/announcements/{announcement_id}/submit")
@@ -52,7 +55,9 @@ def submit_announcement(announcement_id: str, svc: Services = Depends(get_servic
 @router.post("/announcements/{announcement_id}/approve")
 def approve_announcement(announcement_id: str, body: NoteBody | None = None, svc: Services = Depends(get_services),
                          user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
-    return svc.announcements.approve(announcement_id, user, body.note if body else None)
+    out = svc.announcements.approve(announcement_id, user, body.note if body else None)
+    svc.translations.on_original_published(announcement_id, user)  # per-language tasks + team notifications
+    return out
 
 
 @router.post("/announcements/{announcement_id}/reject")
@@ -73,20 +78,56 @@ def announcement_history(announcement_id: str, svc: Services = Depends(get_servi
     return {"items": svc.announcements.history(announcement_id, user)}
 
 
+def _flat(detail: dict) -> dict:  # type: ignore[type-arg]
+    """Translation fields at the top level (Phase 1 shape) + original / revisions / permissions."""
+    return {**(detail.get("translation") or {}), "original": detail["original"], "revisions": detail["revisions"],
+            "permissions": detail["permissions"], "language": detail["language"]}
+
+
+@router.get("/announcements/{announcement_id}/translations/{language}")
+def get_translation(announcement_id: str, language: Lang, svc: Services = Depends(get_services),
+                    user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
+    """Original + translation side by side, revision history and the caller's permissions for the language."""
+    return svc.translations.detail(announcement_id, language, user)
+
+
 @router.put("/announcements/{announcement_id}/translations/{language}")
 def save_translation(announcement_id: str, language: Lang, body: TranslationUpsert,
                      svc: Services = Depends(get_services), user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
-    return svc.announcements.upsert_translation(announcement_id, language, body.model_dump(), user)
+    """Save a draft (translation_status=machine_draft) or submit it for review (in_review)."""
+    return _flat(svc.translations.save(announcement_id, language, body.model_dump(), user))
 
 
 @router.post("/announcements/{announcement_id}/translations/{language}/approve")
-def approve_translation(announcement_id: str, language: Lang, svc: Services = Depends(get_services),
-                        user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
-    return svc.announcements.approve_translation(announcement_id, language, user)
+def approve_translation(announcement_id: str, language: Lang, body: TranslationApprove,
+                        svc: Services = Depends(get_services), user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
+    """Reviewer approval = publication for this language. Requires original_verified=true."""
+    return _flat(svc.translations.approve(announcement_id, language, user, body.original_verified, body.note))
+
+
+@router.post("/announcements/{announcement_id}/translations/{language}/reject")
+def reject_translation(announcement_id: str, language: Lang, body: ReasonBody, svc: Services = Depends(get_services),
+                       user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
+    return _flat(svc.translations.reject(announcement_id, language, user, body.reason))
+
+
+@router.post("/announcements/{announcement_id}/translations/{language}/request-changes")
+def request_translation_changes(announcement_id: str, language: Lang, body: ReasonBody,
+                                svc: Services = Depends(get_services), user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
+    return _flat(svc.translations.request_changes(announcement_id, language, user, body.reason))
+
+
+@router.get("/announcements/{announcement_id}/translations/{language}/share-text")
+def translation_share_text(announcement_id: str, language: Lang, svc: Services = Depends(get_services),
+                           user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
+    """Approved translation formatted for posting in the language's KakaoTalk group (copy-paste; nothing is sent)."""
+    return svc.translations.share_text(announcement_id, language, user)
 
 
 @router.get("/translations")
-def list_translations(status: str | None = None, language: Lang | None = None, pg: Pagination = Depends(),
-                      svc: Services = Depends(get_services), user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
-    items, total = svc.announcements.list_translations(user, status, language, pg.page, pg.page_size)
+def list_translations(status: str | None = None, language: Lang | None = None, outdated: bool | None = None,
+                      pg: Pagination = Depends(), svc: Services = Depends(get_services),
+                      user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
+    """Translation tasks in the caller's assigned languages only."""
+    items, total = svc.translations.tasks(user, status, language, outdated, pg.page, pg.page_size)
     return pg.wrap(items, total)

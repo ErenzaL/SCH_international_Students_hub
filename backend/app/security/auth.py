@@ -33,6 +33,9 @@ class AuthUser:
     display_name: str | None = None
     preferred_language: str = "en"
     languages: list[str] = field(default_factory=list)
+    # per-language team permissions: {"id": {"support": True, "review": False, "lead": False}}
+    perms: dict[str, dict[str, bool]] = field(default_factory=dict)
+    preferred_language_confirmed: bool = False
 
     @property
     def is_admin(self) -> bool:
@@ -134,9 +137,15 @@ def get_current_user(
     if profile is None:
         raise Forbidden("No profile exists for this account.", code="no_profile")
     langs: list[str] = []
-    if profile["role"] == "supporter":
+    perms: dict[str, dict[str, bool]] = {}
+    # language permissions only count while the user holds a staff role (a demotion revokes them at once)
+    if profile["role"] in ("supporter", "admin"):
         rows, _ = store.select("supporter_languages", Query(eq={"supporter_id": profile["id"]}))
-        langs = sorted(r["language_code"] for r in rows)
+        for r in rows:
+            lead = bool(r.get("is_team_lead", False))
+            perms[r["language_code"]] = {"support": bool(r.get("can_support", True)) or lead,
+                                         "review": bool(r.get("can_review_translations", False)) or lead, "lead": lead}
+        langs = sorted(perms)
     return AuthUser(
         id=profile["id"],
         email=profile.get("email") or claims.get("email"),
@@ -144,6 +153,8 @@ def get_current_user(
         display_name=profile.get("display_name"),
         preferred_language=profile.get("preferred_language") or "en",
         languages=langs,
+        perms=perms,
+        preferred_language_confirmed=bool(profile.get("preferred_language_confirmed", False)),
     )
 
 

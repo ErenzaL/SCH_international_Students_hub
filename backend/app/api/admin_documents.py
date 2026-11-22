@@ -9,8 +9,8 @@ from app.api.deps import Pagination, get_services
 from app.core.errors import NotFound
 from app.repositories.base import Query as DbQuery
 from app.repositories.base import get_many, get_one
-from app.schemas.api import NoteBody, NoteRequired, ReasonBody, RollbackBody, VersionPatch
-from app.security.auth import AuthUser, require_admin, require_staff
+from app.schemas.api import DocumentDelete, NoteBody, NoteRequired, ReasonBody, RollbackBody, VersionPatch
+from app.security.auth import AuthUser, require_admin, require_staff, require_super_admin
 from app.services.container import Services
 
 router = APIRouter(prefix="/api/v1/admin", tags=["admin: documents & review"])
@@ -19,6 +19,7 @@ router = APIRouter(prefix="/api/v1/admin", tags=["admin: documents & review"])
 @router.get("/documents")
 def list_documents(source_id: str | None = None, has_pending: bool = False,
                    review_status: Literal["pending_review", "draft", "open"] | None = None,
+                   lifecycle: Literal["active", "archived", "withdrawn"] | None = None,
                    q: str | None = Query(None, max_length=200),
                    pg: Pagination = Depends(), svc: Services = Depends(get_services),
                    _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
@@ -31,8 +32,16 @@ def list_documents(source_id: str | None = None, has_pending: bool = False,
         pend, _c = svc.store.select("document_versions", DbQuery(in_={"verification_status": statuses},
                                                                 cols="id,document_id"))
         in_["id"] = list({p["document_id"] for p in pend}) or ["00000000-0000-0000-0000-000000000000"]
+    is_null: dict[str, bool] = {}
+    if lifecycle == "archived":
+        is_null["archived_at"] = False
+    elif lifecycle == "withdrawn":
+        eq["is_canceled"] = True
+    elif lifecycle == "active":
+        eq["is_canceled"] = False
+        is_null["archived_at"] = True
     rows, total = svc.store.select("source_documents", DbQuery(
-        eq=eq, in_=in_, or_ilike=[("title", q)] if q else [], order=[("created_at", True)], limit=pg.page_size,
+        eq=eq, in_=in_, is_null=is_null, or_ilike=[("title", q)] if q else [], order=[("created_at", True)], limit=pg.page_size,
         offset=(pg.page - 1) * pg.page_size), count=True)
     sources = get_many(svc.store, "knowledge_sources", [r["source_id"] for r in rows])
     versions, _c = svc.store.select("document_versions", DbQuery(
@@ -74,6 +83,53 @@ def cancel(document_id: str, body: ReasonBody, svc: Services = Depends(get_servi
                              f"Removed from search and the Knowledge Center: {body.reason}", severity="warning",
                              entity_type="source_document", entity_id=document_id, link=f"/admin/documents/{document_id}")
     return svc.review.document_detail(document_id, svc.sources.view)
+
+
+@router.post("/documents/{document_id}/archive")
+def archive(document_id: str, body: ReasonBody, svc: Services = Depends(get_services),
+            user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """Reversible: removed from search and the Knowledge Center, kept with full history."""
+    if get_one(svc.store, "source_documents", id=document_id) is None:
+        raise NotFound("Document not found.")
+    svc.lifecycle.archive(document_id, user, body.reason)
+    return svc.review.document_detail(document_id, svc.sources.view)
+
+
+@router.post("/documents/{document_id}/restore")
+def restore(document_id: str, body: NoteBody | None = None, svc: Services = Depends(get_services),
+            user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """Undo archive / withdrawal: the last approved version becomes searchable again."""
+    if get_one(svc.store, "source_documents", id=document_id) is None:
+        raise NotFound("Document not found.")
+    svc.lifecycle.restore(document_id, user, body.note if body else None)
+    return svc.review.document_detail(document_id, svc.sources.view)
+
+
+@router.get("/documents/{document_id}/deletion-check")
+def deletion_check(document_id: str, svc: Services = Depends(get_services),
+                   _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """What a permanent deletion would remove, what blocks it, and the recommended (reversible) alternative."""
+    return svc.lifecycle.check(document_id)
+
+
+@router.post("/documents/{document_id}/delete")
+def delete_document(document_id: str, body: DocumentDelete, svc: Services = Depends(get_services),
+                    user: AuthUser = Depends(require_super_admin)) -> dict:  # type: ignore[type-arg]
+    """Permanent deletion (super_admin; DB-enforced eligibility; audited tombstone; re-import blocked)."""
+    return svc.lifecycle.delete(document_id, user, body.reason, body.confirm_title)
+
+
+@router.get("/sources/{source_id}/suppressions")
+def suppressions(source_id: str, svc: Services = Depends(get_services),
+                 _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    return {"items": svc.lifecycle.suppressions(source_id)}
+
+
+@router.delete("/sources/{source_id}/suppressions/{suppression_id}", status_code=204)
+def lift_suppression(source_id: str, suppression_id: int, svc: Services = Depends(get_services),
+                     user: AuthUser = Depends(require_admin)) -> None:
+    """Allow a deliberately deleted document to be imported again by future syncs."""
+    svc.lifecycle.lift_suppression(source_id, suppression_id, user)
 
 
 @router.get("/versions/{version_id}")

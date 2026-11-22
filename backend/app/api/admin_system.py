@@ -99,19 +99,24 @@ def update_role(user_id: str, body: RoleUpdate, svc: Services = Depends(get_serv
     updated = svc.store.update("profiles", {"role": body.role}, {"id": user_id})[0]
     svc.store.insert("audit_log", dict(action="user.role_change", entity_type="profile", entity_id=user_id,
                                        actor_id=actor.id, details={"from": target["role"], "to": body.role}))
+    if body.role not in ("supporter", "admin", "super_admin"):
+        # access is already revoked (permissions require a staff role); hand their open tickets back to the queue
+        svc.support.release_for(user_id, actor)
     langs, _n = svc.store.select("supporter_languages", DbQuery(eq={"supporter_id": user_id}))
     return _user_view(updated, [x["language_code"] for x in langs])
 
 
 @router.put("/users/{user_id}/languages")
 def update_languages(user_id: str, body: LanguagesUpdate, svc: Services = Depends(get_services),
-                     actor: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+                     actor: AuthUser = Depends(require_super_admin)) -> dict:  # type: ignore[type-arg]
+    """Simple form: support permission for each language (use PUT /admin/users/{id}/team for review / lead)."""
     target = get_one(svc.store, "profiles", id=user_id)
     if target is None:
         raise NotFound("User not found.")
     langs = sorted(set(body.languages))
     svc.store.delete("supporter_languages", {"supporter_id": user_id})
-    svc.store.insert_many("supporter_languages", [dict(supporter_id=user_id, language_code=lang) for lang in langs])
+    svc.store.insert_many("supporter_languages", [dict(supporter_id=user_id, language_code=lang, assigned_by=actor.id)
+                                                  for lang in langs])
     svc.store.insert("audit_log", dict(action="user.languages_change", entity_type="profile", entity_id=user_id,
                                        actor_id=actor.id, details={"languages": langs}))
     return _user_view(target, langs)

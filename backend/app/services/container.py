@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from app.core.config import Settings
 from app.repositories.base import FileStorage, Store
 from app.services.announcements import AnnouncementService
+from app.services.conversations import ConversationService
 from app.services.domains import DomainPolicy
 from app.services.embeddings.base import EmbeddingProvider
 from app.services.indexing import IndexingService
@@ -14,12 +15,14 @@ from app.services.ingestion.pipeline import IngestionService
 from app.services.intake import IntakeService
 from app.services.jobs import JobRunner
 from app.services.llm.base import LLMProvider
-from app.services.notifications import NotificationService
+from app.services.notifications import NotificationService, UserNotificationService
 from app.services.ocr.providers import OCRProvider, build_ocr_provider
 from app.services.public import PublicService
 from app.services.retrieval.service import RetrievalService
-from app.services.review import ReviewService
+from app.services.review import DocumentLifecycleService, ReviewService
 from app.services.sources import SourceService
+from app.services.support import SupportService
+from app.services.translations import TranslationReviewService
 
 
 @dataclass
@@ -41,6 +44,11 @@ class Services:
     intake: IntakeService
     jobs: JobRunner
     notifications: NotificationService
+    user_notifications: UserNotificationService
+    conversations: ConversationService
+    support: SupportService
+    translations: TranslationReviewService
+    lifecycle: DocumentLifecycleService
 
 
 def build_services(settings: Settings, store: Store, storage: FileStorage | None, embedder: EmbeddingProvider,
@@ -53,11 +61,17 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     ocr = ocr or build_ocr_provider(settings)
     notifications = NotificationService(store)
     ingestion = IngestionService(store, storage, settings, indexer, fetcher, ocr, notifications=notifications)
+    user_notes = UserNotificationService(store)
+    retrieval = RetrievalService(store, embedder, settings)
+    conversations = ConversationService(store, retrieval, retention_days=settings.conversation_retention_days)
+    support = SupportService(store, conversations, user_notes, retention_days=settings.support_retention_days)
     return Services(
         settings=settings, store=store, storage=storage, embedder=embedder, llm=llm, indexer=indexer,
         ingestion=ingestion, review=ReviewService(store, indexer, storage), announcements=announcements,
-        public=PublicService(store, announcements), retrieval=RetrievalService(store, embedder, settings),
+        public=PublicService(store, announcements), retrieval=retrieval,
         sources=SourceService(store, settings, domains), domains=domains, ocr=ocr,
         intake=IntakeService(store, storage, settings, ingestion, ocr), jobs=JobRunner(store, ingestion, settings),
-        notifications=notifications,
+        notifications=notifications, user_notifications=user_notes, conversations=conversations, support=support,
+        translations=TranslationReviewService(store, announcements, user_notes),
+        lifecycle=DocumentLifecycleService(store, storage),
     )

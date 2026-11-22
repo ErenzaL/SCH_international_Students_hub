@@ -141,6 +141,10 @@ class ReviewService:
             pending_status=pending["verification_status"] if pending else None,
             latest_version_number=max((v["version_number"] for v in versions), default=0),
             is_canceled=doc["is_canceled"], created_at=doc["created_at"], updated_at=doc.get("updated_at"),
+            canceled_at=doc.get("canceled_at"), canceled_reason=doc.get("canceled_reason"),
+            archived_at=doc.get("archived_at"), archive_reason=doc.get("archive_reason"),
+            lifecycle="withdrawn" if doc["is_canceled"] else "archived" if doc.get("archived_at") else
+            ("published" if doc["current_version_id"] else "unpublished"),
         )
 
     def history(self, document_id: str) -> list[dict[str, Any]]:
@@ -293,3 +297,60 @@ class ReviewService:
             raise InvalidState("Private file storage is not configured.")
         return self.storage.download(f["storage_path"]), f.get("mime_type") or "application/octet-stream", \
             f.get("filename") or "original"
+
+
+class DocumentLifecycleService:
+    """Archive / withdraw / restore (reversible) and guarded permanent deletion (super_admin, DB-enforced)."""
+
+    def __init__(self, store: Store, storage: FileStorage | None):
+        self.store = store
+        self.storage = storage
+
+    def archive(self, document_id: str, actor: AuthUser, reason: str) -> None:
+        self.store.rpc("archive_document", dict(p_document_id=document_id, p_actor=actor.id, p_reason=reason))
+
+    def restore(self, document_id: str, actor: AuthUser, note: str | None) -> None:
+        self.store.rpc("restore_document", dict(p_document_id=document_id, p_actor=actor.id, p_note=note))
+
+    def check(self, document_id: str) -> dict[str, Any]:
+        if get_one(self.store, "source_documents", id=document_id) is None:
+            raise NotFound("Document not found.")
+        out = self.store.rpc("document_delete_check", {"p_document_id": document_id}) or {}
+        out["recommended_action"] = "archive" if out.get("approved_versions") else "delete"
+        return out
+
+    def delete(self, document_id: str, actor: AuthUser, reason: str, confirm_title: str) -> dict[str, Any]:
+        """Database deletion is atomic and audited; private files are removed afterwards (best effort, reported)."""
+        if get_one(self.store, "source_documents", id=document_id) is None:
+            raise NotFound("Document not found.")
+        result = self.store.rpc("delete_document", dict(p_document_id=document_id, p_actor=actor.id, p_reason=reason,
+                                                        p_confirm_title=confirm_title)) or {}
+        removed, failed = [], []
+        for path in result.get("storage_files") or []:
+            try:
+                if self.storage is None:
+                    raise RuntimeError("storage not configured")
+                self.storage.remove(path)
+                removed.append(path)
+            except Exception:  # noqa: BLE001 - the document is gone; report leftovers instead of failing
+                failed.append(path)
+        if removed or failed:
+            self.store.insert("audit_log", dict(action="document.storage_cleanup", entity_type="source_document",
+                                                entity_id=document_id, actor_id=actor.id,
+                                                details={"removed": len(removed), "failed": failed}))
+        return dict(deleted=True, title=result.get("title"), versions=result.get("versions", 0),
+                    chunks=result.get("chunks", 0), files_removed=len(removed), files_failed=failed,
+                    reimport_blocked=bool(result.get("suppress_reimport")))
+
+    def suppressions(self, source_id: str) -> list[dict[str, Any]]:
+        rows, _ = self.store.select("document_suppressions", Query(eq={"source_id": source_id}, order=[("created_at", True)]))
+        return rows
+
+    def lift_suppression(self, source_id: str, suppression_id: int, actor: AuthUser) -> None:
+        row = get_one(self.store, "document_suppressions", id=suppression_id)
+        if row is None or row["source_id"] != source_id:
+            raise NotFound("Suppression not found.")
+        self.store.delete("document_suppressions", {"id": suppression_id})
+        self.store.insert("audit_log", dict(action="document.reimport_allowed", entity_type="knowledge_source",
+                                            entity_id=source_id, actor_id=actor.id,
+                                            details={k: row.get(k) for k in ("canonical_url", "external_id", "title")}))

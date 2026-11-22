@@ -15,8 +15,10 @@ create table if not exists auth.users (
   email text,
   raw_user_meta_data jsonb default '{}'::jsonb
 );
+-- same definition as Supabase: legacy per-claim setting, else the JSON claims PostgREST v10+ sets
 create or replace function auth.uid() returns uuid language sql stable as
-$$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
+$$ select coalesce(nullif(current_setting('request.jwt.claim.sub', true), ''),
+                   (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub'))::uuid $$;
 create or replace function auth.role() returns text language sql stable as
 $$ select coalesce(nullif(current_setting('request.jwt.claim.role', true), ''), current_user) $$;
 

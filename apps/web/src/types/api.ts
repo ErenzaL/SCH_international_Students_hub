@@ -45,8 +45,10 @@ export type PublicationStatus =
   | "canceled";
 export type AnnouncementStatus = "active" | "upcoming" | "expired";
 export type TranslationStatus =
+  | "todo"
   | "machine_draft"
   | "in_review"
+  | "changes_requested"
   | "human_approved"
   | "rejected";
 export type Role = "super_admin" | "admin" | "supporter" | "student";
@@ -192,6 +194,7 @@ export interface Me {
   display_name: string | null;
   role: Role;
   preferred_language: LanguageCode;
+  preferred_language_confirmed?: boolean;
   languages: LanguageCode[];
   is_staff: boolean;
 }
@@ -330,6 +333,44 @@ export interface JobAccepted {
   status: JobStatus;
 }
 
+export type DocumentLifecycle = "published" | "unpublished" | "archived" | "withdrawn";
+export type LifecycleFilter = "active" | "archived" | "withdrawn";
+
+export interface DeletionCheck {
+  eligible: boolean;
+  blockers: string[];
+  title: string;
+  versions: number;
+  approved_versions: number;
+  chunks: number;
+  storage_files: string[];
+  is_published: boolean;
+  is_archived: boolean;
+  is_withdrawn: boolean;
+  suppress_reimport: boolean;
+  recommended_action: "archive" | "delete";
+}
+
+export interface DeletionResult {
+  deleted: boolean;
+  title: string;
+  versions: number;
+  chunks: number;
+  files_removed: number;
+  files_failed: string[];
+  reimport_blocked: boolean;
+}
+
+export interface DocumentSuppression {
+  id: number;
+  canonical_url: string | null;
+  external_id: string | null;
+  title: string | null;
+  reason: string | null;
+  suppressed_by: string | null;
+  created_at: string;
+}
+
 export interface DocumentItem {
   id: string;
   source_id: string;
@@ -345,6 +386,11 @@ export interface DocumentItem {
   latest_version_number: number | null;
   is_canceled: boolean;
   created_at: string;
+  lifecycle?: DocumentLifecycle;
+  archived_at?: string | null;
+  archive_reason?: string | null;
+  canceled_at?: string | null;
+  canceled_reason?: string | null;
   source_type?: SourceType | null;
   authority_type?: AuthorityType | null;
   pending_status?: VerificationStatus | null;
@@ -751,4 +797,242 @@ export interface NotificationList {
   items: AdminNotification[];
   unread: number;
   last_read_at: string | null;
+}
+
+
+// ---------------------------------------------------------------- 0008: support, AI history, translation review
+export interface UserNotification {
+  id: number;
+  kind: string;
+  title: string;
+  body: string | null;
+  entity_type: string | null;
+  entity_id: string | null;
+  link: string | null;
+  read_at: string | null;
+  created_at: string;
+}
+export interface UserNotificationList {
+  items: UserNotification[];
+  unread: number;
+}
+
+export interface Conversation {
+  id: string;
+  title: string;
+  language: LanguageCode;
+  is_private: boolean;
+  message_count: number;
+  last_message_at: string | null;
+  last_message_preview: string | null;
+  created_at: string;
+  updated_at: string | null;
+}
+export type HandoffReason = "no_evidence" | "asked_for_human" | "individual_decision" | "disputed_answer";
+export interface ConversationCitation {
+  n: number;
+  document_id: string | null;
+  version_id: string | null;
+  chunk_id: string | null;
+  document_title: string | null;
+  heading: string | null;
+  source_url: string | null;
+  organization: string | null;
+  authority_type: AuthorityType | null;
+  verified_at: string | null;
+  is_stale: boolean | null;
+  page: number | null;
+  similarity: number | null;
+}
+export interface ConversationMessage {
+  id: string;
+  conversation_id?: string;
+  role: "user" | "assistant";
+  content: string;
+  language: LanguageCode;
+  citations: ConversationCitation[];
+  metadata: {
+    offer_handoff?: boolean;
+    handoff_reasons?: HandoffReason[];
+    evidence?: number;
+    retrieval_mode?: string;
+    answer_generation?: string;
+    warning?: string | null;
+  };
+  created_at: string;
+}
+export interface ConversationDetail extends Conversation {
+  messages: ConversationMessage[];
+}
+export interface AskResponse {
+  user_message: ConversationMessage;
+  assistant_message: ConversationMessage;
+  conversation: Conversation;
+}
+
+export type TicketStatus = "waiting" | "assigned" | "open" | "waiting_for_student" | "resolved";
+export type TicketPriority = "low" | "normal" | "high" | "urgent";
+export interface SharedContextItem {
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+  citations?: { document_title: string | null; source_url: string | null }[];
+}
+export interface TicketMessage {
+  id: string;
+  author_role: "student" | "supporter" | "admin" | "system";
+  kind: "message" | "info_request" | "status" | "system";
+  body: string;
+  author_name: string | null;
+  created_at: string;
+}
+export interface SupportTicket {
+  id: string;
+  ticket_number: number;
+  language: LanguageCode;
+  subject: string;
+  summary: string;
+  priority: TicketPriority;
+  status: TicketStatus;
+  status_message: string;
+  assigned_supporter: { display_name: string } | null;
+  team: string;
+  shared_context: SharedContextItem[];
+  consent_at: string;
+  context_withdrawn_at: string | null;
+  escalated: boolean;
+  created_at: string;
+  updated_at: string | null;
+  last_message_at: string | null;
+  resolved_at: string | null;
+  satisfaction: number | null;
+  satisfaction_comment: string | null;
+  messages?: TicketMessage[];
+  // staff view only
+  assigned_to?: string | null;
+  assigned_at?: string | null;
+  accepted_at?: string | null;
+  escalation_reason?: string | null;
+  student_display_name?: string | null;
+  student_preferred_language?: LanguageCode | null;
+  is_mine?: boolean;
+  can_manage?: boolean;
+}
+export interface InboxItem {
+  id: string;
+  ticket_number: number;
+  language: LanguageCode;
+  subject: string;
+  priority: TicketPriority;
+  status: TicketStatus;
+  created_at: string;
+  last_message_at: string | null;
+  escalated: boolean;
+  assigned_to: string | null;
+  assigned_to_name: string | null;
+  is_mine: boolean;
+  can_open: boolean;
+}
+export type InboxView = "queue" | "mine" | "assigned" | "open" | "waiting" | "resolved" | "team";
+export interface InboxResponse extends Page<InboxItem> {
+  counts: { queue: number; assigned: number; open: number; waiting_for_student: number; resolved: number };
+  languages: LanguageCode[];
+  lead_languages: LanguageCode[];
+}
+export interface TransferTarget {
+  id: string;
+  display_name: string | null;
+  is_available: boolean;
+}
+export interface AgentStatus {
+  supporter_id?: string;
+  is_available: boolean;
+  max_active_tickets: number;
+}
+export interface TicketCreateBody {
+  language: LanguageCode;
+  subject: string;
+  summary: string;
+  conversation_id?: string;
+  message_ids: string[];
+  additional_message?: string;
+  consent: boolean;
+}
+
+export interface TeamMember {
+  user_id: string;
+  display_name: string | null;
+  email: string | null;
+  role: Role;
+  can_support: boolean;
+  can_review_translations: boolean;
+  is_team_lead: boolean;
+  is_available: boolean;
+}
+export interface LanguageTeam {
+  language: LanguageCode;
+  members: TeamMember[];
+  waiting: number;
+  active: number;
+}
+export interface LanguageTeams {
+  items: LanguageTeam[];
+  can_manage_members: boolean;
+}
+export interface TeamAssignment {
+  language: LanguageCode;
+  can_support: boolean;
+  can_review_translations: boolean;
+  is_team_lead: boolean;
+}
+
+export interface TranslationView extends Translation {
+  is_outdated: boolean;
+  published: boolean;
+  review_note: string | null;
+  last_edited_by: string | null;
+  last_edited_by_name: string | null;
+  last_edited_at: string | null;
+  submitted_at: string | null;
+  original_verified_at: string | null;
+  updated_at?: string | null;
+}
+export interface TranslationTask extends TranslationView {
+  announcement_title: string;
+  announcement_status: PublicationStatus;
+  original_language: LanguageCode;
+  can_edit: boolean;
+  can_review: boolean;
+}
+export interface TranslationOriginal {
+  announcement_id: string;
+  title: string;
+  body: string;
+  language: LanguageCode;
+  publication_status: PublicationStatus;
+  version_id: string | null;
+  content_hash: string;
+  category: string;
+  deadline: string | null;
+  event_date: string | null;
+  is_test_data: boolean;
+}
+export interface TranslationRevision {
+  id: number;
+  action: "save" | "submit" | "approve" | "reject" | "request_changes" | "outdated";
+  translation_status: TranslationStatus;
+  title: string | null;
+  body: string | null;
+  note: string | null;
+  actor_id: string | null;
+  actor_name: string | null;
+  source_content_hash: string | null;
+  created_at: string;
+}
+export interface TranslationDetail {
+  original: TranslationOriginal;
+  translation: TranslationView | null;
+  revisions: TranslationRevision[];
+  permissions: { can_edit: boolean; can_review: boolean };
+  language: LanguageCode;
 }

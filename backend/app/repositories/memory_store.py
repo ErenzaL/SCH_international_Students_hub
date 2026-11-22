@@ -20,11 +20,17 @@ TABLES = (
     "categories", "profiles", "supporter_languages", "knowledge_sources", "source_documents",
     "document_versions", "document_chunks", "ingestion_jobs", "audit_log", "announcements",
     "announcement_translations", "ingestion_events", "allowed_source_domains", "admin_notifications",
-    "notification_reads",
+    "notification_reads", "support_agent_status", "ai_conversations", "ai_messages", "support_tickets",
+    "support_ticket_messages", "support_ticket_assignments", "user_notifications", "translation_revisions",
+    "document_suppressions",
 )
 NO_ID = {"categories", "profiles", "supporter_languages", "audit_log", "ingestion_events", "allowed_source_domains",
-         "admin_notifications", "notification_reads"}
-HAS_UPDATED_AT = {"knowledge_sources", "source_documents", "announcements", "announcement_translations"}
+         "admin_notifications", "notification_reads", "support_agent_status", "support_ticket_assignments",
+         "user_notifications", "translation_revisions", "document_suppressions"}
+SEQ_ID = {"audit_log", "ingestion_events", "admin_notifications", "support_ticket_assignments", "user_notifications",
+          "translation_revisions", "document_suppressions"}
+HAS_UPDATED_AT = {"knowledge_sources", "source_documents", "announcements", "announcement_translations",
+                  "ai_conversations", "support_tickets", "profiles"}
 
 
 def now_iso() -> str:
@@ -49,7 +55,7 @@ class MemoryStore:
         r = copy.deepcopy(row)
         if table not in NO_ID:
             r.setdefault("id", str(uuid.uuid4()))
-        elif table in ("audit_log", "ingestion_events", "admin_notifications") and "id" not in r:
+        elif table in SEQ_ID and "id" not in r:
             self._audit_seq += 1
             r["id"] = self._audit_seq
         d: dict[str, Any] = {
@@ -59,7 +65,10 @@ class MemoryStore:
                                       last_change_at=None),
             "source_documents": dict(is_canceled=False, document_type="webpage", language="ko", current_version_id=None,
                                      canonical_url=None, external_id=None, canceled_at=None, canceled_reason=None,
-                                     metadata={}),
+                                     metadata={}, archived_at=None, archived_by=None, archive_reason=None,
+                                     canceled_by=None),
+            "document_suppressions": dict(canonical_url=None, external_id=None, title=None, reason=None,
+                                          suppressed_by=None),
             "document_versions": dict(verification_status="pending_review", was_approved=False, fetched_at=now_iso(),
                                       source_published_at=None, valid_from=None, valid_until=None, approved_by=None,
                                       approved_at=None, rejected_by=None, rejected_at=None, rejected_reason=None,
@@ -79,18 +88,43 @@ class MemoryStore:
                                   valid_from=None, evidence_note=None, evidence_url=None, created_by=None,
                                   submitted_at=None, approved_by=None, approved_at=None, rejection_reason=None,
                                   canceled_at=None),
-            "announcement_translations": dict(translation_status="machine_draft", reviewed_by=None, reviewed_at=None),
-            "profiles": dict(role="student", preferred_language="en", display_name=None, email=None),
+            "announcement_translations": dict(translation_status="machine_draft", reviewed_by=None, reviewed_at=None,
+                                              source_content_hash=None, is_outdated=False, review_note=None,
+                                              original_verified_by=None, original_verified_at=None,
+                                              last_edited_by=None, last_edited_at=None, submitted_at=None),
+            "profiles": dict(role="student", preferred_language="en", display_name=None, email=None,
+                             preferred_language_confirmed=False),
             "audit_log": dict(details={}, actor_id=None, entity_id=None),
             "ingestion_events": dict(level="info", data={}),
             "allowed_source_domains": dict(note=None, added_by=None),
             "admin_notifications": dict(severity="info", message=None, entity_type=None, entity_id=None, link=None),
+            "supporter_languages": dict(can_support=True, can_review_translations=False, is_team_lead=False,
+                                        assigned_by=None),
+            "support_agent_status": dict(is_available=True, max_active_tickets=10),
+            "ai_conversations": dict(title="New conversation", is_private=False, message_count=0, last_message_at=None,
+                                     last_message_preview=None),
+            "ai_messages": dict(citations=[], metadata={}),
+            "support_tickets": dict(priority="normal", status="waiting", assigned_to=None, assigned_at=None,
+                                    accepted_at=None, source_conversation_id=None, shared_context=[],
+                                    context_withdrawn_at=None, escalated=False, escalation_reason=None,
+                                    escalated_at=None, last_message_at=None, last_student_message_at=None,
+                                    last_staff_message_at=None, resolved_at=None, satisfaction=None,
+                                    satisfaction_comment=None),
+            "support_ticket_messages": dict(kind="message", author_id=None),
+            "support_ticket_assignments": dict(assigned_by=None, reason=None, ended_at=None),
+            "user_notifications": dict(body=None, entity_type=None, entity_id=None, link=None, read_at=None),
+            "translation_revisions": dict(note=None, actor_id=None),
         }.get(table, {})
         for k, v in d.items():
             r.setdefault(k, v)
         if table not in ("categories", "profiles", "supporter_languages"):
             r.setdefault("created_at", now_iso())
         if table in HAS_UPDATED_AT:
+            r.setdefault("updated_at", now_iso())
+        if table == "support_tickets" and "ticket_number" not in r:
+            self._ticket_seq = getattr(self, "_ticket_seq", 1000) + 1
+            r["ticket_number"] = self._ticket_seq
+        if table == "support_agent_status":
             r.setdefault("updated_at", now_iso())
         if table == "profiles":
             r.setdefault("created_at", now_iso())
@@ -111,6 +145,10 @@ class MemoryStore:
             dup(lambda x: x["domain"] == row["domain"])
         elif table == "notification_reads":
             dup(lambda x: x["user_id"] == row["user_id"])
+        elif table == "supporter_languages":
+            dup(lambda x: x["supporter_id"] == row["supporter_id"] and x["language_code"] == row["language_code"])
+        elif table == "support_agent_status":
+            dup(lambda x: x["supporter_id"] == row["supporter_id"])
         elif table == "ingestion_jobs" and row.get("job_type") == "index_version" and row.get("status") in ("queued", "running"):
             vid = (row.get("payload") or {}).get("version_id")
             dup(lambda x: x.get("job_type") == "index_version" and x["status"] in ("queued", "running")
@@ -188,6 +226,8 @@ class MemoryStore:
         with self._lock:
             r = self._defaults(table, row)
             self._check_unique(table, r)
+            if table == "support_tickets":
+                self._check_ticket(r)
             self.t[table].append(r)
             return copy.deepcopy(r)
 
@@ -212,6 +252,8 @@ class MemoryStore:
                         if not v or v["document_id"] != r["id"] or v["verification_status"] != "approved":
                             raise ValidationFailed("current_version_id must reference an approved version")
                     candidate = {**r, **copy.deepcopy(patch)}
+                    if table == "support_tickets":
+                        self._check_ticket(candidate)
                     if table in HAS_UPDATED_AT:
                         candidate["updated_at"] = now_iso()
                     if table == "document_versions" and candidate["verification_status"] in ("draft", "pending_review"):
@@ -224,6 +266,12 @@ class MemoryStore:
 
     def delete(self, table: str, eq: dict[str, Any]) -> None:
         with self._lock:
+            victims = [r for r in self.t[table] if all(r.get(c) == v for c, v in eq.items())]
+            if table == "source_documents" and any(r["id"] != getattr(self, "_deleting", None) for r in victims):
+                raise Forbidden("documents can only be deleted with delete_document() (archive or withdraw instead)")
+            if table == "document_versions" and any(r.get("was_approved") and r["document_id"] != getattr(self, "_deleting", None)
+                                                    for r in victims):
+                raise Forbidden("previously approved versions can only be removed with delete_document()")
             self.t[table] = [r for r in self.t[table] if not all(r.get(c) == v for c, v in eq.items())]
             if table == "document_versions":
                 ids = {r["id"] for r in self.t[table]}
@@ -360,7 +408,7 @@ class MemoryStore:
         d = self._doc(p_document_id)
         if not d:
             raise NotFound("document not found")
-        d.update(is_canceled=True, canceled_at=now_iso(), canceled_reason=p_reason)
+        d.update(is_canceled=True, canceled_at=now_iso(), canceled_reason=p_reason, canceled_by=p_actor)
         for a in self.t["announcements"]:
             if a["document_id"] == d["id"] and a["publication_status"] == "published":
                 a.update(publication_status="canceled", canceled_at=now_iso())
@@ -503,6 +551,81 @@ class MemoryStore:
                 source_published_at=v["source_published_at"], verified_at=v["approved_at"], language=d["language"]))
         return out
 
+    @staticmethod
+    def _check_ticket(t: Row) -> None:
+        if t["status"] in ("assigned", "open", "waiting_for_student") and not t.get("assigned_to"):
+            raise ValidationFailed("assigned_status_has_assignee")
+        if t.get("satisfaction") is not None and t["status"] != "resolved":
+            raise ValidationFailed("feedback_after_resolution")
+
+    def _active_load(self, sid: str) -> int:
+        return sum(1 for x in self.t["support_tickets"] if x.get("assigned_to") == sid
+                   and x["status"] in ("assigned", "open", "waiting_for_student"))
+
+    def _rpc_route_support_ticket(self, p_ticket_id: str) -> Row:
+        t = next((x for x in self.t["support_tickets"] if x["id"] == p_ticket_id), None)
+        if t is None:
+            raise NotFound("ticket not found")
+        if t["status"] != "waiting":
+            return t
+        profs = {p["id"]: p for p in self.t["profiles"]}
+        status = {s["supporter_id"]: s for s in self.t["support_agent_status"]}
+        cands = []
+        for sl in self.t["supporter_languages"]:
+            sid = sl["supporter_id"]
+            if sl["language_code"] != t["language"] or not sl.get("can_support", True):
+                continue
+            if (profs.get(sid) or {}).get("role") not in ("supporter", "admin") or sid == t["student_id"]:
+                continue
+            st = status.get(sid) or {}
+            if not st.get("is_available", True) or self._active_load(sid) >= st.get("max_active_tickets", 10):
+                continue
+            last = max((a["assigned_at"] for a in self.t["support_ticket_assignments"] if a["supporter_id"] == sid),
+                       default="")
+            cands.append((self._active_load(sid), last, sid))
+        if not cands:
+            return t
+        cands.sort()
+        sid = cands[0][2]
+        t.update(status="assigned", assigned_to=sid, assigned_at=now_iso(), accepted_at=None, updated_at=now_iso())
+        self.t["support_ticket_assignments"].append(self._defaults("support_ticket_assignments", dict(
+            ticket_id=t["id"], supporter_id=sid, reason="automatic routing", assigned_at=now_iso())))
+        self._audit("ticket.assign", "support_ticket", t["id"], None, {"to": sid, "language": t["language"], "by": "router"})
+        return t
+
+    def _rpc_assign_support_ticket(self, p_ticket_id: str, p_supporter: str | None, p_actor: str,
+                                   p_reason: str | None = None, p_expect_waiting: bool = False) -> Row:
+        t = next((x for x in self.t["support_tickets"] if x["id"] == p_ticket_id), None)
+        if t is None:
+            raise NotFound("ticket not found")
+        if p_expect_waiting and t["status"] != "waiting":
+            raise InvalidState("conflict: ticket was already taken")
+        if t["status"] == "resolved":
+            raise InvalidState("invalid_state: reopen the ticket before assigning it")
+        prev = t.get("assigned_to")
+        for a in self.t["support_ticket_assignments"]:
+            if a["ticket_id"] == t["id"] and a.get("ended_at") is None:
+                a["ended_at"] = now_iso()
+        if p_supporter is None:
+            t.update(status="waiting", assigned_to=None, assigned_at=None, accepted_at=None, updated_at=now_iso())
+        else:
+            prof = next((p for p in self.t["profiles"] if p["id"] == p_supporter), None)
+            ok = any(sl["supporter_id"] == p_supporter and sl["language_code"] == t["language"]
+                     and (sl.get("can_support", True) or sl.get("is_team_lead")) for sl in self.t["supporter_languages"]) \
+                and (prof or {}).get("role") in ("supporter", "admin", "super_admin")
+            if not ok and (prof or {}).get("role") != "super_admin":
+                raise Forbidden(f"forbidden: target is not authorized for {t['language']} support")
+            if p_supporter == t["student_id"]:
+                raise Forbidden("forbidden: a ticket cannot be assigned to its own student")
+            t.update(status="assigned", assigned_to=p_supporter, assigned_at=now_iso(), accepted_at=None,
+                     updated_at=now_iso())
+            self.t["support_ticket_assignments"].append(self._defaults("support_ticket_assignments", dict(
+                ticket_id=t["id"], supporter_id=p_supporter, assigned_by=p_actor, reason=p_reason,
+                assigned_at=now_iso())))
+        self._audit("ticket.assign" if prev is None else "ticket.transfer", "support_ticket", t["id"], p_actor,
+                    {"from": prev, "to": p_supporter, "reason": p_reason, "language": t["language"]})
+        return t
+
     # ------------------------------------------------------------- Phase 2
     def _rpc_claim_ingestion_job(self, p_worker: str, p_stale_seconds: int = 900) -> list[Row]:
         now = datetime.now(UTC)
@@ -575,6 +698,8 @@ class MemoryStore:
                 continue
             s = next((s for s in self.t["knowledge_sources"] if s["id"] == d["source_id"]), None)
             if not s or not s["is_active"]:
+                continue
+            if d.get("archived_at"):
                 continue
             if v["valid_from"] and datetime.fromisoformat(v["valid_from"]) > now:
                 continue
@@ -661,6 +786,95 @@ class MemoryStore:
                     {"document_id": v["document_id"], "version_number": v["version_number"], "chunks": len(chunks),
                      "embedding_model": p_model, "requested_at": v.get("activation_requested_at")})
         return v
+
+    def _rpc_archive_document(self, p_document_id: str, p_actor: str, p_reason: str) -> Row:
+        self._assert_admin(p_actor)
+        if not p_reason or len(p_reason.strip()) < 3:
+            raise ValidationFailed("a reason is required")
+        d = self._doc(p_document_id)
+        if not d:
+            raise NotFound("document not found")
+        if d.get("archived_at"):
+            raise InvalidState("already archived")
+        d.update(archived_at=now_iso(), archived_by=p_actor, archive_reason=p_reason)
+        self._audit("document.archive", "source_document", d["id"], p_actor, {"reason": p_reason, "title": d["title"]})
+        return d
+
+    def _rpc_restore_document(self, p_document_id: str, p_actor: str, p_note: str | None = None) -> Row:
+        self._assert_admin(p_actor)
+        d = self._doc(p_document_id)
+        if not d:
+            raise NotFound("document not found")
+        if not d.get("archived_at") and not d["is_canceled"]:
+            raise InvalidState("document is neither archived nor withdrawn")
+        if any(a["document_id"] == d["id"] for a in self.t["announcements"]):
+            raise InvalidState("announcement documents cannot be restored; publish a new announcement")
+        d.update(archived_at=None, archived_by=None, archive_reason=None, is_canceled=False, canceled_at=None,
+                 canceled_reason=None, canceled_by=None)
+        self._refresh_source(d["source_id"])
+        self._audit("document.restore", "source_document", d["id"], p_actor, {"note": p_note})
+        return d
+
+    def _rpc_document_delete_check(self, p_document_id: str) -> Row:
+        d = self._doc(p_document_id)
+        if not d:
+            raise NotFound("document not found")
+        s = next((x for x in self.t["knowledge_sources"] if x["id"] == d["source_id"]), {})
+        vers = [v for v in self.t["document_versions"] if v["document_id"] == d["id"]]
+        vids = {v["id"] for v in vers}
+        blockers = []
+        if any(a["document_id"] == d["id"] for a in self.t["announcements"]):
+            blockers.append("announcement: this document backs an announcement; cancel the announcement instead")
+        published = bool(d["current_version_id"]) and not d["is_canceled"] and not d.get("archived_at")
+        if published:
+            blockers.append("published: withdraw or archive the document first")
+        if any(j["status"] in ("queued", "running") and (j.get("document_id") == d["id"] or (
+                j.get("job_type") == "index_version" and (j.get("payload") or {}).get("version_id") in vids))
+               for j in self.t["ingestion_jobs"]):
+            blockers.append("busy: an ingestion or indexing job for this document is queued or running")
+        files = sorted({(v.get("original_file") or {}).get("storage_path") for v in vers} - {None})
+        return dict(eligible=not blockers, blockers=blockers, title=d["title"], source_id=d["source_id"],
+                    source_type=s.get("source_type"), versions=len(vers),
+                    approved_versions=sum(1 for v in vers if v["was_approved"]),
+                    chunks=sum(1 for c in self.t["document_chunks"] if c["version_id"] in vids), storage_files=files,
+                    is_published=published, is_archived=bool(d.get("archived_at")), is_withdrawn=d["is_canceled"],
+                    suppress_reimport=bool(d.get("canonical_url") or d.get("external_id")))
+
+    def _rpc_delete_document(self, p_document_id: str, p_actor: str, p_reason: str, p_confirm_title: str) -> Row:
+        p = next((x for x in self.t["profiles"] if x["id"] == p_actor), None)
+        if not p or p["role"] != "super_admin":
+            raise Forbidden("forbidden: only a super_admin can permanently delete documents")
+        if not p_reason or len(p_reason.strip()) < 5:
+            raise ValidationFailed("a deletion reason (at least 5 characters) is required")
+        d = self._doc(p_document_id)
+        if not d:
+            raise NotFound("document not found")
+        if (p_confirm_title or "").strip() != d["title"].strip():
+            raise ValidationFailed("confirmation does not match the document title")
+        check = self._rpc_document_delete_check(p_document_id)
+        if not check["eligible"]:
+            raise InvalidState("; ".join(check["blockers"]))
+        vers = [v for v in self.t["document_versions"] if v["document_id"] == d["id"]]
+        self._audit("document.delete", "source_document", d["id"], p_actor, {
+            "reason": p_reason, "title": d["title"], "source_id": d["source_id"], "canonical_url": d.get("canonical_url"),
+            "external_id": d.get("external_id"), "chunks": check["chunks"], "storage_files": check["storage_files"],
+            "versions": [{"version": v["version_number"], "status": v["verification_status"],
+                          "content_hash": v["content_hash"], "approved_by": v.get("approved_by")} for v in vers]})
+        if d.get("canonical_url") or d.get("external_id"):
+            self.t["document_suppressions"].append(self._defaults("document_suppressions", dict(
+                source_id=d["source_id"], canonical_url=d.get("canonical_url"), external_id=d.get("external_id"),
+                title=d["title"], reason=p_reason, suppressed_by=p_actor)))
+        vids = {v["id"] for v in vers}
+        self.t["document_chunks"] = [c for c in self.t["document_chunks"] if c["version_id"] not in vids]
+        self.t["document_versions"] = [v for v in self.t["document_versions"] if v["document_id"] != d["id"]]
+        for j in self.t["ingestion_jobs"]:
+            if j.get("document_id") == d["id"]:
+                j["document_id"] = None
+            if j.get("version_id") in vids:
+                j["version_id"] = None
+        self.t["source_documents"] = [x for x in self.t["source_documents"] if x["id"] != d["id"]]
+        self._refresh_source(d["source_id"])
+        return {**check, "deleted": True}
 
     def _rpc_knowledge_stats(self) -> Row:
         src = self.t["knowledge_sources"]

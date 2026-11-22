@@ -15,6 +15,8 @@ import { EditSourceDialog } from "@/features/admin/knowledge/edit-source-dialog"
 import { DocumentUploadBox } from "@/features/admin/knowledge/intake-document";
 import { JobEvents } from "@/features/admin/knowledge/job-events";
 import { JobSummary, JobTracker } from "@/features/admin/knowledge/job-tracker";
+import { SuppressionsSection } from "@/features/admin/knowledge/suppressions-section";
+import { isAdminRole, useMe } from "@/features/admin/shell/admin-context";
 import { api, errorMessage } from "@/lib/api";
 import { FETCHABLE_SOURCE_TYPES, FILE_SOURCE_TYPES } from "@/lib/constants";
 import { useApi } from "@/lib/use-api";
@@ -28,6 +30,7 @@ export function SourceDetailPage({ id }: { id: string }) {
   const e = useTranslations("enums");
   const locale = useLocale();
   const categoryName = useCategoryName();
+  const me = useMe();
   const [key, setKey] = useState(0);
   const src = useApi<SourceDetail>(`src:${id}:${key}`, () => api.get<SourceDetail>(`/api/v1/admin/sources/${id}`));
   const hist = useApi<SourceHistory>(`src-hist:${id}:${key}`, () => api.get<SourceHistory>(`/api/v1/admin/sources/${id}/history`));
@@ -142,6 +145,7 @@ export function SourceDetailPage({ id }: { id: string }) {
               </Table>
             )}
           </section>
+          <SuppressionsSection sourceId={s.id} canManage={isAdminRole(me.role)} />
         </>
       )}
 

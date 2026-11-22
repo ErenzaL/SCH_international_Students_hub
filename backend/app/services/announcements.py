@@ -94,6 +94,10 @@ class AnnouncementService:
         if public:
             eq["translation_status"] = "human_approved"
         rows, _ = self.store.select("announcement_translations", Query(eq=eq, order=[("language_code", False)]))
+        if public:  # an approved translation of an older original is hidden until it is re-reviewed
+            rows = [r for r in rows if not r.get("is_outdated")]
+        else:
+            rows = [r for r in rows if r["translation_status"] != "todo"]
         names = self._names([r.get("reviewed_by") for r in rows])
         return [dict(
             id=r["id"], announcement_id=r["announcement_id"], language_code=r["language_code"], title=r["title"],

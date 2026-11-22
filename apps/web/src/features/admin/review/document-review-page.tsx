@@ -2,18 +2,22 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { ArrowLeft, CheckCircle2, Loader2, RotateCcw } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ErrorState, LoadingState, PageHeader } from "@/components/shared/states";
+import { ArchiveButton, DeleteDocumentButton, LifecycleBadge, RestoreButton } from "@/features/admin/documents/lifecycle-actions";
 import { DocumentHistory } from "@/features/admin/review/review-extras";
 import { ReviewPanel } from "@/features/admin/review/review-panel";
 import { isAdminRole, useMe } from "@/features/admin/shell/admin-context";
 import { api, errorMessage } from "@/lib/api";
 import { waitForJob } from "@/lib/jobs";
+import { canArchive, canRestore, lifecycleOf } from "@/lib/document-lifecycle";
 import { useApi } from "@/lib/use-api";
+import { formatDateTime } from "@/lib/utils";
 import { activationOutcome, waitForActivation } from "@/lib/version-state";
 import type { ApproveResult, Chunk, DocumentDetail, JobAccepted, Version } from "@/types/api";
 
@@ -28,6 +32,9 @@ export function DocumentReviewPage({ id }: { id: string }) {
   const t2 = useTranslations("admin.review2");
   const c = useTranslations("common");
   const e = useTranslations("enums");
+  const tl = useTranslations("admin.lifecycle");
+  const locale = useLocale();
+  const router = useRouter();
   const me = useMe();
   const [histKey, setHistKey] = useState(0);
   const { data, error, loading, reload } = useApi<DocumentDetail>(`admin-doc:${id}`, () =>
@@ -157,6 +164,42 @@ export function DocumentReviewPage({ id }: { id: string }) {
       {data && (
         <>
           <PageHeader title={data.title} description={t("subtitle")} />
+          <LifecycleBar
+            lifecycle={lifecycleOf(data)}
+            reason={lifecycleOf(data) === "archived" ? data.archive_reason : lifecycleOf(data) === "withdrawn" ? data.canceled_reason : null}
+            at={lifecycleOf(data) === "archived" ? data.archived_at : lifecycleOf(data) === "withdrawn" ? data.canceled_at : null}
+            locale={locale}
+            label={tl("lifecycleLabel")}
+            describe={(lc) => tl(`explain.${lc}`)}
+            sinceLabel={(when, reason) => (reason ? tl("since", { when, reason }) : tl("sinceNoReason", { when }))}
+          >
+            {canArchive(lifecycleOf(data)) && isAdminRole(me.role) && (
+              <ArchiveButton
+                documentId={data.id}
+                title={data.title}
+                onDone={(text) => {
+                  setNotice({ kind: "success", text });
+                  reload();
+                  setHistKey((k) => k + 1);
+                }}
+              />
+            )}
+            {canRestore(lifecycleOf(data)) && isAdminRole(me.role) && (
+              <RestoreButton
+                documentId={data.id}
+                title={data.title}
+                lifecycle={lifecycleOf(data)}
+                onDone={(text) => {
+                  setNotice({ kind: "success", text });
+                  reload();
+                  setHistKey((k) => k + 1);
+                }}
+              />
+            )}
+            {me.role === "super_admin" && (
+              <DeleteDocumentButton documentId={data.id} onFinished={() => router.push("/admin/documents")} />
+            )}
+          </LifecycleBar>
           <ReviewPanel
             detail={data}
             busy={busy}
@@ -231,6 +274,43 @@ export function DocumentReviewPage({ id }: { id: string }) {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function LifecycleBar({
+  lifecycle,
+  reason,
+  at,
+  locale,
+  label,
+  describe,
+  sinceLabel,
+  children,
+}: {
+  lifecycle: ReturnType<typeof lifecycleOf>;
+  reason?: string | null;
+  at?: string | null;
+  locale: string;
+  label: string;
+  describe: (lc: ReturnType<typeof lifecycleOf>) => string;
+  sinceLabel: (when: string, reason?: string | null) => string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section
+      aria-label={label}
+      className="mb-6 flex flex-wrap items-start justify-between gap-3 rounded-xl border border-border bg-card p-4"
+    >
+      <div className="min-w-56 flex-1 space-y-1 text-sm">
+        <div className="flex items-center gap-2">
+          <span className="font-medium">{label}</span>
+          <LifecycleBadge lifecycle={lifecycle} />
+        </div>
+        <p className="text-muted-foreground">{describe(lifecycle)}</p>
+        {at && <p className="text-xs text-muted-foreground">{sinceLabel(formatDateTime(at, locale), reason)}</p>}
+      </div>
+      <div className="flex flex-wrap gap-2">{children}</div>
+    </section>
   );
 }
 

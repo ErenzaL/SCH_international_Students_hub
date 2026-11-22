@@ -4,6 +4,7 @@
     python -m app.cli recover      # mark jobs left 'running' by a dead process as failed
     python -m app.cli prefetch-model     # download the embedding model at build time (no DB needed)
     python -m app.cli reindex-approved   # re-embed approved current versions after an embedding-model change
+    python -m app.cli purge-expired      # delete AI conversations / resolved tickets past the retention period
 
 Free web services sleep, so scheduled syncs are NOT run by the API process; trigger this from an external
 scheduler instead. New content still lands in 'pending_review' (never auto-published).
@@ -26,7 +27,7 @@ log = logging.getLogger("app.cli")
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="app.cli")
-    parser.add_argument("command", choices=["run-due", "recover", "prefetch-model", "reindex-approved"])
+    parser.add_argument("command", choices=["run-due", "recover", "prefetch-model", "reindex-approved", "purge-expired"])
     args = parser.parse_args(argv)
     settings = get_settings()
     configure_logging(settings.log_level)
@@ -44,6 +45,9 @@ def main(argv: list[str] | None = None) -> int:
     store = SupabaseStore(settings)
     svc = build_services(settings, store, SupabaseFileStorage(store, settings.source_files_bucket),
                          build_embedding_provider(settings), build_llm_provider(settings.llm_provider, settings.llm_api_key))
+    if args.command == "purge-expired":
+        print(f"purged: {svc.support.purge_expired()}")
+        return 0
     if args.command == "reindex-approved":
         from app.repositories.base import Query
 

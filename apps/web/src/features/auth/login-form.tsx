@@ -8,8 +8,12 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldError, Input, Label } from "@/components/ui/input";
+import { LanguageSelect } from "@/features/account/language-select";
 import { isSupabaseConfigured } from "@/lib/constants";
+import { saveLocalePreference } from "@/lib/i18n/preference";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { buildSignupMetadata } from "@/lib/signup";
+import type { LanguageCode } from "@/types/api";
 
 /** Only allow same-site relative redirects (prevents open redirects). */
 export function safeNextPath(next: string | undefined | null): string {
@@ -23,6 +27,8 @@ export function LoginForm({ next }: { next?: string }) {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [language, setLanguage] = useState<LanguageCode | "">("");
+  const [displayName, setDisplayName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -52,6 +58,8 @@ export function LoginForm({ next }: { next?: string }) {
     setInfo(null);
     if (!email.includes("@")) return setError(t("errorEmail"));
     if (password.length < 8) return setError(t("errorPassword"));
+    const meta = mode === "signup" ? buildSignupMetadata(language, displayName) : null;
+    if (mode === "signup" && !meta) return setError(t("errorLanguage"));
     const sb = getSupabaseBrowserClient();
     if (!sb) return;
     setBusy(true);
@@ -62,8 +70,10 @@ export function LoginForm({ next }: { next?: string }) {
         router.push(safeNextPath(next));
         router.refresh();
       } else {
-        const { data, error: err } = await sb.auth.signUp({ email, password });
+        // only the language + optional display name are sent; roles are always assigned server-side
+        const { data, error: err } = await sb.auth.signUp({ email, password, options: { data: meta ?? {} } });
         if (err) throw err;
+        if (meta) saveLocalePreference(meta.preferred_language);
         if (data.session) {
           router.push("/");
           router.refresh();
@@ -108,6 +118,36 @@ export function LoginForm({ next }: { next?: string }) {
               required
             />
           </div>
+          {mode === "signup" && (
+            <>
+              <div className="space-y-1.5">
+                <Label htmlFor="signup-language">
+                  {t("supportLanguage")} <span aria-hidden className="text-destructive">*</span>
+                </Label>
+                <LanguageSelect
+                  id="signup-language"
+                  value={language}
+                  onChange={setLanguage}
+                  placeholder={t("chooseLanguage")}
+                  required
+                  aria-describedby="signup-language-help"
+                />
+                <p id="signup-language-help" className="text-xs text-muted-foreground">
+                  {t("supportLanguageHelp")}
+                </p>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="signup-name">{t("displayName")}</Label>
+                <Input
+                  id="signup-name"
+                  autoComplete="nickname"
+                  maxLength={80}
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                />
+              </div>
+            </>
+          )}
           <FieldError>{error}</FieldError>
           {info && <Alert variant="success">{info}</Alert>}
           <Button type="submit" className="w-full" disabled={busy}>

@@ -182,7 +182,12 @@ class AnnouncementPatch(BaseModel):
 class TranslationUpsert(BaseModel):
     title: Title
     body: Annotated[str, StringConstraints(min_length=1, max_length=100_000)]
-    translation_status: Literal["machine_draft", "in_review"] = "in_review"
+    translation_status: Literal["machine_draft", "in_review"] = "in_review"  # machine_draft = save draft
+
+
+class TranslationApprove(BaseModel):
+    original_verified: bool = False
+    note: Annotated[str, StringConstraints(max_length=2000)] | None = None
 
 
 class RoleUpdate(BaseModel):
@@ -289,3 +294,80 @@ class NoteRequired(BaseModel):
 class DomainAdd(BaseModel):
     domain: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=253)]
     note: Annotated[str, StringConstraints(max_length=500)] | None = None
+
+
+# ------------------------------------------------- support, conversations, profile
+class ProfilePatch(BaseModel):
+    preferred_language: Lang | None = None
+    display_name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80)] | None = None
+
+
+class ConversationCreate(BaseModel):
+    language: Lang | None = None   # default: the profile's preferred language
+    title: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)] | None = None
+
+
+class ConversationPatch(BaseModel):
+    title: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)] | None = None
+    is_private: bool | None = None
+    language: Lang | None = None
+
+
+class ConversationMessage(BaseModel):
+    content: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=2000)]
+    language: Lang | None = None   # use another language for this message (the profile is not changed)
+
+
+class TicketCreate(BaseModel):
+    language: Lang | None = None   # default: the profile's preferred language
+    subject: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=200)]
+    summary: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=4000)]
+    conversation_id: str | None = None
+    message_ids: list[str] = Field(default_factory=list, max_length=50)
+    additional_message: Annotated[str, StringConstraints(strip_whitespace=True, max_length=4000)] | None = None
+    consent: bool = False
+
+
+class TicketReply(BaseModel):
+    body: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=8000)]
+
+
+class TicketFeedback(BaseModel):
+    rating: int = Field(ge=1, le=5)
+    comment: Annotated[str, StringConstraints(strip_whitespace=True, max_length=2000)] | None = None
+
+
+class TicketTransfer(BaseModel):
+    to_supporter_id: str | None = None   # null = back to the language queue
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, max_length=500)] | None = None
+
+
+class TicketPriority(BaseModel):
+    priority: Literal["low", "normal", "high", "urgent"]
+
+
+class Availability(BaseModel):
+    is_available: bool
+    max_active_tickets: int | None = Field(default=None, ge=1, le=100)
+
+
+class TeamAssignment(BaseModel):
+    language: Lang
+    can_support: bool = True
+    can_review_translations: bool = False
+    is_team_lead: bool = False
+
+
+class TeamUpdate(BaseModel):
+    assignments: list[TeamAssignment] = Field(max_length=5)
+    is_available: bool | None = None
+    max_active_tickets: int | None = Field(default=None, ge=1, le=100)
+
+
+class NotificationsRead(BaseModel):
+    ids: list[int] | None = Field(default=None, max_length=200)
+
+
+class DocumentDelete(BaseModel):
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=5, max_length=2000)]
+    confirm_title: Annotated[str, StringConstraints(max_length=500)]   # must equal the document title

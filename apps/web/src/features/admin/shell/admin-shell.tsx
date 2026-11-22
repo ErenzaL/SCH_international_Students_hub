@@ -12,16 +12,19 @@ import {
   Inbox,
   Languages,
   LayoutDashboard,
+  LifeBuoy,
   Lock,
   Megaphone,
   Settings,
   Users,
+  UsersRound,
   type LucideIcon,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { ErrorState, LoadingState } from "@/components/shared/states";
 import { NotificationBell } from "@/features/admin/notifications/notification-bell";
+import { UserNotificationBell } from "@/features/notifications/user-notifications";
 import { AdminProvider, isAdminRole, navForRole } from "@/features/admin/shell/admin-context";
 import { api } from "@/lib/api";
 import { isSupabaseConfigured } from "@/lib/constants";
@@ -39,6 +42,8 @@ const ICONS: Record<string, LucideIcon> = {
   Languages,
   ClipboardCheck,
   Users,
+  UsersRound,
+  LifeBuoy,
   Settings,
 };
 
@@ -60,7 +65,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   // Supporters land on the pages they may use.
   useEffect(() => {
-    if (me.data?.role === "supporter" && pathname === "/admin") router.replace("/admin/submissions");
+    if (me.data?.role === "supporter" && pathname === "/admin") router.replace("/admin/support");
   }, [me.data, pathname, router]);
 
   if (!isSupabaseConfigured) {
@@ -158,11 +163,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </p>
         </aside>
         <div className="min-w-0 flex-1">
-          {isAdminRole(user.role) && (
-            <div className="mb-2 flex justify-end">
-              <NotificationBell />
-            </div>
-          )}
+          <div className="mb-2 flex items-center justify-end gap-2">
+            {/* personal notifications (tickets, translation tasks) for every staff member */}
+            <UserNotificationBell userId={user.id} isStaff />
+            {/* system notifications (sync / indexing) for content admins */}
+            {isAdminRole(user.role) && <NotificationBell />}
+          </div>
           {children}
         </div>
       </div>

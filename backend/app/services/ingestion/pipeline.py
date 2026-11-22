@@ -284,7 +284,10 @@ class IngestionService:
                 continue
             key = "items_new" if result["outcome"] == "new_version" else "items_unchanged"
             stats[key] += 1
-            stats["notices"].append({"notice_no": ref.notice_no, "title": notice.title, "outcome": result["outcome"],
+            if result.get("skipped"):
+                stats["items_skipped"] = stats.get("items_skipped", 0) + 1
+            stats["notices"].append({"notice_no": ref.notice_no, "title": notice.title,
+                                     "outcome": "skipped" if result.get("skipped") else result["outcome"],
                                      "document_id": result["document_id"], "version_id": result["version_id"]})
             if result["outcome"] == "new_version" and first_new is None:
                 first_new = result
@@ -461,7 +464,17 @@ class IngestionService:
         text = normalize_text(extracted.text)
         h = content_hash(text)
 
+        skip = self._skip_reason(source, canonical_url, external_id)
+        if skip:
+            self.event(job_id, "skip", skip)
+            return dict(outcome="unchanged", document_id=None, version_id=None, message=skip, changed=False, skipped=True)
         doc = self._find_or_create_document(source, extracted, canonical_url, external_id, document_type, doc_metadata)
+        if doc.get("is_canceled") or doc.get("archived_at"):
+            state = "withdrawn" if doc.get("is_canceled") else "archived"
+            msg = f"Skipped: '{doc['title'][:100]}' is {state}. Restore it to accept new versions."
+            self.event(job_id, "skip", msg)
+            return dict(outcome="unchanged", document_id=doc["id"], version_id=None, message=msg, changed=False,
+                        skipped=True)
         versions, _ = self.store.select("document_versions", Query(eq={"document_id": doc["id"]},
                                                                     order=[("version_number", False)]))
         same = next((v for v in versions if v["content_hash"] == h), None)
@@ -528,6 +541,17 @@ class IngestionService:
             msg += " Embeddings could not be generated yet; use 'Reprocess' before approving."
         return dict(outcome="new_version", document_id=doc["id"], version_id=version["id"], message=msg,
                     warning=index_stats["embedding_error"], changed=True)
+
+    def _skip_reason(self, source: dict[str, Any], canonical_url: str | None, external_id: str | None) -> str | None:
+        """Deliberately deleted website/board documents are never re-imported automatically."""
+        if external_id:
+            hit = get_one(self.store, "document_suppressions", source_id=source["id"], external_id=external_id)
+        elif canonical_url:
+            hit = get_one(self.store, "document_suppressions", source_id=source["id"], canonical_url=canonical_url)
+        else:
+            hit = None
+        return (f"Skipped: '{(hit.get('title') or canonical_url or external_id)[:100]}' was deliberately deleted and "
+                "is blocked from re-import (an admin can allow it again).") if hit else None
 
     def _find_or_create_document(self, source: dict[str, Any], extracted: ExtractedDocument, canonical_url: str | None,
                                  external_id: str | None, document_type: str | None = None,

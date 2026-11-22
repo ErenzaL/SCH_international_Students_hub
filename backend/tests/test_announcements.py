@@ -154,7 +154,9 @@ def test_status_computation_and_filters(env):
 
 
 def test_translations_are_private_until_human_approved(env):
-    env.client.put(f"/api/v1/admin/users/{env.users['supporter']}/languages", headers=env.auth("admin"), json={"languages": ["id"]})
+    r = env.client.put(f"/api/v1/admin/users/{env.users['supporter']}/team", headers=env.auth("super_admin"),
+                       json={"assignments": [{"language": "id", "can_support": True, "can_review_translations": True}]})
+    assert r.status_code == 200, r.text
     a = create(env, submit=True)
     env.client.post(f"/api/v1/admin/announcements/{a['id']}/approve", headers=env.auth("admin"), json={})
     aid = a["id"]
@@ -165,7 +167,10 @@ def test_translations_are_private_until_human_approved(env):
     assert r.status_code == 200 and r.json()["is_machine_translated"] is True
     assert env.client.get(f"/api/v1/announcements/{aid}").json()["translations"] == []  # machine draft never public
     assert pub_list(env, language="id")["total"] == 0
-    r = env.client.post(f"/api/v1/admin/announcements/{aid}/translations/id/approve", headers=env.auth("supporter"))
+    assert env.client.post(f"/api/v1/admin/announcements/{aid}/translations/id/approve", headers=env.auth("supporter"),
+                           json={}).status_code == 422  # must confirm the original was checked
+    r = env.client.post(f"/api/v1/admin/announcements/{aid}/translations/id/approve", headers=env.auth("supporter"),
+                        json={"original_verified": True})
     assert r.status_code == 200 and r.json()["translation_status"] == "human_approved" and r.json()["reviewed_by_name"] == "Supporter"
     d = env.client.get(f"/api/v1/announcements/{aid}").json()
     assert d["translations"][0]["language"] == "id" and d["translations"][0]["translation_status"] == "human_approved"
@@ -177,7 +182,10 @@ def test_translations_are_private_until_human_approved(env):
     assert env.client.get(f"/api/v1/announcements/{aid}").json()["translations"] == []
     q = env.client.get("/api/v1/admin/translations", headers=env.auth("supporter")).json()
     assert q["total"] == 1 and q["items"][0]["announcement_title"] == "장학금 신청 안내"
-    assert env.client.put(f"/api/v1/admin/announcements/{aid}/translations/ko", headers=env.auth("admin"), json=tr).status_code == 422
+    assert env.client.put(f"/api/v1/admin/announcements/{aid}/translations/ko", headers=env.auth("admin"),
+                          json=tr).status_code == 403  # plain admin: no language assignment
+    assert env.client.put(f"/api/v1/admin/announcements/{aid}/translations/ko", headers=env.auth("super_admin"),
+                          json=tr).status_code == 422  # original language needs no translation
 
 
 def test_public_knowledge_hides_private_and_announcement_documents(env):

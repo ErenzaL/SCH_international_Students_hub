@@ -17,6 +17,7 @@ from app.api import (
     admin_system,
     health,
     public,
+    support,
 )
 from app.core.config import Settings, get_settings
 from app.core.errors import install_error_handlers
@@ -80,7 +81,7 @@ def create_app(settings: Settings | None = None, *, store: Store | None = None, 
     install_error_handlers(app)
     for r in (health.router, public.router, admin_sources.router, admin_documents.router,
               admin_announcements.router, admin_system.router, admin_intake.router, admin_knowledge.router,
-              admin_knowledge.internal):
+              admin_knowledge.internal, support.router):
         app.include_router(r)
     return app
 

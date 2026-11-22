@@ -257,7 +257,7 @@ export function ReviewPanel({
               <RotateCcw /> {t("reprocess")}
             </Button>
           )}
-          {!detail.is_canceled && detail.current_version_id && (
+          {!detail.is_canceled && !detail.archived_at && detail.current_version_id && (
             <WithdrawButton documentId={detail.id} title={detail.title} onDone={(m) => handlers.onWithdrawn?.(m)} />
           )}
         </div>

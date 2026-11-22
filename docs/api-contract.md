@@ -271,3 +271,91 @@ approved version stays active.
 * `GET /admin/notifications?limit=50` → `{items: [{id, kind, severity, title, message, entity_type, entity_id, link,
   created_at, unread}], unread, last_read_at}`; kinds: `review_needed, sync_failed, source_blocked, indexing_failed,
   version_activated, withdrawn`. `POST /admin/notifications/read` (204) marks all as read for the caller.
+
+---
+
+## Student support, AI history, translation review (migration 0008)
+
+### Account
+* Signup: `supabase.auth.signUp({email, password, options: {data: {preferred_language, display_name?}}})`. The DB trigger
+  stores the language only if it is one of the 5 codes (else `en`, `preferred_language_confirmed=false`); role is always `student`.
+* `GET /me` adds `preferred_language_confirmed`. `PATCH /me` `{preferred_language?, display_name?}` → profile. Changing the
+  language affects UI default, assistant default and routing of NEW tickets only.
+* `GET /me/notifications?unread_only&limit&before_id` → `{items: [{id, kind, title, body, entity_type, entity_id, link, read_at, created_at}], unread}`;
+  `POST /me/notifications/read` `{ids?}` → `{marked}`. Realtime: subscribe to `postgres_changes` INSERT on `public.user_notifications`
+  filter `user_id=eq.<uid>` (RLS limits rows to the owner). Kinds: `ticket_created, ticket_waiting, ticket_queued, ticket_assigned,
+  ticket_accepted, supporter_reply, student_reply, ticket_escalated, ticket_unassigned, ticket_resolved, ticket_reopened,
+  ticket_reassigned, context_withdrawn, translation_task, translation_review, translation_approved, translation_rejected,
+  translation_changes_requested, translation_outdated`. Titles never contain private message bodies.
+
+### AI conversations (own only; 404 for anyone else)
+* `GET /conversations?q&page` → `{items: [{id, title, language, is_private, message_count, last_message_at, last_message_preview, created_at, updated_at}]}`
+* `POST /conversations` `{language?, title?}` → conversation (default language = preferred).
+* `GET /conversations/{id}` → conversation + `messages: [{id, role: user|assistant, content, language, citations: [{n, document_id, version_id, chunk_id, document_title, heading, source_url, organization, authority_type, verified_at, is_stale, page, similarity}], metadata: {offer_handoff, handoff_reasons: [no_evidence|asked_for_human|individual_decision|disputed_answer], evidence, retrieval_mode, answer_generation: "disabled", warning}, created_at}]`
+* `PATCH /conversations/{id}` `{title?, is_private?, language?}`; `DELETE /conversations/{id}` (hard delete).
+* `POST /conversations/{id}/messages` `{content, language?}` → `{user_message, assistant_message, conversation}`. The assistant
+  replies with approved passages + citations (no LLM yet) in the given/conversation language framing; `language` does not
+  change the profile. Private conversations (`is_private`) cannot be attached to tickets.
+
+### Student tickets (`/support/tickets`)
+* `POST` `{language?, subject, summary, conversation_id?, message_ids: [], additional_message?, consent: true}` → Ticket (201).
+  Only the selected messages are copied into `shared_context`. Status after routing: `assigned` or `waiting` (+ `status_message`).
+* Ticket (student view): `{id, ticket_number, language, subject, summary, priority, status: waiting|assigned|open|waiting_for_student|resolved,
+  status_message, assigned_supporter: {display_name}|null, team, shared_context: [{role, content, created_at, citations}], consent_at,
+  context_withdrawn_at, escalated, created_at, updated_at, last_message_at, resolved_at, satisfaction, satisfaction_comment,
+  messages?: [{id, author_role: student|supporter|admin|system, kind: message|info_request|status|system, body, author_name, created_at}]}`.
+* `GET /support/tickets` (mine, paginated), `GET /support/tickets/{id}`, `POST /{id}/messages` `{body}`, `POST /{id}/resolve`,
+  `POST /{id}/reopen`, `POST /{id}/feedback` `{rating 1-5, comment?}` (resolved only), `POST /{id}/withdraw-context`.
+
+### Supporter inbox (staff)
+* `GET /support/inbox?view=queue|mine|assigned|open|waiting|resolved|team&language?&page` → `{items: [{id, ticket_number, language, subject,
+  priority, status, created_at, last_message_at, escalated, assigned_to, assigned_to_name, is_mine, can_open}], total, counts: {queue,
+  assigned, open, waiting_for_student, resolved}, languages: [..support], lead_languages: [..]}`. `queue` = waiting tickets of my
+  languages (metadata only, `can_open=false`). `team` = team leads only.
+* `GET /support/tickets/{id}` for staff (assignee / team lead / super admin; audited) adds `assigned_to, assigned_at, accepted_at,
+  escalation_reason, student_display_name, student_preferred_language, is_mine, can_manage`. Otherwise 404.
+* `POST /support/tickets/{id}/accept` (assigned → open; or claim a waiting ticket of my language; 409 if taken first),
+  `/messages` `{body}` (reply), `/request-info` `{body}`, `/waiting`, `/resolve`, `/reopen`, `/escalate` `{reason}`,
+  `/transfer` `{to_supporter_id|null, reason?}`, `/priority` `{priority}`, `GET /transfer-targets` → `{items: [{id, display_name, is_available}]}`.
+* `PUT /support/me/availability` `{is_available, max_active_tickets?}`.
+
+### Language teams
+* `GET /admin/language-teams` (super admin: all; team leads: their languages) → `{items: [{language, members: [{user_id, display_name,
+  email, role, can_support, can_review_translations, is_team_lead, is_available}], waiting, active}], can_manage_members}`.
+* `PUT /admin/users/{id}/team` (super admin) `{assignments: [{language, can_support, can_review_translations, is_team_lead}], is_available?, max_active_tickets?}`.
+  `PUT /admin/users/{id}/languages` is now super-admin only.
+
+### Translation review
+* `GET /admin/translations?status&language&outdated&page` → tasks in my languages: `{items: [{...Translation, is_outdated, published,
+  review_note, last_edited_by_name, last_edited_at, submitted_at, original_verified_at, announcement_title, announcement_status,
+  original_language, can_edit, can_review}]}`. Statuses: `todo, machine_draft (draft), in_review, changes_requested, human_approved, rejected`.
+* `GET /admin/announcements/{id}/translations/{lang}` → `{original: {title, body, language, publication_status, content_hash, deadline,
+  event_date, ...}, translation: Translation|null, revisions: [{id, action, translation_status, title, body, note, actor_name, created_at}],
+  permissions: {can_edit, can_review}, language}`.
+* `PUT .../translations/{lang}` `{title, body, translation_status: machine_draft (save draft) | in_review (submit)}`.
+* `POST .../approve` `{original_verified: true, note?}` (reviewer; original must be published; not outdated → else 409
+  `translation_outdated`), `POST .../reject` `{reason}`, `POST .../request-changes` `{reason}`,
+  `GET .../share-text` → `{text}` for KakaoTalk copy (approved + current only).
+
+---
+
+## Document lifecycle (migration 0009)
+
+States: `published` (current approved version) · `unpublished` (never approved) · `archived` (reversible, history kept) ·
+`withdrawn` (reversible). Archived and withdrawn documents are excluded from search, the assistant, the Knowledge
+Center and automatic syncs (new fetches are skipped until restored).
+
+* `GET /admin/documents?lifecycle=active|archived|withdrawn`; items/detail add `lifecycle, archived_at, archive_reason, canceled_at, canceled_reason`.
+* `POST /admin/documents/{id}/archive` `{reason}` · `POST /admin/documents/{id}/cancel` `{reason}` (withdraw) ·
+  `POST /admin/documents/{id}/restore` `{note?}` (not for announcement documents) — admin.
+* `GET /admin/documents/{id}/deletion-check` → `{eligible, blockers: [..], title, versions, approved_versions, chunks,
+  storage_files, is_published, is_archived, is_withdrawn, suppress_reimport, recommended_action}`.
+* `POST /admin/documents/{id}/delete` `{reason (≥5), confirm_title (= title)}` — **super_admin** → `{deleted, title, versions, chunks,
+  files_removed, files_failed, reimport_blocked}`; 409 when blocked (published → withdraw/archive first; backs an
+  announcement; a job is queued/running), 422 wrong title / short reason, 403 others.
+  Effects: versions + chunks/embeddings removed; ingestion jobs kept with `document_id/version_id = null`; private Storage
+  originals removed after commit; an audit tombstone (`document.delete`: title, URL/notice id, version numbers,
+  content hashes, approvers) is kept forever; website/board documents are added to the re-import block list.
+* `GET /admin/sources/{id}/suppressions` → `{items}` · `DELETE /admin/sources/{id}/suppressions/{suppression_id}` (allow re-import).
+* Database safeguards: `source_documents` and previously approved `document_versions` cannot be deleted except through
+  `delete_document()` (triggers refuse direct deletes, cascades from sources, and the service role).

@@ -78,6 +78,8 @@ export function PublicationBadge({ status }: { status: PublicationStatus }) {
 }
 
 const trVariant: Record<TranslationStatus, Variant> = {
+  todo: "muted",
+  changes_requested: "warning",
   machine_draft: "warning",
   in_review: "info",
   human_approved: "success",

@@ -81,7 +81,10 @@ def test_only_super_admin_changes_roles_and_last_super_admin_is_protected(env):
 
 def test_supporter_language_assignment(env):
     sup = env.users["supporter"]
-    r = env.client.put(f"/api/v1/admin/users/{sup}/languages", headers=env.auth("admin"), json={"languages": ["id", "vi", "id"]})
+    # team membership is managed by super admins only (plain admins are refused)
+    assert env.client.put(f"/api/v1/admin/users/{sup}/languages", headers=env.auth("admin"),
+                          json={"languages": ["id"]}).status_code == 403
+    r = env.client.put(f"/api/v1/admin/users/{sup}/languages", headers=env.auth("super_admin"), json={"languages": ["id", "vi", "id"]})
     assert r.status_code == 200 and r.json()["languages"] == ["id", "vi"]
     assert env.client.put(f"/api/v1/admin/users/{sup}/languages", headers=env.auth("supporter"), json={"languages": ["id"]}).status_code == 403
     assert env.client.get("/api/v1/me", headers=env.auth("supporter")).json()["languages"] == ["id", "vi"]

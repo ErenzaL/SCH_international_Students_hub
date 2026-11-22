@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ApiError, api, buildUrl, errorMessage, parseApiError } from "@/lib/api";
+import { ApiError, api, buildUrl, errorMessage, needsAuth, parseApiError } from "@/lib/api";
 
 async function failure(p: Promise<unknown>): Promise<ApiError> {
   try {
@@ -82,5 +82,20 @@ describe("apiRequest", () => {
 
   it("buildUrl skips empty values", () => {
     expect(buildUrl("/x", { a: "1", b: "", c: undefined, d: null })).toMatch(/\/x\?a=1$/);
+  });
+});
+
+
+describe("needsAuth", () => {
+  it("attaches the token to every user-specific API", () => {
+    for (const p of ["/api/v1/me", "/api/v1/me/notifications", "/api/v1/conversations", "/api/v1/conversations/1/messages",
+      "/api/v1/support/tickets", "/api/v1/support/inbox?view=queue", "/api/v1/admin/sources"]) {
+      expect(needsAuth(p)).toBe(true);
+    }
+  });
+  it("keeps public endpoints anonymous", () => {
+    for (const p of ["/api/v1/knowledge/search", "/api/v1/announcements", "/api/v1/categories", "/api/v1/meta"]) {
+      expect(needsAuth(p)).toBe(false);
+    }
   });
 });

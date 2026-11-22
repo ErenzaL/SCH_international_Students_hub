@@ -128,4 +128,5 @@ def run_due(x_cron_secret: str | None = Header(default=None), svc: Services = De
         queued.append(job["id"])
         svc.jobs.enqueue(job)
     svc.jobs.kick()  # also drains queued indexing jobs / pending retries (the instance may just have woken up)
-    return dict(queued=len(queued), skipped=len(skipped), job_ids=queued)
+    purged = svc.support.purge_expired()  # retention policy for private student data
+    return dict(queued=len(queued), skipped=len(skipped), job_ids=queued, purged=purged)

@@ -100,7 +100,11 @@ export function UsersPage() {
                     )}
                   </TableCell>
                   <TableCell>
-                    {u.role === "supporter" ? (
+                    {u.role === "supporter" && !isSuper ? (
+                      <span className="text-xs">
+                        {u.languages.length ? u.languages.map((l) => LOCALE_LABELS[l]).join(", ") : "—"}
+                      </span>
+                    ) : u.role === "supporter" ? (
                       <div className="flex flex-wrap gap-1">
                         {LOCALES.map((l) => {
                           const on = u.languages.includes(l);

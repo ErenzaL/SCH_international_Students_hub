@@ -185,12 +185,14 @@ def test_end_to_end_against_real_database(it: IT):
     assert pubd["status"] == "active" and "통합 테스트" in pubd["body"]
     hits = c.post("/api/v1/knowledge/search", json=dict(query="통합 테스트 공지")).json()["results"]
     assert any(h["document_title"] == pa["title"] for h in hits)
-    sql(f"insert into public.supporter_languages values ('{it.users['supporter']}', 'id')")
+    sql(f"insert into public.supporter_languages (supporter_id, language_code, can_review_translations) "
+        f"values ('{it.users['supporter']}', 'id', true)")
     tr = c.put(f"/api/v1/admin/announcements/{aid}/translations/id", headers=it.auth("supporter"),
                json=dict(title="Pengumuman IT", body="Isi", translation_status="in_review"))
     assert tr.status_code == 200, tr.text
     assert c.get(f"/api/v1/announcements/{aid}").json()["translations"] == []
-    assert c.post(f"/api/v1/admin/announcements/{aid}/translations/id/approve", headers=it.auth("supporter")).status_code == 200
+    assert c.post(f"/api/v1/admin/announcements/{aid}/translations/id/approve", headers=it.auth("supporter"),
+                  json={"original_verified": True}).status_code == 200
     assert c.get(f"/api/v1/announcements/{aid}").json()["translations"][0]["language"] == "id"
     assert c.post(f"/api/v1/admin/announcements/{aid}/cancel", headers=a, json={"reason": "test"}).json()["publication_status"] == "canceled"
     assert c.get(f"/api/v1/announcements/{aid}").status_code == 404
@@ -203,7 +205,8 @@ def test_end_to_end_against_real_database(it: IT):
     if pending:  # (the seed's sample pending document; consumed by the first run against a given database)
         # not approvable until embedded: the DB function and API both refuse
         r = c.post(f"/api/v1/admin/versions/{pending[0]['pending_version_id']}/approve", headers=a, json={})
-        assert r.status_code == 200  # the API embeds on demand (hash provider) before approving
+        assert r.status_code == 202  # approval queues the index job, which embeds and activates
+        assert r.json()["verification_status"] == "approved"  # inline mode: indexed + activated before responding
 
     # overview, users, settings
     ov = c.get("/api/v1/admin/overview", headers=a).json()

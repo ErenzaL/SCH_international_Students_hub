@@ -86,4 +86,6 @@ def get_document(document_id: str, svc: Services = Depends(get_services)) -> dic
 @router.get("/me", tags=["auth"])
 def me(user: AuthUser = Depends(get_current_user)) -> dict:  # type: ignore[type-arg]
     return dict(id=user.id, email=user.email, display_name=user.display_name, role=user.role,
-                preferred_language=user.preferred_language, languages=user.languages, is_staff=user.is_staff)
+                preferred_language=user.preferred_language, languages=user.languages, is_staff=user.is_staff,
+                preferred_language_confirmed=user.preferred_language_confirmed,
+                language_permissions=user.perms)

@@ -103,8 +103,11 @@ interface RequestOptions {
   signal?: AbortSignal;
 }
 
-function needsAuth(path: string) {
-  return path.startsWith("/api/v1/admin") || path.startsWith("/api/v1/me");
+/** Paths that always need the Supabase access token (everything user-specific). */
+const AUTH_PREFIXES = ["/api/v1/admin", "/api/v1/me", "/api/v1/conversations", "/api/v1/support"];
+
+export function needsAuth(path: string) {
+  return AUTH_PREFIXES.some((p) => path === p || path.startsWith(p + "/") || path.startsWith(p + "?"));
 }
 
 export async function apiRequest<T>(
