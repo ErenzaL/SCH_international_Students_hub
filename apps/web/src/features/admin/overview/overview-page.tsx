@@ -28,12 +28,13 @@ export function OverviewPage() {
       {!loading && error && <ErrorState error={error} onRetry={reload} />}
       {data && (
         <div className="space-y-8">
+          {/* tolerate partial responses (older/newer API) instead of crashing the dashboard */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <Stat label={t("sources")} value={data.sources_total} href="/admin/knowledge-sources" />
-            <Stat label={t("failed")} value={data.sources_failed} href="/admin/knowledge-sources" tone={data.sources_failed ? "bad" : undefined} />
-            <Stat label={t("pendingVersions")} value={data.versions_pending} href="/admin/review" tone={data.versions_pending ? "warn" : undefined} />
-            <Stat label={t("pendingAnnouncements")} value={data.announcements_pending} href="/admin/review" tone={data.announcements_pending ? "warn" : undefined} />
-            <Stat label={t("approvedDocs")} value={data.documents_approved} href="/admin/documents" />
+            <Stat label={t("sources")} value={data.sources_total ?? 0} href="/admin/knowledge-sources" />
+            <Stat label={t("failed")} value={data.sources_failed ?? 0} href="/admin/knowledge-sources" tone={data.sources_failed ? "bad" : undefined} />
+            <Stat label={t("pendingVersions")} value={data.versions_pending ?? 0} href="/admin/review" tone={data.versions_pending ? "warn" : undefined} />
+            <Stat label={t("pendingAnnouncements")} value={data.announcements_pending ?? 0} href="/admin/review" tone={data.announcements_pending ? "warn" : undefined} />
+            <Stat label={t("approvedDocs")} value={data.documents_approved ?? 0} href="/admin/documents" />
           </div>
 
           <section aria-labelledby="notes-h" className="space-y-2">
@@ -58,7 +59,7 @@ export function OverviewPage() {
             <h2 id="jobs-h" className="text-lg font-semibold">
               {t("recentJobs")}
             </h2>
-            {data.recent_jobs.length === 0 ? (
+            {(data.recent_jobs ?? []).length === 0 ? (
               <EmptyState title={t("noJobs")} />
             ) : (
               <Table>
@@ -71,7 +72,7 @@ export function OverviewPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.recent_jobs.map((j) => (
+                  {(data.recent_jobs ?? []).map((j) => (
                     <TableRow key={j.id}>
                       <TableCell>{j.source_title}</TableCell>
                       <TableCell>
@@ -92,12 +93,12 @@ export function OverviewPage() {
             <h2 id="audit-h" className="text-lg font-semibold">
               {t("recentAudit")}
             </h2>
-            {data.recent_audit.length === 0 ? (
+            {(data.recent_audit ?? []).length === 0 ? (
               <EmptyState title={t("noAudit")} />
             ) : (
               <Card>
                 <ul className="divide-y divide-border text-sm">
-                  {data.recent_audit.map((a) => (
+                  {(data.recent_audit ?? []).map((a) => (
                     <li key={a.id} className="flex flex-wrap justify-between gap-2 p-3">
                       <span>
                         <code className="text-xs">{a.action}</code> · {a.entity_type} · {a.actor_name ?? a.actor_id ?? "—"}

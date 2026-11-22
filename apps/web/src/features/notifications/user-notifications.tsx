@@ -10,6 +10,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { notificationHref } from "@/lib/support";
 import { cn } from "@/lib/utils";
 import { relativeTime } from "@/lib/version-state";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import type { UserNotification, UserNotificationList } from "@/types/api";
 
 const POLL_MS = 60_000;
@@ -21,6 +22,54 @@ export function onUserNotification(fn: Listener): () => void {
   listeners.add(fn);
   return () => {
     listeners.delete(fn);
+  };
+}
+
+/**
+ * ONE Realtime channel per user, shared by every component that needs it (e.g. the site-header bell and the
+ * admin-shell bell). supabase-js returns the existing channel for a repeated topic, and adding a
+ * `postgres_changes` callback to a channel that already subscribed throws - which crashed every admin page.
+ * Realtime problems must never break the page: on any error we stay on polling.
+ */
+type Shared = { channel: RealtimeChannel; subscribers: Set<() => void>; live: boolean; liveSubs: Set<(l: boolean) => void> };
+const shared = new Map<string, Shared>();
+
+export function subscribeUserChannel(userId: string, onInsert: () => void, onLive: (live: boolean) => void): () => void {
+  const sb = getSupabaseBrowserClient();
+  if (!sb) return () => {};
+  let entry = shared.get(userId);
+  if (!entry) {
+    try {
+      const created: Shared = { channel: null as never, subscribers: new Set(), live: false, liveSubs: new Set() };
+      created.channel = sb
+        .channel(`user-notifications-${userId}`)
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "user_notifications", filter: `user_id=eq.${userId}` },
+          () => created.subscribers.forEach((fn) => fn()),
+        )
+        .subscribe((status) => {
+          created.live = status === "SUBSCRIBED";
+          created.liveSubs.forEach((fn) => fn(created.live));
+        });
+      entry = created;
+      shared.set(userId, entry);
+    } catch (err) {
+      console.warn("Realtime notifications unavailable; using polling.", err);
+      return () => {};
+    }
+  }
+  const e = entry;
+  e.subscribers.add(onInsert);
+  e.liveSubs.add(onLive);
+  onLive(e.live);
+  return () => {
+    e.subscribers.delete(onInsert);
+    e.liveSubs.delete(onLive);
+    if (e.subscribers.size === 0 && shared.get(userId) === e) {
+      shared.delete(userId);
+      void sb.removeChannel(e.channel).catch(() => undefined);
+    }
   };
 }
 
@@ -57,18 +106,10 @@ export function useUserNotifications(userId: string | null) {
     const id = setInterval(() => {
       if (document.visibilityState === "visible") void load();
     }, POLL_MS);
-    const sb = getSupabaseBrowserClient();
-    const channel = sb
-      ?.channel(`user-notifications-${userId}`)
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "user_notifications", filter: `user_id=eq.${userId}` },
-        () => void load(),
-      )
-      .subscribe((status) => setLive(status === "SUBSCRIBED"));
+    const unsubscribe = subscribeUserChannel(userId, () => void load(), setLive);
     return () => {
       clearInterval(id);
-      if (sb && channel) void sb.removeChannel(channel);
+      unsubscribe();
     };
   }, [load, userId]);
 
