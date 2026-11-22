@@ -1,0 +1,58 @@
+# Deploy to Render on every push to main, using each service's Deploy Hook
+# (Render > service > Settings > Deploy Hook). Works even when Render's GitHub App
+# auto-deploy is not connected to this repository.
+#
+# Setup: GitHub > Settings > Secrets and variables > Actions > New repository secret
+#   RENDER_DEPLOY_HOOK_API = deploy hook URL of the FastAPI service (sch-hub-api)
+#   RENDER_DEPLOY_HOOK_WEB = deploy hook URL of the Next.js service
+# Without the secrets this workflow does nothing. If you also turn Render's own Auto-Deploy on,
+# set it to "Off" in Render (or delete these secrets) to avoid deploying twice.
+name: Deploy to Render
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: render-deploy
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Trigger Render deploys
+        env:
+          API_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_API }}
+          WEB_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_WEB }}
+          BEFORE: ${{ github.event.before }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ -z "$API_HOOK" ] && [ -z "$WEB_HOOK" ]; then
+            echo "No Render deploy hooks configured (RENDER_DEPLOY_HOOK_API / RENDER_DEPLOY_HOOK_WEB); skipping."
+            exit 0
+          fi
+          # deploy only the services whose files changed (manual runs deploy both)
+          if [ "$EVENT" = "workflow_dispatch" ] || [ -z "$BEFORE" ] || ! git cat-file -e "$BEFORE" 2>/dev/null; then
+            changed="ALL"
+          else
+            changed=$(git diff --name-only "$BEFORE" "$GITHUB_SHA")
+          fi
+          api=0; web=0
+          if [ "$changed" = "ALL" ]; then api=1; web=1; fi
+          echo "$changed" | grep -qE '^(backend/|render\.yaml)' && api=1
+          echo "$changed" | grep -qE '^(apps/web/|render\.yaml)' && web=1
+          trigger() {  # never prints the hook URL (it is a secret)
+            if [ -z "$2" ]; then echo "$1: no deploy hook secret, skipped"; return 0; fi
+            code=$(curl -sS -o /dev/null -w "%{http_code}" -X POST "$2")
+            echo "$1: deploy requested (HTTP $code)"
+            [ "$code" -ge 200 ] && [ "$code" -lt 300 ]
+          }
+          status=0
+          if [ $api = 1 ]; then trigger "API (sch-hub-api)" "$API_HOOK" || status=1; else echo "API: no backend changes"; fi
+          if [ $web = 1 ]; then trigger "Web" "$WEB_HOOK" || status=1; else echo "Web: no frontend changes"; fi
+          exit $status
