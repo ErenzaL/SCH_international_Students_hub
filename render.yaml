@@ -1,4 +1,6 @@
 # Render Blueprint. Review, then: Dashboard > New > Blueprint > select this repo.
+# Deploys: .github/workflows/render-deploy.yml calls each service's Deploy Hook on push to main
+# (repository secrets RENDER_DEPLOY_HOOK_API / RENDER_DEPLOY_HOOK_WEB).
 # Nothing is deployed until you do that and fill the `sync: false` secrets in the dashboard.
 services:
   - type: web
