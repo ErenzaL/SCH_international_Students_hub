@@ -15,13 +15,17 @@ log = logging.getLogger(__name__)
 
 
 class LLMError(Exception):
-    """A generation failed. ``transient`` errors (rate limits, overload, network) may be retried by jobs."""
+    """A generation failed. ``transient`` errors (rate limits, overload, network) may be retried by jobs.
 
-    def __init__(self, code: str, message: str, *, transient: bool = False):
+    ``partial`` is set when a stream failed after text was already delivered to the caller (nothing may be retried
+    then, or the student would see duplicated output)."""
+
+    def __init__(self, code: str, message: str, *, transient: bool = False, partial: bool = False):
         super().__init__(message)
         self.code = code
         self.message = message
         self.transient = transient
+        self.partial = partial
 
 
 @dataclass
@@ -31,6 +35,13 @@ class LLMResult:
     model: str
     input_tokens: int = 0
     output_tokens: int = 0
+    # optional operational metadata (filled by providers that report it; never estimated)
+    thinking_tokens: int | None = None
+    total_tokens: int | None = None
+    latency_ms: int | None = None
+    attempts: int = 1
+    model_role: str = "primary"      # primary | fallback
+    fallback_used: bool = False
 
 
 class LLMProvider(Protocol):
@@ -162,10 +173,32 @@ class ScriptedLLMProvider:
 
 
 def build_llm_provider(provider: str, api_key: str, model: str = "claude-opus-5-5", effort: str = "medium",
-                       timeout: float = 120.0) -> LLMProvider:
+                       timeout: float = 120.0, settings: Any = None) -> LLMProvider:
     p = (provider or "none").strip().lower()
     if p in ("anthropic", "claude"):
         return AnthropicProvider(api_key, model or "claude-opus-5-5", effort or "medium", timeout)
+    if p in ("gemini", "google"):
+        from app.services.llm.gemini import GeminiProvider
+
+        s = settings
+        return GeminiProvider(
+            api_key,
+            primary=getattr(s, "gemini_primary_model", "") or "gemini-3.6-flash",
+            fallback=getattr(s, "gemini_fallback_model", "gemini-3.5-flash-lite"),
+            request_timeout=getattr(s, "llm_request_timeout_seconds", 30.0),
+            job_timeout=timeout,
+            thinking_level=getattr(s, "gemini_thinking_level", "low"),
+            temperature=getattr(s, "llm_temperature", None),
+            max_attempts=getattr(s, "llm_max_attempts_per_model", 2),
+            retry_base=getattr(s, "llm_retry_base_seconds", 0.8),
+            retry_max_delay=getattr(s, "llm_retry_max_delay_seconds", 8.0),
+        )
     if p not in ("none", ""):
         log.warning("unknown LLM_PROVIDER %r; answer generation and translation drafts are disabled", provider)
     return NullLLMProvider()
+
+
+def build_llm_from_settings(settings: Any) -> LLMProvider:
+    """The configured provider (LLM_PROVIDER + its settings)."""
+    return build_llm_provider(settings.llm_provider, settings.llm_api_key, settings.llm_model, settings.llm_effort,
+                              settings.llm_timeout_seconds, settings=settings)

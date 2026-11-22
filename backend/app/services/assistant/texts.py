@@ -78,6 +78,26 @@ TEXT: dict[str, dict[str, str]] = {
         "en": "{language} support team", "ko": "{language} 지원팀", "id": "tim dukungan {language}",
         "vi": "nhóm hỗ trợ {language}", "zh-CN": "{language}支持团队",
     },
+    # answer generation failed (both models) or today's AI budget is used up: no raw passages, just the sources
+    "generation_failed": {
+        "en": "I'm having trouble generating an answer right now. You can still check the relevant official guide "
+              "below, or try asking again in a moment.",
+        "ko": "지금은 답변을 생성하는 데 문제가 있습니다. 아래의 관련 공식 안내를 확인하시거나 잠시 후 다시 질문해 주세요.",
+        "id": "Saya sedang mengalami kendala dalam menyusun jawaban. Anda tetap dapat membuka panduan resmi terkait di "
+              "bawah ini, atau coba tanyakan lagi sebentar lagi.",
+        "vi": "Hiện tôi đang gặp sự cố khi tạo câu trả lời. Bạn vẫn có thể xem hướng dẫn chính thức liên quan bên dưới, "
+              "hoặc thử hỏi lại sau ít phút.",
+        "zh-CN": "我现在暂时无法生成回答。您仍可以查看下方相关的官方指南，或稍后再试一次。",
+    },
+    "generation_failed_no_sources": {
+        "en": "I'm having trouble generating an answer right now. Please try asking again in a moment, or browse the "
+              "Knowledge Center.",
+        "ko": "지금은 답변을 생성하는 데 문제가 있습니다. 잠시 후 다시 질문하시거나 지식 센터를 둘러봐 주세요.",
+        "id": "Saya sedang mengalami kendala dalam menyusun jawaban. Silakan coba lagi sebentar lagi, atau telusuri "
+              "Pusat Pengetahuan.",
+        "vi": "Hiện tôi đang gặp sự cố khi tạo câu trả lời. Bạn vui lòng thử lại sau ít phút hoặc xem Trung tâm Kiến thức.",
+        "zh-CN": "我现在暂时无法生成回答。请稍后再试，或浏览知识中心。",
+    },
     "thanks": {
         "en": "You're welcome! Ask me anytime if anything else comes up.",
         "ko": "천만에요! 다른 궁금한 점이 생기면 언제든지 물어보세요.",

@@ -64,6 +64,17 @@ class Settings(BaseSettings):
     # --- Retrieval -----------------------------------------------------------
     # Vector-only matches below this cosine similarity are dropped unless they also match a keyword.
     retrieval_min_similarity: float = 0.0
+    # "weighted" (default): dense and keyword candidates are fetched separately and fused in the application with
+    # semantic relevance weighted above keyword overlap (keyword evidence scored by query-term rarity, so broad
+    # words such as "visa" cannot dominate). "sql_rrf": the original equal-weight fusion inside search_knowledge_v2
+    # (kept for benchmarking). Per request, mode="vector" | "keyword" | "hybrid" | "hybrid_legacy".
+    retrieval_fusion: str = "weighted"
+    retrieval_vector_weight: float = 1.0
+    retrieval_keyword_weight: float = 0.35
+    retrieval_candidate_pool: int = 30        # candidates fetched per leg before fusion
+    retrieval_max_chunks_per_document: int = 3
+    # a passage that names a different visa/status code (E-7, F-2-R ...) but not the one asked about is demoted
+    retrieval_code_mismatch_penalty: float = 0.5
 
     # --- SCH notice board connector ------------------------------------------
     board_max_items: int = 5          # notices imported per sync unless the source config says otherwise
@@ -118,11 +129,27 @@ class Settings(BaseSettings):
     cron_secret: str = Field(default="", repr=False)
 
     # --- LLM (optional): answer generation + translation drafts -------------
-    llm_provider: str = "none"               # none | anthropic
-    llm_api_key: str = Field(default="", repr=False)   # empty = the SDK reads ANTHROPIC_API_KEY
-    llm_model: str = "claude-opus-5-5"
+    llm_provider: str = "none"               # none | anthropic | gemini
+    # server-side secret; empty = the SDK reads its own variable (ANTHROPIC_API_KEY / GEMINI_API_KEY)
+    llm_api_key: str = Field(default="", repr=False)
+    llm_model: str = "claude-opus-5-5"       # anthropic only
     llm_effort: str = "medium"               # low | medium | high | xhigh | max
     llm_timeout_seconds: float = 120.0
+    # Gemini (LLM_PROVIDER=gemini). gemini-3.5-flash is deprecated and routed by Google to gemini-3.6-flash, so the
+    # stable successor is the default primary (verify with `python -m app.cli check-llm`).
+    gemini_primary_model: str = "gemini-3.6-flash"
+    gemini_fallback_model: str = "gemini-3.5-flash-lite"   # empty = no fallback model
+    gemini_thinking_level: str = "low"       # minimal | low | medium | high ("" = model default)
+    llm_temperature: float | None = None     # None = the model's default (recommended for Gemini 3 models)
+    llm_answer_max_tokens: int = 2048        # answer generation output cap (thinking tokens count separately)
+    llm_request_timeout_seconds: float = 30.0   # per attempt (assistant answers); translation jobs use llm_timeout
+    llm_max_attempts_per_model: int = 2      # primary: 1 try + 1 retry on retryable errors; fallback: same bound
+    llm_retry_base_seconds: float = 0.8      # exponential backoff with full jitter
+    llm_retry_max_delay_seconds: float = 8.0  # a server-requested delay above this is not waited for (fail over)
+    # --- AI usage budgets (in-process, reset at 00:00 KST; one instance) -------------------------------------
+    ai_daily_limit_per_client: int = 40      # anonymous visitors, per client IP
+    ai_daily_limit_per_user: int = 150       # signed-in students
+    ai_daily_limit_global: int = 1500        # all generated answers; beyond it answers degrade, never fail open
     # translation drafts: documents are translated in chunks of about this many characters (one job per language)
     translation_chunk_chars: int = 6000
     # create AI drafts automatically when a new original version is approved (needs an LLM provider)
@@ -134,6 +161,14 @@ class Settings(BaseSettings):
     rate_limit_search_per_minute: int = 30
     rate_limit_ingest_per_minute: int = 20
     rate_limit_public_per_minute: int = 120
+    rate_limit_chat_user_per_minute: int = 12      # signed-in assistant turns, per user id
+    rate_limit_chat_anonymous_global_per_minute: int = 60   # all anonymous assistant turns together (spoof-proof cap)
+    # Client IP resolution behind proxies. A header the edge proxy SETS (overwriting any client value) is trusted
+    # first, e.g. "true-client-ip" (Cloudflare in front of Render) - verify with GET /api/v1/admin/system/client-ip.
+    # Otherwise X-Forwarded-For is read from the RIGHT: the entry appended by the outermost of
+    # `trusted_proxy_hops` trusted proxies. The left-most X-Forwarded-For entry is client-controlled and never used.
+    client_ip_header: str = "true-client-ip"
+    trusted_proxy_hops: int = 1
 
     @field_validator("supabase_url")
     @classmethod

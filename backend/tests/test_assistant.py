@@ -252,12 +252,18 @@ def test_handoff_summary_without_llm_removes_personal_data(team_env):
 
 
 # --------------------------------------------------------------- failures + streaming
-def test_llm_failure_falls_back_to_evidence(kb):
+def test_llm_failure_gives_a_localized_message_and_sources_not_raw_passages(kb):
+    from app.services.assistant.texts import t
+
     env = kb["env"]
     use_llm(env, ScriptedLLMProvider(lambda s, p: LLMError("llm_unavailable", "down", transient=True)))
     msg = say(env, conv(env, language="ko"), Q, language="ko")
     assert msg["metadata"]["answer_generation"] == "fallback" and msg["metadata"]["fallback_reason"] == "llm_unavailable"
-    assert msg["content"].startswith(("승인된 공식 자료", "승인된 자료가")) and msg["citations"]   # passages, in Korean
+    assert msg["content"] == t("generation_failed", "ko")                  # friendly, in Korean, no chunk text
+    assert msg["citations"] and all(c["cited"] for c in msg["citations"])  # the matching official sources
+    docs = [c["document_id"] for c in msg["citations"]]
+    assert len(docs) == len(set(docs)) <= 3                                # one entry per document
+    assert msg["metadata"]["offer_handoff"] is False                       # an outage is not a reason to escalate
 
 
 def _events(text: str) -> list[tuple[str, dict]]:  # type: ignore[type-arg]

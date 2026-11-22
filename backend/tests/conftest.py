@@ -10,7 +10,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.core.config import Settings
-from app.core.rate_limit import limiter
+from app.core.rate_limit import ai_budget, limiter
 from app.main import create_app
 from app.repositories.memory_store import MemoryFileStorage, MemoryStore, seed_categories
 from app.services.embeddings.hash_provider import HashEmbeddingProvider
@@ -79,6 +79,7 @@ class Env:
 @pytest.fixture
 def env() -> Env:
     limiter.reset()
+    ai_budget.reset()
     return Env()
 
 

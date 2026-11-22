@@ -13,7 +13,7 @@ from fastapi.responses import StreamingResponse
 from app.api.deps import Pagination, get_services
 from app.api.sse import sse
 from app.core.errors import Forbidden, NotFound, ValidationFailed
-from app.core.rate_limit import rate_limit
+from app.core.rate_limit import limit_assistant_turn, rate_limit
 from app.repositories.base import Query as DbQuery
 from app.repositories.base import get_many, get_one
 from app.schemas.api import (
@@ -107,8 +107,10 @@ def delete_conversation(conversation_id: str, svc: Services = Depends(get_servic
 
 
 @router.post("/conversations/{conversation_id}/messages", status_code=201, dependencies=[Depends(rate_limit("search"))])
-def ask(conversation_id: str, body: ConversationMessage, svc: Services = Depends(get_services),
+def ask(conversation_id: str, body: ConversationMessage, request: Request, svc: Services = Depends(get_services),
         user: AuthUser = Depends(get_current_user)) -> dict:  # type: ignore[type-arg]
+    svc.conversations.get_own(conversation_id, user.id)
+    limit_assistant_turn(request, svc.settings, user_id=user.id, ai_enabled=svc.llm.enabled)
     return svc.conversations.ask(conversation_id, user.id, body.content, body.language)
 
 
@@ -117,6 +119,7 @@ def ask_stream(conversation_id: str, body: ConversationMessage, request: Request
                user: AuthUser = Depends(get_current_user)) -> StreamingResponse:
     """Same as POST …/messages, streamed as server-sent events (status, delta…, done | error)."""
     svc.conversations.get_own(conversation_id, user.id)   # 404 before the stream starts
+    limit_assistant_turn(request, svc.settings, user_id=user.id, ai_enabled=svc.llm.enabled)
     return sse(lambda emit: svc.conversations.ask(conversation_id, user.id, body.content, body.language, emit=emit),
                getattr(request.state, "request_id", None))
 
@@ -133,10 +136,11 @@ def handoff_draft(conversation_id: str, svc: Services = Depends(get_services),
 
 
 @router.post("/assistant/chat", dependencies=[Depends(rate_limit("search"))])
-def anonymous_chat(body: AnonymousChat, svc: Services = Depends(get_services)) -> dict:  # type: ignore[type-arg]
+def anonymous_chat(body: AnonymousChat, request: Request, svc: Services = Depends(get_services)) -> dict:  # type: ignore[type-arg]
     """For visitors who are not signed in: grounded answers without stored history or supporter handoff."""
     if not svc.settings.assistant_anonymous_chat:
         raise Forbidden("Please sign in to use the assistant.")
+    limit_assistant_turn(request, svc.settings, user_id=None, ai_enabled=svc.llm.enabled)
     return svc.conversations.ask_anonymous(body.message, body.language or "en", [m.model_dump() for m in body.history])
 
 
@@ -145,6 +149,7 @@ def anonymous_chat_stream(body: AnonymousChat, request: Request,
                           svc: Services = Depends(get_services)) -> StreamingResponse:
     if not svc.settings.assistant_anonymous_chat:
         raise Forbidden("Please sign in to use the assistant.")
+    limit_assistant_turn(request, svc.settings, user_id=None, ai_enabled=svc.llm.enabled)
     history = [m.model_dump() for m in body.history]
     return sse(lambda emit: svc.conversations.ask_anonymous(body.message, body.language or "en", history, emit=emit),
                getattr(request.state, "request_id", None))

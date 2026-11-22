@@ -28,7 +28,10 @@ class ConversationService:
         self.retention_days = retention_days
         self.settings = settings or Settings(_env_file=None)  # type: ignore[call-arg]
         self.history_turns = self.settings.assistant_history_turns
-        self.engine = AssistantEngine(retrieval, llm, self.settings)
+        from app.core.rate_limit import ai_budget
+
+        limit = self.settings.ai_daily_limit_global
+        self.engine = AssistantEngine(retrieval, llm, self.settings, budget=lambda: ai_budget.take("global", limit))
 
     @property
     def llm(self) -> LLMProvider:

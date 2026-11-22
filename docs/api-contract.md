@@ -83,7 +83,7 @@ Only human-approved translations are ever returned publicly. `body` is the origi
 `{ "answer_generation": "disabled|enabled", "retrieval": "available|unavailable", "reason": string|null }`
 
 ### `POST /api/v1/knowledge/search`
-Body: `{ query: string(1..500), language?: lang, category?: slug, top_k?: int(1..20, default 5), mode?: "hybrid"|"vector"|"keyword" }`
+Body: `{ query: string(1..500), language?: lang, category?: slug, top_k?: int(1..20, default 5), mode?: "hybrid"|"hybrid_legacy"|"vector"|"keyword" }` (`hybrid` = weighted application-side fusion; `hybrid_legacy` = original SQL RRF, for benchmarking)
 ```
 { query,
   results: [{ chunk_id, document_id, version_id, document_title, passage, heading, page: int|null,

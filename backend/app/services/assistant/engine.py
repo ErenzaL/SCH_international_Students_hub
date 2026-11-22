@@ -97,10 +97,14 @@ ANSWER_PROMPT = """Official passages:
 
 
 class AssistantEngine:
-    def __init__(self, retrieval: RetrievalService, llm: LLMProvider | None, settings: Settings):
+    def __init__(self, retrieval: RetrievalService, llm: LLMProvider | None, settings: Settings,
+                 budget: Callable[[], bool] | None = None):
         self.retrieval = retrieval
         self.llm: LLMProvider = llm or NullLLMProvider()
         self.settings = settings
+        # global daily AI budget: returns False when today's generated answers are used up (answers then degrade to
+        # the localized "can't generate right now" reply with sources; they never fail open into unlimited calls)
+        self.budget = budget or (lambda: True)
 
     # ------------------------------------------------------------------ helpers
     @staticmethod
@@ -128,11 +132,12 @@ class AssistantEngine:
                 return "en"
         return fallback if fallback in LANGS else "en"
 
-    def _queries(self, question: str, history: list[dict[str, Any]], lang: str) -> tuple[list[str], dict[str, Any]]:
+    def _queries(self, question: str, history: list[dict[str, Any]], lang: str, *, use_llm: bool = True
+                 ) -> tuple[list[str], dict[str, Any]]:
         """Standalone retrieval queries. LLM: rewrite + en/ko variants. Otherwise: merge short follow-ups."""
         prev_user = next((m["content"] for m in reversed(history) if m["role"] == "user"), None)
         info: dict[str, Any] = {"rewritten": False}
-        if self.llm.enabled and (prev_user or lang not in ("ko", "en")):
+        if use_llm and self.llm.enabled and (prev_user or lang not in ("ko", "en")):
             convo = "\n".join(("Student: " if m["role"] == "user" else "Assistant: ")
                               + re.sub(r"\s+", " ", m["content"])[:500] for m in history[-6:])
             prompt = (f"<conversation>\n{convo}\n</conversation>\n\n" if convo else "") + \
@@ -202,7 +207,8 @@ class AssistantEngine:
             return self._finish(out, started)
 
         emit("status", {"stage": "searching"})
-        queries, qinfo = self._queries(question, history, lang)
+        ai_ok = self.llm.enabled and self.budget()
+        queries, qinfo = self._queries(question, history, lang, use_llm=ai_ok)
         found = self._retrieve(queries, lang)
         hits = found["hits"]
         out["retrieval"] = dict(mode=found["mode"], warning=found["warning"], hits=len(hits), queries=len(queries), **qinfo)
@@ -215,11 +221,19 @@ class AssistantEngine:
         disputed = bool(_DISPUTE.search(question)) and bool(history)
         answer: str | None = None
         evidence = "none"
-        if hits and self.llm.enabled:
+        generation_failed = False
+        if hits and self.llm.enabled and not ai_ok:
+            out["generation"] = {"answer_generation": "fallback", "fallback_reason": "daily_budget"}
+            generation_failed = True
+        elif hits and self.llm.enabled:
             emit("status", {"stage": "writing"})
             try:
-                answer, meta, model = self._generate(question, hits, lang, history, emit)
-                out["generation"] = {"answer_generation": "llm", "provider": model[0], "model": model[1]}
+                answer, meta, res = self._generate(question, hits, lang, history, emit)
+                out["generation"] = {"answer_generation": "llm", "provider": res.provider, "model": res.model,
+                                     "model_role": res.model_role, "fallback_used": res.fallback_used,
+                                     "llm_attempts": res.attempts, "llm_latency_ms": res.latency_ms,
+                                     "input_tokens": res.input_tokens, "output_tokens": res.output_tokens,
+                                     "total_tokens": res.total_tokens}
                 evidence = meta.get("evidence") if meta.get("evidence") in EVIDENCE else "partial"
                 individual = individual or bool(meta.get("individual"))
                 wants_human = wants_human or bool(meta.get("wants_human"))
@@ -227,11 +241,14 @@ class AssistantEngine:
                 if evidence != "none" and not _citations(answer, len(hits)):
                     out["generation"] = {"answer_generation": "fallback", "fallback_reason": "no_citations"}
                     answer = None
+                    generation_failed = True
                 elif answer:
                     answer = _sanitize_links(_strip_invalid(answer, len(hits)), _allowed_urls(hits))
             except LLMError as exc:
-                out["generation"] = {"answer_generation": "fallback", "fallback_reason": exc.code}
+                out["generation"] = {"answer_generation": "fallback", "fallback_reason": exc.code,
+                                     "partial_stream_discarded": exc.partial}
                 answer = None
+                generation_failed = True
         if answer is not None and evidence == "none":
             out.update(answer=answer, evidence="none")
         elif answer is not None:
@@ -240,7 +257,14 @@ class AssistantEngine:
             out.update(answer=answer, evidence=evidence)
             if evidence == "conflicting" and t("conflicting", lang) not in answer:
                 out["answer"] = f"{answer}\n\n{t('conflicting', lang)}"
-        elif hits:   # evidence-only reply (no LLM or unusable generation)
+        elif generation_failed:
+            # the LLM is configured but produced no usable answer (both models failed, uncited output, or today's
+            # budget is used up): a short localized message plus the matching official sources - never raw passages.
+            # Any partially streamed text is replaced by this final message on the client.
+            out["citations"] = _distinct_sources(out["citations"], limit=3)
+            out.update(answer=t("generation_failed" if out["citations"] else "generation_failed_no_sources", lang),
+                       evidence="unavailable")
+        elif hits:   # evidence-only reply (no LLM configured)
             parts = [t("found", lang)]
             for i, h in enumerate(hits[:4], 1):
                 passage = re.sub(r"\s+", " ", h["passage"]).strip()
@@ -254,7 +278,7 @@ class AssistantEngine:
                        weak_evidence=level == "weak")
         else:
             out.update(answer=t("none", lang), evidence="none")
-        if individual and out["evidence"] != "none" and t("individual", lang) not in out["answer"]:
+        if individual and out["evidence"] not in ("none", "unavailable") and t("individual", lang) not in out["answer"]:
             out["answer"] += f"\n\n{t('individual', lang)}"
         out["individual"] = individual
         # escalation: only when genuinely needed, and always as a question (nothing is sent without confirmation)
@@ -276,7 +300,7 @@ class AssistantEngine:
         return self._finish(out, started)
 
     def _generate(self, question: str, hits: list[dict[str, Any]], lang: str, history: list[dict[str, Any]],
-                  emit: Emit) -> tuple[str, dict[str, Any], tuple[str, str]]:
+                  emit: Emit) -> tuple[str, dict[str, Any], Any]:
         hist = ""
         if history:
             turns = [("Student: " if m["role"] == "user" else "Assistant: ") + re.sub(r"\s+", " ", m["content"])[:600]
@@ -286,7 +310,7 @@ class AssistantEngine:
                                       history=hist, question=question[:4000])
         system = ANSWER_SYSTEM.format(language=LANGUAGE_NAMES.get(lang, lang), meta=META)
         streamer = _MetaHoldback(lambda text: emit("delta", {"text": text}))
-        res = self.llm.stream(system, prompt, streamer.feed, max_tokens=2048)
+        res = self.llm.stream(system, prompt, streamer.feed, max_tokens=self.settings.llm_answer_max_tokens)
         text = res.text
         body, _, tail = text.partition(META)
         meta: dict[str, Any] = {}
@@ -294,7 +318,7 @@ class AssistantEngine:
             meta = _json_object(tail) if tail else {}
         except ValueError:
             meta = {}
-        return body.strip(), meta, (res.provider, res.model)
+        return body.strip(), meta, res
 
     def _finish(self, out: dict[str, Any], started: float) -> dict[str, Any]:
         gen = out.get("generation") or {}
@@ -305,6 +329,21 @@ class AssistantEngine:
                  gen.get("answer_generation"), out["offer_handoff"], ",".join(out["handoff_reasons"]) or "-",
                  out["latency_ms"])
         return out
+
+
+def _distinct_sources(citations: list[dict[str, Any]], limit: int = 3) -> list[dict[str, Any]]:
+    """One entry per source document (best-ranked chunk), renumbered, marked as the sources to show."""
+    seen: set[str] = set()
+    out: list[dict[str, Any]] = []
+    for c in citations:
+        key = c.get("document_id") or c.get("source_url") or c.get("document_title")
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(c | {"n": len(out) + 1, "cited": True})
+        if len(out) >= limit:
+            break
+    return out
 
 
 def grade_passages(hits: list[dict[str, Any]], strong_similarity: float = 0.84) -> str:

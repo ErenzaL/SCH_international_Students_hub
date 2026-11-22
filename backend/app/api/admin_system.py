@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from app.api.admin_sources import job_view
 from app.api.deps import Pagination, get_services
@@ -54,9 +54,42 @@ def settings_view(svc: Services = Depends(get_services), _: AuthUser = Depends(r
         allowed_domains=s.allowed_domains, max_upload_mb=s.max_upload_mb, max_response_mb=s.max_response_mb,
         llm_provider="none" if not svc.llm.enabled else svc.llm.name,
         answer_generation="enabled" if svc.llm.enabled else "disabled",
+        llm_models=dict(primary=getattr(svc.llm, "primary", getattr(svc.llm, "model", "")) or None,
+                        fallback=getattr(svc.llm, "fallback", "") or None) if svc.llm.enabled else None,
         rate_limits=dict(search_per_minute=s.rate_limit_search_per_minute,
                          ingest_per_minute=s.rate_limit_ingest_per_minute,
-                         public_per_minute=s.rate_limit_public_per_minute))
+                         public_per_minute=s.rate_limit_public_per_minute,
+                         chat_user_per_minute=s.rate_limit_chat_user_per_minute,
+                         chat_anonymous_global_per_minute=s.rate_limit_chat_anonymous_global_per_minute),
+        ai_daily_limits=dict(per_client=s.ai_daily_limit_per_client, per_user=s.ai_daily_limit_per_user,
+                             global_=s.ai_daily_limit_global))
+
+
+@router.get("/system/client-ip")
+def client_ip_diagnostics(request: Request, svc: Services = Depends(get_services),
+                          _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """How the backend identifies the caller (to verify CLIENT_IP_HEADER / TRUSTED_PROXY_HOPS on a deployment).
+
+    Check: call this once normally and once with a made-up ``True-Client-IP`` / ``X-Forwarded-For`` header. The
+    resolved IP must stay your real IP both times; if a made-up value appears, that header is client-controlled."""
+    from app.core.rate_limit import client_ip
+
+    s = svc.settings
+    header = (s.client_ip_header or "").lower()
+    return dict(resolved_client_ip=client_ip(request, s), client_ip_header=header or None,
+                client_ip_header_value=request.headers.get(header) if header else None,
+                x_forwarded_for=request.headers.get("x-forwarded-for"), trusted_proxy_hops=s.trusted_proxy_hops,
+                socket_peer=request.client.host if request.client else None)
+
+
+@router.get("/system/llm-usage")
+def llm_usage(svc: Services = Depends(get_services), _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """Operational LLM metrics since the last restart (no prompts, answers or personal data)."""
+    from app.core.rate_limit import ai_budget
+    from app.services.llm.usage import usage
+
+    return dict(provider=svc.llm.name if svc.llm.enabled else "none", usage=usage.snapshot(),
+                daily_budget=ai_budget.snapshot() | {"global_limit": svc.settings.ai_daily_limit_global})
 
 
 @router.get("/audit-log")

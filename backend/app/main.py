@@ -28,7 +28,7 @@ from app.services.container import build_services
 from app.services.embeddings.base import EmbeddingProvider
 from app.services.embeddings.factory import build_embedding_provider
 from app.services.ingestion.fetcher import GuardedFetcher
-from app.services.llm.base import LLMProvider, build_llm_provider
+from app.services.llm.base import LLMProvider, build_llm_from_settings
 
 log = logging.getLogger("app")
 
@@ -71,9 +71,7 @@ def create_app(settings: Settings | None = None, *, store: Store | None = None, 
         store, storage = sb, SupabaseFileStorage(sb, settings.source_files_bucket)
     app.state.store = store
     if store is not None:
-        app.state.services = build_services(settings, store, storage, emb, llm or build_llm_provider(
-            settings.llm_provider, settings.llm_api_key, settings.llm_model, settings.llm_effort,
-            settings.llm_timeout_seconds), fetcher)
+        app.state.services = build_services(settings, store, storage, emb, llm or build_llm_from_settings(settings), fetcher)
 
     app.add_middleware(RequestLoggingMiddleware, max_body_bytes=settings.max_request_body_mb * 1024 * 1024)
     app.add_middleware(

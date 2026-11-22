@@ -113,7 +113,7 @@ class SearchRequest(BaseModel):
     language: Lang | None = None
     category: str | None = None
     top_k: int = Field(default=5, ge=1, le=20)
-    mode: Literal["hybrid", "vector", "keyword"] = "hybrid"
+    mode: Literal["hybrid", "hybrid_legacy", "vector", "keyword"] = "hybrid"
     scope: Scope | None = None
     authority: list[AuthorityType] | None = Field(default=None, max_length=5)
 
