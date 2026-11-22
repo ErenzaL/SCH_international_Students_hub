@@ -112,7 +112,8 @@ class ConversationService:
     def _metadata(out: dict[str, Any]) -> dict[str, Any]:
         r = out.get("retrieval") or {}
         return {"offer_handoff": out["offer_handoff"], "handoff_reasons": out["handoff_reasons"],
-                "evidence_level": out["evidence"], "individual": out["individual"], "follow_ups": out["follow_ups"],
+                "evidence_level": out["evidence"], "weak_evidence": bool(out.get("weak_evidence")),
+                "individual": out["individual"], "follow_ups": out["follow_ups"],
                 "evidence": r.get("hits", 0), "retrieval_mode": r.get("mode"), "warning": r.get("warning"),
                 "rewritten": r.get("rewritten", False), "latency_ms": out.get("latency_ms"),
                 "stale_evidence": any(c.get("is_stale") for c in out["citations"]),

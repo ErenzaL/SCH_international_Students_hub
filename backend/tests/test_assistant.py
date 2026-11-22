@@ -257,7 +257,7 @@ def test_llm_failure_falls_back_to_evidence(kb):
     use_llm(env, ScriptedLLMProvider(lambda s, p: LLMError("llm_unavailable", "down", transient=True)))
     msg = say(env, conv(env, language="ko"), Q, language="ko")
     assert msg["metadata"]["answer_generation"] == "fallback" and msg["metadata"]["fallback_reason"] == "llm_unavailable"
-    assert msg["content"].startswith("승인된 공식 자료") and msg["citations"]
+    assert msg["content"].startswith(("승인된 공식 자료", "승인된 자료가")) and msg["citations"]   # passages, in Korean
 
 
 def _events(text: str) -> list[tuple[str, dict]]:  # type: ignore[type-arg]
@@ -327,3 +327,19 @@ def test_anonymous_visitors_can_chat_but_handoff_needs_sign_in(kb):
     assert env.client.post("/api/v1/assistant/chat", json={"message": Q}).status_code == 403
     assert env.client.post("/api/v1/assistant/chat", json={"message": Q, "history": [{"role": "system",
                                                                                          "content": "x"}]}).status_code == 422
+
+
+def test_passage_only_evidence_grading_matches_production_signals():
+    from app.services.assistant.engine import grade_passages
+
+    hit = lambda sim, kw=False, exact=False: {"similarity": sim, "keyword_rank": 0.5 if kw else None,  # noqa: E731
+                                              "exact_match": exact}
+    # measured in production (multilingual-e5-small int8): unrelated questions ~0.79-0.81, stray keyword-only hits
+    assert grade_passages([hit(0.811), hit(0, kw=True), hit(0.794)]) == "weak"           # "best kimchi recipe"
+    assert grade_passages([hit(0.807), hit(0.802)]) == "weak"                           # "bake a chocolate cake"
+    assert grade_passages([hit(0.864, kw=True), hit(0.854, kw=True)]) == "sufficient"   # English visa documents
+    assert grade_passages([hit(0.841, kw=True)]) == "sufficient"                        # Korean visa documents
+    assert grade_passages([hit(0.827, kw=True), hit(0.82, kw=True)]) == "partial"       # Indonesian visa documents
+    assert grade_passages([hit(0.845)]) == "partial"                                    # vector only, high
+    assert grade_passages([hit(0.0, exact=True)]) == "sufficient"                       # exact identifier (D-2)
+    assert grade_passages([]) == "none"

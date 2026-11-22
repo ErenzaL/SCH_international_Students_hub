@@ -21,7 +21,10 @@ Student message ──► POST /api/v1/conversations/{id}/messages/stream   (sig
       withdrawn, archived, deleted and inactive sources; translations are never indexed)
    5. generation (LLM_PROVIDER=anthropic): streamed answer in the reply language, [n] citations, short by default;
       a hidden META block reports evidence = sufficient | partial | conflicting | none, individual, wants_human,
-      follow-up suggestions. Without an LLM: the approved passages with a localized framing sentence.
+      follow-up suggestions. Without an LLM: the approved passages with a localized framing sentence, graded from
+      retrieval signals that must agree (multilingual-E5 gives unrelated text ~0.79-0.81 similarity in production):
+      sufficient = exact identifier, or keyword + similarity >= 0.83, or similarity >= 0.86; partial = keyword +
+      >= 0.80 or similarity >= 0.84; otherwise "closest information - may not answer your question" (no escalation)
    6. validation: answers without a valid citation are discarded (fallback to passages); [n] outside the evidence
       removed; links not present in the evidence replaced by "[link removed]"; the model cannot create requests
    7. escalation offer only for: explicit request for a person, a reported wrong answer, an individual decision,

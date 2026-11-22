@@ -247,9 +247,11 @@ class AssistantEngine:
                 passage = passage[:PASSAGE_CHARS] + ("…" if len(passage) > PASSAGE_CHARS else "")
                 parts.append(f"**[{i}] {h['document_title']}{' – ' + h['heading'] if h.get('heading') else ''}**\n{passage}")
             out["citations"] = out["citations"][:4]
-            strong = max((h.get("similarity") or 0) for h in hits) >= self.settings.assistant_strong_similarity \
-                or any(h.get("exact_match") or h.get("keyword_rank") for h in hits[:2])
-            out.update(answer="\n\n".join(parts), evidence="sufficient" if strong else "partial")
+            level = grade_passages(hits, self.settings.assistant_strong_similarity)
+            if level == "weak":   # nothing clearly matches: say so instead of presenting it as the answer
+                parts[0] = t("closest", lang)
+            out.update(answer="\n\n".join(parts), evidence="partial" if level == "weak" else level,
+                       weak_evidence=level == "weak")
         else:
             out.update(answer=t("none", lang), evidence="none")
         if individual and out["evidence"] != "none" and t("individual", lang) not in out["answer"]:
@@ -303,6 +305,27 @@ class AssistantEngine:
                  gen.get("answer_generation"), out["offer_handoff"], ",".join(out["handoff_reasons"]) or "-",
                  out["latency_ms"])
         return out
+
+
+def grade_passages(hits: list[dict[str, Any]], strong_similarity: float = 0.84) -> str:
+    """Evidence level for passage-only replies (no LLM to judge relevance), from retrieval signals only.
+
+    Multilingual-E5 gives unrelated text a high baseline similarity (~0.79-0.81 in production) and a single stray
+    keyword can match anything, so one signal alone is not trusted: 'sufficient' needs an exact identifier, or a
+    keyword match AND semantic similarity, or a very high similarity; vector-only or keyword-only weak matches are
+    'weak' (shown as "closest information", not as the answer)."""
+    def sim(h: dict[str, Any]) -> float:
+        return float(h.get("similarity") or 0.0)
+
+    if not hits:
+        return "none"
+    if any(h.get("exact_match") for h in hits) or any(h.get("keyword_rank") is not None and sim(h) >= strong_similarity - 0.01
+                                                      for h in hits) or max(sim(h) for h in hits) >= strong_similarity + 0.02:
+        return "sufficient"
+    if any(h.get("keyword_rank") is not None and sim(h) >= strong_similarity - 0.04 for h in hits) \
+            or max(sim(h) for h in hits) >= strong_similarity:
+        return "partial"
+    return "weak"
 
 
 class _MetaHoldback:

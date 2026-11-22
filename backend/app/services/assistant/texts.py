@@ -11,6 +11,16 @@ TEXT: dict[str, dict[str, str]] = {
         "vi": "Đây là thông tin từ các nguồn chính thức đã được duyệt (hướng dẫn chung, không phải quyết định cho trường hợp của bạn):",
         "zh-CN": "以下是已审核官方资料中的内容（一般性指导，并非针对您个人情况的决定）：",
     },
+    "closest": {
+        "en": "I'm not sure the approved sources answer this exactly. Here is the closest official information I found "
+              "— please check whether it fits your question:",
+        "ko": "승인된 자료가 이 질문에 정확히 답하는지 확실하지 않습니다. 가장 가까운 공식 정보를 찾았으니 질문에 맞는지 확인해 주세요:",
+        "id": "Saya tidak yakin sumber resmi yang disetujui menjawab pertanyaan ini dengan tepat. Berikut informasi resmi "
+              "terdekat yang saya temukan — mohon periksa apakah sesuai dengan pertanyaan Anda:",
+        "vi": "Tôi không chắc các nguồn chính thức đã duyệt trả lời đúng câu hỏi này. Đây là thông tin chính thức gần nhất "
+              "tôi tìm được — bạn vui lòng kiểm tra xem có phù hợp không:",
+        "zh-CN": "我不确定已审核的资料能否准确回答这个问题。以下是我找到的最接近的官方信息，请确认是否符合您的问题：",
+    },
     "none": {
         "en": "I couldn't find this in the approved SCH and Korean government sources, so I can't answer it reliably. "
               "You could try rephrasing, or check with the responsible office.",
