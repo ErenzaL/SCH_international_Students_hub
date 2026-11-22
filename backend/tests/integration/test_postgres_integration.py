@@ -112,13 +112,14 @@ def test_end_to_end_against_real_database(it: IT):
     src = r.json()
     assert c.post("/api/v1/admin/sources", headers=a, json=body).status_code == 409
 
-    # ingest -> chunks + vector(384) stored in pgvector
+    # ingest -> chunks stored for review, but NOT embedded before approval
     jid = c.post(f"/api/v1/admin/sources/{src['id']}/ingest", headers=a).json()["job_id"]
     job = c.get(f"/api/v1/admin/ingestion-jobs/{jid}", headers=a).json()
     assert job["status"] == "succeeded" and job["outcome"] == "new_version", job
-    n = sql(f"select count(*) from public.document_chunks where version_id = '{job['version_id']}' "
-            f"and embedding is not null and embedding_model = 'hash-dev-384' and extensions.vector_dims(embedding) = 384")
-    assert int(n) == job["statistics"]["chunk_count"] >= 1
+    embedded_sql = (f"select count(*) from public.document_chunks where version_id = '{job['version_id']}' "
+                    f"and embedding is not null and embedding_model = 'hash-dev-384' "
+                    f"and extensions.vector_dims(embedding) = 384")
+    assert job["statistics"]["chunk_count"] >= 1 and int(sql(embedded_sql)) == 0
     assert c.get("/api/v1/knowledge/documents", params={"q": f"Visa and Stay {suffix}"}).json()["total"] == 0  # pending => private
     first = c.post("/api/v1/knowledge/search", json=dict(query="alien registration immigration"))
     assert [r for r in first.json()["results"] if r["version_id"] == job["version_id"]] == []
@@ -129,7 +130,8 @@ def test_end_to_end_against_real_database(it: IT):
 
     # approve -> searchable with accurate citation (hybrid + vector + keyword)
     ok = c.post(f"/api/v1/admin/versions/{job['version_id']}/approve", headers=a, json={})
-    assert ok.status_code == 200 and ok.json()["verification_status"] == "approved", ok.text
+    assert ok.status_code == 202 and ok.json()["verification_status"] == "approved", ok.text
+    assert int(sql(embedded_sql)) == job["statistics"]["chunk_count"]  # vector(384) rows written by the index job
     for mode in ("hybrid", "vector", "keyword"):
         res = c.post("/api/v1/knowledge/search", json=dict(query="alien registration immigration office", mode=mode, top_k=20)).json()
         hit = [r for r in res["results"] if r["version_id"] == job["version_id"]]
@@ -150,7 +152,7 @@ def test_end_to_end_against_real_database(it: IT):
     # same content again: no new version (unique (document_id, content_hash))
     jid3 = c.post(f"/api/v1/admin/sources/{src['id']}/ingest", headers=a).json()["job_id"]
     assert c.get(f"/api/v1/admin/ingestion-jobs/{jid3}", headers=a).json()["outcome"] == "unchanged"
-    assert c.post(f"/api/v1/admin/versions/{job2['version_id']}/approve", headers=a, json={}).status_code == 200
+    assert c.post(f"/api/v1/admin/versions/{job2['version_id']}/approve", headers=a, json={}).status_code == 202
     statuses = sql(f"select string_agg(version_number || ':' || verification_status, ',' order by version_number) "
                    f"from public.document_versions where document_id = '{job['document_id']}'")
     assert statuses == "1:superseded,2:approved"

@@ -34,9 +34,9 @@ export type VerificationStatus =
   | "rejected"
   | "superseded";
 export type JobStatus = "queued" | "running" | "succeeded" | "failed";
-export type JobOutcome = "new_version" | "unchanged" | "partial" | "extracted";
-export type JobType = "ingest" | "board_sync" | "ocr_intake";
-export type IndexingStatus = "not_indexed" | "indexing" | "indexed" | "failed";
+export type JobOutcome = "new_version" | "unchanged" | "partial" | "extracted" | "activated";
+export type JobType = "ingest" | "board_sync" | "ocr_intake" | "index_version";
+export type IndexingStatus = "not_indexed" | "queued" | "indexing" | "indexed" | "failed";
 export type PublicationStatus =
   | "draft"
   | "pending_approval"
@@ -384,6 +384,8 @@ export interface VersionSummary {
   structured_data?: StructuredData;
   original_file?: { filename: string; mime_type: string; size: number; sha256: string } | null;
   has_raw_text?: boolean;
+  activation_requested_by?: string | null;
+  activation_requested_at?: string | null;
 }
 
 export interface Version extends VersionSummary {
@@ -668,4 +670,85 @@ export interface AllowedDomain {
 export interface SourceHistory {
   jobs: Job[];
   audit: { id: number | string; action: string; actor_id: string | null; details: Record<string, unknown>; created_at: string }[];
+}
+
+/** POST /admin/versions/{id}/approve (202): the version plus the durable indexing job it queued. */
+export interface ApproveResult extends Version {
+  indexing_job_id: string;
+  indexing_job_status: JobStatus;
+}
+
+export interface RagQueueItem {
+  job_id: string;
+  status: JobStatus;
+  attempts: number | null;
+  max_attempts: number | null;
+  error_code: string | null;
+  error_message: string | null;
+  run_after: string | null;
+  created_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+  version_id: string | null;
+  version_number: number | null;
+  version_status: VerificationStatus | null;
+  indexing_status: IndexingStatus | null;
+  document_id: string | null;
+  document_title: string | null;
+  statistics: Record<string, unknown>;
+}
+
+export interface RagSource {
+  id: string;
+  title: string;
+  source_type: SourceType;
+  status: SourceStatus;
+  sync_frequency: SyncFrequency;
+  last_checked_at: string | null;
+  last_success_at: string | null;
+  last_change_at: string | null;
+  is_active: boolean;
+}
+
+export interface RagStatus {
+  counts: {
+    sources_registered: number;
+    sources_active: number;
+    sources_failed_or_blocked: number;
+    pending_review: number;
+    waiting_for_indexing: number;
+    indexing_now: number;
+    indexing_failed: number;
+    active_versions: number;
+    searchable_chunks: number;
+    chunks_with_current_model: number;
+    failed_jobs: number;
+  };
+  last_sync_at: string | null;
+  embedding: { model: string; dimensions: number; provider: string; loaded: boolean };
+  job_execution: string;
+  queue: RagQueueItem[];
+  recent_activations: { at: string; document_id: string | null; document_title: string | null; version_number: number | null; chunks: number | null }[];
+  sources: RagSource[];
+}
+
+export type NotificationSeverity = "info" | "warning" | "error";
+
+export interface AdminNotification {
+  id: number;
+  kind: string;
+  severity: NotificationSeverity;
+  title: string;
+  message: string | null;
+  entity_type: string | null;
+  entity_id: string | null;
+  link: string | null;
+  created_at: string;
+  unread: boolean;
+}
+
+export interface NotificationList {
+  items: AdminNotification[];
+  unread: number;
+  last_read_at: string | null;
 }

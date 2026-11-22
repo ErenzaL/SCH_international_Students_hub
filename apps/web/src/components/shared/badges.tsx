@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
+import { versionState, type VersionState } from "@/lib/version-state";
 import type {
   AnnouncementStatus,
   AuthorityType,
@@ -105,6 +106,7 @@ export function TestDataBadge() {
 
 const indexVariant: Record<IndexingStatus, Variant> = {
   not_indexed: "muted",
+  queued: "secondary",
   indexing: "info",
   indexed: "success",
   failed: "danger",
@@ -127,4 +129,21 @@ export function StaleBadge({ days }: { days?: number | null }) {
 export function ExactMatchBadge() {
   const t = useTranslations("knowledge");
   return <Badge variant="info">{t("exactMatch")}</Badge>;
+}
+
+const stateVariant: Record<VersionState, Variant> = {
+  draft: "muted",
+  pending_review: "warning",
+  indexing: "info",
+  index_failed: "danger",
+  active: "success",
+  approved_inactive: "secondary",
+  superseded: "muted",
+  rejected: "danger",
+};
+/** Lifecycle badge: Pending review / Approved – indexing / Indexing failed / Active / Superseded … */
+export function VersionStateBadge({ version }: { version: Parameters<typeof versionState>[0] }) {
+  const t = useTranslations("enums.versionState");
+  const state = versionState(version);
+  return <Badge variant={stateVariant[state]}>{t(state)}</Badge>;
 }

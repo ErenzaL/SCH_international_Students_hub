@@ -254,6 +254,12 @@ def retry_job(job_id: str, background: BackgroundTasks, svc: Services = Depends(
     if j["status"] != "failed" and j.get("job_type") != "ocr_intake":
         raise InvalidState("Only failed jobs can be retried.")
     source = svc.sources.get(j["source_id"])
+    if j.get("job_type") == "index_version":
+        v = svc.review.check_approvable((j.get("payload") or {}).get("version_id", ""))
+        # keep the original approver (the decision was theirs); the retry itself is audited by the job row
+        new = svc.ingestion.request_activation(v, j.get("requested_by") or user.id, (j.get("payload") or {}).get("note"))
+        svc.jobs.enqueue(new, background)
+        return dict(job_id=new["id"], status=new["status"])
     if j.get("job_type") == "ocr_intake":
         out = svc.intake.retry_ocr(job_id, user)
         return dict(job_id=out["job"]["id"], status=out["job"]["status"])

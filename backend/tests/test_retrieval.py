@@ -13,7 +13,7 @@ def make_doc(env, title, text, *, category="visa-immigration", scope="national",
     assert job["status"] == "succeeded", job
     if approve:
         r = env.client.post(f"/api/v1/admin/versions/{job['version_id']}/approve", headers=env.auth("admin"), json={})
-        assert r.status_code == 200, r.text
+        assert r.status_code == 202, r.text
     return job
 
 
@@ -48,7 +48,7 @@ def test_results_carry_accurate_citations(env):
     jid = env.client.post(f"/api/v1/admin/sources/{src['id']}/ingest", headers=env.auth("admin")).json()["job_id"]
     job = env.client.get(f"/api/v1/admin/ingestion-jobs/{jid}", headers=env.auth("admin")).json()
     assert env.client.post(f"/api/v1/admin/versions/{job['version_id']}/approve", headers=env.auth("admin"),
-                           json={}).status_code == 200
+                           json={}).status_code == 202
     res = search(env, "alien registration immigration office")
     top = res["results"][0]
     assert top["source_url"] == ARTICLE_URL  # exact registered URL preserved

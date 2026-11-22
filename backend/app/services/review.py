@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from app.core.constants import OFFICIAL_AUTHORITIES
-from app.core.errors import Conflict, EmbeddingUnavailable, Forbidden, InvalidState, NotFound
+from app.core.errors import Conflict, Forbidden, InvalidState, NotFound
 from app.repositories.base import FileStorage, Query, Store, get_many, get_one
 from app.security.auth import AuthUser
 from app.services.indexing import IndexingService
@@ -59,7 +59,7 @@ class ReviewService:
             "id", "document_id", "version_number", "content_hash", "source_published_at", "fetched_at", "valid_from",
             "valid_until", "verification_status", "approved_by", "approved_at", "rejected_reason", "created_at",
             "created_by", "edited_by", "edited_at", "review_note", "submitted_at", "indexing_status", "indexed_at",
-            "indexing_error")}
+            "indexing_error", "activation_requested_by", "activation_requested_at")}
         meta = v.get("extraction_meta") or {}
         f = v.get("original_file") or None
         out.update(content_length=len(v["extracted_text"]), is_current=(v["id"] == current_id), **stats,
@@ -243,9 +243,8 @@ class ReviewService:
         self.store.rpc("request_version_changes", dict(p_version_id=version_id, p_actor=actor.id, p_note=note))
         return self.get_version_view(version_id)
 
-    def approve(self, version_id: str, actor: AuthUser, note: str | None) -> dict[str, Any]:
-        """Approval -> make sure every chunk is embedded -> atomic activation in the database.
-        If indexing fails the previous approved version stays live and nothing becomes searchable."""
+    def check_approvable(self, version_id: str) -> dict[str, Any]:
+        """Approval preconditions (the activation itself happens in the index job, atomically)."""
         v = get_one(self.store, "document_versions", id=version_id)
         if v is None:
             raise NotFound("Version not found.")
@@ -255,12 +254,10 @@ class ReviewService:
         if meta.get("requires_field_confirmation") and not sd.get("fields_confirmed"):
             raise InvalidState("OCR-derived content: confirm the dates, times, places, fees and contacts against the "
                                "original first (set fields_confirmed).", code="fields_not_confirmed")
-        try:
-            self.indexer.ensure_indexed(version_id)  # embeddings must exist before anything becomes searchable
-        except EmbeddingUnavailable:
-            raise
-        self.store.rpc("approve_document_version", dict(p_version_id=version_id, p_actor=actor.id, p_note=note))
-        return self.get_version_view(version_id)
+        doc = get_one(self.store, "source_documents", id=v["document_id"]) or {}
+        if doc.get("is_canceled"):
+            raise InvalidState("This document was withdrawn; restore it before approving new content.")
+        return v
 
     def reject(self, version_id: str, actor: AuthUser, reason: str) -> dict[str, Any]:
         self.store.rpc("reject_document_version", dict(p_version_id=version_id, p_actor=actor.id, p_reason=reason))
@@ -269,7 +266,7 @@ class ReviewService:
     def reprocess(self, version_id: str) -> dict[str, Any]:
         if get_one(self.store, "document_versions", id=version_id) is None:
             raise NotFound("Version not found.")
-        self.indexer.index_version(version_id, raise_on_embedding_error=True)
+        self.indexer.index_version(version_id, raise_on_embedding_error=True, embed=True)  # "retry indexing"
         return self.get_version_view(version_id)
 
     def rollback(self, document_id: str, version_id: str, actor: AuthUser, note: str | None, source_view) -> dict[str, Any]:  # type: ignore[no-untyped-def]

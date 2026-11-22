@@ -80,7 +80,8 @@
       "new_version": "New version created",
       "unchanged": "No change detected",
       "partial": "Partially completed",
-      "extracted": "Text extracted (awaiting correction)"
+      "extracted": "Text extracted (awaiting correction)",
+      "activated": "Activated (searchable)"
     },
     "publication": {
       "draft": "Draft",
@@ -124,7 +125,8 @@
     "jobType": {
       "ingest": "Ingestion",
       "board_sync": "Board sync",
-      "ocr_intake": "Screenshot OCR"
+      "ocr_intake": "Screenshot OCR",
+      "index_version": "Indexing"
     },
     "trigger": {
       "manual": "Manual",
@@ -135,7 +137,18 @@
       "not_indexed": "Not indexed",
       "indexing": "Indexing",
       "indexed": "Indexed",
-      "failed": "Indexing failed"
+      "failed": "Indexing failed",
+      "queued": "Indexing queued"
+    },
+    "versionState": {
+      "draft": "Draft",
+      "pending_review": "Pending review",
+      "indexing": "Approved – indexing",
+      "index_failed": "Indexing failed",
+      "active": "Active – searchable",
+      "approved_inactive": "Approved (not current)",
+      "superseded": "Superseded",
+      "rejected": "Rejected"
     }
   },
   "errors": {
@@ -387,7 +400,8 @@
       "review": "Review Queue",
       "users": "Users & Roles",
       "settings": "Settings",
-      "submissions": "My Submissions"
+      "submissions": "My Submissions",
+      "ragSync": "RAG Sync"
     },
     "notConfiguredTitle": "Authentication is not configured",
     "notConfiguredBody": "The admin area needs Supabase Auth and the backend API.",
@@ -412,7 +426,8 @@
       "when": "When",
       "message": "Result",
       "recentAudit": "Recent administrative actions",
-      "noAudit": "No audit entries yet"
+      "noAudit": "No audit entries yet",
+      "notifications": "Notifications"
     },
     "settings": {
       "title": "Settings",
@@ -571,7 +586,7 @@
       "viewChunks": "View chunks & embeddings",
       "actions": "Actions",
       "approvalNote": "Approval note (optional)",
-      "approve": "Approve",
+      "approve": "Approve and index",
       "missingEmbeddings": "Some chunks have no embedding yet; the backend will try to generate them on approval.",
       "rejectReason": "Reason (required to reject or cancel)",
       "reasonRequired": "A reason is required.",
@@ -580,7 +595,7 @@
       "retryExtraction": "Retry extraction",
       "reprocess": "Reprocess chunks",
       "cancelDocument": "Cancel document",
-      "cancelHint": "Cancel removes the document from search and the public site. Enter a reason above first.",
+      "cancelHint": "Withdraw removes the document from AI search and the Knowledge Center immediately; every version is kept for audit.",
       "versions": "Version history",
       "version": "Version",
       "status": "Status",
@@ -606,7 +621,8 @@
       "chunksDescription": "How the content is split for search.",
       "noChunks": "No chunks stored.",
       "embeddedYes": "embedded",
-      "embeddedNo": "no embedding"
+      "embeddedNo": "no embedding",
+      "ragSyncLink": "Open RAG Sync status"
     },
     "queue": {
       "title": "Review Queue",
@@ -618,7 +634,8 @@
       "reviewNow": "Review",
       "tabPending": "Pending review",
       "tabDrafts": "Drafts / changes requested",
-      "draftOpen": "Open"
+      "draftOpen": "Open",
+      "ragSyncLink": "Approved items are indexed automatically – see RAG Sync status"
     },
     "announcements": {
       "title": "Announcements",
@@ -750,7 +767,15 @@
       "fieldsConfirmed": "Key facts confirmed.",
       "fieldsUnconfirmed": "Confirmation removed.",
       "changesRequested": "Sent back to the submitter for changes.",
-      "retryNotFetchable": "Only website and notice-board sources can be re-fetched. Upload the file again or edit the text instead."
+      "retryNotFetchable": "Only website and notice-board sources can be re-fetched. Upload the file again or edit the text instead.",
+      "approvalQueued": "Approved – indexing queued. The current version stays live until indexing finishes.",
+      "approvalIndexing": "Approved – indexing ({status})…",
+      "activeSearchable": "Active – searchable. The new version now answers student questions.",
+      "indexingFailed": "Indexing failed: {error} The previously approved version is still live.",
+      "indexingStillRunning": "Indexing is still running in the background. Check the RAG Sync page for progress.",
+      "retryIndexing": "Retry indexing",
+      "retryQueued": "Indexing queued again.",
+      "approveHint": "Approval queues a durable indexing job: chunks are embedded and validated, then this version replaces the live one atomically."
     },
     "ks": {
       "title": "Knowledge Sources",
@@ -949,6 +974,86 @@
       "submitted": "Submitted for review.",
       "draftSaved": "Draft saved.",
       "editDraft": "Edit draft"
+    },
+    "withdraw": {
+      "button": "Withdraw published content – removes it from search immediately",
+      "short": "Withdraw",
+      "title": "Withdraw published content?",
+      "description": "“{title}” is removed from the Knowledge Center and AI search immediately. All versions are kept for audit.",
+      "reason": "Reason (required)",
+      "reasonPlaceholder": "e.g. Deadline changed, information is outdated, published by mistake",
+      "confirm": "Withdraw now",
+      "cancel": "Keep published",
+      "done": "Withdrawn. It no longer appears in search or the Knowledge Center.",
+      "reasonRequired": "Please give a reason (at least 3 characters)."
+    },
+    "notifications": {
+      "label": "Notifications",
+      "unread": "{count} unread",
+      "empty": "No notifications yet.",
+      "markAll": "Mark all read",
+      "open": "Open",
+      "recent": "Recent notifications",
+      "viewAll": "Show all",
+      "error": "Could not load notifications."
+    },
+    "rag": {
+      "title": "RAG Sync Status",
+      "subtitle": "Approved knowledge is indexed automatically. Real database values; refreshes while jobs run.",
+      "autoRefresh": "Auto-refreshing while indexing is in progress",
+      "refresh": "Refresh",
+      "sources": "Registered sources",
+      "lastSync": "Last successful sync",
+      "pendingReview": "Pending review",
+      "waiting": "Waiting for indexing",
+      "indexingNow": "Indexing now",
+      "active": "Active versions",
+      "indexingFailed": "Indexing failed",
+      "failedJobs": "Failed jobs",
+      "searchableChunks": "Searchable chunks",
+      "modelChunks": "Chunks with current model",
+      "never": "Never",
+      "embedding": "Embedding model",
+      "model": "Model",
+      "dimensions": "Dimensions",
+      "provider": "Provider",
+      "loaded": "Loaded in memory",
+      "loadedYes": "Yes",
+      "loadedNo": "Not yet (loads on first use)",
+      "execution": "Job execution",
+      "queue": "Indexing queue",
+      "noQueue": "No indexing jobs yet. Approving a version queues one automatically.",
+      "document": "Document",
+      "version": "Version",
+      "job": "Job",
+      "attempts": "Attempts",
+      "retryAt": "Next retry",
+      "error": "Error",
+      "created": "Created",
+      "started": "Started",
+      "completed": "Completed",
+      "actions": "Actions",
+      "retry": "Retry indexing",
+      "retried": "Indexing queued again.",
+      "history": "Version history",
+      "log": "Job log",
+      "hideLog": "Hide log",
+      "review": "Review",
+      "sourcesTable": "Sources",
+      "noSources": "No sources registered yet.",
+      "type": "Type",
+      "status": "Status",
+      "frequency": "Check frequency",
+      "lastChecked": "Last checked",
+      "lastSuccess": "Last success",
+      "lastChange": "Last change",
+      "checkNow": "Check source now",
+      "checkQueued": "Check queued for “{title}”. New or changed content will appear in the review queue.",
+      "reviewChanges": "Review changes",
+      "activations": "Recent activations",
+      "noActivations": "Nothing has been activated yet.",
+      "chunks": "{count} chunks",
+      "unknownDocument": "(document removed)"
     }
   }
 }

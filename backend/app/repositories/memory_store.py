@@ -19,9 +19,11 @@ from app.repositories.base import FileStorage, Query, Row
 TABLES = (
     "categories", "profiles", "supporter_languages", "knowledge_sources", "source_documents",
     "document_versions", "document_chunks", "ingestion_jobs", "audit_log", "announcements",
-    "announcement_translations", "ingestion_events", "allowed_source_domains",
+    "announcement_translations", "ingestion_events", "allowed_source_domains", "admin_notifications",
+    "notification_reads",
 )
-NO_ID = {"categories", "profiles", "supporter_languages", "audit_log", "ingestion_events", "allowed_source_domains"}
+NO_ID = {"categories", "profiles", "supporter_languages", "audit_log", "ingestion_events", "allowed_source_domains",
+         "admin_notifications", "notification_reads"}
 HAS_UPDATED_AT = {"knowledge_sources", "source_documents", "announcements", "announcement_translations"}
 
 
@@ -47,7 +49,7 @@ class MemoryStore:
         r = copy.deepcopy(row)
         if table not in NO_ID:
             r.setdefault("id", str(uuid.uuid4()))
-        elif table in ("audit_log", "ingestion_events") and "id" not in r:
+        elif table in ("audit_log", "ingestion_events", "admin_notifications") and "id" not in r:
             self._audit_seq += 1
             r["id"] = self._audit_seq
         d: dict[str, Any] = {
@@ -64,7 +66,8 @@ class MemoryStore:
                                       created_by=None, raw_text=None, structured_data={}, extraction_meta={},
                                       original_file=None, edited_by=None, edited_at=None, review_note=None,
                                       submitted_at=None, indexing_status="not_indexed", indexed_at=None,
-                                      indexing_error=None),
+                                      indexing_error=None, activation_requested_by=None, activation_requested_at=None,
+                                      activation_note=None),
             "document_chunks": dict(chunk_strategy="v1", embedding=None, embedding_model=None, heading=None,
                                     token_count=None, page_start=None, page_end=None),
             "ingestion_jobs": dict(status="queued", trigger="manual", outcome=None, document_id=None, version_id=None,
@@ -81,6 +84,7 @@ class MemoryStore:
             "audit_log": dict(details={}, actor_id=None, entity_id=None),
             "ingestion_events": dict(level="info", data={}),
             "allowed_source_domains": dict(note=None, added_by=None),
+            "admin_notifications": dict(severity="info", message=None, entity_type=None, entity_id=None, link=None),
         }.get(table, {})
         for k, v in d.items():
             r.setdefault(k, v)
@@ -105,6 +109,12 @@ class MemoryStore:
             dup(lambda x: x.get("source_type") == row["source_type"] and x.get("original_url") == row["original_url"])
         elif table == "allowed_source_domains":
             dup(lambda x: x["domain"] == row["domain"])
+        elif table == "notification_reads":
+            dup(lambda x: x["user_id"] == row["user_id"])
+        elif table == "ingestion_jobs" and row.get("job_type") == "index_version" and row.get("status") in ("queued", "running"):
+            vid = (row.get("payload") or {}).get("version_id")
+            dup(lambda x: x.get("job_type") == "index_version" and x["status"] in ("queued", "running")
+                and (x.get("payload") or {}).get("version_id") == vid)
         elif table == "source_documents":
             if row.get("canonical_url"):
                 dup(lambda x: x["source_id"] == row["source_id"] and x.get("canonical_url") == row["canonical_url"])
@@ -626,6 +636,31 @@ class MemoryStore:
             source_published_at=v["source_published_at"], verified_at=v["approved_at"], valid_until=v["valid_until"],
             stale_after_days=s.get("stale_after_days"), language=d["language"])
             for rrf, cid, c, v, d, s in fused[:limit]]
+
+    def _rpc_replace_version_chunks(self, p_version_id: str, p_chunks: list[Row]) -> int:
+        if not self._ver(p_version_id):
+            raise NotFound("version not found")
+        new = [self._defaults("document_chunks", {**c, "version_id": p_version_id,
+                                                  "embedding_model": c.get("embedding_model") if c.get("embedding") is not None else None})
+               for c in p_chunks]
+        idx = [c["chunk_index"] for c in new]
+        if len(idx) != len(set(idx)):
+            raise DuplicateError("duplicate chunk_index")  # whole call fails; old chunks untouched
+        self.t["document_chunks"] = [c for c in self.t["document_chunks"] if c["version_id"] != p_version_id] + new
+        return len(new)
+
+    def _rpc_activate_document_version(self, p_version_id: str, p_actor: str, p_note: str | None,
+                                       p_expected_chunks: int, p_model: str) -> Row:
+        chunks = [c for c in self.t["document_chunks"] if c["version_id"] == p_version_id]
+        ok = [c for c in chunks if c["embedding"] is not None and c["embedding_model"] == p_model and len(c["embedding"]) == 384]
+        if not chunks or len(chunks) != p_expected_chunks or len(ok) != len(chunks):
+            raise InvalidState(f"not_indexed: expected {p_expected_chunks} chunks, found {len(chunks)}, {len(ok)} valid",
+                               code="not_indexed")
+        v = self._rpc_approve_document_version(p_version_id, p_actor, p_note)
+        self._audit("version.activate", "document_version", v["id"], p_actor,
+                    {"document_id": v["document_id"], "version_number": v["version_number"], "chunks": len(chunks),
+                     "embedding_model": p_model, "requested_at": v.get("activation_requested_at")})
+        return v
 
     def _rpc_knowledge_stats(self) -> Row:
         src = self.t["knowledge_sources"]

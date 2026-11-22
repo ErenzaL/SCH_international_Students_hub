@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Loader2, RotateCcw } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ErrorState, LoadingState, PageHeader } from "@/components/shared/states";
 import { DocumentHistory } from "@/features/admin/review/review-extras";
@@ -13,7 +14,14 @@ import { isAdminRole, useMe } from "@/features/admin/shell/admin-context";
 import { api, errorMessage } from "@/lib/api";
 import { waitForJob } from "@/lib/jobs";
 import { useApi } from "@/lib/use-api";
-import type { Chunk, DocumentDetail, JobAccepted, Version } from "@/types/api";
+import { activationOutcome, waitForActivation } from "@/lib/version-state";
+import type { ApproveResult, Chunk, DocumentDetail, JobAccepted, Version } from "@/types/api";
+
+type Activation =
+  | { versionId: string; jobId: string; state: "queued" | "indexing"; detail?: string }
+  | { versionId: string; jobId: string; state: "active" }
+  | { versionId: string; jobId: string; state: "failed"; error: string }
+  | { versionId: string; jobId: string; state: "timeout" };
 
 export function DocumentReviewPage({ id }: { id: string }) {
   const t = useTranslations("admin.review");
@@ -28,6 +36,64 @@ export function DocumentReviewPage({ id }: { id: string }) {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<{ kind: "success" | "destructive" | "info"; text: string } | null>(null);
   const [chunksFor, setChunksFor] = useState<string | null>(null);
+  const [activation, setActivation] = useState<Activation | null>(null);
+  const pollAbort = useRef<AbortController | null>(null);
+  useEffect(() => () => pollAbort.current?.abort(), []);
+
+  /** After approval: poll the version until it is active (searchable) or indexing failed. */
+  async function track(versionId: string, jobId: string, initial?: Version) {
+    pollAbort.current?.abort();
+    const ctrl = new AbortController();
+    pollAbort.current = ctrl;
+    const settle = (v: Version | null, outcome: string) => {
+      if (ctrl.signal.aborted) return;
+      if (outcome === "active") setActivation({ versionId, jobId, state: "active" });
+      else if (outcome === "failed")
+        setActivation({ versionId, jobId, state: "failed", error: v?.indexing_error ?? v?.verification_status ?? "failed" });
+      else setActivation({ versionId, jobId, state: "timeout" });
+      reload();
+      setHistKey((k) => k + 1);
+    };
+    if (initial && activationOutcome(initial) !== "pending") return settle(initial, activationOutcome(initial));
+    setActivation({ versionId, jobId, state: "queued" });
+    try {
+      const res = await waitForActivation(versionId, {
+        signal: ctrl.signal,
+        onUpdate: (v) => {
+          if (!ctrl.signal.aborted && v.indexing_status === "indexing")
+            setActivation({ versionId, jobId, state: "indexing", detail: v.indexing_status });
+        },
+      });
+      settle(res.version, res.outcome);
+    } catch (err) {
+      if (!ctrl.signal.aborted) setNotice({ kind: "destructive", text: errorMessage(err) });
+    }
+  }
+
+  async function approve(vid: string, note: string) {
+    setBusy(true);
+    setNotice(null);
+    try {
+      const res = await api.post<ApproveResult>(`/api/v1/admin/versions/${vid}/approve`, { note: note || undefined });
+      void track(vid, res.indexing_job_id, res);
+    } catch (err) {
+      setNotice({ kind: "destructive", text: errorMessage(err) });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function retryIndexing(a: Activation) {
+    setBusy(true);
+    try {
+      const res = await api.post<JobAccepted>(`/api/v1/admin/ingestion-jobs/${encodeURIComponent(a.jobId)}/retry`);
+      void track(a.versionId, res.job_id);
+    } catch (err) {
+      setNotice({ kind: "destructive", text: errorMessage(err) });
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function act(fn: () => Promise<string>) {
     setBusy(true);
@@ -54,6 +120,38 @@ export function DocumentReviewPage({ id }: { id: string }) {
       {notice && (
         <Alert variant={notice.kind} className="mb-4">
           {notice.text}
+        </Alert>
+      )}
+      {activation && (
+        <Alert
+          variant={activation.state === "active" ? "success" : activation.state === "failed" ? "destructive" : "info"}
+          className="mb-4"
+          aria-live="polite"
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            {activation.state === "active" ? (
+              <CheckCircle2 className="size-4" aria-hidden />
+            ) : activation.state === "queued" || activation.state === "indexing" ? (
+              <Loader2 className="size-4 animate-spin" aria-hidden />
+            ) : null}
+            <span>
+              {activation.state === "queued" && t2("approvalQueued")}
+              {activation.state === "indexing" && t2("approvalIndexing", { status: e("indexing.indexing") })}
+              {activation.state === "active" && t2("activeSearchable")}
+              {activation.state === "failed" && t2("indexingFailed", { error: activation.error })}
+              {activation.state === "timeout" && t2("indexingStillRunning")}
+            </span>
+            {activation.state === "failed" && (
+              <Button size="sm" variant="outline" disabled={busy} onClick={() => retryIndexing(activation)}>
+                <RotateCcw /> {t2("retryIndexing")}
+              </Button>
+            )}
+            {(activation.state === "timeout" || activation.state === "failed") && (
+              <Link href="/admin/rag-sync" className="text-sm text-primary underline">
+                {t("ragSyncLink")}
+              </Link>
+            )}
+          </div>
         </Alert>
       )}
       {data && (
@@ -84,11 +182,7 @@ export function DocumentReviewPage({ id }: { id: string }) {
                   await api.post<Version>(`/api/v1/admin/versions/${vid}/request-changes`, { note });
                   return t2("changesRequested");
                 }),
-              onApprove: (vid, note) =>
-                act(async () => {
-                  await api.post<Version>(`/api/v1/admin/versions/${vid}/approve`, { note: note || undefined });
-                  return t("approved");
-                }),
+              onApprove: (vid, note) => approve(vid, note),
               onReject: (vid, reason) =>
                 act(async () => {
                   await api.post<Version>(`/api/v1/admin/versions/${vid}/reject`, { reason });
@@ -104,11 +198,11 @@ export function DocumentReviewPage({ id }: { id: string }) {
                   await api.post<DocumentDetail>(`/api/v1/admin/documents/${data.id}/rollback`, { version_id: vid });
                   return t("rolledBack");
                 }),
-              onCancelDocument: (reason) =>
-                act(async () => {
-                  await api.post(`/api/v1/admin/documents/${data.id}/cancel`, { reason });
-                  return t("canceledDone");
-                }),
+              onWithdrawn: (message) => {
+                setNotice({ kind: "success", text: message });
+                reload();
+                setHistKey((k) => k + 1);
+              },
               onRetryExtraction: () =>
                 act(async () => {
                   if (data.source.source_type && !["website", "sch_board"].includes(data.source.source_type)) {
@@ -122,7 +216,7 @@ export function DocumentReviewPage({ id }: { id: string }) {
               onViewChunks: (vid) => setChunksFor(vid),
             }}
           />
-          <div className="mt-8">
+          <div className="mt-8 scroll-mt-20" id="history">
             <DocumentHistory documentId={data.id} refreshKey={histKey} />
           </div>
         </>

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState, ErrorState, LoadingState, PageHeader } from "@/components/shared/states";
 import { JobStatusBadge } from "@/components/shared/badges";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { NotificationItems, useNotifications } from "@/features/admin/notifications/notification-bell";
 import { api } from "@/lib/api";
 import { useApi } from "@/lib/use-api";
 import { formatDateTime } from "@/lib/utils";
@@ -13,10 +14,12 @@ import type { Overview } from "@/types/api";
 
 export function OverviewPage() {
   const t = useTranslations("admin.overview");
+  const tn = useTranslations("admin.notifications");
   const locale = useLocale();
   const { data, error, loading, reload } = useApi<Overview>("admin-overview", () =>
     api.get<Overview>("/api/v1/admin/overview"),
   );
+  const notes = useNotifications(5, null);
 
   return (
     <div>
@@ -32,6 +35,24 @@ export function OverviewPage() {
             <Stat label={t("pendingAnnouncements")} value={data.announcements_pending} href="/admin/review" tone={data.announcements_pending ? "warn" : undefined} />
             <Stat label={t("approvedDocs")} value={data.documents_approved} href="/admin/documents" />
           </div>
+
+          <section aria-labelledby="notes-h" className="space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 id="notes-h" className="text-lg font-semibold">
+                {t("notifications")}
+              </h2>
+              <Link href="/admin/rag-sync" className="text-sm text-primary hover:underline">
+                {tn("viewAll")}
+              </Link>
+            </div>
+            {notes.error != null && !notes.data ? (
+              <ErrorState error={notes.error} onRetry={() => void notes.reload()} />
+            ) : (
+              <Card>
+                <NotificationItems items={notes.data?.items ?? []} />
+              </Card>
+            )}
+          </section>
 
           <section aria-labelledby="jobs-h" className="space-y-2">
             <h2 id="jobs-h" className="text-lg font-semibold">

@@ -91,7 +91,7 @@ describe("ReviewPanel", () => {
   it("calls onApprove with the pending version id", async () => {
     const h = handlers();
     renderWithIntl(<ReviewPanel detail={detail} handlers={h} />);
-    await userEvent.click(screen.getByRole("button", { name: "Approve" }));
+    await userEvent.click(screen.getByRole("button", { name: "Approve and index" }));
     expect(h.onApprove).toHaveBeenCalledWith("v2", "");
   });
 
@@ -110,7 +110,7 @@ describe("ReviewPanel", () => {
     const h = handlers();
     const none = { ...detail, pending_version: null, pending_version_id: null, diff: null } as DocumentDetail;
     renderWithIntl(<ReviewPanel detail={none} handlers={h} />);
-    expect(screen.queryByRole("button", { name: "Approve" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Approve and index" })).not.toBeInTheDocument();
     expect(screen.getByText("No version is waiting for review.")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Retry extraction" }));
     expect(h.onRetryExtraction).toHaveBeenCalled();
@@ -133,5 +133,27 @@ describe("ReviewPanel", () => {
     expect(buttons).toHaveLength(1);
     await userEvent.click(buttons[0]);
     expect(h.onRollback).toHaveBeenCalledWith("v1");
+  });
+});
+
+describe("ReviewPanel – RAG lifecycle", () => {
+  it("disables 'Approve and index' while indexing is queued and shows the state badge", () => {
+    const indexing = {
+      ...detail,
+      pending_version: { ...detail.pending_version!, indexing_status: "queued", activation_requested_at: "2030-01-03T00:00:00Z" },
+    } as unknown as DocumentDetail;
+    renderWithIntl(<ReviewPanel detail={indexing} handlers={handlers()} />);
+    expect(screen.getByRole("button", { name: "Approve and index" })).toBeDisabled();
+    expect(screen.getAllByText("Approved – indexing").length).toBeGreaterThan(0);
+  });
+
+  it("withdraw requires a reason before calling the API", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    renderWithIntl(<ReviewPanel detail={detail} handlers={handlers()} />);
+    await userEvent.click(screen.getByRole("button", { name: /Withdraw published content/ }));
+    await userEvent.click(screen.getByRole("button", { name: "Withdraw now" }));
+    expect(screen.getByText(/Please give a reason/)).toBeInTheDocument();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    fetchSpy.mockRestore();
   });
 });

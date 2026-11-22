@@ -33,3 +33,7 @@ node_modules/
 .next/
 supabase/.temp/
 .model-cache/
+
+# any .env variant (incl. names with trailing spaces); keep the example tracked
+.env*
+!.env.example

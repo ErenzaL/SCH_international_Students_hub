@@ -29,18 +29,21 @@ def test_first_ingestion_creates_pending_version_with_chunks_and_embeddings(env)
     src = website_source(env)
     job = ingest(env, src["id"])
     assert job["status"] == "succeeded" and job["outcome"] == "new_version", job
-    assert job["statistics"]["chunk_count"] >= 1 and job["statistics"]["embedded_chunks"] == job["statistics"]["chunk_count"]
+    # pre-review content is chunked for inspection but NOT embedded (embedding happens after approval)
+    assert job["statistics"]["chunk_count"] >= 1 and job["statistics"]["embedded_chunks"] == 0
+    assert all(c["embedding"] is None for c in env.store.select("document_chunks")[0])
     (v,) = versions(env)
     assert v["verification_status"] == "pending_review" and v["version_number"] == 1
     assert v["extracted_text"].startswith("#") and "Alien registration" in v["extracted_text"]
+    assert env.client.get("/api/v1/knowledge/documents").json()["total"] == 0  # nothing public before approval
+    assert approve(env, v["id"]).status_code == 202  # approval -> index job -> embeddings -> active
     chunks, _ = env.store.select("document_chunks")
     assert all(c["embedding"] is not None and c["embedding_model"] == "hash-dev-384" and len(c["embedding"]) == 384
                for c in chunks)
+    assert versions(env)[0]["verification_status"] == "approved"
     refreshed = env.client.get(f"/api/v1/admin/sources/{src['id']}", headers=env.auth("admin")).json()
-    assert refreshed["status"] == "pending_review" and refreshed["last_checked_at"]
-    assert refreshed["last_ingestion_result"]["outcome"] == "new_version"
-    # nothing is public yet
-    assert env.client.get("/api/v1/knowledge/documents").json()["total"] == 0
+    assert refreshed["status"] == "approved" and refreshed["last_checked_at"]
+    assert refreshed["last_ingestion_result"]["outcome"] == "new_version"  # the index job is not a source check
 
 
 def test_same_content_does_not_create_a_new_version(env):
@@ -71,7 +74,7 @@ def test_changed_content_creates_new_pending_version_and_keeps_approved_one(env)
     src = website_source(env)
     ingest(env, src["id"])
     v1 = versions(env)[0]
-    assert approve(env, v1["id"]).status_code == 200
+    assert approve(env, v1["id"]).status_code == 202
 
     env.page(ARTICLE_URL, ARTICLE_HTML.replace("Passport", "Passport and ARC fee receipt"))
     job = ingest(env, src["id"])
@@ -231,13 +234,16 @@ def test_embedding_failure_is_reported_and_blocks_approval_until_reprocess(env):
 
     env.embedder.embed_passages = boom  # type: ignore[method-assign]
     job = ingest(env, src["id"])
-    assert job["status"] == "succeeded" and job["error_code"] == "embedding_unavailable"
+    assert job["status"] == "succeeded"  # ingestion does not need the model (chunks only)
     v = versions(env)[0]
     r = approve(env, v["id"])
-    assert r.status_code == 503 and r.json()["error"]["code"] == "embedding_unavailable"
+    assert r.status_code == 202 and r.json()["indexing_job_status"] == "queued"  # embedding failed: retry scheduled
+    assert r.json()["verification_status"] == "pending_review"  # nothing became searchable
     env.embedder.embed_passages = original  # type: ignore[method-assign]
     assert env.client.post(f"/api/v1/admin/versions/{v['id']}/reprocess", headers=env.auth("admin")).status_code == 200
-    assert approve(env, v["id"]).status_code == 200
+    env.store.update("ingestion_jobs", {"run_after": "2000-01-01T00:00:00+00:00"}, {"id": r.json()["indexing_job_id"]})
+    assert env.app.state.services.jobs.run_once()
+    assert versions(env)[0]["verification_status"] == "approved"
 
 
 def test_reprocess_reuses_unchanged_embeddings(env):
@@ -245,6 +251,7 @@ def test_reprocess_reuses_unchanged_embeddings(env):
     src = website_source(env)
     ingest(env, src["id"])
     v = versions(env)[0]
+    assert env.client.post(f"/api/v1/admin/versions/{v['id']}/reprocess", headers=env.auth("admin")).status_code == 200
     calls = []
     original = env.embedder.embed_passages
     env.embedder.embed_passages = lambda texts: calls.append(len(texts)) or original(texts)  # type: ignore[method-assign]
@@ -261,7 +268,7 @@ def test_rollback_and_cancel(env):
     env.page(ARTICLE_URL, ARTICLE_HTML.replace("Photo", "Photograph"))
     ingest(env, src["id"])
     v2 = versions(env)[1]
-    assert approve(env, v2["id"]).status_code == 200
+    assert approve(env, v2["id"]).status_code == 202
     doc_id = v1["document_id"]
     assert env.client.get(f"/api/v1/knowledge/documents/{doc_id}").json()["version_number"] == 2
     r = env.client.post(f"/api/v1/admin/documents/{doc_id}/rollback", headers=env.auth("admin"), json={"version_id": v1["id"]})

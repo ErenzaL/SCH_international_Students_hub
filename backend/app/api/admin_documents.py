@@ -69,6 +69,10 @@ def cancel(document_id: str, body: ReasonBody, svc: Services = Depends(get_servi
     if get_one(svc.store, "source_documents", id=document_id) is None:
         raise NotFound("Document not found.")
     svc.review.cancel(document_id, user, body.reason)
+    doc = get_one(svc.store, "source_documents", id=document_id) or {}
+    svc.notifications.notify("withdrawn", f"Withdrawn: {doc.get('title', '')[:150]}",
+                             f"Removed from search and the Knowledge Center: {body.reason}", severity="warning",
+                             entity_type="source_document", entity_id=document_id, link=f"/admin/documents/{document_id}")
     return svc.review.document_detail(document_id, svc.sources.view)
 
 
@@ -125,10 +129,17 @@ def version_chunks(version_id: str, svc: Services = Depends(get_services),
                            embedding_model=r.get("embedding_model")) for r in rows]}
 
 
-@router.post("/versions/{version_id}/approve")
-def approve(version_id: str, body: NoteBody | None = None, svc: Services = Depends(get_services),
-            user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
-    return svc.review.approve(version_id, user, body.note if body else None)
+@router.post("/versions/{version_id}/approve", status_code=202)
+def approve(version_id: str, body: NoteBody | None = None,
+            svc: Services = Depends(get_services), user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """Approve -> queue a durable indexing job. The version becomes active (searchable) only after every chunk
+    is embedded and validated; until then the previously approved version stays live. Idempotent."""
+    v = svc.review.check_approvable(version_id)
+    job = svc.ingestion.request_activation(v, user.id, body.note if body else None)
+    svc.jobs.enqueue(job)  # inline mode: indexed + activated before responding; worker mode: queued, returns now
+    job = get_one(svc.store, "ingestion_jobs", id=job["id"]) or job
+    out = svc.review.get_version_view(version_id)
+    return {**out, "indexing_job_id": job["id"], "indexing_job_status": job["status"]}
 
 
 @router.post("/versions/{version_id}/reject")

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
+  Activity,
   ClipboardCheck,
   Database,
   FileText,
@@ -20,7 +21,8 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { ErrorState, LoadingState } from "@/components/shared/states";
-import { AdminProvider, navForRole } from "@/features/admin/shell/admin-context";
+import { NotificationBell } from "@/features/admin/notifications/notification-bell";
+import { AdminProvider, isAdminRole, navForRole } from "@/features/admin/shell/admin-context";
 import { api } from "@/lib/api";
 import { isSupabaseConfigured } from "@/lib/constants";
 import { useApi } from "@/lib/use-api";
@@ -28,6 +30,7 @@ import { cn } from "@/lib/utils";
 import type { Me } from "@/types/api";
 
 const ICONS: Record<string, LucideIcon> = {
+  Activity,
   LayoutDashboard,
   Database,
   FileText,
@@ -154,7 +157,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <span className="font-mono">{user.role}</span>
           </p>
         </aside>
-        <div className="min-w-0 flex-1">{children}</div>
+        <div className="min-w-0 flex-1">
+          {isAdminRole(user.role) && (
+            <div className="mb-2 flex justify-end">
+              <NotificationBell />
+            </div>
+          )}
+          {children}
+        </div>
       </div>
     </AdminProvider>
   );

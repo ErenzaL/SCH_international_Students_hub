@@ -101,3 +101,48 @@ A failed or blocked fetch never removes the last approved version; stale guidanc
   transaction; if embedding fails the old version stays live and `indexing_status = failed`.
 * Review warnings surface changed deadlines/fees/places versus the live version and non-official
   immigration content; both versions are kept, nothing is merged silently.
+
+---
+
+## Automatic RAG synchronization (migration 0007)
+
+```
+source added / changed ─► extracted ─► pending_review (chunked, NOT embedded; never searchable)
+        │                                     │ admin: "Approve and index"
+        │                                     ▼
+        │                         index_version job (ingestion_jobs, durable)
+        │                                     │ worker claims (FOR UPDATE SKIP LOCKED)
+        │                                     ▼
+        │            chunk ─► embed in batches of 8 (heartbeat + progress events) ─► validate
+        │                                     │ replace_version_chunks()  (one transaction)
+        │                                     ▼
+        │            activate_document_version(): count + model + 384-dim check AND switch in one
+        │            transaction → previous version 'superseded' (kept) → searchable on the next query
+        └── failure at any step: previous approved version stays active; transient errors retry with
+            backoff (30 s, 60 s …, max_attempts 3), then 'failed' + admin notification; Retry re-queues.
+```
+
+* **Durability**: every step is a row (`ingestion_jobs`, `ingestion_events`, `document_versions.indexing_status`).
+  Nothing depends on FastAPI BackgroundTasks in production (`JOB_EXECUTION=worker`). Restarts / free-tier sleeps:
+  queued jobs are claimed again on wake; running jobs whose heartbeat stopped are re-queued by the claim RPC.
+* **No duplicates**: a unique index allows one open `index_version` job per version; chunks are replaced
+  atomically (`unique (version_id, chunk_index)`), so retries never duplicate or half-write chunks.
+* **Validation**: the worker checks that every chunk has a finite 384-d vector, then the database re-checks the
+  expected chunk count, model id and dimensions inside the activation transaction.
+* **Withdrawal**: `POST /admin/documents/{id}/cancel` removes a document from search and the Knowledge Center
+  immediately (the `searchable_chunks` view excludes canceled documents).
+* **Audit**: `version.approval_requested` (who approved), `version.approve` + `version.activate` (when it became
+  active, chunk count, model), job events (when embeddings were generated), `ingestion_jobs` (when sources were
+  checked, failures). Submitter = `document_versions.created_by` (+ `version.submit`). What changed = review diff.
+* **Notifications** (`admin_notifications`): `review_needed` (sync found changes), `sync_failed`, `source_blocked`,
+  `indexing_failed`, `version_activated`, `withdrawn`; unread state per admin (`notification_reads`).
+
+### Scheduler (no paid resources)
+Inspected: Render free web services (sleep after ~15 min idle, no free cron), Supabase project (pg_cron and
+pg_net are available on the free plan but would need the scheduler secret stored in the database), and
+GitHub Actions (already used for deploys, free for public repositories). Chosen: **GitHub Actions**
+`.github/workflows/scheduled-sync.yml`, daily 05:00 KST, `POST /api/v1/internal/sync/run-due` with
+`X-Cron-Secret`. The request wakes the instance, queues due daily/weekly website and board checks, and kicks
+the worker so pending indexing jobs and retries are processed too. Configure `CRON_SECRET` on the backend and
+the same value as a GitHub Actions secret. Index jobs triggered by admins run immediately (the admin's own
+requests keep the instance awake).

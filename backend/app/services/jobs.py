@@ -49,6 +49,12 @@ class JobRunner:
         self.start()
         self._wake.set()
 
+    def kick(self) -> None:
+        """Wake the worker (e.g. from the scheduler hook) so queued/retry jobs are processed now."""
+        if not self.inline:
+            self.start()
+            self._wake.set()
+
     # ------------------------------------------------------------ worker
     def claim(self) -> dict[str, Any] | None:
         rows = self.store.rpc("claim_ingestion_job", dict(p_worker=self.worker_id,

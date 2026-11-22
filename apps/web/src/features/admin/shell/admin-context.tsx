@@ -25,6 +25,7 @@ export const ADMIN_NAV = [
   { href: "/admin/announcements", key: "announcements", icon: "Megaphone", roles: ["admin", "super_admin", "supporter"] },
   { href: "/admin/translations", key: "translations", icon: "Languages", roles: ["admin", "super_admin", "supporter"] },
   { href: "/admin/review", key: "review", icon: "ClipboardCheck", roles: ["admin", "super_admin"] },
+  { href: "/admin/rag-sync", key: "ragSync", icon: "Activity", roles: ["admin", "super_admin"] },
   { href: "/admin/users", key: "users", icon: "Users", roles: ["admin", "super_admin"] },
   { href: "/admin/settings", key: "settings", icon: "Settings", roles: ["admin", "super_admin"] },
 ] as const;

@@ -25,7 +25,15 @@ export function ReviewQueuePage() {
 
   return (
     <div className="space-y-8">
-      <PageHeader title={t("title")} description={t("subtitle")} />
+      <PageHeader
+        title={t("title")}
+        description={t("subtitle")}
+        actions={
+          <Link href="/admin/rag-sync" className="text-sm text-primary hover:underline">
+            {t("ragSyncLink")}
+          </Link>
+        }
+      />
 
       <section aria-labelledby="q-docs" className="space-y-2">
         <h2 id="q-docs" className="text-lg font-semibold">

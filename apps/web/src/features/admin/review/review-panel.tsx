@@ -2,14 +2,16 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Ban, Check, ExternalLink, MessageSquareWarning, Paperclip, RefreshCw, RotateCcw, Undo2, X } from "lucide-react";
+import { Check, ExternalLink, MessageSquareWarning, Paperclip, RefreshCw, RotateCcw, Undo2, X } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldError, Label, Textarea } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { IndexingStatusBadge, SourceStatusBadge, VersionStatusBadge } from "@/components/shared/badges";
+import { IndexingStatusBadge, SourceStatusBadge, VersionStateBadge } from "@/components/shared/badges";
+import { WithdrawButton } from "@/features/admin/review/withdraw-dialog";
+import { versionState } from "@/lib/version-state";
 import { OriginalFilePreview, RawEvidence, ReviewWarnings, StructuredFields, TextEditor } from "@/features/admin/review/review-extras";
 import { formatDateTime, shortHash } from "@/lib/utils";
 import type { DocumentDetail, Version, VersionSummary } from "@/types/api";
@@ -20,7 +22,9 @@ export interface ReviewHandlers {
   onRetryExtraction: () => void | Promise<void>;
   onReprocess: (versionId: string) => void | Promise<void>;
   onRollback: (versionId: string) => void | Promise<void>;
-  onCancelDocument: (reason: string) => void | Promise<void>;
+  /** @deprecated replaced by the Withdraw dialog (onWithdrawn); kept for callers that still pass it */
+  onCancelDocument?: (reason: string) => void | Promise<void>;
+  onWithdrawn?: (message: string) => void;
   onViewChunks?: (versionId: string) => void;
   onSaveText?: (versionId: string, text: string) => void | Promise<void>;
   onSaveFields?: (versionId: string, fields: Record<string, string | null>) => void | Promise<void>;
@@ -53,6 +57,8 @@ export function ReviewPanel({
 
   const needsConfirm = !!pending?.requires_field_confirmation && !pending?.structured_data?.fields_confirmed;
   const isDraft = pending?.verification_status === "draft";
+  const pendingState = pending ? versionState(pending) : null;
+  const indexingInFlight = pendingState === "indexing";
   const attachments = detail.metadata?.attachments ?? [];
 
   async function requestChanges() {
@@ -210,13 +216,17 @@ export function ReviewPanel({
             <div>
               <Label htmlFor="rv-note">{t("approvalNote")}</Label>
               <Textarea id="rv-note" rows={2} value={note} onChange={(e) => setNote(e.target.value)} />
-              <Button className="mt-2" disabled={busy || needsConfirm || isDraft} onClick={() => handlers.onApprove(pending.id, note.trim())}>
-                <Check /> {t("approve")}
-              </Button>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <Button disabled={busy || needsConfirm || isDraft || indexingInFlight} onClick={() => handlers.onApprove(pending.id, note.trim())}>
+                  <Check /> {t("approve")}
+                </Button>
+                <VersionStateBadge version={pending} />
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">{t2("approveHint")}</p>
               {needsConfirm && <p className="mt-1 text-xs text-amber-900">{t2("confirmBeforeApprove")}</p>}
               {isDraft && <p className="mt-1 text-xs text-muted-foreground">{t2("draftNotApprovable")}</p>}
-              {pending.embedded_chunk_count < pending.chunk_count && (
-                <p className="mt-1 text-xs text-amber-800">{t("missingEmbeddings")}</p>
+              {pendingState === "index_failed" && pending.indexing_error && (
+                <p className="mt-1 text-xs text-red-700">{t2("indexingFailed", { error: pending.indexing_error })}</p>
               )}
             </div>
             <div>
@@ -247,17 +257,8 @@ export function ReviewPanel({
               <RotateCcw /> {t("reprocess")}
             </Button>
           )}
-          {!detail.is_canceled && (
-            <Button
-              variant="outline"
-              disabled={busy}
-              onClick={() => {
-                if (!reason.trim()) return setReasonError(true);
-                handlers.onCancelDocument(reason.trim());
-              }}
-            >
-              <Ban /> {t("cancelDocument")}
-            </Button>
+          {!detail.is_canceled && detail.current_version_id && (
+            <WithdrawButton documentId={detail.id} title={detail.title} onDone={(m) => handlers.onWithdrawn?.(m)} />
           )}
         </div>
         <p className="text-xs text-muted-foreground">{t("cancelHint")}</p>
@@ -285,8 +286,7 @@ export function ReviewPanel({
               <TableRow key={v.id}>
                 <TableCell className="font-mono">v{v.version_number}</TableCell>
                 <TableCell>
-                  <VersionStatusBadge status={v.verification_status} />{" "}
-                  {v.is_current && <Badge variant="success">{t("current")}</Badge>}
+                  <VersionStateBadge version={v} />
                 </TableCell>
                 <TableCell className="font-mono text-xs">{shortHash(v.content_hash)}</TableCell>
                 <TableCell className="text-xs">{formatDateTime(v.fetched_at ?? v.created_at, locale)}</TableCell>
@@ -341,7 +341,7 @@ function VersionCard({
         ) : (
           <dl className="space-y-2 text-sm">
             <Row label={t("version")}>
-              <span className="font-mono">v{version.version_number}</span> <VersionStatusBadge status={version.verification_status} />
+              <span className="font-mono">v{version.version_number}</span> <VersionStateBadge version={version} />
             </Row>
             <Row label={t("contentLength")}>{t("chars", { count: version.content_length })}</Row>
             <Row label={t("hash")}>

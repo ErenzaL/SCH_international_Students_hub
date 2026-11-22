@@ -14,7 +14,7 @@ from __future__ import annotations
 import logging
 import time
 from collections.abc import Callable
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from app.core.config import Settings
@@ -52,6 +52,13 @@ log = logging.getLogger("app.ingest")
 DOC_TYPES = {"website": "webpage", "sch_board": "notice", "pdf": "pdf", "docx": "docx", "text_file": "text",
              "screenshot": "screenshot", "manual_text": "manual_text", "kakao_message": "manual_text"}
 PREVIEW_CHARS = 20000
+# failures worth retrying automatically (with backoff) before the job is marked failed
+TRANSIENT_CODES = {"timeout", "network_error", "robots_unavailable", "embedding_unavailable", "not_indexed",
+                   "upstream_error", "internal_error", "version_conflict"}
+
+
+def is_transient(code: str | None) -> bool:
+    return bool(code) and (code in TRANSIENT_CODES or str(code).startswith("http_5"))
 
 
 def utcnow() -> str:
@@ -65,7 +72,8 @@ def _iso(dt: datetime | None) -> str | None:
 class IngestionService:
     def __init__(self, store: Store, storage: FileStorage | None, settings: Settings, indexer: IndexingService,
                  fetcher: GuardedFetcher | None = None, ocr: OCRProvider | None = None,
-                 sleep: Callable[[float], None] = time.sleep):
+                 sleep: Callable[[float], None] = time.sleep, notifications: Any = None):
+        self.notifications = notifications
         self.store = store
         self.storage = storage
         self.settings = settings
@@ -121,7 +129,9 @@ class IngestionService:
         try:
             if not source["is_active"]:
                 raise IngestionError("source_inactive", "The source is disabled; enable it before ingesting.")
-            if source["source_type"] == "sch_board":
+            if job.get("job_type") == "index_version":
+                result = self._run_index(source, job, stats)
+            elif source["source_type"] == "sch_board":
                 result = self._run_board(source, job, stats)
             else:
                 extracted, canonical_url, external_id, extra = self._acquire(source, job, stats)
@@ -287,6 +297,85 @@ class IngestionService:
         anchor = first_new or (stats["notices"][0] if stats["notices"] else {})
         return dict(outcome=outcome, document_id=anchor.get("document_id"), version_id=anchor.get("version_id"),
                     message=msg, warning=None, changed=bool(stats["items_new"]))
+
+    # ------------------------------------------------------- approval -> index -> activate
+    def request_activation(self, version: dict[str, Any], actor_id: str, note: str | None) -> dict[str, Any]:
+        """Record the approval decision and queue a durable index_version job (idempotent)."""
+        open_jobs, _ = self.store.select("ingestion_jobs", Query(
+            eq={"job_type": "index_version", "payload->>version_id": version["id"]}, in_={"status": ["queued", "running"]}))
+        if open_jobs:
+            return open_jobs[0]
+        doc = get_one(self.store, "source_documents", id=version["document_id"])
+        source = get_one(self.store, "knowledge_sources", id=doc["source_id"]) if doc else None
+        if source is None:
+            raise NotFound("Source not found for this version.")
+        self.store.update("document_versions", dict(activation_requested_by=actor_id, activation_requested_at=utcnow(),
+                                                    activation_note=note, indexing_status="queued", indexing_error=None),
+                          {"id": version["id"]})
+        try:
+            job = self.create_job(source, "manual", actor_id, payload={"version_id": version["id"], "note": note},
+                                  job_type="index_version")
+        except DuplicateError:  # another request queued it a moment ago
+            rows, _ = self.store.select("ingestion_jobs", Query(
+                eq={"job_type": "index_version", "payload->>version_id": version["id"]}, in_={"status": ["queued", "running"]}))
+            return rows[0]
+        self.store.insert("audit_log", dict(action="version.approval_requested", entity_type="document_version",
+                                            entity_id=version["id"], actor_id=actor_id,
+                                            details={"document_id": version["document_id"], "job_id": job["id"],
+                                                     "version_number": version["version_number"], "note": note}))
+        self.event(job["id"], "queued", f"Approved by reviewer; indexing queued for v{version['version_number']}.")
+        return job
+
+    def _run_index(self, source: dict[str, Any], job: dict[str, Any], stats: dict[str, Any]) -> dict[str, Any]:
+        jid = job["id"]
+        vid = (job.get("payload") or {}).get("version_id")
+        v = get_one(self.store, "document_versions", id=vid) if vid else None
+        if v is None:
+            raise IngestionError("version_missing", "The version to index no longer exists.")
+        doc = get_one(self.store, "source_documents", id=v["document_id"]) or {}
+        if v["verification_status"] == "approved" and doc.get("current_version_id") == v["id"]:
+            return dict(outcome="activated", document_id=v["document_id"], version_id=v["id"], changed=False,
+                        message=f"v{v['version_number']} is already active.")
+        if v["verification_status"] != "pending_review":
+            raise IngestionError("invalid_state", f"v{v['version_number']} is '{v['verification_status']}', not awaiting "
+                                                  "activation; nothing was published.")
+        if doc.get("is_canceled"):
+            raise IngestionError("invalid_state", "The document was withdrawn; nothing was published.")
+        self.store.update("document_versions", {"indexing_status": "indexing"}, {"id": vid})
+        self.event(jid, "chunk", f"Indexing v{v['version_number']} of '{doc.get('title', '')[:100]}'.")
+
+        def progress(done: int, total: int) -> None:
+            self._heartbeat(jid)
+            if done == total or done % 32 == 0:
+                self.event(jid, "embed", f"Embedded {done}/{total} new chunk(s).")
+
+        try:
+            st = self.indexer.index_version(vid, raise_on_embedding_error=True, embed=True, progress=progress)
+        except AppError as exc:  # EmbeddingUnavailable
+            raise IngestionError("embedding_unavailable", exc.message) from exc
+        stats.update({k: st[k] for k in ("chunk_count", "embedded_chunks", "reused_embeddings", "embedding_model",
+                                         "embedding_ms")})
+        total, ok = self.indexer.chunk_counts(vid)
+        self.event(jid, "validate", f"Validated {ok}/{total} chunk embeddings with {st['embedding_model']} "
+                                    f"({st['reused_embeddings']} reused, {st['embedding_ms']} ms).")
+        if total == 0 or total != st["chunk_count"] or ok != total:
+            raise IngestionError("not_indexed", f"Index incomplete: {ok}/{total} chunks embedded "
+                                                f"(expected {st['chunk_count']}). The previous version stays active.")
+        try:
+            self.store.rpc("activate_document_version", dict(
+                p_version_id=vid, p_actor=v.get("activation_requested_by"), p_note=v.get("activation_note"),
+                p_expected_chunks=total, p_model=self.indexer.embedder.model_id))
+        except AppError as exc:
+            code = "not_indexed" if "not_indexed" in exc.message else exc.code
+            raise IngestionError(code, exc.message) from exc
+        self.event(jid, "activate", f"v{v['version_number']} is now the active version and searchable.")
+        if self.notifications:
+            self.notifications.notify("version_activated", f"Now searchable: {doc.get('title', '')[:150]}",
+                                      f"v{v['version_number']} indexed ({total} chunks) and activated.",
+                                      entity_type="source_document", entity_id=v["document_id"],
+                                      link=f"/admin/documents/{v['document_id']}")
+        return dict(outcome="activated", document_id=v["document_id"], version_id=vid, changed=True,
+                    message=f"v{v['version_number']} indexed ({total} chunks) and activated.")
 
     # ------------------------------------------------------------- previews
     def preview_url(self, url: str, source_type: str, language: str | None) -> dict[str, Any]:
@@ -492,13 +581,39 @@ class IngestionService:
             self.event(job["id"], "finish", result["message"])
         else:
             assert error is not None
+            attempts = int(job.get("attempts") or 1)
+            if is_transient(error.code) and attempts < int(job.get("max_attempts") or 3):
+                delay = self.settings.job_retry_base_seconds * (2 ** (attempts - 1))
+                run_after = (datetime.now(UTC) + timedelta(seconds=delay)).isoformat()
+                self.event(job["id"], "retry", f"Transient failure ({error.code}): {error.message} Retrying in {delay}s "
+                                               f"(attempt {attempts + 1} of {job.get('max_attempts') or 3}).", level="warning")
+                done = self.store.update("ingestion_jobs", dict(
+                    status="queued", run_after=run_after, locked_by=None, error_code=error.code,
+                    error_message=error.message, statistics=stats), {"id": job["id"]})[0]
+                if job.get("job_type") == "index_version":
+                    self.store.update("document_versions", {"indexing_status": "queued", "indexing_error": error.message},
+                                      {"id": (job.get("payload") or {}).get("version_id")})
+                return done
             patch = dict(status="failed", completed_at=now, error_code=error.code, error_message=error.message,
                          statistics=stats, locked_by=None)
             summary = dict(job_id=job["id"], status="failed", outcome=None, message=error.message, completed_at=now,
                            error_code=error.code)
             self.event(job["id"], "finish", f"Failed ({error.code}): {error.message}", level="error")
+            if job.get("job_type") == "index_version" and (job.get("payload") or {}).get("version_id"):
+                self.store.update("document_versions", {"indexing_status": "failed", "indexing_error": error.message},
+                                  {"id": job["payload"]["version_id"]})
+            self._notify_failure(job, source, error)
         done = self.store.update("ingestion_jobs", patch, {"id": job["id"]})[0]
-        if source is not None:
+        if error is None and result is not None and result.get("changed") and job.get("job_type") != "index_version" \
+                and source is not None and self.notifications:
+            via = {"schedule": "Scheduled check", "retry": "Retry"}.get(job.get("trigger"), "Ingestion")
+            self.notifications.notify("review_needed", f"Changes to review: {source['title'][:150]}",
+                                      f"{via}: {result['message']}", entity_type="knowledge_source",
+                                      entity_id=source["id"], link="/admin/review")
+        if source is not None and job.get("job_type") == "index_version":
+            # indexing is not a source check: only refresh the derived status (pending_review -> approved)
+            self.store.update("knowledge_sources", {"status": self.derive_source_status(source["id"])}, {"id": source["id"]})
+        elif source is not None:
             if error is not None:
                 src_patch["status"] = "blocked" if error.code in BLOCKED_CODES else "failed"
             else:
@@ -507,6 +622,25 @@ class IngestionService:
             self.store.update("knowledge_sources", src_patch, {"id": source["id"]})
         log.info("job %s finished: %s %s", job["id"], patch["status"], patch.get("error_code") or patch.get("outcome"))
         return done
+
+    def _notify_failure(self, job: dict[str, Any], source: dict[str, Any] | None, error: IngestionError) -> None:
+        if not self.notifications:
+            return
+        title = source["title"][:150] if source else "Unknown source"
+        if job.get("job_type") == "index_version":
+            self.notifications.notify("indexing_failed", f"Indexing failed: {title}",
+                                      f"{error.message} The previously approved version remains active.",
+                                      severity="error", entity_type="ingestion_job", entity_id=job["id"],
+                                      link="/admin/rag-sync")
+        elif error.code in BLOCKED_CODES:
+            self.notifications.notify("source_blocked", f"Source blocked: {title}",
+                                      f"{error.message} Use manual import (upload or paste) instead.", severity="warning",
+                                      entity_type="knowledge_source", entity_id=job["source_id"],
+                                      link=f"/admin/knowledge-sources/{job['source_id']}")
+        elif job.get("job_type") != "ocr_intake":
+            self.notifications.notify("sync_failed", f"Sync failed: {title}", error.message, severity="error",
+                                      entity_type="knowledge_source", entity_id=job["source_id"],
+                                      link=f"/admin/knowledge-sources/{job['source_id']}")
 
     # ------------------------------------------------------------ recovery
     def recover_interrupted_jobs(self) -> int:
@@ -535,7 +669,8 @@ class IngestionService:
 
     def has_open_job(self, source_id: str) -> bool:
         rows, _ = self.store.select("ingestion_jobs", Query(eq={"source_id": source_id},
-                                                             in_={"status": ["queued", "running"]}, limit=1))
+                                                             in_={"status": ["queued", "running"],
+                                                                  "job_type": ["ingest", "board_sync"]}, limit=1))
         return bool(rows)
 
     def require_fetchable(self, source: dict[str, Any]) -> None:

@@ -239,3 +239,35 @@ Board jobs put per-notice results in `statistics`: `items_found, items_new, item
 ### Public additions
 * `POST /knowledge/search` body adds `scope?`, `authority?: [authority_type]`; each result adds `source_id, source_type, valid_until, exact_match, is_stale, verification_age_days, stale_after_days`; `retrieval.exact_terms`. `source_url` is the document's own URL (e.g. the individual notice) when it has one.
 * `GET /knowledge/documents?authority=` filter; items add `source_type, valid_until, is_stale, verification_age_days, stale_after_days`. Detail adds `key_facts` (confirmed fields only), `attachments`, `notice_no`.
+
+---
+
+## RAG synchronization (migration 0007)
+
+Lifecycle: source changed → extracted → `pending_review` (chunked, **not embedded**) → **Approve** → durable
+`index_version` job (`queued` → `running`) → chunk → embed (batches) → validate → atomic activation
+(`approved`, previous version `superseded`) → searchable on the next query. If indexing fails, the previously
+approved version stays active.
+
+* `POST /admin/versions/{id}/approve` now returns **202** with the `Version` plus `indexing_job_id`, `indexing_job_status`
+  (`queued|running|succeeded|failed`). Production returns immediately (`queued`); poll `GET /admin/versions/{id}` or
+  `GET /admin/ingestion-jobs/{job_id}`. Idempotent: approving again while queued returns the same job.
+* `Version` gains `activation_requested_by`, `activation_requested_at`; `indexing_status` adds `queued`.
+  UI states: `pending_review` + no `activation_requested_at` = "Pending review"; `pending_review` + requested +
+  `indexing_status` `queued|indexing` = "Approved – indexing"; `failed` = "Indexing failed (previous version still live)";
+  `approved` + `is_current` = "Active".
+* Job `job_type` adds `index_version` (payload `{version_id, note}`), `outcome` adds `activated`. Transient failures
+  (network, timeouts, HTTP 5xx, embedding unavailable) are re-queued automatically with backoff (`run_after`) up to
+  `max_attempts`; then `failed`. `POST /admin/ingestion-jobs/{id}/retry` on a failed `index_version` job queues it again.
+* `POST /admin/documents/{id}/cancel` = **Withdraw**: removed from search and the Knowledge Center immediately.
+* `GET /admin/rag/status` →
+  `{counts: {sources_registered, sources_active, sources_failed_or_blocked, pending_review, waiting_for_indexing, indexing_now,
+  indexing_failed, active_versions, searchable_chunks, chunks_with_current_model, failed_jobs}, last_sync_at,
+  embedding: {model, dimensions, provider, loaded}, job_execution,
+  queue: [{job_id, status, attempts, max_attempts, error_code, error_message, run_after, created_at, started_at, completed_at,
+  version_id, version_number, version_status, indexing_status, document_id, document_title, statistics}],
+  recent_activations: [{at, document_id, document_title, version_number, chunks}],
+  sources: [{id, title, source_type, status, sync_frequency, last_checked_at, last_success_at, last_change_at, is_active}]}`
+* `GET /admin/notifications?limit=50` → `{items: [{id, kind, severity, title, message, entity_type, entity_id, link,
+  created_at, unread}], unread, last_read_at}`; kinds: `review_needed, sync_failed, source_blocked, indexing_failed,
+  version_activated, withdrawn`. `POST /admin/notifications/read` (204) marks all as read for the caller.

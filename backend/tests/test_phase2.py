@@ -197,7 +197,7 @@ def test_document_upload_intake_creates_source_and_versions_and_blocks_duplicate
     assert job["status"] == "succeeded" and job["outcome"] == "new_version", job
     v = env.client.get(f"/api/v1/admin/versions/{job['version_id']}", headers=env.auth("admin")).json()
     assert v["original_file"]["filename"] == "guide.pdf" and v["original_file"]["sha256"]
-    assert "[Page 1]" in v["extracted_text"] and v["indexing_status"] == "indexed"
+    assert "[Page 1]" in v["extracted_text"] and v["indexing_status"] == "not_indexed"  # embedded only after approval
     doc = env.store.select("source_documents", Query(eq={"id": job["document_id"]}))[0][0]
     assert doc["title"] == "Residence guide"  # submitter's title, not the file name
     orig = env.client.get(f"/api/v1/admin/versions/{job['version_id']}/original", headers=env.auth("admin"))
@@ -285,7 +285,7 @@ def test_screenshot_ocr_flow_needs_human_confirmation_before_approval(env):
     ok = env.client.patch(f"/api/v1/admin/versions/{vid}", headers=env.auth("admin"), json={"fields_confirmed": True})
     assert ok.status_code == 200
     appr = env.client.post(f"/api/v1/admin/versions/{vid}/approve", headers=env.auth("admin"), json={})
-    assert appr.status_code == 200 and appr.json()["verification_status"] == "approved"
+    assert appr.status_code == 202 and appr.json()["verification_status"] == "approved"
     hits = env.client.post("/api/v1/knowledge/search", json={"query": "TOPIK 설명회 장소"}).json()["results"]
     assert hits and hits[0]["authority_type"] == "staff_communication"
     again = env.client.post(f"/api/v1/admin/intake/screenshot/{body['job']['id']}/submit", headers=env.auth("supporter"),
@@ -355,12 +355,12 @@ def test_request_changes_edit_resubmit_approve_and_audit(env):
                            json={"note": "x" * 5}).status_code == 403
     new_text = "겨울방학 기숙사 신청 안내\n신청 기간: 2026.12.01 ~ 12.10\n신청: https://sgee.sch.ac.kr/apply"
     ed = env.client.patch(f"/api/v1/admin/versions/{vid}", headers=env.auth("supporter"), json={"extracted_text": new_text})
-    assert ed.status_code == 200 and ed.json()["edited_at"] and ed.json()["indexing_status"] == "indexed"
+    assert ed.status_code == 200 and ed.json()["edited_at"] and ed.json()["indexing_status"] == "not_indexed"
     chunks, _ = env.store.select("document_chunks", Query(eq={"version_id": vid}))
     assert any("sgee.sch.ac.kr/apply" in c["content"] for c in chunks)  # re-chunked after the edit
     assert env.client.post(f"/api/v1/admin/versions/{vid}/submit", headers=env.auth("supporter")).status_code == 200
     assert env.client.post(f"/api/v1/admin/versions/{vid}/approve", headers=env.auth("supporter"), json={}).status_code == 403
-    assert env.client.post(f"/api/v1/admin/versions/{vid}/approve", headers=env.auth("admin"), json={}).status_code == 200
+    assert env.client.post(f"/api/v1/admin/versions/{vid}/approve", headers=env.auth("admin"), json={}).status_code == 202
     # approved versions cannot be edited in place
     assert env.client.patch(f"/api/v1/admin/versions/{vid}", headers=env.auth("admin"),
                             json={"extracted_text": "changed text after approval"}).status_code == 409
@@ -403,31 +403,55 @@ def test_review_warnings_flag_changed_deadline_and_non_official_immigration(env)
 
 # ------------------------------------------------------------------ indexing / approval safety
 def test_embedding_failure_on_approval_keeps_previous_version_live(env):
+    """Scenario F + G: embedding fails -> old version stays live; retry -> activated, no duplicate chunks."""
     from app.services.embeddings.base import EmbeddingError
 
     vid = paste(env, role="admin").json()["version_id"]
-    env.client.post(f"/api/v1/admin/versions/{vid}/approve", headers=env.auth("admin"), json={})
+    assert env.client.post(f"/api/v1/admin/versions/{vid}/approve", headers=env.auth("admin"), json={}).status_code == 202
     src_id = env.store.select("knowledge_sources")[0][0]["id"]
     embedder = env.app.state.services.embedder
+    orig = embedder.embed_passages
 
     def boom(texts):
         raise EmbeddingError("model failed to load (out of memory)")
 
-    orig = embedder.embed_passages
     embedder.embed_passages = boom
     try:
         r = env.client.post("/api/v1/admin/intake/announcement", headers=env.auth("admin"), json=dict(
             source_id=src_id, original_text="겨울방학 기숙사 신청 기간이 연장되었습니다: 2026.12.15까지", title="겨울방학 기숙사 신청",
             organization="x", category="dormitory-housing", authorized_by_supporter=True, submit=True))
         new_vid = r.json()["version_id"]
-        v = env.client.get(f"/api/v1/admin/versions/{new_vid}", headers=env.auth("admin")).json()
-        assert v["indexing_status"] == "failed" and "out of memory" in v["indexing_error"]
         a = env.client.post(f"/api/v1/admin/versions/{new_vid}/approve", headers=env.auth("admin"), json={})
-        assert a.status_code == 503
+        assert a.status_code == 202 and a.json()["indexing_job_status"] == "queued"  # transient: auto-retry scheduled
+        v = env.client.get(f"/api/v1/admin/versions/{new_vid}", headers=env.auth("admin")).json()
+        assert v["verification_status"] == "pending_review" and v["indexing_status"] == "queued"
+        assert "out of memory" in v["indexing_error"]
+        live = env.client.post("/api/v1/knowledge/search", json={"query": "기숙사 신청"}).json()["results"]
+        assert live and all(x["version_id"] == vid for x in live)  # previous approved version still answers
+        # exhaust the retries: the job fails, the version is marked failed, an admin is notified
+        job_id = a.json()["indexing_job_id"]
+        for _ in range(3):
+            env.store.update("ingestion_jobs", {"run_after": "2000-01-01T00:00:00+00:00"}, {"id": job_id})
+            env.app.state.services.jobs.run_once()
+        job = env.store.select("ingestion_jobs", Query(eq={"id": job_id}))[0][0]
+        assert job["status"] == "failed" and job["attempts"] == 3
+        assert env.store.select("document_versions", Query(eq={"id": new_vid}))[0][0]["indexing_status"] == "failed"
+        notes = env.client.get("/api/v1/admin/notifications", headers=env.auth("admin")).json()
+        assert any(n["kind"] == "indexing_failed" for n in notes["items"]) and notes["unread"] >= 1
     finally:
         embedder.embed_passages = orig
-    live = env.client.post("/api/v1/knowledge/search", json={"query": "기숙사 신청"}).json()["results"]
-    assert live and all(x["version_id"] == vid for x in live)
+    # retry after the fix: activated, exactly one chunk set, old version superseded
+    rt = env.client.post(f"/api/v1/admin/ingestion-jobs/{job_id}/retry", headers=env.auth("admin"))
+    assert rt.status_code == 202, rt.text
+    chunks = env.store.select("document_chunks", Query(eq={"version_id": new_vid}))[0]
+    assert chunks and len({c["chunk_index"] for c in chunks}) == len(chunks)
+    assert all(c["embedding"] is not None for c in chunks)
+    old = env.store.select("document_versions", Query(eq={"id": vid}))[0][0]
+    assert old["verification_status"] == "superseded"
+    live = env.client.post("/api/v1/knowledge/search", json={"query": "기숙사 신청 연장"}).json()["results"]
+    assert live and all(x["version_id"] == new_vid for x in live)
+    hist = env.client.get(f"/api/v1/admin/documents/{old['document_id']}/history", headers=env.auth("admin")).json()["items"]
+    assert {"version.approval_requested", "version.approve", "version.activate"} <= {h["action"] for h in hist}
 
 
 # ------------------------------------------------------------------ jobs
@@ -500,7 +524,7 @@ def test_exact_identifiers_and_scope_filters(env):
                         ("D-4 language trainee visa", "The D-4 visa is for Korean language trainees at a language institute.")):
         vid = paste(env, role="admin", title=title, original_text=text, category="visa-immigration", deadline=None,
                     location=None, authority_type="official_university").json()["version_id"]
-        assert env.client.post(f"/api/v1/admin/versions/{vid}/approve", headers=env.auth("admin"), json={}).status_code == 200
+        assert env.client.post(f"/api/v1/admin/versions/{vid}/approve", headers=env.auth("admin"), json={}).status_code == 202
     res = env.client.post("/api/v1/knowledge/search", json={"query": "D-2 비자는 무엇인가요?", "mode": "keyword"}).json()
     assert res["retrieval"]["exact_terms"] == ["D-2"]
     assert res["results"][0]["document_title"] == "D-2 student visa" and res["results"][0]["exact_match"]

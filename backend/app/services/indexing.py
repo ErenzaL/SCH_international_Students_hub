@@ -1,8 +1,17 @@
-"""Chunk + embed a document version and persist chunks (reusing unchanged embeddings)."""
+"""Chunk + embed a document version and replace its chunks atomically (reusing unchanged embeddings).
+
+Lifecycle (see docs/ingestion.md, "Automatic RAG synchronization"):
+  ingestion  -> chunks only (``embed=False``) so reviewers can inspect them; nothing is embedded or searchable
+  approval   -> durable ``index_version`` job -> chunk -> embed (bounded batches) -> validate -> atomic activation
+Chunks of a version are always replaced in ONE database transaction (``replace_version_chunks``), so a failed
+or retried run never leaves a partial or duplicated chunk set, and other versions are never touched.
+"""
 from __future__ import annotations
 
 import logging
+import math
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any
 
@@ -14,20 +23,24 @@ from app.services.embeddings.base import EmbeddingError, EmbeddingProvider
 from app.services.ingestion.normalize import text_fingerprint
 
 log = logging.getLogger("app.indexing")
+EMBED_BATCH = 8  # texts per embedding call: bounds memory and gives progress/heartbeat points
 
 
 class IndexingService:
     def __init__(self, store: Store, embedder: EmbeddingProvider, settings: Settings):
         self.store = store
         self.embedder = embedder
+        self.settings = settings
+        self.dimensions = settings.embedding_dimensions
         self.cfg = ChunkerConfig(settings.chunk_target_tokens, settings.chunk_max_tokens, settings.chunk_overlap_tokens)
 
-    def index_version(self, version_id: str, *, raise_on_embedding_error: bool = False) -> dict[str, Any]:
-        """(Re)build chunks for a version. Chunks are always stored; embeddings are generated when possible.
+    def index_version(self, version_id: str, *, raise_on_embedding_error: bool = False, embed: bool | None = None,
+                      progress: Callable[[int, int], None] | None = None) -> dict[str, Any]:
+        """(Re)build chunks for a version. ``embed=None`` uses EMBED_ON_INGEST (pre-review content).
 
-        Returns statistics incl. ``embedding_error`` when the model could not run (the version then stays
-        un-approvable until a successful 'reprocess').
+        Returns statistics incl. ``embedding_error`` when the model could not run.
         """
+        embed = self.settings.embed_on_ingest if embed is None else embed
         version = get_one(self.store, "document_versions", id=version_id)
         if version is None:
             raise ValueError("version not found")
@@ -48,13 +61,23 @@ class IndexingService:
         todo = [i for i, h in enumerate(hashes) if h not in reuse]
         error: str | None = None
         t0 = time.perf_counter()
-        if todo:
+        if embed and todo:
             try:
-                new_vecs = self.embedder.embed_passages([inputs[i] for i in todo])
-                vectors.update(dict(zip(todo, new_vecs, strict=True)))
+                for start in range(0, len(todo), EMBED_BATCH):
+                    batch = todo[start: start + EMBED_BATCH]
+                    vecs = self.embedder.embed_passages([inputs[i] for i in batch])
+                    if len(vecs) != len(batch):
+                        raise EmbeddingError(f"model returned {len(vecs)} vectors for {len(batch)} chunks")
+                    for i, v in zip(batch, vecs, strict=True):
+                        if len(v) != self.dimensions or not all(math.isfinite(x) for x in v):
+                            raise EmbeddingError(f"invalid embedding for chunk {i} (dims {len(v)})")
+                        vectors[i] = v
+                    if progress:
+                        progress(min(start + EMBED_BATCH, len(todo)), len(todo))
             except (EmbeddingError, MemoryError) as exc:
                 error = f"{type(exc).__name__}: {exc}" if isinstance(exc, MemoryError) else str(exc)
                 log.warning("embedding failed for version %s: %s", version_id, error)
+                vectors.clear()  # never store a partially embedded set
                 self._mark(version_id, "failed", error)
                 if raise_on_embedding_error:
                     raise EmbeddingUnavailable(error) from exc
@@ -71,13 +94,18 @@ class IndexingService:
                     embedding_model=self.embedder.model_id if emb is not None else None,
                 )
             )
-        # embeddings are computed *before* replacing rows so the window without chunks is tiny
-        self.store.delete("document_chunks", {"version_id": version_id})
-        self.store.insert_many("document_chunks", rows)
+        # one transaction: the old chunk set stays until the new one is fully written
+        self.store.rpc("replace_version_chunks", {"p_version_id": version_id,
+                                                  "p_chunks": [{k: v for k, v in r.items() if k != "version_id"}
+                                                               for r in rows]})
         embedded = sum(1 for r in rows if r["embedding"] is not None)
         if error is None:
-            self._mark(version_id, "indexed" if rows and embedded == len(rows) else "failed",
-                       None if rows else "No chunks were produced from this text.")
+            if rows and embedded == len(rows):
+                self._mark(version_id, "indexed", None)
+            elif not rows:
+                self._mark(version_id, "failed", "No chunks were produced from this text.")
+            else:
+                self._mark(version_id, "not_indexed", None)
         return {
             "chunk_count": len(rows), "embedded_chunks": embedded, "failed_chunks": len(rows) - embedded,
             "reused_embeddings": len(rows) - len(todo), "embedding_model": self.embedder.model_id,
@@ -93,10 +121,14 @@ class IndexingService:
         except Exception:  # noqa: BLE001 - status bookkeeping must not mask the real result
             log.warning("could not record indexing status for %s", version_id)
 
+    def chunk_counts(self, version_id: str) -> tuple[int, int]:
+        """(total chunks, chunks embedded by the current model) as stored in the database."""
+        rows, _ = self.store.select("document_chunks", Query(eq={"version_id": version_id}, cols="id,embedding_model"))
+        return len(rows), sum(1 for r in rows if r.get("embedding_model") == self.embedder.model_id)
+
     def ensure_indexed(self, version_id: str) -> None:
-        """Make sure every chunk of the version has an embedding (used right before approval)."""
-        chunks, _ = self.store.select("document_chunks", Query(eq={"version_id": version_id}))
-        if chunks and all(c.get("embedding") is not None and c.get("embedding_model") == self.embedder.model_id
-                          for c in chunks):
+        """Make sure every chunk of the version has an embedding from the current model."""
+        total, ok = self.chunk_counts(version_id)
+        if total and total == ok:
             return
-        self.index_version(version_id, raise_on_embedding_error=True)
+        self.index_version(version_id, raise_on_embedding_error=True, embed=True)
