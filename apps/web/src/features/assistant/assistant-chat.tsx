@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { ErrorState } from "@/components/shared/states";
-import { ScopeBadge } from "@/components/shared/badges";
+import { ScopeBadge, ExactMatchBadge, StaleBadge } from "@/components/shared/badges";
 import { api, ApiError } from "@/lib/api";
 import { useApi } from "@/lib/use-api";
 import { cn, formatDate } from "@/lib/utils";
@@ -289,6 +289,8 @@ function Citation({ index, result: r }: { index: number; result: SearchResult })
       <div className="mt-1 flex flex-wrap gap-1">
         <ScopeBadge scope={r.scope} />
         {r.page != null && <Badge variant="outline">{t("page", { page: r.page })}</Badge>}
+        {r.exact_match && <ExactMatchBadge />}
+        {r.is_stale && <StaleBadge days={r.verification_age_days} />}
       </div>
       <dl className="mt-2 space-y-0.5 text-xs text-muted-foreground">
         <div>{r.organization}</div>

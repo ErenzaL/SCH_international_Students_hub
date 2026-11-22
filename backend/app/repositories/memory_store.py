@@ -19,9 +19,9 @@ from app.repositories.base import FileStorage, Query, Row
 TABLES = (
     "categories", "profiles", "supporter_languages", "knowledge_sources", "source_documents",
     "document_versions", "document_chunks", "ingestion_jobs", "audit_log", "announcements",
-    "announcement_translations",
+    "announcement_translations", "ingestion_events", "allowed_source_domains",
 )
-NO_ID = {"categories", "profiles", "supporter_languages", "audit_log"}
+NO_ID = {"categories", "profiles", "supporter_languages", "audit_log", "ingestion_events", "allowed_source_domains"}
 HAS_UPDATED_AT = {"knowledge_sources", "source_documents", "announcements", "announcement_translations"}
 
 
@@ -47,24 +47,30 @@ class MemoryStore:
         r = copy.deepcopy(row)
         if table not in NO_ID:
             r.setdefault("id", str(uuid.uuid4()))
-        elif table == "audit_log" and "id" not in r:
+        elif table in ("audit_log", "ingestion_events") and "id" not in r:
             self._audit_seq += 1
             r["id"] = self._audit_seq
         d: dict[str, Any] = {
             "knowledge_sources": dict(status="registered", sync_frequency="manual", is_active=True, is_test_data=False,
                                       language="ko", original_url=None, last_checked_at=None, last_ingestion_result=None,
-                                      created_by=None),
+                                      created_by=None, config={}, stale_after_days=None, last_success_at=None,
+                                      last_change_at=None),
             "source_documents": dict(is_canceled=False, document_type="webpage", language="ko", current_version_id=None,
-                                     canonical_url=None, external_id=None, canceled_at=None, canceled_reason=None),
+                                     canonical_url=None, external_id=None, canceled_at=None, canceled_reason=None,
+                                     metadata={}),
             "document_versions": dict(verification_status="pending_review", was_approved=False, fetched_at=now_iso(),
                                       source_published_at=None, valid_from=None, valid_until=None, approved_by=None,
                                       approved_at=None, rejected_by=None, rejected_at=None, rejected_reason=None,
-                                      created_by=None),
+                                      created_by=None, raw_text=None, structured_data={}, extraction_meta={},
+                                      original_file=None, edited_by=None, edited_at=None, review_note=None,
+                                      submitted_at=None, indexing_status="not_indexed", indexed_at=None,
+                                      indexing_error=None),
             "document_chunks": dict(chunk_strategy="v1", embedding=None, embedding_model=None, heading=None,
                                     token_count=None, page_start=None, page_end=None),
             "ingestion_jobs": dict(status="queued", trigger="manual", outcome=None, document_id=None, version_id=None,
                                    payload={}, error_code=None, error_message=None, statistics={}, requested_by=None,
-                                   started_at=None, completed_at=None),
+                                   started_at=None, completed_at=None, job_type="ingest", attempts=0, max_attempts=3,
+                                   run_after=now_iso(), heartbeat_at=None, locked_by=None),
             "announcements": dict(publication_status="draft", original_language="ko", source_type="manual_text",
                                   is_test_data=False, target_audience=None, event_date=None, deadline=None,
                                   valid_from=None, evidence_note=None, evidence_url=None, created_by=None,
@@ -73,6 +79,8 @@ class MemoryStore:
             "announcement_translations": dict(translation_status="machine_draft", reviewed_by=None, reviewed_at=None),
             "profiles": dict(role="student", preferred_language="en", display_name=None, email=None),
             "audit_log": dict(details={}, actor_id=None, entity_id=None),
+            "ingestion_events": dict(level="info", data={}),
+            "allowed_source_domains": dict(note=None, added_by=None),
         }.get(table, {})
         for k, v in d.items():
             r.setdefault(k, v)
@@ -93,8 +101,10 @@ class MemoryStore:
 
         if table == "profiles":
             dup(lambda x: x["id"] == row["id"])
-        elif table == "knowledge_sources" and row.get("source_type") == "website" and row.get("original_url"):
-            dup(lambda x: x.get("source_type") == "website" and x.get("original_url") == row["original_url"])
+        elif table == "knowledge_sources" and row.get("source_type") in ("website", "sch_board") and row.get("original_url"):
+            dup(lambda x: x.get("source_type") == row["source_type"] and x.get("original_url") == row["original_url"])
+        elif table == "allowed_source_domains":
+            dup(lambda x: x["domain"] == row["domain"])
         elif table == "source_documents":
             if row.get("canonical_url"):
                 dup(lambda x: x["source_id"] == row["source_id"] and x.get("canonical_url") == row["canonical_url"])
@@ -114,9 +124,17 @@ class MemoryStore:
             dup(lambda x: x["announcement_id"] == row["announcement_id"] and x["language_code"] == row["language_code"])
 
     @staticmethod
-    def _match(r: Row, q: Query) -> bool:
+    def _get(r: Row, c: str) -> Any:
+        if "->>" in c:  # PostgREST JSON path filter, e.g. original_file->>sha256
+            col, key = c.split("->>", 1)
+            val = (r.get(col) or {}).get(key)
+            return None if val is None else str(val)
+        return r.get(c)
+
+    @classmethod
+    def _match(cls, r: Row, q: Query) -> bool:
         for c, v in q.eq.items():
-            if r.get(c) != v:
+            if cls._get(r, c) != v:
                 return False
         for c, v in q.neq.items():
             if r.get(c) == v:
@@ -172,9 +190,13 @@ class MemoryStore:
             for r in self.t[table]:
                 if all(r.get(c) == v for c, v in eq.items()):
                     if table == "document_versions" and r["verification_status"] in ("approved", "superseded", "rejected"):
-                        for k in ("extracted_text", "content_hash", "document_id", "version_number"):
-                            if k in patch and patch[k] != r[k]:
+                        for k in ("extracted_text", "content_hash", "document_id", "version_number", "structured_data"):
+                            if k in patch and patch[k] != r.get(k):
                                 raise InvalidState("version content is immutable once reviewed")
+                    if table == "document_versions":
+                        for k in ("raw_text", "original_file"):
+                            if r.get(k) is not None and k in patch and patch[k] != r[k]:
+                                raise InvalidState(f"version {k} is immutable")
                     if table == "source_documents" and patch.get("current_version_id") not in (None, r.get("current_version_id")):
                         v = self._ver(patch["current_version_id"])
                         if not v or v["document_id"] != r["id"] or v["verification_status"] != "approved":
@@ -254,20 +276,26 @@ class MemoryStore:
         assert d is not None
         if d["is_canceled"]:
             raise InvalidState("document is canceled")
+        if (v.get("extraction_meta") or {}).get("requires_field_confirmation") and \
+                not (v.get("structured_data") or {}).get("fields_confirmed"):
+            raise InvalidState("OCR-derived content needs the reviewer to confirm key fields first")
         chunks = [c for c in self.t["document_chunks"] if c["version_id"] == v["id"]]
         if not chunks or any(c["embedding"] is None for c in chunks):
             raise InvalidState("version has no complete embeddings", code="not_indexed")
+        prev_id = d["current_version_id"]
         if d["current_version_id"] and d["current_version_id"] != v["id"]:
             prev = self._ver(d["current_version_id"])
             if prev and prev["verification_status"] == "approved":
                 prev["verification_status"] = "superseded"
         v.update(verification_status="approved", was_approved=True, approved_by=p_actor, approved_at=now_iso(),
-                 rejected_by=None, rejected_at=None, rejected_reason=None)
+                 rejected_by=None, rejected_at=None, rejected_reason=None, indexing_status="indexed",
+                 indexed_at=v.get("indexed_at") or now_iso(), indexing_error=None)
         d["current_version_id"] = v["id"]
         self._refresh_source(d["source_id"])
         self._audit("version.approve", "document_version", v["id"], p_actor,
                     {"document_id": d["id"], "version_number": v["version_number"], "note": p_note,
-                     "content_hash": v["content_hash"]})
+                     "content_hash": v["content_hash"], "previous_status": "pending_review", "new_status": "approved",
+                     "superseded_version": prev_id})
         return v
 
     def _rpc_reject_document_version(self, p_version_id: str, p_actor: str, p_reason: str) -> Row:
@@ -465,6 +493,154 @@ class MemoryStore:
                 source_published_at=v["source_published_at"], verified_at=v["approved_at"], language=d["language"]))
         return out
 
+    # ------------------------------------------------------------- Phase 2
+    def _rpc_claim_ingestion_job(self, p_worker: str, p_stale_seconds: int = 900) -> list[Row]:
+        now = datetime.now(UTC)
+        for j in self.t["ingestion_jobs"]:
+            if j["status"] != "running":
+                continue
+            beat = j.get("heartbeat_at") or j.get("started_at") or j["created_at"]
+            if (now - datetime.fromisoformat(beat)).total_seconds() > max(p_stale_seconds, 60):
+                if j["attempts"] < j["max_attempts"]:
+                    j.update(status="queued", locked_by=None, run_after=now_iso())
+                else:
+                    j.update(status="failed", locked_by=None, error_code="interrupted", completed_at=now_iso(),
+                             error_message="The worker stopped while this job was running and the retry limit was reached.")
+        queued = sorted((j for j in self.t["ingestion_jobs"] if j["status"] == "queued"
+                         and datetime.fromisoformat(j["run_after"]) <= now), key=lambda j: j["created_at"])
+        if not queued:
+            return []
+        j = queued[0]
+        j.update(status="running", attempts=j["attempts"] + 1, started_at=now_iso(), heartbeat_at=now_iso(),
+                 locked_by=p_worker)
+        return [j]
+
+    def _rpc_request_version_changes(self, p_version_id: str, p_actor: str, p_note: str) -> Row:
+        self._assert_admin(p_actor)
+        if not p_note or len(p_note.strip()) < 3:
+            raise ValidationFailed("a note explaining the requested changes is required")
+        v = self._ver(p_version_id)
+        if not v:
+            raise NotFound("version not found")
+        if v["verification_status"] != "pending_review":
+            raise InvalidState(f"only pending_review versions can be sent back (is {v['verification_status']})")
+        v.update(verification_status="draft", review_note=p_note)
+        d = self._doc(v["document_id"])
+        assert d is not None
+        self._refresh_source(d["source_id"])
+        self._audit("version.request_changes", "document_version", v["id"], p_actor,
+                    {"document_id": d["id"], "version_number": v["version_number"], "note": p_note,
+                     "previous_status": "pending_review", "new_status": "draft"})
+        return v
+
+    def _rpc_submit_version_for_review(self, p_version_id: str, p_actor: str) -> Row:
+        p = next((p for p in self.t["profiles"] if p["id"] == p_actor), None)
+        if not p or p["role"] == "student":
+            raise Forbidden("forbidden: staff role required")
+        v = self._ver(p_version_id)
+        if not v:
+            raise NotFound("version not found")
+        if p["role"] == "supporter" and v.get("created_by") != p_actor:
+            raise Forbidden("forbidden: supporters may only submit their own submissions")
+        if v["verification_status"] != "draft":
+            raise InvalidState(f"only draft versions can be submitted (is {v['verification_status']})")
+        v.update(verification_status="pending_review", submitted_at=now_iso())
+        d = self._doc(v["document_id"])
+        assert d is not None
+        self._refresh_source(d["source_id"])
+        self._audit("version.submit", "document_version", v["id"], p_actor,
+                    {"document_id": d["id"], "version_number": v["version_number"],
+                     "previous_status": "draft", "new_status": "pending_review"})
+        return v
+
+    def _searchable(self) -> list[tuple[Row, Row, Row, Row]]:
+        now = datetime.now(UTC)
+        out = []
+        for c in self.t["document_chunks"]:
+            v = self._ver(c["version_id"])
+            if not v or v["verification_status"] != "approved":
+                continue
+            d = self._doc(v["document_id"])
+            if not d or d["current_version_id"] != v["id"] or d["is_canceled"]:
+                continue
+            s = next((s for s in self.t["knowledge_sources"] if s["id"] == d["source_id"]), None)
+            if not s or not s["is_active"]:
+                continue
+            if v["valid_from"] and datetime.fromisoformat(v["valid_from"]) > now:
+                continue
+            if v["valid_until"] and datetime.fromisoformat(v["valid_until"]) <= now:
+                continue
+            out.append((c, v, d, s))
+        return out
+
+    def _rpc_search_knowledge_v2(self, p_query_embedding: list[float] | None, p_query_tokens: list[str] | None,
+                                 p_exact_terms: list[str] | None, p_model: str, p_category: str | None = None,
+                                 p_scope: str | None = None, p_authority: list[str] | None = None,
+                                 p_match_count: int = 5, p_mode: str = "hybrid") -> list[Row]:
+        import re as _re
+
+        if p_mode not in ("hybrid", "vector", "keyword"):
+            raise ValidationFailed("invalid mode")
+        limit = min(max(p_match_count or 5, 1), 50)
+        pool = limit * 4
+        cand = [(c, v, d, s) for c, v, d, s in self._searchable()
+                if (not p_category or s["category"] == p_category) and (not p_scope or s["scope"] == p_scope)
+                and (not p_authority or s["authority_type"] in p_authority)]
+        exact = [t for t in (p_exact_terms or []) if _re.fullmatch(r"[A-Za-z0-9]+([ -][A-Za-z0-9]+)*", t)
+                 and 2 <= len(t) <= 40] if p_mode != "vector" else []
+        pats = [_re.compile(r"(^|[^0-9A-Za-z])" + _re.escape(t) + r"($|[^0-9A-Za-z])", _re.I) for t in exact]
+        vec: dict[str, tuple[int, float]] = {}
+        if p_mode != "keyword" and p_query_embedding is not None:
+            scored = [(c["id"], _cos(p_query_embedding, c["embedding"])) for c, *_ in cand
+                      if c["embedding"] is not None and c["embedding_model"] == p_model]
+            scored.sort(key=lambda x: -x[1])
+            vec = {cid: (i + 1, sim) for i, (cid, sim) in enumerate(scored[:pool])}
+        kw: dict[str, tuple[int, float, bool]] = {}
+        toks = [t.lower() for t in (p_query_tokens or []) if t] if p_mode != "vector" else []
+        if toks or pats:
+            scored2 = []
+            for c, *_ in cand:
+                hay = (c["heading"] or "") + " " + c["content"]
+                hits = sum(1 for t in toks if t in hay.lower())
+                ex = any(p.search(hay) for p in pats)
+                if hits or ex:
+                    scored2.append((c["id"], (hits / len(toks) if toks else 0) + (1.0 if ex else 0), ex))
+            scored2.sort(key=lambda x: (-x[1], x[0]))
+            kw = {cid: (i + 1, r, ex) for i, (cid, r, ex) in enumerate(scored2[:pool])}
+        fused = []
+        for c, v, d, s in cand:
+            cid = c["id"]
+            if cid not in vec and cid not in kw:
+                continue
+            rrf = (1.0 / (60 + vec[cid][0]) if cid in vec else 0) + (1.0 / (60 + kw[cid][0]) if cid in kw else 0)
+            rrf += 0.001 if s["authority_type"] in ("official_government", "official_university") else 0
+            fused.append((rrf, cid, c, v, d, s))
+        fused.sort(key=lambda x: (-x[0], x[1]))
+        return [dict(
+            chunk_id=cid, document_id=d["id"], version_id=v["id"], source_id=s["id"], document_title=d["title"],
+            heading=c["heading"], passage=c["content"], page=c["page_start"],
+            similarity=vec[cid][1] if cid in vec else None, keyword_rank=kw[cid][1] if cid in kw else None,
+            exact_match=kw[cid][2] if cid in kw else False, score=rrf,
+            source_url=d["canonical_url"] or s["original_url"], organization=s["organization"],
+            authority_type=s["authority_type"], scope=s["scope"], category=s["category"], source_type=s["source_type"],
+            source_published_at=v["source_published_at"], verified_at=v["approved_at"], valid_until=v["valid_until"],
+            stale_after_days=s.get("stale_after_days"), language=d["language"])
+            for rrf, cid, c, v, d, s in fused[:limit]]
+
+    def _rpc_knowledge_stats(self) -> Row:
+        src = self.t["knowledge_sources"]
+        vers = self.t["document_versions"]
+        succ = [s["last_success_at"] for s in src if s.get("last_success_at")]
+        return dict(
+            sources_total=len(src), sources_active=sum(1 for s in src if s["is_active"]),
+            sources_failed=sum(1 for s in src if s["status"] in ("failed", "blocked")),
+            versions_pending=sum(1 for v in vers if v["verification_status"] == "pending_review"),
+            versions_draft=sum(1 for v in vers if v["verification_status"] == "draft"),
+            documents_approved=sum(1 for d in self.t["source_documents"] if d["current_version_id"] and not d["is_canceled"]),
+            jobs_failed=sum(1 for j in self.t["ingestion_jobs"] if j["status"] == "failed"),
+            jobs_queued=sum(1 for j in self.t["ingestion_jobs"] if j["status"] in ("queued", "running")),
+            searchable_chunks=len(self._searchable()), latest_success_at=max(succ) if succ else None)
+
 
 class MemoryFileStorage(FileStorage):
     def __init__(self) -> None:
@@ -477,6 +653,9 @@ class MemoryFileStorage(FileStorage):
         if path not in self.files:
             raise NotFound("stored file not found")
         return self.files[path][0]
+
+    def remove(self, path: str) -> None:
+        self.files.pop(path, None)
 
 
 def seed_categories(store: MemoryStore) -> None:

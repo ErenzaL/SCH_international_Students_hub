@@ -26,8 +26,8 @@ export function OverviewPage() {
       {data && (
         <div className="space-y-8">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <Stat label={t("sources")} value={data.sources_total} href="/admin/sources" />
-            <Stat label={t("failed")} value={data.sources_failed} href="/admin/sources" tone={data.sources_failed ? "bad" : undefined} />
+            <Stat label={t("sources")} value={data.sources_total} href="/admin/knowledge-sources" />
+            <Stat label={t("failed")} value={data.sources_failed} href="/admin/knowledge-sources" tone={data.sources_failed ? "bad" : undefined} />
             <Stat label={t("pendingVersions")} value={data.versions_pending} href="/admin/review" tone={data.versions_pending ? "warn" : undefined} />
             <Stat label={t("pendingAnnouncements")} value={data.announcements_pending} href="/admin/review" tone={data.announcements_pending ? "warn" : undefined} />
             <Stat label={t("approvedDocs")} value={data.documents_approved} href="/admin/documents" />

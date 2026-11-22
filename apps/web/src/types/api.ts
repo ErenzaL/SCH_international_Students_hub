@@ -1,10 +1,19 @@
 /** Types mirroring docs/api-contract.md. Keep in sync with the backend. */
 
 export type LanguageCode = "ko" | "en" | "id" | "vi" | "zh-CN";
-export type SourceType = "website" | "pdf" | "docx" | "manual_text" | "kakao_message";
+export type SourceType =
+  | "website"
+  | "sch_board"
+  | "pdf"
+  | "docx"
+  | "text_file"
+  | "screenshot"
+  | "manual_text"
+  | "kakao_message";
 export type AuthorityType =
   | "official_university"
   | "official_government"
+  | "staff_communication"
   | "supporter_submitted"
   | "other";
 export type Scope = "university" | "national";
@@ -16,6 +25,7 @@ export type SourceStatus =
   | "pending_review"
   | "approved"
   | "failed"
+  | "blocked"
   | "inactive";
 export type VerificationStatus =
   | "draft"
@@ -24,7 +34,9 @@ export type VerificationStatus =
   | "rejected"
   | "superseded";
 export type JobStatus = "queued" | "running" | "succeeded" | "failed";
-export type JobOutcome = "new_version" | "unchanged";
+export type JobOutcome = "new_version" | "unchanged" | "partial" | "extracted";
+export type JobType = "ingest" | "board_sync" | "ocr_intake";
+export type IndexingStatus = "not_indexed" | "indexing" | "indexed" | "failed";
 export type PublicationStatus =
   | "draft"
   | "pending_approval"
@@ -120,6 +132,13 @@ export interface SearchResult {
   source_published_at: string | null;
   verified_at: string | null;
   language: LanguageCode;
+  source_id?: string;
+  source_type?: SourceType;
+  valid_until?: string | null;
+  exact_match?: boolean;
+  is_stale?: boolean;
+  verification_age_days?: number | null;
+  stale_after_days?: number | null;
 }
 
 export interface SearchResponse {
@@ -130,6 +149,7 @@ export interface SearchResponse {
     embedding_model: string;
     total: number;
     warning: string | null;
+    exact_terms?: string[];
   };
 }
 
@@ -145,12 +165,25 @@ export interface KnowledgeDocumentSummary {
   source_published_at: string | null;
   verified_at: string | null;
   excerpt: string;
+  source_type?: SourceType;
+  valid_until?: string | null;
+  is_stale?: boolean;
+  verification_age_days?: number | null;
+  stale_after_days?: number | null;
+}
+
+export interface Attachment {
+  name: string;
+  url: string;
 }
 
 export interface KnowledgeDocumentDetail extends KnowledgeDocumentSummary {
   content: string;
   version_id: string;
   version_number: number;
+  key_facts?: Record<string, unknown>;
+  attachments?: Attachment[];
+  notice_no?: string | null;
 }
 
 export interface Me {
@@ -169,6 +202,12 @@ export interface JobResultSummary {
   outcome: JobOutcome | null;
   message: string | null;
   completed_at: string | null;
+  error_code?: string | null;
+}
+
+export interface BoardConfig {
+  max_items?: number;
+  max_pages?: number;
 }
 
 export interface Source {
@@ -192,6 +231,10 @@ export interface Source {
   last_ingestion_result: JobResultSummary | null;
   is_test_data: boolean;
   document_count: number;
+  config?: BoardConfig;
+  stale_after_days?: number | null;
+  last_success_at?: string | null;
+  last_change_at?: string | null;
 }
 
 export interface SourceDetail extends Source {
@@ -220,6 +263,20 @@ export interface SourceCreate {
   language: LanguageCode;
   sync_frequency?: SyncFrequency;
   is_active?: boolean;
+  config?: BoardConfig;
+  stale_after_days?: number;
+}
+
+export interface SourcePatch {
+  title?: string;
+  organization?: string;
+  category?: string;
+  sync_frequency?: SyncFrequency;
+  language?: LanguageCode;
+  scope?: Scope;
+  authority_type?: AuthorityType;
+  config?: BoardConfig;
+  stale_after_days?: number;
 }
 
 export interface Job {
@@ -233,10 +290,39 @@ export interface Job {
   version_id: string | null;
   error_code: string | null;
   error_message: string | null;
-  statistics: Record<string, number | string | null>;
+  statistics: Record<string, unknown>;
   created_at: string;
   started_at: string | null;
   completed_at: string | null;
+  job_type?: JobType;
+  attempts?: number;
+  max_attempts?: number;
+  file?: { filename: string; mime_type: string; size: number } | null;
+  heartbeat_at?: string | null;
+}
+
+export interface JobEvent {
+  id: number;
+  level: "info" | "warning" | "error";
+  step: string;
+  message: string;
+  data: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface BoardNoticeStat {
+  notice_no: string;
+  title: string;
+  outcome: JobOutcome;
+  document_id: string | null;
+  version_id: string | null;
+}
+
+export interface BoardFailure {
+  notice_no: string;
+  title: string;
+  code: string;
+  message: string;
 }
 
 export interface JobAccepted {
@@ -259,6 +345,10 @@ export interface DocumentItem {
   latest_version_number: number | null;
   is_canceled: boolean;
   created_at: string;
+  source_type?: SourceType | null;
+  authority_type?: AuthorityType | null;
+  pending_status?: VerificationStatus | null;
+  updated_at?: string | null;
 }
 
 export interface VersionSummary {
@@ -280,10 +370,48 @@ export interface VersionSummary {
   embedded_chunk_count: number;
   embedding_model: string | null;
   is_current: boolean;
+  created_by?: string | null;
+  edited_by?: string | null;
+  edited_at?: string | null;
+  review_note?: string | null;
+  submitted_at?: string | null;
+  indexing_status?: IndexingStatus;
+  indexed_at?: string | null;
+  indexing_error?: string | null;
+  extraction_meta?: Record<string, unknown>;
+  warnings?: string[];
+  requires_field_confirmation?: boolean;
+  structured_data?: StructuredData;
+  original_file?: { filename: string; mime_type: string; size: number; sha256: string } | null;
+  has_raw_text?: boolean;
 }
 
 export interface Version extends VersionSummary {
   extracted_text: string;
+  raw_text?: string | null;
+}
+
+export interface StructuredField {
+  value: unknown;
+  evidence: string | null;
+  confirmed: boolean;
+  source: string;
+  needs_year?: boolean;
+}
+
+export interface StructuredData {
+  fields?: Record<string, StructuredField>;
+  dates?: { iso: string | null; text: string; year: number | null }[];
+  links?: string[];
+  identifiers?: string[];
+  warnings?: string[];
+  fields_confirmed?: boolean;
+  detector?: string;
+}
+
+export interface ReviewWarning {
+  code: string;
+  message: string;
 }
 
 export interface Diff {
@@ -300,6 +428,8 @@ export interface DocumentDetail extends DocumentItem {
   pending_version: Version | null;
   versions: VersionSummary[];
   diff: Diff | null;
+  metadata?: { notice_no?: string; author?: string; attachments?: Attachment[]; pinned?: boolean };
+  review_warnings?: ReviewWarning[];
 }
 
 export interface Chunk {
@@ -414,4 +544,128 @@ export interface AdminUser {
   preferred_language: LanguageCode;
   languages: LanguageCode[];
   created_at: string;
+}
+
+// ------------------------------------------------------------------ Phase 2
+export interface KnowledgeStats {
+  sources_total: number;
+  sources_active: number;
+  sources_failed: number;
+  versions_pending: number;
+  versions_draft: number;
+  documents_approved: number;
+  jobs_failed: number;
+  jobs_queued: number;
+  searchable_chunks: number;
+  latest_success_at: string | null;
+  ocr_provider: string;
+  ocr_available: boolean;
+  ocr_reason: string | null;
+  job_execution: string;
+  embedding_model: string;
+}
+
+export interface UrlCheckItem {
+  name: "allowlist" | "network" | "robots" | "board" | "duplicate";
+  ok: boolean;
+  message: string;
+  source_id?: string;
+}
+
+export interface UrlValidation {
+  ok: boolean;
+  url: string;
+  checks: UrlCheckItem[];
+}
+
+export interface PagePreview {
+  kind: "page";
+  final_url: string;
+  title: string;
+  text: string;
+  truncated: boolean;
+  content_chars: number;
+  content_hash: string;
+  source_published_at: string | null;
+  links: { text?: string; url?: string; href?: string }[];
+  warnings: string[];
+  extractor: string | null;
+  estimated_chunks: number;
+  structured: StructuredData;
+}
+
+export interface BoardPreview {
+  kind: "board";
+  final_url: string;
+  notices: { notice_no: string; title: string; url: string; posted: string | null; author: string | null; pinned: boolean }[];
+  notice_count: number;
+  sample_notice: { title: string; text: string; posted_at: string | null; attachments: Attachment[]; warnings: string[] } | null;
+}
+
+export type UrlPreview = PagePreview | BoardPreview;
+
+export interface SourceMeta {
+  title: string;
+  organization: string;
+  category: string;
+  scope: Scope;
+  authority_type: AuthorityType;
+  language: LanguageCode;
+  original_url?: string;
+}
+
+export interface OcrStatus {
+  provider: string;
+  available: boolean;
+  reason: string | null;
+  languages: string | null;
+  external_processing: boolean;
+}
+
+export interface OcrResult {
+  provider: string;
+  available: boolean;
+  text: string;
+  mean_confidence: number | null;
+  uncertain_lines: { text: string; confidence: number | null }[];
+  warnings: string[];
+  model: string | null;
+  extracted_at?: string;
+  error_code?: string;
+}
+
+export interface ScreenshotIntake {
+  source?: Source;
+  job: Job;
+  ocr: OcrResult;
+  detected: StructuredData | null;
+  image: { filename: string; mime_type: string; size: number };
+}
+
+export interface MySubmission {
+  id: string;
+  document_id: string;
+  document_title: string | null;
+  version_number: number;
+  verification_status: VerificationStatus;
+  review_note: string | null;
+  created_at: string;
+  submitted_at: string | null;
+  approved_at: string | null;
+  rejected_reason: string | null;
+  indexing_status: IndexingStatus;
+}
+
+export interface AllowedDomain {
+  domain: string;
+  origin: "environment" | "admin";
+  note: string | null;
+  added_by: string | null;
+  created_at: string | null;
+  removable: boolean;
+}
+
+export interface SourceHistory {
+  jobs: Job[];
+  audit: { id: number | string; action: string; actor_id: string | null; details: Record<string, unknown>; created_at: string }[];
 }

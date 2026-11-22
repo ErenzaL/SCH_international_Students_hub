@@ -1,27 +1,35 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import Response
 
 from app.api.deps import Pagination, get_services
 from app.core.errors import NotFound
 from app.repositories.base import Query as DbQuery
 from app.repositories.base import get_many, get_one
-from app.schemas.api import NoteBody, ReasonBody, RollbackBody
-from app.security.auth import AuthUser, require_admin
+from app.schemas.api import NoteBody, NoteRequired, ReasonBody, RollbackBody, VersionPatch
+from app.security.auth import AuthUser, require_admin, require_staff
 from app.services.container import Services
 
 router = APIRouter(prefix="/api/v1/admin", tags=["admin: documents & review"])
 
 
 @router.get("/documents")
-def list_documents(source_id: str | None = None, has_pending: bool = False, q: str | None = Query(None, max_length=200),
+def list_documents(source_id: str | None = None, has_pending: bool = False,
+                   review_status: Literal["pending_review", "draft", "open"] | None = None,
+                   q: str | None = Query(None, max_length=200),
                    pg: Pagination = Depends(), svc: Services = Depends(get_services),
                    _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """``has_pending`` / ``review_status=pending_review`` = the review queue; ``draft`` = changes requested / unsubmitted."""
     eq = {"source_id": source_id} if source_id else {}
     in_: dict[str, list] = {}  # type: ignore[type-arg]
-    if has_pending:
-        pend, _c = svc.store.select("document_versions", DbQuery(
-            in_={"verification_status": ["pending_review"]}, cols="id,document_id"))
+    statuses = {"pending_review": ["pending_review"], "draft": ["draft"], "open": ["pending_review", "draft"]}.get(
+        review_status or ("pending_review" if has_pending else ""), None)
+    if statuses:
+        pend, _c = svc.store.select("document_versions", DbQuery(in_={"verification_status": statuses},
+                                                                cols="id,document_id"))
         in_["id"] = list({p["document_id"] for p in pend}) or ["00000000-0000-0000-0000-000000000000"]
     rows, total = svc.store.select("source_documents", DbQuery(
         eq=eq, in_=in_, or_ilike=[("title", q)] if q else [], order=[("created_at", True)], limit=pg.page_size,
@@ -43,6 +51,12 @@ def get_document(document_id: str, svc: Services = Depends(get_services),
     return svc.review.document_detail(document_id, svc.sources.view)
 
 
+@router.get("/documents/{document_id}/history")
+def document_history(document_id: str, svc: Services = Depends(get_services),
+                     _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    return {"items": svc.review.history(document_id)}
+
+
 @router.post("/documents/{document_id}/rollback")
 def rollback(document_id: str, body: RollbackBody, svc: Services = Depends(get_services),
              user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
@@ -60,8 +74,42 @@ def cancel(document_id: str, body: ReasonBody, svc: Services = Depends(get_servi
 
 @router.get("/versions/{version_id}")
 def get_version(version_id: str, svc: Services = Depends(get_services),
-                _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+                user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
+    v = get_one(svc.store, "document_versions", id=version_id)
+    if v is None:
+        raise NotFound("Version not found.")
+    svc.review.can_view(v, user)
     return svc.review.get_version_view(version_id)
+
+
+@router.patch("/versions/{version_id}")
+def edit_version(version_id: str, body: VersionPatch, svc: Services = Depends(get_services),
+                 user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
+    """Correct extracted text / structured fields of a draft or pending version (never an approved one)."""
+    return svc.review.edit(version_id, body.model_dump(exclude_unset=True), user)
+
+
+@router.post("/versions/{version_id}/submit")
+def submit_version(version_id: str, svc: Services = Depends(get_services),
+                   user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
+    return svc.review.submit(version_id, user)
+
+
+@router.post("/versions/{version_id}/request-changes")
+def request_changes(version_id: str, body: NoteRequired, svc: Services = Depends(get_services),
+                    user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    return svc.review.request_changes(version_id, user, body.note)
+
+
+@router.get("/versions/{version_id}/original")
+def original_file(version_id: str, svc: Services = Depends(get_services),
+                  user: AuthUser = Depends(require_staff)) -> Response:
+    """Original uploaded file/screenshot, streamed through the API (the bucket stays private)."""
+    data, mime, name = svc.review.original_file(version_id, user)
+    disposition = "inline" if mime.startswith(("image/", "application/pdf", "text/")) else "attachment"
+    return Response(data, media_type=mime, headers={"Content-Disposition": f'{disposition}; filename="{name}"',
+                                                     "X-Content-Type-Options": "nosniff",
+                                                     "Cache-Control": "private, no-store"})
 
 
 @router.get("/versions/{version_id}/chunks")

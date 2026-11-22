@@ -62,17 +62,19 @@ def assistant_status(request: Request, settings: Settings = Depends(get_settings
 def search_knowledge(body: SearchRequest, svc: Services = Depends(get_services)) -> dict:  # type: ignore[type-arg]
     """Hybrid (vector + keyword, RRF) search over approved, currently applicable content only."""
     return svc.retrieval.search(body.query, language=body.language, category=body.category, top_k=body.top_k,
-                                mode=body.mode)
+                                mode=body.mode, scope=body.scope, authority=body.authority)
 
 
 @router.get("/knowledge/documents")
 def list_documents(
     q: str | None = Query(None, max_length=200), category: str | None = None,
     scope: Literal["university", "national"] | None = None,
+    authority: Literal["official_university", "official_government", "staff_communication", "other"] | None = None,
     pg: Pagination = Depends(), svc: Services = Depends(get_services),
 ) -> dict:  # type: ignore[type-arg]
     _check_category(category)
-    items, total = svc.public.list_documents(q=q, category=category, scope=scope, page=pg.page, size=pg.page_size)
+    items, total = svc.public.list_documents(q=q, category=category, scope=scope, page=pg.page, size=pg.page_size,
+                                             authority=authority)
     return pg.wrap(items, total)
 
 

@@ -107,3 +107,15 @@ and seed into a scratch DB, start PostgREST with the same JWT secret as the test
 6. Free instances sleep: the first request after idle is slow, and background ingestion tasks can be lost if the
    instance stops mid-job – such jobs are marked `failed: interrupted` on restart and can be retried. Scheduled
    syncs must come from an external scheduler (`python -m app.cli run-due`, see the commented cron in `render.yaml`).
+
+
+## Phase 2 setup
+
+1. Apply `supabase/migrations/20261122000006_knowledge_intake.sql` (additive; review it first):
+   `supabase db push` from a linked project, or paste it into the SQL editor.
+2. Backend environment (Render > sch-hub-api > Environment): `JOB_EXECUTION=worker`, `CRON_SECRET=<long random>`,
+   optionally `OCR_PROVIDER=ocr_space` + `OCR_SPACE_API_KEY`. Redeploy.
+3. GitHub > Settings > Secrets and variables > Actions: add `CRON_SECRET` (same value) for scheduled syncs.
+4. Local OCR (optional): `brew install tesseract` and download `kor.traineddata` (tessdata_best) into a tessdata
+   folder; run the backend with `OCR_PROVIDER=tesseract TESSDATA_PREFIX=<folder>`.
+5. End-to-end check against a local stack: `scripts/e2e_phase2.py` (see its docstring).

@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ErrorState, LoadingState, PageHeader } from "@/components/shared/states";
 import { api } from "@/lib/api";
 import { useApi } from "@/lib/use-api";
+import { AllowedDomainsCard } from "@/features/admin/settings/allowed-domains";
 import type { AdminSettings } from "@/types/api";
 
 export function SettingsPage() {
@@ -55,6 +56,7 @@ export function SettingsPage() {
           </CardContent>
         </Card>
       )}
+      <AllowedDomainsCard />
     </div>
   );
 }

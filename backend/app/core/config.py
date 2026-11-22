@@ -7,7 +7,7 @@ from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DEFAULT_ALLOWED_DOMAINS = (
-    "sch.ac.kr,studyinkorea.go.kr,hikorea.go.kr,topik.go.kr,nhis.or.kr,moel.go.kr"
+    "sch.ac.kr,studyinkorea.go.kr,hikorea.go.kr,topik.go.kr,nhis.or.kr,moel.go.kr,visa.go.kr,immigration.go.kr"
 )
 
 
@@ -55,10 +55,42 @@ class Settings(BaseSettings):
     embedding_model: str = "intfloat/multilingual-e5-small"
     embedding_dimensions: int = 384
     embedding_batch_size: int = 16
+    embedding_onnx_variant: str = "qint8"   # e5_onnx: qint8 (~118 MB, default) | fp32 | o4
+    embedding_onnx_batch_size: int = 1      # e5_onnx: 1 keeps peak memory lowest on 512 MB instances
+    embedding_threads: int = 0              # e5_onnx: 0 = min(2, CPUs)
+    embedding_cache_dir: str = ""           # model files cache (default: Hugging Face cache); set to a path inside
+                                            # the deploy so the build-time prefetch is reused at runtime
 
     # --- Retrieval -----------------------------------------------------------
     # Vector-only matches below this cosine similarity are dropped unless they also match a keyword.
     retrieval_min_similarity: float = 0.0
+
+    # --- SCH notice board connector ------------------------------------------
+    board_max_items: int = 5          # notices imported per sync unless the source config says otherwise
+    board_max_items_cap: int = 30     # hard upper bound per sync (polite crawling)
+    board_max_pages: int = 1
+    board_request_delay_seconds: float = 1.0
+
+    # --- OCR (screenshots, image-only PDFs) -----------------------------------
+    # "none" (manual transcription), "tesseract" (local binary; Docker/dev), "ocr_space" (hosted free tier)
+    ocr_provider: str = "none"
+    ocr_languages: str = "kor+eng"    # tesseract language codes
+    ocr_space_api_key: str = Field(default="", repr=False)
+    ocr_space_language: str = "kor"
+    ocr_space_engine: int = 1
+    ocr_timeout_seconds: float = 60.0
+    ocr_max_pdf_pages: int = 10
+    max_image_mb: int = 8
+
+    # --- Jobs ------------------------------------------------------------------
+    # "worker": persisted queue claimed by an in-process worker thread (survives restarts: queued jobs
+    # are picked up again, stale running jobs are re-queued). "inline": run in the request's background
+    # task (tests / single-shot scripts).
+    job_execution: str = "worker"
+    job_poll_seconds: float = 10.0
+    job_stale_seconds: int = 900
+    # Shared secret for POST /api/v1/internal/sync/run-due (external scheduler). Empty = endpoint disabled.
+    cron_secret: str = Field(default="", repr=False)
 
     # --- LLM (optional, later phase) ----------------------------------------
     llm_provider: str = "none"
@@ -90,6 +122,10 @@ class Settings(BaseSettings):
     @property
     def max_response_bytes(self) -> int:
         return self.max_response_mb * 1024 * 1024
+
+    @property
+    def max_image_bytes(self) -> int:
+        return self.max_image_mb * 1024 * 1024
 
     @property
     def max_upload_bytes(self) -> int:

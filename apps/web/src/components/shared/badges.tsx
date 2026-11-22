@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import type {
   AnnouncementStatus,
   AuthorityType,
+  IndexingStatus,
   JobStatus,
   PublicationStatus,
   Scope,
@@ -32,6 +33,7 @@ const sourceVariant: Record<SourceStatus, Variant> = {
   pending_review: "warning",
   approved: "success",
   failed: "danger",
+  blocked: "danger",
   inactive: "muted",
 };
 export function SourceStatusBadge({ status }: { status: SourceStatus }) {
@@ -99,4 +101,30 @@ export function AuthorityBadge({ authority }: { authority: AuthorityType }) {
 export function TestDataBadge() {
   const t = useTranslations("common");
   return <Badge variant="warning">{t("testData")}</Badge>;
+}
+
+const indexVariant: Record<IndexingStatus, Variant> = {
+  not_indexed: "muted",
+  indexing: "info",
+  indexed: "success",
+  failed: "danger",
+};
+export function IndexingStatusBadge({ status }: { status: IndexingStatus }) {
+  const t = useTranslations("enums.indexing");
+  return <Badge variant={indexVariant[status]}>{t(status)}</Badge>;
+}
+
+/** Shown when verified guidance is older than the category's freshness window. */
+export function StaleBadge({ days }: { days?: number | null }) {
+  const t = useTranslations("knowledge");
+  return (
+    <Badge variant="warning" title={t("staleHint")}>
+      {days != null ? t("staleDays", { days }) : t("stale")}
+    </Badge>
+  );
+}
+
+export function ExactMatchBadge() {
+  const t = useTranslations("knowledge");
+  return <Badge variant="info">{t("exactMatch")}</Badge>;
 }

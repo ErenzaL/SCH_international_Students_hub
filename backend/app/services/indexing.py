@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import logging
+import time
+from datetime import UTC, datetime
 from typing import Any
 
 from app.core.config import Settings
@@ -45,15 +47,18 @@ class IndexingService:
         vectors: dict[int, list[float]] = {}
         todo = [i for i, h in enumerate(hashes) if h not in reuse]
         error: str | None = None
+        t0 = time.perf_counter()
         if todo:
             try:
                 new_vecs = self.embedder.embed_passages([inputs[i] for i in todo])
                 vectors.update(dict(zip(todo, new_vecs, strict=True)))
-            except EmbeddingError as exc:
-                error = str(exc)
-                log.warning("embedding failed for version %s: %s", version_id, exc)
+            except (EmbeddingError, MemoryError) as exc:
+                error = f"{type(exc).__name__}: {exc}" if isinstance(exc, MemoryError) else str(exc)
+                log.warning("embedding failed for version %s: %s", version_id, error)
+                self._mark(version_id, "failed", error)
                 if raise_on_embedding_error:
                     raise EmbeddingUnavailable(error) from exc
+        embedding_ms = int((time.perf_counter() - t0) * 1000)
 
         rows = []
         for i, c in enumerate(chunks):
@@ -70,10 +75,23 @@ class IndexingService:
         self.store.delete("document_chunks", {"version_id": version_id})
         self.store.insert_many("document_chunks", rows)
         embedded = sum(1 for r in rows if r["embedding"] is not None)
+        if error is None:
+            self._mark(version_id, "indexed" if rows and embedded == len(rows) else "failed",
+                       None if rows else "No chunks were produced from this text.")
         return {
-            "chunk_count": len(rows), "embedded_chunks": embedded, "reused_embeddings": len(rows) - len(todo),
-            "embedding_model": self.embedder.model_id, "embedding_error": error,
+            "chunk_count": len(rows), "embedded_chunks": embedded, "failed_chunks": len(rows) - embedded,
+            "reused_embeddings": len(rows) - len(todo), "embedding_model": self.embedder.model_id,
+            "embedding_error": error, "embedding_ms": embedding_ms,
         }
+
+    def _mark(self, version_id: str, status: str, error: str | None) -> None:
+        patch: dict[str, Any] = {"indexing_status": status, "indexing_error": error}
+        if status == "indexed":
+            patch["indexed_at"] = datetime.now(UTC).isoformat()
+        try:
+            self.store.update("document_versions", patch, {"id": version_id})
+        except Exception:  # noqa: BLE001 - status bookkeeping must not mask the real result
+            log.warning("could not record indexing status for %s", version_id)
 
     def ensure_indexed(self, version_id: str) -> None:
         """Make sure every chunk of the version has an embedding (used right before approval)."""

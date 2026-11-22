@@ -6,11 +6,15 @@ from dataclasses import dataclass
 from app.core.config import Settings
 from app.repositories.base import FileStorage, Store
 from app.services.announcements import AnnouncementService
+from app.services.domains import DomainPolicy
 from app.services.embeddings.base import EmbeddingProvider
 from app.services.indexing import IndexingService
 from app.services.ingestion.fetcher import GuardedFetcher
 from app.services.ingestion.pipeline import IngestionService
+from app.services.intake import IntakeService
+from app.services.jobs import JobRunner
 from app.services.llm.base import LLMProvider
+from app.services.ocr.providers import OCRProvider, build_ocr_provider
 from app.services.public import PublicService
 from app.services.retrieval.service import RetrievalService
 from app.services.review import ReviewService
@@ -31,16 +35,25 @@ class Services:
     public: PublicService
     retrieval: RetrievalService
     sources: SourceService
+    domains: DomainPolicy
+    ocr: OCRProvider
+    intake: IntakeService
+    jobs: JobRunner
 
 
 def build_services(settings: Settings, store: Store, storage: FileStorage | None, embedder: EmbeddingProvider,
-                   llm: LLMProvider, fetcher: GuardedFetcher | None = None) -> Services:
+                   llm: LLMProvider, fetcher: GuardedFetcher | None = None, ocr: OCRProvider | None = None) -> Services:
     indexer = IndexingService(store, embedder, settings)
     announcements = AnnouncementService(store, indexer)
+    domains = DomainPolicy(store, settings)
+    fetcher = fetcher or GuardedFetcher(settings)
+    fetcher.domains = domains.domains  # environment allowlist + admin-managed domains
+    ocr = ocr or build_ocr_provider(settings)
+    ingestion = IngestionService(store, storage, settings, indexer, fetcher, ocr)
     return Services(
         settings=settings, store=store, storage=storage, embedder=embedder, llm=llm, indexer=indexer,
-        ingestion=IngestionService(store, storage, settings, indexer, fetcher),
-        review=ReviewService(store, indexer), announcements=announcements,
+        ingestion=ingestion, review=ReviewService(store, indexer, storage), announcements=announcements,
         public=PublicService(store, announcements), retrieval=RetrievalService(store, embedder, settings),
-        sources=SourceService(store, settings),
+        sources=SourceService(store, settings, domains), domains=domains, ocr=ocr,
+        intake=IntakeService(store, storage, settings, ingestion, ocr), jobs=JobRunner(store, ingestion, settings),
     )

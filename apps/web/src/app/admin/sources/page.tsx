@@ -1,5 +1,6 @@
-import { SourcesPage } from "@/features/admin/sources/sources-page";
+import { redirect } from "next/navigation";
 
+/** Phase 2 moved this page to /admin/knowledge-sources. */
 export default function Page() {
-  return <SourcesPage />;
+  redirect("/admin/knowledge-sources");
 }

@@ -49,7 +49,7 @@ class IT:
         self.settings = Settings(_env_file=None, supabase_url=REST, supabase_service_role_key=service_key,
                                  supabase_jwt_secret=SECRET, embedding_provider="hash",
                                  rate_limit_search_per_minute=1000, rate_limit_ingest_per_minute=1000,
-                                 rate_limit_public_per_minute=1000)
+                                 rate_limit_public_per_minute=1000, job_execution="inline")
         self.pages: dict[str, bytes] = {}
 
         def handler(req: httpx.Request) -> httpx.Response:
@@ -97,7 +97,8 @@ def test_end_to_end_against_real_database(it: IT):
     # roles come from public.profiles
     assert c.get("/api/v1/me", headers=it.auth("student")).json()["role"] == "student"
     assert c.get("/api/v1/admin/sources", headers=it.auth("student")).status_code == 403
-    assert c.get("/api/v1/admin/sources", headers=it.auth("supporter")).status_code == 403
+    assert c.get("/api/v1/admin/overview", headers=it.auth("supporter")).status_code == 403
+    assert c.get("/api/v1/admin/sources", headers=it.auth("supporter")).json()["total"] == 0  # only own sources
     assert c.get("/api/v1/admin/sources", headers=a).status_code == 200
 
     # register a source (unique url) -> duplicate maps to 409 through the unique index

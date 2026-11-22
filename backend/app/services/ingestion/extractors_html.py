@@ -10,11 +10,13 @@ import re
 from datetime import UTC, datetime
 from urllib.parse import urljoin
 
-from bs4 import BeautifulSoup, NavigableString, Tag, UnicodeDammit
+from bs4 import BeautifulSoup, Comment, Declaration, Doctype, NavigableString, ProcessingInstruction, Tag, UnicodeDammit
 
 from app.models.domain import ExtractedDocument
 from app.services.ingestion.errors import ExtractionError
 from app.services.ingestion.normalize import normalize_text
+
+_NON_TEXT = (Comment, Declaration, Doctype, ProcessingInstruction)  # never content
 
 log = logging.getLogger("app.extract.html")
 
@@ -59,6 +61,8 @@ def _table_md(table: Tag) -> str:
 def _inline(node: Tag, base_url: str, links: list[dict[str, str]]) -> str:
     out: list[str] = []
     for child in node.children:
+        if isinstance(child, _NON_TEXT):
+            continue
         if isinstance(child, NavigableString):
             out.append(str(child))
         elif isinstance(child, Tag):
@@ -98,6 +102,8 @@ def _blocks(node: Tag, base_url: str, links: list[dict[str, str]], out: list[str
         pending.clear()
 
     for child in list(node.children):
+        if isinstance(child, _NON_TEXT):
+            continue
         if isinstance(child, NavigableString):
             if str(child).strip():
                 pending.append(child)

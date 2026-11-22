@@ -47,7 +47,11 @@
     "daily-living": "Kehidupan Sehari-hari",
     "university-announcements": "Pengumuman Universitas"
   },
-  "status": { "active": "Aktif", "upcoming": "Akan datang", "expired": "Kedaluwarsa" },
+  "status": {
+    "active": "Aktif",
+    "upcoming": "Akan datang",
+    "expired": "Kedaluwarsa"
+  },
   "enums": {
     "sourceStatus": {
       "registered": "Terdaftar",
@@ -65,8 +69,16 @@
       "rejected": "Ditolak",
       "superseded": "Digantikan"
     },
-    "jobStatus": { "queued": "Antre", "running": "Berjalan", "succeeded": "Berhasil", "failed": "Gagal" },
-    "jobOutcome": { "new_version": "Versi baru dibuat", "unchanged": "Tidak ada perubahan" },
+    "jobStatus": {
+      "queued": "Antre",
+      "running": "Berjalan",
+      "succeeded": "Berhasil",
+      "failed": "Gagal"
+    },
+    "jobOutcome": {
+      "new_version": "Versi baru dibuat",
+      "unchanged": "Tidak ada perubahan"
+    },
     "publication": {
       "draft": "Draf",
       "pending_approval": "Menunggu persetujuan",
@@ -80,12 +92,16 @@
       "human_approved": "Ditinjau manusia",
       "rejected": "Ditolak"
     },
-    "scope": { "university": "Khusus SCH", "national": "Nasional (Korea)" },
+    "scope": {
+      "university": "Khusus SCH",
+      "national": "Nasional (Korea)"
+    },
     "authority": {
       "official_university": "Sumber resmi universitas",
       "official_government": "Sumber resmi pemerintah",
       "supporter_submitted": "Kiriman supporter",
-      "other": "Sumber lain"
+      "other": "Sumber lain",
+      "staff_communication": "Pengumuman staf SCH yang disetujui"
     },
     "sourceType": {
       "website": "URL situs resmi",
@@ -94,7 +110,11 @@
       "manual_text": "Pengumuman teks manual",
       "kakao_message": "Pesan KakaoTalk (supporter)"
     },
-    "sync": { "manual": "Manual", "daily": "Harian", "weekly": "Mingguan" }
+    "sync": {
+      "manual": "Manual",
+      "daily": "Harian",
+      "weekly": "Mingguan"
+    }
   },
   "errors": {
     "networkTitle": "Tidak dapat terhubung ke server",
@@ -124,11 +144,26 @@
     "dueOn": "Tenggat {date}",
     "faqTitle": "Pertanyaan yang sering diajukan",
     "faq": {
-      "f1": { "q": "Dari mana informasi ini berasal?", "a": "Dari halaman resmi SCH, situs pemerintah Korea, dan pengumuman yang dikirim SCH Global Supporters. Setiap item menampilkan sumber dan waktu terakhir diverifikasi." },
-      "f2": { "q": "Bagaimana menemukan informasi untuk situasi saya?", "a": "Gunakan kotak pencarian di atas atau buka kategori seperti Visa & Imigrasi atau Beasiswa. Lalu buka tautan sumber resmi untuk memastikan detailnya." },
-      "f3": { "q": "Apakah ini situs resmi universitas?", "a": "Bukan. Ini adalah proyek dukungan mahasiswa. Selalu konfirmasi keputusan penting dengan sumber resmi yang ditautkan atau kantor universitas terkait." },
-      "f4": { "q": "Bisakah saya membaca pengumuman dalam bahasa saya?", "a": "Teks asli bahasa Korea selalu ditampilkan. Terjemahan hanya muncul setelah disetujui oleh peninjau manusia." },
-      "f5": { "q": "Siapa yang bisa saya mintai bantuan?", "a": "Kunjungi halaman Dukungan Mahasiswa untuk melihat cara menghubungi kantor internasional dan SCH Global Supporters." }
+      "f1": {
+        "q": "Dari mana informasi ini berasal?",
+        "a": "Dari halaman resmi SCH, situs pemerintah Korea, dan pengumuman yang dikirim SCH Global Supporters. Setiap item menampilkan sumber dan waktu terakhir diverifikasi."
+      },
+      "f2": {
+        "q": "Bagaimana menemukan informasi untuk situasi saya?",
+        "a": "Gunakan kotak pencarian di atas atau buka kategori seperti Visa & Imigrasi atau Beasiswa. Lalu buka tautan sumber resmi untuk memastikan detailnya."
+      },
+      "f3": {
+        "q": "Apakah ini situs resmi universitas?",
+        "a": "Bukan. Ini adalah proyek dukungan mahasiswa. Selalu konfirmasi keputusan penting dengan sumber resmi yang ditautkan atau kantor universitas terkait."
+      },
+      "f4": {
+        "q": "Bisakah saya membaca pengumuman dalam bahasa saya?",
+        "a": "Teks asli bahasa Korea selalu ditampilkan. Terjemahan hanya muncul setelah disetujui oleh peninjau manusia."
+      },
+      "f5": {
+        "q": "Siapa yang bisa saya mintai bantuan?",
+        "a": "Kunjungi halaman Dukungan Mahasiswa untuk melihat cara menghubungi kantor internasional dan SCH Global Supporters."
+      }
     },
     "faqNote": "Jawaban ini hanya panduan umum dan tidak menggantikan peraturan atau tenggat resmi.",
     "assistantTitle": "Asisten AI",
@@ -185,7 +220,10 @@
     "searchLabel": "Cari informasi terverifikasi",
     "searchPlaceholder": "Kata kunci atau topik",
     "scopeLabel": "Berlaku untuk",
-    "scope": { "university": "Khusus SCH", "national": "Nasional (Korea)" },
+    "scope": {
+      "university": "Khusus SCH",
+      "national": "Nasional (Korea)"
+    },
     "verifiedOnlyNote": "Hanya konten yang disetujui yang ditampilkan. Materi yang tertunda atau pribadi tidak pernah ditampilkan.",
     "emptyTitle": "Artikel terverifikasi tidak ditemukan",
     "emptyBody": "Belum ada konten disetujui yang cocok dengan pencarian ini.",
@@ -196,7 +234,38 @@
     "sourcePublished": "Sumber diterbitkan",
     "verifiedAt": "Terakhir diverifikasi",
     "version": "Versi",
-    "articleDisclaimer": "Konten ini adalah salinan terverifikasi dari sumber dan mungkin telah berubah. Konfirmasi detail di sumber resmi."
+    "articleDisclaimer": "Konten ini adalah salinan terverifikasi dari sumber dan mungkin telah berubah. Konfirmasi detail di sumber resmi.",
+    "authorityLabel": "Otoritas sumber",
+    "stale": "Mungkin sudah usang",
+    "staleDays": "Diverifikasi {days} hari lalu",
+    "staleHint": "Informasi ini belum diverifikasi ulang baru-baru ini. Periksa sumber resmi.",
+    "staleTitle": "Informasi ini mungkin sudah usang",
+    "staleBody": "Terakhir diverifikasi {days} hari lalu. Aturan dan tenggat dapat berubah; pastikan di sumber resmi sebelum bertindak.",
+    "exactMatch": "Cocok persis",
+    "keyFacts": "Informasi utama",
+    "keyFactsNote": "Hanya informasi yang dikonfirmasi peninjau yang ditampilkan.",
+    "validUntil": "Berlaku sampai",
+    "noticeNo": "Nomor pengumuman",
+    "attachments": "Lampiran",
+    "authority": {
+      "official_university": "Resmi SCH",
+      "official_government": "Pemerintah Korea",
+      "staff_communication": "Pengumuman staf SCH"
+    },
+    "facts": {
+      "deadline": "Batas waktu",
+      "event_date": "Tanggal acara",
+      "application_period": "Periode pendaftaran",
+      "time": "Waktu",
+      "location": "Lokasi",
+      "fee": "Biaya",
+      "contact": "Kontak",
+      "eligibility": "Persyaratan",
+      "required_documents": "Dokumen yang diperlukan",
+      "application_method": "Cara mendaftar",
+      "target_audience": "Sasaran",
+      "notes": "Catatan"
+    }
   },
   "assistant": {
     "title": "Asisten AI",
@@ -245,9 +314,18 @@
     "placeholderTitle": "Detail kontak masih berupa placeholder",
     "placeholderBody": "Entri di bawah belum dikonfigurasi. Administrator harus menambahkan kontak terverifikasi sebelum peluncuran.",
     "contacts": {
-      "office": { "name": "Kantor internasional", "desc": "Dukungan resmi universitas untuk visa, pendaftaran, dan administrasi." },
-      "supporters": { "name": "SCH Global Supporters", "desc": "Supporter sebaya yang dapat membantu dalam bahasa Anda." },
-      "emergency": { "name": "Darurat", "desc": "Situasi keselamatan atau medis yang mendesak." }
+      "office": {
+        "name": "Kantor internasional",
+        "desc": "Dukungan resmi universitas untuk visa, pendaftaran, dan administrasi."
+      },
+      "supporters": {
+        "name": "SCH Global Supporters",
+        "desc": "Supporter sebaya yang dapat membantu dalam bahasa Anda."
+      },
+      "emergency": {
+        "name": "Darurat",
+        "desc": "Situasi keselamatan atau medis yang mendesak."
+      }
     },
     "tbd": "Akan dikonfigurasi"
   },
@@ -301,6 +379,9 @@
         "enable": "Aktifkan Sumber"
       }
     },
-    "review": { "approve": "Setujui", "reject": "Tolak" }
+    "review": {
+      "approve": "Setujui",
+      "reject": "Tolak"
+    }
   }
 }

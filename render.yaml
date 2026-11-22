@@ -7,7 +7,8 @@ services:
     rootDir: backend
     plan: free            # free instances sleep when idle and have ~512 MB RAM (see docs/setup.md, "Memory")
     pythonVersion: "3.11.9"
-    buildCommand: pip install -r requirements.txt -r requirements-ml.txt
+    # e5_onnx needs no PyTorch; prefetching bakes the ~124 MB model into the build so cold starts do not download it
+    buildCommand: pip install -r requirements.txt && python -m app.cli prefetch-model
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
     healthCheckPath: /health
     envVars:
@@ -15,11 +16,17 @@ services:
       - { key: SUPABASE_SERVICE_ROLE_KEY, sync: false }
       - { key: SUPABASE_JWT_SECRET, sync: false }
       - { key: CORS_ORIGINS, sync: false }      # e.g. https://sch-international-students-hub.onrender.com (CORS_ALLOWED_ORIGINS also accepted)
-      - { key: EMBEDDING_PROVIDER, value: e5 }
+      - { key: EMBEDDING_PROVIDER, value: e5_onnx }   # int8 ONNX E5 (~440 MB steady incl. API); "e5" = PyTorch (>1 GB)
+      - { key: EMBEDDING_CACHE_DIR, value: .model-cache }
       - { key: EMBEDDING_MODEL, value: intfloat/multilingual-e5-small }
       - { key: RETRIEVAL_MIN_SIMILARITY, value: "0.80" }
       - { key: LLM_PROVIDER, value: none }
       - { key: LLM_API_KEY, sync: false }
+      # Phase 2 ---------------------------------------------------------------------------------
+      - { key: JOB_EXECUTION, value: worker }        # persistent queue claimed by an in-process worker
+      - { key: CRON_SECRET, sync: false }            # enables POST /api/v1/internal/sync/run-due (GitHub Actions)
+      - { key: OCR_PROVIDER, value: none }           # none | ocr_space (hosted, free key) | tesseract (needs binary)
+      - { key: OCR_SPACE_API_KEY, sync: false }      # only for OCR_PROVIDER=ocr_space
 
   - type: web
     name: sch-hub-web

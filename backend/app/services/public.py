@@ -144,7 +144,9 @@ class PublicService:
         if scope:
             eq["scope"] = scope
         rows, _ = self.store.select("knowledge_sources", Query(eq=eq, neq=PRIVATE_SOURCE_FILTER))
-        return {r["id"]: r for r in rows if r["source_type"] != "kakao_message"}
+        # approved staff announcements relayed via KakaoTalk are public; raw chats never are (they are not documents)
+        return {r["id"]: r for r in rows if r["source_type"] != "kakao_message"
+                or r["authority_type"] == "staff_communication"}
 
     def _public_documents_all(self) -> list[dict[str, Any]]:
         sources = self._eligible_sources(None, None)
@@ -155,9 +157,11 @@ class PublicService:
             is_null={"current_version_id": False}))
         return [{**d, "_category": sources[d["source_id"]]["category"]} for d in docs]
 
-    def list_documents(self, *, q: str | None, category: str | None, scope: str | None, page: int, size: int
-                       ) -> tuple[list[dict[str, Any]], int]:
+    def list_documents(self, *, q: str | None, category: str | None, scope: str | None, page: int, size: int,
+                       authority: str | None = None) -> tuple[list[dict[str, Any]], int]:
         sources = self._eligible_sources(category, scope)
+        if authority:
+            sources = {k: v for k, v in sources.items() if v["authority_type"] == authority}
         if not sources:
             return [], 0
         docs, total = self.store.select("source_documents", Query(
@@ -170,11 +174,16 @@ class PublicService:
 
     @staticmethod
     def _doc_summary(d: dict[str, Any], s: dict[str, Any], v: dict[str, Any]) -> dict[str, Any]:
+        from app.services.retrieval.service import stale_info
+
         return dict(id=d["id"], title=d["title"], category=s["category"], organization=s["organization"],
                     scope=s["scope"], authority_type=s["authority_type"], language=d["language"],
-                    source_url=s.get("original_url") or d.get("canonical_url"),
+                    source_type=s["source_type"],
+                    # the document's own URL (e.g. an individual notice) is the citation; fall back to the source URL
+                    source_url=d.get("canonical_url") or s.get("original_url"),
                     source_published_at=v.get("source_published_at"), verified_at=v.get("approved_at"),
-                    excerpt=excerpt(v.get("extracted_text", "")))
+                    valid_until=v.get("valid_until"), excerpt=excerpt(v.get("extracted_text", "")),
+                    **stale_info(v.get("approved_at"), s["category"], s.get("stale_after_days")))
 
     def get_document(self, document_id: str) -> dict[str, Any]:
         d = get_one(self.store, "source_documents", id=document_id)
@@ -182,13 +191,20 @@ class PublicService:
             raise NotFound("Document not found.")
         s = get_one(self.store, "knowledge_sources", id=d["source_id"])
         if s is None or not s["is_active"] or s["authority_type"] == "supporter_submitted" \
-                or s["source_type"] == "kakao_message":
+                or (s["source_type"] == "kakao_message" and s["authority_type"] != "staff_communication"):
             raise NotFound("Document not found.")
         v = get_one(self.store, "document_versions", id=d["current_version_id"])
         if v is None or v["verification_status"] != "approved":
             raise NotFound("Document not found.")
         out = self._doc_summary(d, s, v)
-        out.update(content=v["extracted_text"], version_id=v["id"], version_number=v["version_number"])
+        sd = v.get("structured_data") or {}
+        # only reviewer/submitter-confirmed facts are shown publicly (never raw detections or OCR guesses)
+        facts = {k: f["value"] for k, f in (sd.get("fields") or {}).items()
+                 if isinstance(f, dict) and f.get("confirmed") and f.get("value") not in (None, "")}
+        meta = d.get("metadata") or {}
+        out.update(content=v["extracted_text"], version_id=v["id"], version_number=v["version_number"],
+                   key_facts=facts, attachments=meta.get("attachments") or [],
+                   notice_no=meta.get("notice_no"))
         return out
 
 

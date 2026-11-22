@@ -109,7 +109,7 @@ def test_failed_refetch_keeps_last_approved_version_and_records_error(env):
     assert job["status"] == "failed" and job["error_code"] == "http_403" and "bypass" in job["error_message"]
     assert [v["verification_status"] for v in versions(env)] == ["approved"]
     s = env.client.get(f"/api/v1/admin/sources/{src['id']}", headers=env.auth("admin")).json()
-    assert s["status"] == "failed" and s["last_ingestion_result"]["status"] == "failed"
+    assert s["status"] == "blocked" and s["last_ingestion_result"]["status"] == "failed"  # 403 = site refuses access
     docs = env.client.get("/api/v1/knowledge/documents").json()
     assert docs["total"] == 1  # still served
 

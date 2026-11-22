@@ -8,6 +8,7 @@ import {
   ClipboardCheck,
   Database,
   FileText,
+  Inbox,
   Languages,
   LayoutDashboard,
   Lock,
@@ -30,6 +31,7 @@ const ICONS: Record<string, LucideIcon> = {
   LayoutDashboard,
   Database,
   FileText,
+  Inbox,
   Megaphone,
   Languages,
   ClipboardCheck,
@@ -55,7 +57,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   // Supporters land on the pages they may use.
   useEffect(() => {
-    if (me.data?.role === "supporter" && pathname === "/admin") router.replace("/admin/announcements");
+    if (me.data?.role === "supporter" && pathname === "/admin") router.replace("/admin/submissions");
   }, [me.data, pathname, router]);
 
   if (!isSupabaseConfigured) {

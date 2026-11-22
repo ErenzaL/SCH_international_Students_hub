@@ -47,7 +47,11 @@
     "daily-living": "Sinh hoạt hằng ngày",
     "university-announcements": "Thông báo của trường"
   },
-  "status": { "active": "Đang diễn ra", "upcoming": "Sắp tới", "expired": "Đã hết hạn" },
+  "status": {
+    "active": "Đang diễn ra",
+    "upcoming": "Sắp tới",
+    "expired": "Đã hết hạn"
+  },
   "enums": {
     "sourceStatus": {
       "registered": "Đã đăng ký",
@@ -65,8 +69,16 @@
       "rejected": "Bị từ chối",
       "superseded": "Đã được thay thế"
     },
-    "jobStatus": { "queued": "Đang chờ", "running": "Đang chạy", "succeeded": "Thành công", "failed": "Thất bại" },
-    "jobOutcome": { "new_version": "Đã tạo phiên bản mới", "unchanged": "Không có thay đổi" },
+    "jobStatus": {
+      "queued": "Đang chờ",
+      "running": "Đang chạy",
+      "succeeded": "Thành công",
+      "failed": "Thất bại"
+    },
+    "jobOutcome": {
+      "new_version": "Đã tạo phiên bản mới",
+      "unchanged": "Không có thay đổi"
+    },
     "publication": {
       "draft": "Bản nháp",
       "pending_approval": "Chờ phê duyệt",
@@ -80,12 +92,16 @@
       "human_approved": "Đã được người duyệt",
       "rejected": "Bị từ chối"
     },
-    "scope": { "university": "Riêng SCH", "national": "Toàn quốc (Hàn Quốc)" },
+    "scope": {
+      "university": "Riêng SCH",
+      "national": "Toàn quốc (Hàn Quốc)"
+    },
     "authority": {
       "official_university": "Nguồn chính thức của trường",
       "official_government": "Nguồn chính thức của chính phủ",
       "supporter_submitted": "Do supporter gửi",
-      "other": "Nguồn khác"
+      "other": "Nguồn khác",
+      "staff_communication": "Thông báo đã duyệt của nhân viên SCH"
     },
     "sourceType": {
       "website": "URL trang web chính thức",
@@ -94,7 +110,11 @@
       "manual_text": "Thông báo nhập thủ công",
       "kakao_message": "Tin nhắn KakaoTalk (supporter)"
     },
-    "sync": { "manual": "Thủ công", "daily": "Hằng ngày", "weekly": "Hằng tuần" }
+    "sync": {
+      "manual": "Thủ công",
+      "daily": "Hằng ngày",
+      "weekly": "Hằng tuần"
+    }
   },
   "errors": {
     "networkTitle": "Không thể kết nối máy chủ",
@@ -124,11 +144,26 @@
     "dueOn": "Hạn {date}",
     "faqTitle": "Câu hỏi thường gặp",
     "faq": {
-      "f1": { "q": "Thông tin đến từ đâu?", "a": "Từ các trang chính thức của SCH, trang web chính phủ Hàn Quốc và thông báo do SCH Global Supporters gửi. Mỗi mục đều hiển thị nguồn và thời điểm xác minh gần nhất." },
-      "f2": { "q": "Làm sao tìm thông tin phù hợp với tình huống của tôi?", "a": "Dùng ô tìm kiếm phía trên hoặc mở một danh mục như Visa & Xuất nhập cảnh hay Học bổng. Sau đó mở liên kết nguồn chính thức để xác nhận chi tiết." },
-      "f3": { "q": "Đây có phải trang web chính thức của trường không?", "a": "Không. Đây là dự án hỗ trợ sinh viên. Luôn xác nhận các quyết định quan trọng với nguồn chính thức được liên kết hoặc phòng ban liên quan của trường." },
-      "f4": { "q": "Tôi có thể đọc thông báo bằng ngôn ngữ của mình không?", "a": "Văn bản gốc tiếng Hàn luôn được hiển thị. Bản dịch chỉ xuất hiện sau khi người duyệt phê duyệt." },
-      "f5": { "q": "Tôi có thể nhờ ai giúp đỡ?", "a": "Truy cập trang Hỗ trợ sinh viên để xem cách liên hệ phòng quốc tế và SCH Global Supporters." }
+      "f1": {
+        "q": "Thông tin đến từ đâu?",
+        "a": "Từ các trang chính thức của SCH, trang web chính phủ Hàn Quốc và thông báo do SCH Global Supporters gửi. Mỗi mục đều hiển thị nguồn và thời điểm xác minh gần nhất."
+      },
+      "f2": {
+        "q": "Làm sao tìm thông tin phù hợp với tình huống của tôi?",
+        "a": "Dùng ô tìm kiếm phía trên hoặc mở một danh mục như Visa & Xuất nhập cảnh hay Học bổng. Sau đó mở liên kết nguồn chính thức để xác nhận chi tiết."
+      },
+      "f3": {
+        "q": "Đây có phải trang web chính thức của trường không?",
+        "a": "Không. Đây là dự án hỗ trợ sinh viên. Luôn xác nhận các quyết định quan trọng với nguồn chính thức được liên kết hoặc phòng ban liên quan của trường."
+      },
+      "f4": {
+        "q": "Tôi có thể đọc thông báo bằng ngôn ngữ của mình không?",
+        "a": "Văn bản gốc tiếng Hàn luôn được hiển thị. Bản dịch chỉ xuất hiện sau khi người duyệt phê duyệt."
+      },
+      "f5": {
+        "q": "Tôi có thể nhờ ai giúp đỡ?",
+        "a": "Truy cập trang Hỗ trợ sinh viên để xem cách liên hệ phòng quốc tế và SCH Global Supporters."
+      }
     },
     "faqNote": "Các câu trả lời này chỉ mang tính hướng dẫn chung, không thay thế quy định hay hạn chót chính thức.",
     "assistantTitle": "Trợ lý AI",
@@ -185,7 +220,10 @@
     "searchLabel": "Tìm thông tin đã xác minh",
     "searchPlaceholder": "Từ khóa hoặc chủ đề",
     "scopeLabel": "Áp dụng cho",
-    "scope": { "university": "Riêng SCH", "national": "Toàn quốc (Hàn Quốc)" },
+    "scope": {
+      "university": "Riêng SCH",
+      "national": "Toàn quốc (Hàn Quốc)"
+    },
     "verifiedOnlyNote": "Chỉ hiển thị nội dung đã được duyệt. Tài liệu đang chờ hoặc riêng tư không bao giờ được hiển thị.",
     "emptyTitle": "Không tìm thấy bài viết đã xác minh",
     "emptyBody": "Chưa có nội dung đã duyệt nào khớp với tìm kiếm này.",
@@ -196,7 +234,38 @@
     "sourcePublished": "Nguồn công bố",
     "verifiedAt": "Xác minh lần cuối",
     "version": "Phiên bản",
-    "articleDisclaimer": "Nội dung này là bản sao đã xác minh của nguồn và có thể đã thay đổi. Hãy xác nhận chi tiết tại nguồn chính thức."
+    "articleDisclaimer": "Nội dung này là bản sao đã xác minh của nguồn và có thể đã thay đổi. Hãy xác nhận chi tiết tại nguồn chính thức.",
+    "authorityLabel": "Nguồn thông tin",
+    "stale": "Có thể đã cũ",
+    "staleDays": "Xác minh {days} ngày trước",
+    "staleHint": "Thông tin này chưa được xác minh lại gần đây. Hãy kiểm tra nguồn chính thức.",
+    "staleTitle": "Thông tin này có thể đã cũ",
+    "staleBody": "Lần xác minh gần nhất là {days} ngày trước. Quy định và hạn chót có thể thay đổi; hãy xác nhận với nguồn chính thức trước khi thực hiện.",
+    "exactMatch": "Khớp chính xác",
+    "keyFacts": "Thông tin chính",
+    "keyFactsNote": "Chỉ hiển thị thông tin đã được người duyệt xác nhận.",
+    "validUntil": "Có hiệu lực đến",
+    "noticeNo": "Số thông báo",
+    "attachments": "Tệp đính kèm",
+    "authority": {
+      "official_university": "SCH chính thức",
+      "official_government": "Chính phủ Hàn Quốc",
+      "staff_communication": "Thông báo của nhân viên SCH"
+    },
+    "facts": {
+      "deadline": "Hạn chót",
+      "event_date": "Ngày sự kiện",
+      "application_period": "Thời gian đăng ký",
+      "time": "Giờ",
+      "location": "Địa điểm",
+      "fee": "Phí",
+      "contact": "Liên hệ",
+      "eligibility": "Điều kiện",
+      "required_documents": "Hồ sơ cần nộp",
+      "application_method": "Cách đăng ký",
+      "target_audience": "Đối tượng",
+      "notes": "Ghi chú"
+    }
   },
   "assistant": {
     "title": "Trợ lý AI",
@@ -245,9 +314,18 @@
     "placeholderTitle": "Thông tin liên hệ chỉ là chỗ giữ chỗ",
     "placeholderBody": "Các mục bên dưới chưa được cấu hình. Quản trị viên phải bổ sung thông tin liên hệ đã xác minh trước khi ra mắt.",
     "contacts": {
-      "office": { "name": "Phòng quốc tế", "desc": "Hỗ trợ chính thức của trường về visa, nhập học và hành chính." },
-      "supporters": { "name": "SCH Global Supporters", "desc": "Các bạn supporter có thể hỗ trợ bằng ngôn ngữ của bạn." },
-      "emergency": { "name": "Khẩn cấp", "desc": "Tình huống khẩn cấp về an toàn hoặc y tế." }
+      "office": {
+        "name": "Phòng quốc tế",
+        "desc": "Hỗ trợ chính thức của trường về visa, nhập học và hành chính."
+      },
+      "supporters": {
+        "name": "SCH Global Supporters",
+        "desc": "Các bạn supporter có thể hỗ trợ bằng ngôn ngữ của bạn."
+      },
+      "emergency": {
+        "name": "Khẩn cấp",
+        "desc": "Tình huống khẩn cấp về an toàn hoặc y tế."
+      }
     },
     "tbd": "Sẽ được cấu hình"
   },
@@ -301,6 +379,9 @@
         "enable": "Kích hoạt nguồn"
       }
     },
-    "review": { "approve": "Phê duyệt", "reject": "Từ chối" }
+    "review": {
+      "approve": "Phê duyệt",
+      "reject": "Từ chối"
+    }
   }
 }

@@ -47,7 +47,11 @@
     "daily-living": "日常生活",
     "university-announcements": "学校公告"
   },
-  "status": { "active": "进行中", "upcoming": "即将开始", "expired": "已过期" },
+  "status": {
+    "active": "进行中",
+    "upcoming": "即将开始",
+    "expired": "已过期"
+  },
   "enums": {
     "sourceStatus": {
       "registered": "已登记",
@@ -65,8 +69,16 @@
       "rejected": "已驳回",
       "superseded": "已被取代"
     },
-    "jobStatus": { "queued": "排队中", "running": "运行中", "succeeded": "成功", "failed": "失败" },
-    "jobOutcome": { "new_version": "已创建新版本", "unchanged": "未检测到变化" },
+    "jobStatus": {
+      "queued": "排队中",
+      "running": "运行中",
+      "succeeded": "成功",
+      "failed": "失败"
+    },
+    "jobOutcome": {
+      "new_version": "已创建新版本",
+      "unchanged": "未检测到变化"
+    },
     "publication": {
       "draft": "草稿",
       "pending_approval": "待批准",
@@ -80,12 +92,16 @@
       "human_approved": "已人工审核",
       "rejected": "已驳回"
     },
-    "scope": { "university": "仅限 SCH", "national": "全国（韩国）通用" },
+    "scope": {
+      "university": "仅限 SCH",
+      "national": "全国（韩国）通用"
+    },
     "authority": {
       "official_university": "学校官方来源",
       "official_government": "政府官方来源",
       "supporter_submitted": "支持者提交",
-      "other": "其他来源"
+      "other": "其他来源",
+      "staff_communication": "已审核的顺天乡大学教职员通知"
     },
     "sourceType": {
       "website": "官方网站网址",
@@ -94,7 +110,11 @@
       "manual_text": "手动录入的公告",
       "kakao_message": "KakaoTalk 消息（支持者）"
     },
-    "sync": { "manual": "手动", "daily": "每日", "weekly": "每周" }
+    "sync": {
+      "manual": "手动",
+      "daily": "每日",
+      "weekly": "每周"
+    }
   },
   "errors": {
     "networkTitle": "无法连接到服务器",
@@ -124,11 +144,26 @@
     "dueOn": "截止 {date}",
     "faqTitle": "常见问题",
     "faq": {
-      "f1": { "q": "这些信息来自哪里？", "a": "来自 SCH 官方页面、韩国政府网站以及 SCH Global Supporters 提交的公告。每一项都会显示来源和最近验证时间。" },
-      "f2": { "q": "如何找到适合我情况的信息？", "a": "使用上方的搜索框，或打开“签证与出入境”“奖学金”等分类。然后打开官方来源链接确认详情。" },
-      "f3": { "q": "这是学校的官方网站吗？", "a": "不是。这是一个学生支持项目。重要事项请务必通过页面中链接的官方来源或学校相关部门确认。" },
-      "f4": { "q": "我可以用自己的语言阅读公告吗？", "a": "始终显示韩语原文。译文只有在人工审核员批准后才会显示。" },
-      "f5": { "q": "我可以向谁求助？", "a": "请访问“学生支持”页面，了解如何联系国际处和 SCH Global Supporters。" }
+      "f1": {
+        "q": "这些信息来自哪里？",
+        "a": "来自 SCH 官方页面、韩国政府网站以及 SCH Global Supporters 提交的公告。每一项都会显示来源和最近验证时间。"
+      },
+      "f2": {
+        "q": "如何找到适合我情况的信息？",
+        "a": "使用上方的搜索框，或打开“签证与出入境”“奖学金”等分类。然后打开官方来源链接确认详情。"
+      },
+      "f3": {
+        "q": "这是学校的官方网站吗？",
+        "a": "不是。这是一个学生支持项目。重要事项请务必通过页面中链接的官方来源或学校相关部门确认。"
+      },
+      "f4": {
+        "q": "我可以用自己的语言阅读公告吗？",
+        "a": "始终显示韩语原文。译文只有在人工审核员批准后才会显示。"
+      },
+      "f5": {
+        "q": "我可以向谁求助？",
+        "a": "请访问“学生支持”页面，了解如何联系国际处和 SCH Global Supporters。"
+      }
     },
     "faqNote": "这些回答仅为一般性指引，不能替代官方规定或截止日期。",
     "assistantTitle": "AI 助手",
@@ -185,7 +220,10 @@
     "searchLabel": "搜索已验证的信息",
     "searchPlaceholder": "关键词或主题",
     "scopeLabel": "适用范围",
-    "scope": { "university": "仅限 SCH", "national": "全国（韩国）通用" },
+    "scope": {
+      "university": "仅限 SCH",
+      "national": "全国（韩国）通用"
+    },
     "verifiedOnlyNote": "仅显示已批准的内容。待审核或私有的材料不会显示。",
     "emptyTitle": "未找到已验证的文章",
     "emptyBody": "目前没有与此搜索匹配的已批准内容。",
@@ -196,7 +234,38 @@
     "sourcePublished": "来源发布日期",
     "verifiedAt": "最近验证",
     "version": "版本",
-    "articleDisclaimer": "此内容是来源的已验证副本，之后可能已发生变化。请在官方来源确认详情。"
+    "articleDisclaimer": "此内容是来源的已验证副本，之后可能已发生变化。请在官方来源确认详情。",
+    "authorityLabel": "来源类型",
+    "stale": "信息可能已过时",
+    "staleDays": "{days} 天前核实",
+    "staleHint": "此信息近期未重新核实，请查看官方来源。",
+    "staleTitle": "此信息可能已过时",
+    "staleBody": "最近一次核实是在 {days} 天前。规定和截止日期可能会变化，请先向官方来源确认。",
+    "exactMatch": "精确匹配",
+    "keyFacts": "关键信息",
+    "keyFactsNote": "此处仅列出审核人员确认过的信息。",
+    "validUntil": "有效期至",
+    "noticeNo": "公告编号",
+    "attachments": "附件",
+    "authority": {
+      "official_university": "顺天乡大学官方",
+      "official_government": "韩国政府",
+      "staff_communication": "顺天乡大学教职员通知"
+    },
+    "facts": {
+      "deadline": "截止日期",
+      "event_date": "活动日期",
+      "application_period": "申请期间",
+      "time": "时间",
+      "location": "地点",
+      "fee": "费用",
+      "contact": "联系方式",
+      "eligibility": "申请资格",
+      "required_documents": "所需材料",
+      "application_method": "申请方法",
+      "target_audience": "对象",
+      "notes": "备注"
+    }
   },
   "assistant": {
     "title": "AI 助手",
@@ -245,9 +314,18 @@
     "placeholderTitle": "联系方式仅为占位符",
     "placeholderBody": "以下条目尚未配置。管理员必须在上线前添加经过验证的联系信息。",
     "contacts": {
-      "office": { "name": "国际处", "desc": "学校提供的签证、入学和行政方面的官方支持。" },
-      "supporters": { "name": "SCH Global Supporters", "desc": "可用您的语言提供帮助的同伴支持者。" },
-      "emergency": { "name": "紧急情况", "desc": "紧急的安全或医疗情况。" }
+      "office": {
+        "name": "国际处",
+        "desc": "学校提供的签证、入学和行政方面的官方支持。"
+      },
+      "supporters": {
+        "name": "SCH Global Supporters",
+        "desc": "可用您的语言提供帮助的同伴支持者。"
+      },
+      "emergency": {
+        "name": "紧急情况",
+        "desc": "紧急的安全或医疗情况。"
+      }
     },
     "tbd": "待配置"
   },
@@ -301,6 +379,9 @@
         "enable": "启用来源"
       }
     },
-    "review": { "approve": "批准", "reject": "驳回" }
+    "review": {
+      "approve": "批准",
+      "reject": "驳回"
+    }
   }
 }

@@ -32,3 +32,4 @@ __pycache__/
 node_modules/
 .next/
 supabase/.temp/
+.model-cache/

@@ -2,8 +2,12 @@
 from __future__ import annotations
 
 LANGUAGES = ("ko", "en", "id", "vi", "zh-CN")
-SOURCE_TYPES = ("website", "pdf", "docx", "manual_text", "kakao_message")
-AUTHORITY_TYPES = ("official_university", "official_government", "supporter_submitted", "other")
+SOURCE_TYPES = ("website", "sch_board", "pdf", "docx", "text_file", "screenshot", "manual_text", "kakao_message")
+FETCHABLE_SOURCE_TYPES = ("website", "sch_board")       # fetched from the network (may sync daily/weekly)
+FILE_SOURCE_TYPES = ("pdf", "docx", "text_file", "screenshot")  # originals kept in private storage
+TEXT_SOURCE_TYPES = ("manual_text", "kakao_message")
+AUTHORITY_TYPES = ("official_university", "official_government", "staff_communication", "supporter_submitted", "other")
+OFFICIAL_AUTHORITIES = ("official_government", "official_university")
 SCOPES = ("university", "national")
 SYNC_FREQUENCIES = ("manual", "daily", "weekly")
 ROLES = ("super_admin", "admin", "supporter", "student")
@@ -35,3 +39,15 @@ VERSION_SUPERSEDED = "superseded"
 
 PAGE_SIZE_DEFAULT = 20
 PAGE_SIZE_MAX = 100
+
+# Days after verification when guidance is flagged as possibly outdated (per category; source may override).
+STALE_AFTER_DAYS_DEFAULT = 180
+STALE_AFTER_DAYS = {
+    "visa-immigration": 90, "part-time-employment": 120, "scholarships": 60, "dormitory-housing": 90,
+    "health-insurance": 180, "topik-korean": 60, "university-announcements": 45, "academic-life": 120,
+}
+# Suggested sync policy when an admin registers a source (configurable per source).
+DEFAULT_SYNC_BY_CATEGORY = {
+    "university-announcements": "daily", "topik-korean": "daily", "visa-immigration": "weekly",
+    "health-insurance": "weekly",
+}

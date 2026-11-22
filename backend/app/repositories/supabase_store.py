@@ -173,3 +173,10 @@ class SupabaseFileStorage(FileStorage):
         except Exception as exc:  # noqa: BLE001
             log.error("storage download failed: %s", type(exc).__name__)
             raise UpstreamError("Could not read the stored file from private storage.") from exc
+
+    def remove(self, path: str) -> None:
+        try:
+            self._bucket.remove([path])
+        except Exception as exc:  # noqa: BLE001
+            log.error("storage remove failed: %s", type(exc).__name__)
+            raise UpstreamError("Could not remove the stored file.") from exc

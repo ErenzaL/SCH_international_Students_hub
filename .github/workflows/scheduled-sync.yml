@@ -1,0 +1,24 @@
+# Free scheduler for website / notice-board syncs. It only calls the API's protected endpoint, which
+# queues jobs for sources whose daily/weekly check is due. New content still waits for admin review.
+# Setup: Settings > Secrets and variables > Actions > New repository secret CRON_SECRET (same value as the
+# backend's CRON_SECRET). Optional repository variable SCH_API_URL. Without the secret this job skips.
+name: Scheduled knowledge sync
+on:
+  schedule:
+    - cron: "0 20 * * *"   # 05:00 KST daily
+  workflow_dispatch: {}
+permissions: {}
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Queue due syncs
+        env:
+          API_URL: ${{ vars.SCH_API_URL || 'https://sch-hub-api.onrender.com' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then echo "CRON_SECRET is not configured; skipping."; exit 0; fi
+          # free Render instances may be asleep: the first request wakes them (can take ~1 minute)
+          curl -fsS --retry 4 --retry-delay 30 --retry-all-errors --max-time 120 \
+            -X POST "$API_URL/api/v1/internal/sync/run-due" -H "X-Cron-Secret: $CRON_SECRET"

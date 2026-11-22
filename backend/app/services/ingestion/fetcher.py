@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 import ssl
+from collections.abc import Callable, Sequence
 from urllib.parse import urljoin, urlsplit
 from urllib.robotparser import RobotFileParser
 
@@ -18,6 +19,9 @@ log = logging.getLogger("app.fetch")
 REDIRECT_CODES = {301, 302, 303, 307, 308}
 HTML_TYPES = ("text/html", "application/xhtml+xml", "text/plain")
 PDF_TYPES = ("application/pdf",)
+OCTET_TYPES = ("application/octet-stream", "binary/octet-stream", "application/force-download", "application/x-download")
+# error codes meaning "the site refuses automated access" (source status becomes 'blocked'; never bypassed)
+BLOCKED_CODES = {"robots_disallowed", "http_401", "http_403", "http_406", "http_429"}
 BLOCK_HINT = (
     " The site refused automated access; the platform does not bypass access restrictions, captchas or "
     "authentication. Import the official content manually (Knowledge Sources > Submit text / Upload)."
@@ -30,9 +34,12 @@ class GuardedFetcher:
         settings: Settings,
         transport: httpx.BaseTransport | None = None,
         resolver: Resolver = default_resolver,
+        domains: Callable[[], Sequence[str]] | None = None,
     ):
         self.settings = settings
         self.resolver = resolver
+        # allowlist provider: environment defaults + admin-managed domains (see services/domains.py)
+        self.domains: Callable[[], Sequence[str]] = domains or (lambda: settings.allowed_domains)
         self._transport = transport
         self._robots: dict[str, RobotFileParser | None] = {}
 
@@ -57,7 +64,7 @@ class GuardedFetcher:
         current = url
         for _hop in range(s.max_redirects + 1):
             try:
-                validate_fetch_url(current, s.allowed_domains, self.resolver)
+                validate_fetch_url(current, self.domains(), self.resolver)
                 with client.stream("GET", current) as resp:
                     if resp.status_code in REDIRECT_CODES:
                         loc = resp.headers.get("location")
@@ -128,7 +135,7 @@ class GuardedFetcher:
         """Fetch one validated URL. ``language`` (the source's declared language) sets Accept-Language so
         bilingual government sites return the version the admin registered."""
         s = self.settings
-        validate_fetch_url(url, s.allowed_domains, self.resolver)
+        validate_fetch_url(url, self.domains(), self.resolver)
         accept = {"ko": "ko,en;q=0.5", "en": "en,ko;q=0.5"}.get(language or "", f"{language},en;q=0.5" if language else "ko,en;q=0.5")
         with self._client(accept) as client:
             if s.respect_robots_txt:
@@ -144,9 +151,28 @@ class GuardedFetcher:
         if result.status_code == 204 or not result.content:
             raise FetchError("empty_response", "The site returned an empty response body.")
         ctype = result.content_type
+        if ctype in OCTET_TYPES and result.content.startswith(b"%PDF-"):
+            # some boards (e.g. SCH download.php) serve PDF attachments as octet-stream: trust the magic bytes only
+            result.content_type = ctype = "application/pdf"
         if ctype and not ctype.startswith(HTML_TYPES) and ctype not in PDF_TYPES:
             raise FetchError("unsupported_content_type", f"Unsupported content type '{ctype}'.")
         return result
+
+
+    def check_robots(self, url: str) -> tuple[bool | None, str]:
+        """(allowed, message) for the Validate-URL step. None = robots.txt could not be read."""
+        if not self.settings.respect_robots_txt:
+            return True, "robots.txt checks are disabled in configuration."
+        try:
+            with self._client() as client:
+                rp = self._robots_for(client, url)
+        except FetchError as exc:
+            return None, exc.message
+        if rp is None:
+            return True, "No robots.txt on this site (automated access is not restricted)."
+        if rp.can_fetch(self.settings.fetch_user_agent, url):
+            return True, "robots.txt allows fetching this URL."
+        return False, "robots.txt disallows automated access to this URL." + BLOCK_HINT
 
 
 def _is_ssl_error(exc: BaseException) -> bool:

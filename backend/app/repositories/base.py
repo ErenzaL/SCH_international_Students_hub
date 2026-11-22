@@ -74,6 +74,8 @@ class FileStorage(Protocol):
 
     def download(self, path: str) -> bytes: ...
 
+    def remove(self, path: str) -> None: ...
+
 
 # --------------------------------------------------------------------------
 # Small helpers built on the primitives (shared by services)

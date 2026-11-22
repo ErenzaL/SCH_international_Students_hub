@@ -7,7 +7,9 @@ import { ArrowLeft } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ErrorState, LoadingState, PageHeader } from "@/components/shared/states";
+import { DocumentHistory } from "@/features/admin/review/review-extras";
 import { ReviewPanel } from "@/features/admin/review/review-panel";
+import { isAdminRole, useMe } from "@/features/admin/shell/admin-context";
 import { api, errorMessage } from "@/lib/api";
 import { waitForJob } from "@/lib/jobs";
 import { useApi } from "@/lib/use-api";
@@ -15,8 +17,11 @@ import type { Chunk, DocumentDetail, JobAccepted, Version } from "@/types/api";
 
 export function DocumentReviewPage({ id }: { id: string }) {
   const t = useTranslations("admin.review");
+  const t2 = useTranslations("admin.review2");
   const c = useTranslations("common");
   const e = useTranslations("enums");
+  const me = useMe();
+  const [histKey, setHistKey] = useState(0);
   const { data, error, loading, reload } = useApi<DocumentDetail>(`admin-doc:${id}`, () =>
     api.get<DocumentDetail>(`/api/v1/admin/documents/${id}`),
   );
@@ -31,6 +36,7 @@ export function DocumentReviewPage({ id }: { id: string }) {
       const text = await fn();
       setNotice({ kind: "success", text });
       reload();
+      setHistKey((k) => k + 1);
     } catch (err) {
       setNotice({ kind: "destructive", text: errorMessage(err) });
     } finally {
@@ -56,7 +62,28 @@ export function DocumentReviewPage({ id }: { id: string }) {
           <ReviewPanel
             detail={data}
             busy={busy}
+            canConfirm={isAdminRole(me.role)}
             handlers={{
+              onSaveText: (vid, text) =>
+                act(async () => {
+                  await api.patch<Version>(`/api/v1/admin/versions/${vid}`, { extracted_text: text });
+                  return t2("textSaved");
+                }),
+              onSaveFields: (vid, fields) =>
+                act(async () => {
+                  await api.patch<Version>(`/api/v1/admin/versions/${vid}`, { fields });
+                  return t2("fieldsSaved");
+                }),
+              onConfirmFields: (vid, confirmed) =>
+                act(async () => {
+                  await api.patch<Version>(`/api/v1/admin/versions/${vid}`, { fields_confirmed: confirmed });
+                  return confirmed ? t2("fieldsConfirmed") : t2("fieldsUnconfirmed");
+                }),
+              onRequestChanges: (vid, note) =>
+                act(async () => {
+                  await api.post<Version>(`/api/v1/admin/versions/${vid}/request-changes`, { note });
+                  return t2("changesRequested");
+                }),
               onApprove: (vid, note) =>
                 act(async () => {
                   await api.post<Version>(`/api/v1/admin/versions/${vid}/approve`, { note: note || undefined });
@@ -84,6 +111,9 @@ export function DocumentReviewPage({ id }: { id: string }) {
                 }),
               onRetryExtraction: () =>
                 act(async () => {
+                  if (data.source.source_type && !["website", "sch_board"].includes(data.source.source_type)) {
+                    throw new Error(t2("retryNotFetchable"));
+                  }
                   const res = await api.post<JobAccepted>(`/api/v1/admin/sources/${data.source_id}/ingest`);
                   const job = await waitForJob(res.job_id);
                   if (job.status === "failed") throw new Error(job.error_message ?? job.error_code ?? "failed");
@@ -92,6 +122,9 @@ export function DocumentReviewPage({ id }: { id: string }) {
               onViewChunks: (vid) => setChunksFor(vid),
             }}
           />
+          <div className="mt-8">
+            <DocumentHistory documentId={data.id} refreshKey={histKey} />
+          </div>
         </>
       )}
       <Dialog open={!!chunksFor} onOpenChange={(o) => !o && setChunksFor(null)}>

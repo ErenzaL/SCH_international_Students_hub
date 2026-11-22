@@ -21,8 +21,18 @@ def test_admin_endpoints_require_authentication(env, method, path):
 @pytest.mark.parametrize("method,path", ADMIN_ENDPOINTS)
 @pytest.mark.parametrize("role,expected", [("student", 403), ("supporter", 403), ("admin", 200), ("super_admin", 200)])
 def test_admin_endpoints_role_matrix(env, method, path, role, expected):
+    if role == "supporter" and path == "/api/v1/admin/sources":
+        expected = 200  # Phase 2: supporters list (only) the sources they created
     r = getattr(env.client, method)(path, headers=env.auth(role))
     assert r.status_code == expected, (path, role, r.text)
+
+
+def test_supporter_sees_only_own_sources(env):
+    body = dict(title="Admin site", original_url="https://www.hikorea.go.kr/info", organization="Hi Korea",
+                source_type="website", authority_type="official_government", scope="national", category="visa-immigration")
+    assert env.client.post("/api/v1/admin/sources", json=body, headers=env.auth("admin")).status_code == 201
+    r = env.client.get("/api/v1/admin/sources", headers=env.auth("supporter"))
+    assert r.status_code == 200 and r.json()["total"] == 0
 
 
 def test_invalid_expired_wrong_audience_and_unsigned_tokens_rejected(env):

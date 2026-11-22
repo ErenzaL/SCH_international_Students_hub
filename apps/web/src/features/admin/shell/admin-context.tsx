@@ -19,7 +19,8 @@ export function isAdminRole(role: Role) {
 
 export const ADMIN_NAV = [
   { href: "/admin", key: "overview", icon: "LayoutDashboard", roles: ["admin", "super_admin"] },
-  { href: "/admin/sources", key: "sources", icon: "Database", roles: ["admin", "super_admin"] },
+  { href: "/admin/knowledge-sources", key: "sources", icon: "Database", roles: ["admin", "super_admin"] },
+  { href: "/admin/submissions", key: "submissions", icon: "Inbox", roles: ["admin", "super_admin", "supporter"] },
   { href: "/admin/documents", key: "documents", icon: "FileText", roles: ["admin", "super_admin"] },
   { href: "/admin/announcements", key: "announcements", icon: "Megaphone", roles: ["admin", "super_admin", "supporter"] },
   { href: "/admin/translations", key: "translations", icon: "Languages", roles: ["admin", "super_admin", "supporter"] },

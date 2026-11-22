@@ -43,6 +43,23 @@ describe("validateSourceForm", () => {
     expect(validateSourceForm({ ...kakao, authority_type: "supporter_submitted" })).toEqual({});
   });
 
+  it("validates SCH notice-board sources and allows them to sync", () => {
+    const board = {
+      ...valid,
+      source_type: "sch_board" as const,
+      original_url: "https://sgee.sch.ac.kr/notice/notice01.php?table_name=noti_fore",
+      sync_frequency: "daily" as const,
+    };
+    expect(validateSourceForm(board)).toEqual({});
+    expect(validateSourceForm({ ...board, original_url: "https://www.sch.ac.kr/index.php" }).original_url).toBe("boardUrl");
+    expect(validateSourceForm({ ...board, original_url: "" }).original_url).toBe("urlRequired");
+  });
+
+  it("allows staff-communication authority for KakaoTalk-relayed announcements", () => {
+    const kakao = { ...valid, source_type: "kakao_message" as const, original_url: "" };
+    expect(validateSourceForm({ ...kakao, authority_type: "staff_communication" })).toEqual({});
+  });
+
   it("builds the API payload with trimmed values and no empty URL", () => {
     const payload = toSourceCreate({ ...valid, title: "  T  ", source_type: "manual_text", original_url: "  " });
     expect(payload.title).toBe("T");

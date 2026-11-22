@@ -9,8 +9,8 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_vali
 from app.core.constants import CATEGORY_SLUGS
 
 Lang = Literal["ko", "en", "id", "vi", "zh-CN"]
-SourceType = Literal["website", "pdf", "docx", "manual_text", "kakao_message"]
-AuthorityType = Literal["official_university", "official_government", "supporter_submitted", "other"]
+SourceType = Literal["website", "sch_board", "pdf", "docx", "text_file", "screenshot", "manual_text", "kakao_message"]
+AuthorityType = Literal["official_university", "official_government", "staff_communication", "supporter_submitted", "other"]
 Scope = Literal["university", "national"]
 SyncFrequency = Literal["manual", "daily", "weekly"]
 Role = Literal["super_admin", "admin", "supporter", "student"]
@@ -38,6 +38,11 @@ def _check_category(v: str) -> str:
 
 
 # ------------------------------------------------------------------ requests
+class BoardConfig(BaseModel):
+    max_items: int = Field(default=5, ge=1, le=30)
+    max_pages: int = Field(default=1, ge=1, le=5)
+
+
 class SourceCreate(BaseModel):
     title: Title
     original_url: str | None = Field(default=None, max_length=2048)
@@ -49,17 +54,19 @@ class SourceCreate(BaseModel):
     language: Lang = "ko"
     sync_frequency: SyncFrequency = "manual"
     is_active: bool = True
+    config: BoardConfig | None = None
+    stale_after_days: int | None = Field(default=None, ge=1, le=3650)
 
     _cat = field_validator("category")(_check_category)
 
     @model_validator(mode="after")
     def _rules(self) -> SourceCreate:
-        if self.source_type == "website" and not self.original_url:
-            raise ValueError("original_url is required for website sources")
-        if self.source_type != "website" and self.sync_frequency != "manual":
-            raise ValueError("only website sources can use daily/weekly sync")
-        if self.source_type == "kakao_message" and self.authority_type != "supporter_submitted":
-            raise ValueError("KakaoTalk sources must use authority_type 'supporter_submitted'")
+        if self.source_type in ("website", "sch_board") and not self.original_url:
+            raise ValueError("original_url is required for website and notice-board sources")
+        if self.source_type not in ("website", "sch_board") and self.sync_frequency != "manual":
+            raise ValueError("only website and notice-board sources can use daily/weekly sync")
+        if self.source_type == "kakao_message" and self.authority_type not in ("supporter_submitted", "staff_communication"):
+            raise ValueError("KakaoTalk sources must use authority_type 'staff_communication' or 'supporter_submitted'")
         return self
 
 
@@ -68,6 +75,11 @@ class SourcePatch(BaseModel):
     organization: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)] | None = None
     category: str | None = None
     sync_frequency: SyncFrequency | None = None
+    language: Lang | None = None
+    scope: Scope | None = None
+    authority_type: AuthorityType | None = None
+    config: BoardConfig | None = None
+    stale_after_days: int | None = Field(default=None, ge=1, le=3650)
 
     @field_validator("category")
     @classmethod
@@ -102,6 +114,8 @@ class SearchRequest(BaseModel):
     category: str | None = None
     top_k: int = Field(default=5, ge=1, le=20)
     mode: Literal["hybrid", "vector", "keyword"] = "hybrid"
+    scope: Scope | None = None
+    authority: list[AuthorityType] | None = Field(default=None, max_length=5)
 
     @field_validator("category")
     @classmethod
@@ -191,3 +205,87 @@ class SourceRef(BaseModel):
     url: str | None = None
     authority_type: str | None = None
     scope: str | None = None
+
+
+# --------------------------------------------------------------- Phase 2
+class UrlCheck(BaseModel):
+    url: Annotated[str, StringConstraints(strip_whitespace=True, min_length=8, max_length=2048)]
+    source_type: Literal["website", "sch_board"] = "website"
+    language: Lang | None = None
+
+
+class SourceMeta(BaseModel):
+    """Metadata for a source created through an intake form."""
+    title: Title
+    organization: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
+    category: str
+    scope: Scope = "university"
+    authority_type: AuthorityType = "official_university"
+    language: Lang = "ko"
+    original_url: Annotated[str, StringConstraints(max_length=2048)] | None = None
+
+    _cat = field_validator("category")(_check_category)
+
+
+class ScreenshotSubmit(BaseModel):
+    title: Title
+    text: Annotated[str, StringConstraints(min_length=10, max_length=100_000)]
+    submit: bool = False
+    redact_personal_info: bool = True
+    source_published_at: datetime | None = None
+    fields: dict[str, str | None] = Field(default_factory=dict)
+
+    @field_validator("fields")
+    @classmethod
+    def _fields(cls, v: dict[str, str | None]) -> dict[str, str | None]:
+        allowed = {"deadline", "event_date", "time", "location", "fee", "contact", "eligibility", "required_documents",
+                   "application_method", "target_audience", "notes"}
+        bad = set(v) - allowed
+        if bad:
+            raise ValueError(f"unknown field(s): {', '.join(sorted(bad))}")
+        return {k: (x[:1000] if isinstance(x, str) else x) for k, x in v.items()}
+
+
+class AnnouncementPaste(BaseModel):
+    original_text: Annotated[str, StringConstraints(min_length=10, max_length=100_000)]
+    normalized_text: Annotated[str, StringConstraints(min_length=10, max_length=100_000)] | None = None
+    title: Title
+    organization: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
+    category: str
+    language: Lang = "ko"
+    scope: Scope = "university"
+    authority_type: Literal["staff_communication", "official_university", "supporter_submitted"] = "staff_communication"
+    received_via: Literal["kakaotalk", "email", "other"] = "kakaotalk"
+    target_audience: Annotated[str, StringConstraints(max_length=500)] | None = None
+    event_date: date | None = None
+    deadline: date | None = None
+    location: Annotated[str, StringConstraints(max_length=500)] | None = None
+    application_method: Annotated[str, StringConstraints(max_length=2000)] | None = None
+    notes: Annotated[str, StringConstraints(max_length=2000)] | None = None
+    original_url: Annotated[str, StringConstraints(max_length=2048)] | None = None
+    source_published_at: datetime | None = None
+    source_id: str | None = None
+    redact_personal_info: bool = True
+    authorized_by_supporter: bool = False
+    submit: bool = False
+
+    _cat = field_validator("category")(_check_category)
+
+
+class VersionPatch(BaseModel):
+    extracted_text: Annotated[str, StringConstraints(min_length=10, max_length=500_000)] | None = None
+    title: Title | None = None
+    fields: dict[str, str | None] | None = None
+    fields_confirmed: bool | None = None
+    valid_from: datetime | None = None
+    valid_until: datetime | None = None
+    source_published_at: datetime | None = None
+
+
+class NoteRequired(BaseModel):
+    note: Reason
+
+
+class DomainAdd(BaseModel):
+    domain: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=253)]
+    note: Annotated[str, StringConstraints(max_length=500)] | None = None

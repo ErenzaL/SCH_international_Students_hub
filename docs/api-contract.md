@@ -187,3 +187,55 @@ Roles: `admin` and `super_admin` unless noted. `supporter` may use announcement 
 * `GET /admin/users` (paginated) → `{ id, email, display_name, role, preferred_language, languages, created_at }`
 * `PATCH /admin/users/{id}/role` body `{ role }` (super_admin only)
 * `PUT /admin/users/{id}/languages` body `{ languages: [lang] }`
+
+---
+
+## Phase 2 additions (knowledge intake, review workflow, monitoring)
+
+New enum values: `source_type` adds `sch_board | text_file | screenshot`; `authority_type` adds `staff_communication`;
+source `status` adds `blocked` (site refuses automated access; never bypassed); job `outcome` adds `partial | extracted`;
+job `job_type`: `ingest | board_sync | ocr_intake`; version `indexing_status`: `not_indexed | indexing | indexed | failed`.
+`sync_frequency` daily/weekly is allowed for `website` and `sch_board`.
+
+### Source additions
+`Source` gains `config` (`{max_items, max_pages}` for boards), `stale_after_days`, `last_success_at`, `last_change_at`.
+* `GET /admin/sources` adds filters `category`, `active`, `sort` (`title|organization|created_at|updated_at|last_checked_at|last_success_at|status|category|source_type`), `order` (`asc|desc`). Supporters may call it and only see sources they created.
+* `POST /admin/sources` accepts `source_type: "sch_board"` (URL must be an SCH `notice01.php` list page), `config`, `stale_after_days`.
+* `PATCH /admin/sources/{id}` also accepts `language`, `scope`, `authority_type`, `config`, `stale_after_days`.
+* `POST /admin/sources/validate-url` body `{url, source_type?: "website"|"sch_board", language?}` → `{ok, url, checks: [{name: "allowlist"|"network"|"robots"|"board"|"duplicate", ok, message}]}`. Nothing stored.
+* `POST /admin/sources/preview` same body → website: `{kind:"page", final_url, title, text (≤20k chars), truncated, content_chars, content_hash, source_published_at, links, warnings, extractor, estimated_chunks, structured}`; board: `{kind:"board", notices:[{notice_no,title,url,posted,author,pinned}], notice_count, sample_notice:{title,text,posted_at,attachments,warnings}|null}`. Nothing stored. Blocked sites → 409 with `details.blocked = true`.
+* `POST /admin/sources/{id}/ingest` now also for `sch_board` (409 if a job is already queued/running).
+* `POST /admin/sources/{id}/upload` accepts pdf / docx / text_file sources (staff; supporters only their own). Duplicate file (same SHA-256) → 409 `conflict` with `details {document_id, version_id, version_number, verification_status}`.
+* `GET /admin/sources/{id}/history` → `{jobs: [Job], audit: [{id, action, actor_id, details, created_at}]}`.
+
+`Job` gains `job_type`, `attempts`, `max_attempts`, `file: {filename, mime_type, size}|null`, `heartbeat_at`.
+Board jobs put per-notice results in `statistics`: `items_found, items_new, items_unchanged, items_failed, failures[], notices[{notice_no,title,outcome,document_id,version_id}]`.
+* `GET /admin/ingestion-jobs?job_type=` filter; `GET /admin/ingestion-jobs/{id}/events` → `{items: [{id, level: info|warning|error, step, message, data, created_at}]}` (the step-by-step ingestion log).
+
+### Intake (admins and supporters; `/api/v1/admin/intake`)
+* `GET /ocr-status` → `{provider: none|tesseract|ocr_space, available, reason, languages, external_processing}`.
+* `POST /document` multipart: `file`, and either `metadata` (JSON string `SourceMeta` = `{title, organization, category, scope, authority_type, language, original_url?}`) to create a source, or `source_id` → 202 `{source, job_id, status}`. Extensions: .pdf .docx .txt .md (≤ `max_upload_mb`).
+* `POST /screenshot` multipart: `file` (png/jpg/jpeg/webp ≤ 8 MB), `metadata` or `source_id`, `authorized_for_distribution=true` (required) → 201 `{source, job, ocr: {provider, available, text, mean_confidence, uncertain_lines:[{text,confidence}], warnings, model, extracted_at}, detected: Structured|null, image}`. No version yet.
+* `GET /screenshot/{job_id}` (same shape), `GET /screenshot/{job_id}/image` (the stored image, streamed; send the bearer token), `POST /screenshot/{job_id}/retry-ocr`.
+* `POST /screenshot/{job_id}/submit` body `{title, text (corrected), submit: bool, redact_personal_info: bool, source_published_at?, fields: {deadline?, event_date?, time?, location?, fee?, contact?, eligibility?, required_documents?, application_method?, target_audience?, notes?}}` → `Job` (creates a **draft** unless `submit`; raw OCR kept as `raw_text`; approval needs `fields_confirmed`).
+* `POST /announcement` body `{original_text, normalized_text?, title, organization, category, language, scope, authority_type (staff_communication default), received_via: kakaotalk|email|other, target_audience?, event_date?, deadline?, location?, application_method?, notes?, original_url?, source_published_at?, source_id?, redact_personal_info (default true), authorized_by_supporter: true (required), submit: bool}` → `Job`. `original_text` is stored unchanged as evidence.
+* `GET /mine` (paginated) → versions created by the caller `{id, document_id, document_title, version_number, verification_status, review_note, ...}`.
+
+### Versions & review additions
+`Version` gains `raw_text`, `has_raw_text`, `structured_data` (`{fields: {name: {value, evidence, confirmed, source}}, dates, links, identifiers, warnings, fields_confirmed}`), `extraction_meta`, `warnings`, `requires_field_confirmation`, `original_file {filename, mime_type, size, sha256}|null`, `created_by`, `edited_by`, `edited_at`, `review_note`, `submitted_at`, `indexing_status`, `indexed_at`, `indexing_error`.
+`DocumentDetail` gains `metadata` (board notices: `notice_no, author, attachments`), `review_warnings: [{code, message}]`; document items gain `source_type`, `authority_type`, `pending_status`.
+* `GET /admin/documents?review_status=pending_review|draft|open`.
+* `GET /admin/documents/{id}/history` → `{items: [AuditEntry]}`.
+* `PATCH /admin/versions/{id}` body any of `{extracted_text, title, fields: {name: value|null}, fields_confirmed, valid_from, valid_until, source_published_at}` (draft/pending only; supporters: own drafts; confirming fields = admin) → `Version`. Text changes re-chunk and re-embed.
+* `POST /admin/versions/{id}/submit` (draft → pending_review), `POST /admin/versions/{id}/request-changes` body `{note}` (admin; pending → draft).
+* `GET /admin/versions/{id}/original` → original file bytes (inline for images/PDF/text).
+* Approve errors: 409 `fields_not_confirmed` (OCR content), 409 `invalid_state` "not_indexed", 503 `embedding_unavailable`.
+
+### Knowledge overview, allowlist, scheduler
+* `GET /admin/knowledge/stats` → `{sources_total, sources_active, sources_failed, versions_pending, versions_draft, documents_approved, jobs_failed, jobs_queued, searchable_chunks, latest_success_at, ocr_provider, ocr_available, ocr_reason, job_execution, embedding_model}`.
+* `GET /admin/allowed-domains` → `{items: [{domain, origin: environment|admin, note, added_by, created_at, removable}]}`; `POST` `{domain, note?}` and `DELETE /admin/allowed-domains/{domain}` (super_admin).
+* `POST /api/v1/internal/sync/run-due` header `X-Cron-Secret` (404 unless `CRON_SECRET` is set) → `{queued, skipped, job_ids}`.
+
+### Public additions
+* `POST /knowledge/search` body adds `scope?`, `authority?: [authority_type]`; each result adds `source_id, source_type, valid_until, exact_match, is_stale, verification_age_days, stale_after_days`; `retrieval.exact_terms`. `source_url` is the document's own URL (e.g. the individual notice) when it has one.
+* `GET /knowledge/documents?authority=` filter; items add `source_type, valid_until, is_stale, verification_age_days, stale_after_days`. Detail adds `key_facts` (confirmed fields only), `attachments`, `notice_no`.

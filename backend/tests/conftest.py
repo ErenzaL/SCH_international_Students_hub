@@ -23,6 +23,7 @@ PUBLIC_IP = "93.184.216.34"
 def make_settings(**overrides) -> Settings:  # type: ignore[no-untyped-def]
     base = dict(
         _env_file=None, supabase_jwt_secret=JWT_SECRET, embedding_provider="hash", environment="test",
+        job_execution="inline", board_request_delay_seconds=0,
         rate_limit_search_per_minute=1000, rate_limit_ingest_per_minute=1000, rate_limit_public_per_minute=1000,
     )
     base.update(overrides)

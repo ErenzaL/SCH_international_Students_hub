@@ -1,3 +1,4 @@
+import { isSchBoardUrl } from "@/features/admin/knowledge/intake-utils";
 import { CATEGORY_SLUGS, LOCALES } from "@/lib/constants";
 import type {
   AuthorityType,
@@ -27,6 +28,7 @@ export type SourceFormErrorCode =
   | "invalidUrl"
   | "manualOnly"
   | "kakaoAuthority"
+  | "boardUrl"
   | "invalidChoice";
 
 export type SourceFormErrors = Partial<Record<keyof SourceFormValues, SourceFormErrorCode>>;
@@ -65,17 +67,23 @@ export function validateSourceForm(v: SourceFormValues): SourceFormErrors {
   if (!v.organization.trim()) errors.organization = "required";
 
   const url = v.original_url.trim();
-  if (v.source_type === "website") {
+  const networked = v.source_type === "website" || v.source_type === "sch_board";
+  if (networked) {
     if (!url) errors.original_url = "urlRequired";
     else if (!isHttpUrl(url)) errors.original_url = "invalidUrl";
+    else if (v.source_type === "sch_board" && !isSchBoardUrl(url)) errors.original_url = "boardUrl";
   } else if (url && !isHttpUrl(url)) {
     errors.original_url = "invalidUrl";
   }
 
-  if (v.source_type !== "website" && v.sync_frequency !== "manual") {
+  if (!networked && v.sync_frequency !== "manual") {
     errors.sync_frequency = "manualOnly";
   }
-  if (v.source_type === "kakao_message" && v.authority_type !== "supporter_submitted") {
+  if (
+    v.source_type === "kakao_message" &&
+    v.authority_type !== "supporter_submitted" &&
+    v.authority_type !== "staff_communication"
+  ) {
     errors.authority_type = "kakaoAuthority";
   }
   if (!(CATEGORY_SLUGS as readonly string[]).includes(v.category)) errors.category = "invalidChoice";

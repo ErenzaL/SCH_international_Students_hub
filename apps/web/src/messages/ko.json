@@ -47,7 +47,11 @@
     "daily-living": "일상 생활",
     "university-announcements": "대학 공지"
   },
-  "status": { "active": "진행 중", "upcoming": "예정", "expired": "마감" },
+  "status": {
+    "active": "진행 중",
+    "upcoming": "예정",
+    "expired": "마감"
+  },
   "enums": {
     "sourceStatus": {
       "registered": "등록됨",
@@ -65,8 +69,16 @@
       "rejected": "반려됨",
       "superseded": "대체됨"
     },
-    "jobStatus": { "queued": "대기 중", "running": "실행 중", "succeeded": "성공", "failed": "실패" },
-    "jobOutcome": { "new_version": "새 버전 생성됨", "unchanged": "변경 없음" },
+    "jobStatus": {
+      "queued": "대기 중",
+      "running": "실행 중",
+      "succeeded": "성공",
+      "failed": "실패"
+    },
+    "jobOutcome": {
+      "new_version": "새 버전 생성됨",
+      "unchanged": "변경 없음"
+    },
     "publication": {
       "draft": "초안",
       "pending_approval": "승인 대기",
@@ -80,12 +92,16 @@
       "human_approved": "사람이 검수함",
       "rejected": "반려됨"
     },
-    "scope": { "university": "SCH 전용", "national": "전국(한국) 공통" },
+    "scope": {
+      "university": "SCH 전용",
+      "national": "전국(한국) 공통"
+    },
     "authority": {
       "official_university": "대학 공식 출처",
       "official_government": "정부 공식 출처",
       "supporter_submitted": "서포터 제출",
-      "other": "기타 출처"
+      "other": "기타 출처",
+      "staff_communication": "승인된 순천향대 교직원 공지"
     },
     "sourceType": {
       "website": "공식 웹사이트 URL",
@@ -94,7 +110,11 @@
       "manual_text": "직접 입력 공지",
       "kakao_message": "카카오톡 메시지(서포터)"
     },
-    "sync": { "manual": "수동", "daily": "매일", "weekly": "매주" }
+    "sync": {
+      "manual": "수동",
+      "daily": "매일",
+      "weekly": "매주"
+    }
   },
   "errors": {
     "networkTitle": "서버에 연결할 수 없습니다",
@@ -124,11 +144,26 @@
     "dueOn": "마감 {date}",
     "faqTitle": "자주 묻는 질문",
     "faq": {
-      "f1": { "q": "정보는 어디에서 오나요?", "a": "SCH 공식 페이지, 한국 정부 웹사이트, SCH 글로벌 서포터즈가 제출한 공지에서 옵니다. 모든 항목에 출처와 마지막 확인일이 표시됩니다." },
-      "f2": { "q": "내 상황에 맞는 정보는 어떻게 찾나요?", "a": "위 검색창을 사용하거나 비자·장학금 같은 카테고리를 열어 보세요. 이후 공식 출처 링크에서 세부 내용을 확인하세요." },
-      "f3": { "q": "대학 공식 웹사이트인가요?", "a": "아닙니다. 학생 지원 프로젝트입니다. 중요한 결정은 각 페이지의 공식 출처나 관련 부서에 반드시 확인하세요." },
-      "f4": { "q": "내 언어로 공지를 읽을 수 있나요?", "a": "한국어 원문은 항상 표시됩니다. 번역은 사람이 검수하여 승인한 후에만 표시됩니다." },
-      "f5": { "q": "누구에게 도움을 요청할 수 있나요?", "a": "학생 지원 페이지에서 국제교류처와 SCH 글로벌 서포터즈에게 연락하는 방법을 확인하세요." }
+      "f1": {
+        "q": "정보는 어디에서 오나요?",
+        "a": "SCH 공식 페이지, 한국 정부 웹사이트, SCH 글로벌 서포터즈가 제출한 공지에서 옵니다. 모든 항목에 출처와 마지막 확인일이 표시됩니다."
+      },
+      "f2": {
+        "q": "내 상황에 맞는 정보는 어떻게 찾나요?",
+        "a": "위 검색창을 사용하거나 비자·장학금 같은 카테고리를 열어 보세요. 이후 공식 출처 링크에서 세부 내용을 확인하세요."
+      },
+      "f3": {
+        "q": "대학 공식 웹사이트인가요?",
+        "a": "아닙니다. 학생 지원 프로젝트입니다. 중요한 결정은 각 페이지의 공식 출처나 관련 부서에 반드시 확인하세요."
+      },
+      "f4": {
+        "q": "내 언어로 공지를 읽을 수 있나요?",
+        "a": "한국어 원문은 항상 표시됩니다. 번역은 사람이 검수하여 승인한 후에만 표시됩니다."
+      },
+      "f5": {
+        "q": "누구에게 도움을 요청할 수 있나요?",
+        "a": "학생 지원 페이지에서 국제교류처와 SCH 글로벌 서포터즈에게 연락하는 방법을 확인하세요."
+      }
     },
     "faqNote": "이 답변은 일반적인 안내일 뿐이며 공식 규정이나 마감일을 대신하지 않습니다.",
     "assistantTitle": "AI 도우미",
@@ -185,7 +220,10 @@
     "searchLabel": "검증된 정보 검색",
     "searchPlaceholder": "키워드 또는 주제",
     "scopeLabel": "적용 범위",
-    "scope": { "university": "SCH 전용", "national": "전국(한국) 공통" },
+    "scope": {
+      "university": "SCH 전용",
+      "national": "전국(한국) 공통"
+    },
     "verifiedOnlyNote": "승인된 콘텐츠만 표시됩니다. 검토 중이거나 비공개인 자료는 표시되지 않습니다.",
     "emptyTitle": "검증된 문서를 찾을 수 없습니다",
     "emptyBody": "이 검색과 일치하는 승인된 문서가 아직 없습니다.",
@@ -196,7 +234,38 @@
     "sourcePublished": "출처 게시일",
     "verifiedAt": "마지막 확인일",
     "version": "버전",
-    "articleDisclaimer": "이 내용은 출처의 검증된 사본이며 이후 변경되었을 수 있습니다. 세부 사항은 공식 출처에서 확인하세요."
+    "articleDisclaimer": "이 내용은 출처의 검증된 사본이며 이후 변경되었을 수 있습니다. 세부 사항은 공식 출처에서 확인하세요.",
+    "authorityLabel": "출처 유형",
+    "stale": "오래된 정보일 수 있음",
+    "staleDays": "{days}일 전 확인",
+    "staleHint": "최근에 다시 확인되지 않은 정보입니다. 공식 출처를 확인하세요.",
+    "staleTitle": "오래된 정보일 수 있습니다",
+    "staleBody": "마지막 확인은 {days}일 전입니다. 규정과 마감일은 바뀔 수 있으니 공식 출처에서 확인한 후 진행하세요.",
+    "exactMatch": "정확히 일치",
+    "keyFacts": "주요 정보",
+    "keyFactsNote": "검토자가 확인한 정보만 표시됩니다.",
+    "validUntil": "유효 기간",
+    "noticeNo": "공지 번호",
+    "attachments": "첨부파일",
+    "authority": {
+      "official_university": "순천향대 공식",
+      "official_government": "한국 정부",
+      "staff_communication": "순천향대 교직원 공지"
+    },
+    "facts": {
+      "deadline": "마감일",
+      "event_date": "행사일",
+      "application_period": "신청 기간",
+      "time": "시간",
+      "location": "장소",
+      "fee": "비용",
+      "contact": "문의",
+      "eligibility": "지원 자격",
+      "required_documents": "제출 서류",
+      "application_method": "신청 방법",
+      "target_audience": "대상",
+      "notes": "비고"
+    }
   },
   "assistant": {
     "title": "AI 도우미",
@@ -245,9 +314,18 @@
     "placeholderTitle": "연락처는 자리표시자입니다",
     "placeholderBody": "아래 항목은 아직 설정되지 않았습니다. 운영 전 관리자가 검증된 연락처를 입력해야 합니다.",
     "contacts": {
-      "office": { "name": "국제교류처", "desc": "비자, 등록, 행정에 대한 대학의 공식 지원." },
-      "supporters": { "name": "SCH 글로벌 서포터즈", "desc": "여러분의 언어로 도와주는 동료 서포터." },
-      "emergency": { "name": "긴급 상황", "desc": "긴급 안전·의료 상황." }
+      "office": {
+        "name": "국제교류처",
+        "desc": "비자, 등록, 행정에 대한 대학의 공식 지원."
+      },
+      "supporters": {
+        "name": "SCH 글로벌 서포터즈",
+        "desc": "여러분의 언어로 도와주는 동료 서포터."
+      },
+      "emergency": {
+        "name": "긴급 상황",
+        "desc": "긴급 안전·의료 상황."
+      }
     },
     "tbd": "설정 예정"
   },
@@ -301,6 +379,9 @@
         "enable": "소스 활성화"
       }
     },
-    "review": { "approve": "승인", "reject": "반려" }
+    "review": {
+      "approve": "승인",
+      "reject": "반려"
+    }
   }
 }

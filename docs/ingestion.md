@@ -54,3 +54,50 @@ The SCH notice board is a *list page*: it is a convenient change detector, but p
 `scripts/demo_pipeline.py` (in-memory store, real network, real E5): ingests the Study-in-Korea page (21 chunks embedded, approved), shows a second fetch is `unchanged`,
 publishes one **TEST DATA** SCH notice via the manual flow, and runs multilingual queries. English/Indonesian queries against Korean content return the semantically nearest chunks
 (e.g. "D-2 visa extension" → the D-2 visa chunk) but E5 similarities cluster at 0.79–0.88, so irrelevant queries still score ~0.80: keep `RETRIEVAL_MIN_SIMILARITY` tuned on a labelled set.
+
+---
+
+## Phase 2: unified intake
+
+All inputs end in the same versioning path (`IngestionService.process_extracted`): normalize → SHA-256 →
+duplicate check → new `draft`/`pending_review` version → chunk → embed → review → atomic approval.
+
+| Input | Source type | How | Notes |
+|---|---|---|---|
+| Official web page | `website` | Admin registers the exact URL; Fetch now / scheduled | allowlist + SSRF guard + robots.txt; `blocked` status when the site refuses access |
+| SCH notice board | `sch_board` | Listing → individual notices (`notice01.php?admin_mode=read&no=…`) | one `source_document` per notice (`external_id = <table>:<no>`), title/date/author/attachments kept, `max_items` (default 5, cap 30), 1 s between requests |
+| PDF / DOCX / TXT / MD | `pdf` `docx` `text_file` | Intake upload (admin or supporter) | private bucket, SHA-256 duplicate block, page markers, headings, tables; image-only PDFs → OCR if configured, else `needs_ocr` |
+| Screenshot | `screenshot` | Upload → OCR preview → human correction → submit | supporter must confirm authorization; raw OCR kept as immutable `raw_text`; approval requires `fields_confirmed` |
+| Pasted staff announcement | `kakao_message` / `manual_text` | Intake form | `original_text` kept unchanged as `raw_text`; normalized text redacted by default; form fields stored as confirmed structured data |
+
+### Structured fields
+`services/ingestion/structured.py` detects dates, ranges (`2026. 10. 27.(월) ~ 11. 6.(목)` → deadline 2026-11-06),
+times, places, fees, contacts, eligibility, required documents, application method and identifiers (D-2, ARC …).
+Each value keeps its evidence snippet and `confirmed: false`. Dates without a year keep `year: null` and raise a
+warning: values are never guessed. Only confirmed values are shown publicly (`key_facts`).
+
+### OCR on Render
+Render's native Python runtime has no Tesseract binary, and the free instance's ~512 MB already holds E5,
+so no OCR model is loaded in-process. Options: `OCR_PROVIDER=none` (supporters type the text; default),
+`OCR_PROVIDER=ocr_space` with a free `OCR_SPACE_API_KEY` (images leave our servers — supporters confirm
+authorization first), or `OCR_PROVIDER=tesseract` on a Docker/paid instance with `tesseract-ocr` + `kor` data.
+Tesseract output for Korean often splits syllables ("국 제 교 육"); the suggestion shown to the supporter is
+cleaned, while `raw_text` keeps the exact OCR output.
+
+### Jobs and scheduling
+`JOB_EXECUTION=worker`: jobs are rows first; an in-process worker claims them with `claim_ingestion_job`
+(`FOR UPDATE SKIP LOCKED`). After a restart or a free-tier sleep, queued jobs are picked up again and jobs
+whose heartbeat stopped are re-queued (max 3 attempts). Every step is written to `ingestion_events`.
+Scheduled checks: `.github/workflows/scheduled-sync.yml` (free) calls `POST /api/v1/internal/sync/run-due`
+with `X-Cron-Secret` daily at 05:00 KST; the API queues due `daily`/`weekly` sources. Alternatives: Supabase
+Cron (`pg_cron` + `pg_net` POST to the same URL) or a Render Cron Job (`python -m app.cli run-due`, paid).
+A failed or blocked fetch never removes the last approved version; stale guidance is flagged by
+`is_stale` (category thresholds in `core/constants.py`, per-source `stale_after_days`).
+
+### Review safety
+* Approved versions are immutable (text, hash, structured data); corrections create a new version.
+* `raw_text` and `original_file` are immutable once written.
+* Approval re-checks embeddings (`ensure_indexed`) and only then flips `current_version_id` in one
+  transaction; if embedding fails the old version stays live and `indexing_status = failed`.
+* Review warnings surface changed deadlines/fees/places versus the live version and non-official
+  immigration content; both versions are kept, nothing is merged silently.

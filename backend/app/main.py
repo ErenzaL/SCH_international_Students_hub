@@ -8,7 +8,16 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import admin_announcements, admin_documents, admin_sources, admin_system, health, public
+from app.api import (
+    admin_announcements,
+    admin_documents,
+    admin_intake,
+    admin_knowledge,
+    admin_sources,
+    admin_system,
+    health,
+    public,
+)
 from app.core.config import Settings, get_settings
 from app.core.errors import install_error_handlers
 from app.core.logging import RequestLoggingMiddleware, configure_logging
@@ -29,14 +38,20 @@ def create_app(settings: Settings | None = None, *, store: Store | None = None, 
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):  # type: ignore[no-untyped-def]
-        if app.state.services is not None:
-            try:  # jobs left 'running' by a previous process can never finish: surface them as failed
-                n = app.state.services.ingestion.recover_interrupted_jobs()
-                if n:
-                    log.warning("marked %d interrupted ingestion job(s) as failed", n)
-            except Exception:  # noqa: BLE001 - startup must not fail because the DB is briefly unreachable
-                log.exception("job recovery skipped")
+        svc = app.state.services
+        if svc is not None:
+            if svc.jobs.inline:
+                try:  # inline mode: jobs left 'running' by a previous process can never finish -> failed (retryable)
+                    n = svc.ingestion.recover_interrupted_jobs()
+                    if n:
+                        log.warning("marked %d interrupted ingestion job(s) as failed", n)
+                except Exception:  # noqa: BLE001 - startup must not fail because the DB is briefly unreachable
+                    log.exception("job recovery skipped")
+            else:
+                svc.jobs.start()  # resumes queued jobs; stale running ones are re-queued by the claim RPC
         yield
+        if svc is not None:
+            svc.jobs.stop()
 
     app = FastAPI(
         title="SCH International Student Hub API", version=settings.app_version, lifespan=lifespan,
@@ -64,7 +79,8 @@ def create_app(settings: Settings | None = None, *, store: Store | None = None, 
     )
     install_error_handlers(app)
     for r in (health.router, public.router, admin_sources.router, admin_documents.router,
-              admin_announcements.router, admin_system.router):
+              admin_announcements.router, admin_system.router, admin_intake.router, admin_knowledge.router,
+              admin_knowledge.internal):
         app.include_router(r)
     return app
 

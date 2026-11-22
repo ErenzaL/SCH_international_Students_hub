@@ -14,3 +14,7 @@ supabase>=2.9
 PyJWT[crypto]>=2.9
 python-multipart>=0.0.9
 numpy>=1.26
+# Multilingual E5 via ONNX Runtime (int8, ~118 MB model; fits 512 MB instances). PyTorch is optional (requirements-ml.txt).
+onnxruntime>=1.18
+sentencepiece>=0.2
+huggingface-hub>=0.23

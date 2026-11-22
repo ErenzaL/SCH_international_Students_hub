@@ -173,6 +173,7 @@ export const api = {
     apiRequest<T>("POST", path, { ...opts, body: body ?? {} }),
   put: <T>(path: string, body?: unknown) => apiRequest<T>("PUT", path, { body: body ?? {} }),
   patch: <T>(path: string, body?: unknown) => apiRequest<T>("PATCH", path, { body: body ?? {} }),
+  delete: <T>(path: string) => apiRequest<T>("DELETE", path),
   upload: <T>(path: string, formData: FormData) =>
     apiRequest<T>("POST", path, { formData }),
 };

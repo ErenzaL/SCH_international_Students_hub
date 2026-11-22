@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input, Label, Select } from "@/components/ui/input";
-import { ScopeBadge } from "@/components/shared/badges";
+import { AuthorityBadge, ScopeBadge, StaleBadge } from "@/components/shared/badges";
 import { EmptyState, ErrorState, LoadingState, Pagination } from "@/components/shared/states";
 import { api } from "@/lib/api";
 import { CATEGORY_SLUGS } from "@/lib/constants";
@@ -35,9 +35,10 @@ export function KnowledgeBrowser({
   const [q, setQ] = useState(initialQuery);
   const [category, setCategory] = useState(initialCategory);
   const [scope, setScope] = useState("");
+  const [authority, setAuthority] = useState("");
   const [page, setPage] = useState(1);
 
-  const query = { q, category, scope, page, page_size: PAGE_SIZE };
+  const query = { q, category, scope, authority, page, page_size: PAGE_SIZE };
   const { data, error, loading, reload } = useApi<Page<KnowledgeDocumentSummary>>(
     `knowledge:${JSON.stringify(query)}`,
     () => api.get<Page<KnowledgeDocumentSummary>>("/api/v1/knowledge/documents", query),
@@ -79,7 +80,7 @@ export function KnowledgeBrowser({
         <form
           role="search"
           aria-label={t("searchLabel")}
-          className="grid gap-3 rounded-xl border border-border bg-card p-4 sm:grid-cols-[1fr_12rem_auto]"
+          className="grid gap-3 rounded-xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-[1fr_11rem_13rem_auto]"
           onSubmit={(e) => {
             e.preventDefault();
             setQ(draftQ.trim());
@@ -118,6 +119,24 @@ export function KnowledgeBrowser({
               <option value="national">{t("scope.national")}</option>
             </Select>
           </div>
+          <div>
+            <Label htmlFor="kc-auth" className="mb-1.5 block">
+              {t("authorityLabel")}
+            </Label>
+            <Select
+              id="kc-auth"
+              value={authority}
+              onChange={(e) => {
+                setAuthority(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="">{c("all")}</option>
+              <option value="official_university">{t("authority.official_university")}</option>
+              <option value="official_government">{t("authority.official_government")}</option>
+              <option value="staff_communication">{t("authority.staff_communication")}</option>
+            </Select>
+          </div>
           <div className="flex items-end">
             <Button type="submit" className="w-full">
               <Search /> {c("search")}
@@ -141,7 +160,9 @@ export function KnowledgeBrowser({
                     <CardHeader>
                       <div className="flex flex-wrap gap-2">
                         <ScopeBadge scope={d.scope} />
+                        <AuthorityBadge authority={d.authority_type} />
                         <Badge variant="outline">{categoryName(d.category)}</Badge>
+                        {d.is_stale && <StaleBadge days={d.verification_age_days} />}
                       </div>
                       <CardTitle className="mt-1 text-lg">
                         <Link href={`/knowledge/${d.id}`} className="hover:underline">
