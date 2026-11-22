@@ -1,13 +1,11 @@
-import { getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/shared/states";
-import { AssistantEntry } from "@/features/assistant/assistant-entry";
+import { redirect } from "next/navigation";
 
+/**
+ * The separate assistant page was replaced by the floating SCH Assistant on every student page. Old links and
+ * bookmarks land on the homepage with the assistant open; a question passed as ?q= is prefilled in the chat.
+ */
 export default async function AssistantPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
-  const [t, sp] = await Promise.all([getTranslations("assistant"), searchParams]);
-  return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <PageHeader title={t("title")} description={t("subtitle")} />
-      <AssistantEntry initialQuestion={sp.q ?? ""} />
-    </div>
-  );
+  const { q } = await searchParams;
+  const question = (q ?? "").trim().slice(0, 2000);
+  redirect(question ? `/?ask=${encodeURIComponent(question)}#chat` : "/#chat");
 }

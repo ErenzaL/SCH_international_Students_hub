@@ -9,7 +9,6 @@
     "home": "首页",
     "announcements": "公告",
     "knowledge": "知识中心",
-    "assistant": "AI 助手",
     "support": "学生支持",
     "admin": "管理",
     "login": "登录",
@@ -329,7 +328,9 @@
       "statusMachine": "机器翻译（未经审核）",
       "statusOriginal": "您正在阅读原文",
       "statusNone": "暂无译文 – 显示原文"
-    }
+    },
+    "askAssistant": "向助手询问此文档",
+    "askAssistantPrefill": "关于“{title}”："
   },
   "assistant": {
     "title": "AI 助手",

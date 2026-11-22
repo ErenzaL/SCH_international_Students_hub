@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Bot, MessageCircleQuestion } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { OpenChatButton } from "@/features/chatbot/open-chat";
 import { CategoryGrid } from "@/features/home/category-grid";
 import { HeroSearch } from "@/features/home/hero-search";
 import { HomeAnnouncements } from "@/features/home/home-announcements";
@@ -59,9 +58,7 @@ export default async function HomePage() {
               <p className="mt-1 max-w-xl text-sm text-muted-foreground">{t("assistantBody")}</p>
             </div>
           </div>
-          <Button asChild size="lg">
-            <Link href="/assistant">{t("assistantCta")}</Link>
-          </Button>
+          <OpenChatButton size="lg">{t("assistantCta")}</OpenChatButton>
         </div>
       </section>
     </>

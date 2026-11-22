@@ -9,7 +9,6 @@
     "home": "Trang chủ",
     "announcements": "Thông báo",
     "knowledge": "Trung tâm thông tin",
-    "assistant": "Trợ lý AI",
     "support": "Hỗ trợ sinh viên",
     "admin": "Quản trị",
     "login": "Đăng nhập",
@@ -329,7 +328,9 @@
       "statusMachine": "Bản dịch máy (chưa được kiểm tra)",
       "statusOriginal": "Bạn đang đọc bản gốc",
       "statusNone": "Chưa có – đang hiển thị bản gốc"
-    }
+    },
+    "askAssistant": "Hỏi trợ lý về tài liệu này",
+    "askAssistantPrefill": "Về “{title}”: "
   },
   "assistant": {
     "title": "Trợ lý AI",

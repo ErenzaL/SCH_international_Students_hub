@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { Bot } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { OpenChatButton } from "@/features/chatbot/open-chat";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState, ErrorState, LoadingState, Pagination } from "@/components/shared/states";
 import { RequireSession } from "@/features/account/require-session";
@@ -34,11 +34,9 @@ function List({ userId }: { userId: string }) {
         title={t("empty")}
         description={t("emptyBody")}
         action={
-          <Button asChild variant="outline">
-            <Link href="/assistant">
-              <Bot /> {t("goAssistant")}
-            </Link>
-          </Button>
+          <OpenChatButton variant="outline">
+            <Bot /> {t("goAssistant")}
+          </OpenChatButton>
         }
       />
     );

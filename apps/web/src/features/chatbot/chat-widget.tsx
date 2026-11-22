@@ -13,13 +13,14 @@ import { History, LifeBuoy, MessageCircle, Minus, Plus, Send, X } from "lucide-r
 import { Button } from "@/components/ui/button";
 import { ChatMessageView, type ChatMsg } from "@/features/chatbot/chat-message";
 import { HandoffReview } from "@/features/chatbot/handoff-review";
+import { OPEN_CHAT_EVENT, type OpenChatDetail } from "@/features/chatbot/open-chat";
 import { api, ApiError, errorMessage } from "@/lib/api";
 import { postStream } from "@/lib/chat-stream";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/use-session";
 import type { AnonymousChatResponse, AskResponse, Conversation, ConversationDetail, Page } from "@/types/api";
 
-const HIDDEN_PREFIXES = ["/admin", "/login", "/assistant"];
+const HIDDEN_PREFIXES = ["/admin", "/login"];
 const ANON_KEY = "sch-chat-visitor";
 
 export function shouldShowChat(pathname: string | null): boolean {
@@ -71,17 +72,33 @@ function ChatWidgetInner() {
   const abortRef = useRef<AbortController | null>(null);
   const convKey = session.userId ? `sch-chat-conv:${session.userId}` : null;
 
-  // links like /knowledge#chat open the assistant directly
+  // open from anywhere: openChat(question) events, links ending in #chat, and ?ask=… (e.g. the old /assistant?q=)
   useEffect(() => {
-    const openFromHash = () => {
-      if (window.location.hash === "#chat") {
-        setOpen(true);
-        setMinimized(false);
+    const show = (question?: string) => {
+      setOpen(true);
+      setMinimized(false);
+      setView("chat");
+      if (question) setDraft(question);
+    };
+    const fromUrl = () => {
+      const url = new URL(window.location.href);
+      const ask = url.searchParams.get("ask");
+      if (url.hash === "#chat" || ask) {
+        show(ask ?? undefined);
+        if (ask) {   // do not keep the question in the address bar / history
+          url.searchParams.delete("ask");
+          window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+        }
       }
     };
-    openFromHash();
-    window.addEventListener("hashchange", openFromHash);
-    return () => window.removeEventListener("hashchange", openFromHash);
+    const onOpen = (e: Event) => show((e as CustomEvent<OpenChatDetail>).detail?.question);
+    fromUrl();
+    window.addEventListener("hashchange", fromUrl);
+    window.addEventListener(OPEN_CHAT_EVENT, onOpen);
+    return () => {
+      window.removeEventListener("hashchange", fromUrl);
+      window.removeEventListener(OPEN_CHAT_EVENT, onOpen);
+    };
   }, []);
 
   // restore: signed-in -> last conversation; visitor -> this browser session's messages

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { AlertTriangle, ArrowLeft, BadgeCheck, Bot, ExternalLink, Languages, Paperclip } from "lucide-react";
+import { AlertTriangle, ArrowLeft, BadgeCheck, Bot, ExternalLink, Languages, MessageCircle, Paperclip } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label, Select } from "@/components/ui/input";
 import { AuthorityBadge, ScopeBadge, StaleBadge } from "@/components/shared/badges";
 import { ErrorState, LoadingState } from "@/components/shared/states";
+import { openChat } from "@/features/chatbot/open-chat";
 import { api } from "@/lib/api";
 import { LOCALE_LABELS, LOCALES } from "@/lib/constants";
 import { articleView, contentLanguage, textBlocks } from "@/lib/doc-translation";
@@ -78,6 +79,10 @@ export function KnowledgeArticle({ id }: { id: string }) {
                   ))}
                 </Select>
               </div>
+              <Button variant="outline" size="sm" data-testid="ask-about-document"
+                onClick={() => openChat(t("askAssistantPrefill", { title: view.title }))}>
+                <MessageCircle /> {t("askAssistant")}
+              </Button>
               {d.translation && lang !== d.language && (
                 <Button variant="outline" size="sm" onClick={() => setShowOriginal((v) => !v)}>
                   {showOriginal ? tr("viewTranslation", { language: LOCALE_LABELS[lang] }) : tr("viewOriginal", { language: originalLabel })}

@@ -9,7 +9,6 @@
     "home": "Beranda",
     "announcements": "Pengumuman",
     "knowledge": "Pusat Informasi",
-    "assistant": "Asisten AI",
     "support": "Dukungan Mahasiswa",
     "admin": "Admin",
     "login": "Masuk",
@@ -329,7 +328,9 @@
       "statusMachine": "Terjemahan mesin (belum diperiksa)",
       "statusOriginal": "Anda sedang membaca teks asli",
       "statusNone": "Belum tersedia – menampilkan teks asli"
-    }
+    },
+    "askAssistant": "Tanya asisten tentang dokumen ini",
+    "askAssistantPrefill": "Tentang “{title}”: "
   },
   "assistant": {
     "title": "Asisten AI",

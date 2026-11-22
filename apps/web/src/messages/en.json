@@ -9,7 +9,6 @@
     "home": "Home",
     "announcements": "Announcements",
     "knowledge": "Knowledge Center",
-    "assistant": "AI Assistant",
     "support": "Student Support",
     "admin": "Admin",
     "login": "Sign in",
@@ -329,7 +328,9 @@
       "statusMachine": "Machine translation (not reviewed)",
       "statusOriginal": "You are reading the original",
       "statusNone": "Not yet available – showing the original"
-    }
+    },
+    "askAssistant": "Ask the assistant about this",
+    "askAssistantPrefill": "About “{title}”: "
   },
   "assistant": {
     "title": "AI Assistant",

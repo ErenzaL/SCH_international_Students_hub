@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Bot, Megaphone, UserRoundCheck } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { OpenChatButton } from "@/features/chatbot/open-chat";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/states";
 
@@ -34,11 +35,9 @@ export default async function SupportPage() {
               <Megaphone /> {t("linkAnnouncements")}
             </Link>
           </Button>
-          <Button asChild variant="outline">
-            <Link href="/assistant">
-              <Bot /> {t("linkAssistant")}
-            </Link>
-          </Button>
+          <OpenChatButton variant="outline">
+            <Bot /> {t("linkAssistant")}
+          </OpenChatButton>
         </div>
       </section>
 

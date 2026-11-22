@@ -17,6 +17,8 @@ vi.mock("@/lib/api", async (orig) => {
 });
 
 import { ChatWidget, shouldShowChat } from "@/features/chatbot/chat-widget";
+import { openChat } from "@/features/chatbot/open-chat";
+import { act } from "@testing-library/react";
 
 const citation = { n: 1, document_id: "d1", version_id: "v1", chunk_id: "c1", document_title: "Visa and Stay",
   heading: null, source_url: "https://www.studyinkorea.go.kr/v", organization: "NIIED", authority_type: "official_government",
@@ -32,10 +34,11 @@ beforeEach(() => {
 });
 
 describe("ChatWidget", () => {
-  it("is hidden on admin, login and the full assistant page", () => {
+  it("is available on every student page, hidden only in admin and on the login page", () => {
     expect(shouldShowChat("/admin/documents")).toBe(false);
     expect(shouldShowChat("/login")).toBe(false);
-    expect(shouldShowChat("/assistant")).toBe(false);
+    expect(shouldShowChat("/support")).toBe(true);
+    expect(shouldShowChat("/announcements/1")).toBe(true);
     expect(shouldShowChat("/knowledge/abc")).toBe(true);
     expect(shouldShowChat("/")).toBe(true);
   });
@@ -137,5 +140,25 @@ describe("ChatWidget", () => {
     const minimize = screen.getByRole("button", { name: "Minimize" }).className.split(/\s+/);
     expect(minimize).toContain("hidden");               // phones: the sheet is closed, not minimized
     expect(minimize).toContain("sm:inline-flex");
+  });
+});
+
+describe("opening the assistant from other places", () => {
+  it("openChat() opens the panel with the question prefilled but not sent", async () => {
+    renderWithIntl(<ChatWidget />);
+    expect(screen.queryByTestId("chat-panel")).toBeNull();
+    act(() => openChat("About “Visa and Stay”: "));
+    expect(await screen.findByTestId("chat-panel")).toBeInTheDocument();
+    expect(screen.getByLabelText("Your message")).toHaveValue("About “Visa and Stay”: ");
+    expect(postStream).not.toHaveBeenCalled();
+  });
+
+  it("?ask= (the old /assistant?q= links) opens the chat with the question and cleans the address bar", async () => {
+    window.history.replaceState(null, "", "/?ask=How%20do%20I%20extend%20my%20visa%3F#chat");
+    renderWithIntl(<ChatWidget />);
+    expect(await screen.findByLabelText("Your message")).toHaveValue("How do I extend my visa?");
+    expect(window.location.search).toBe("");
+    expect(window.location.hash).toBe("#chat");
+    window.history.replaceState(null, "", "/");
   });
 });

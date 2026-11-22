@@ -11,6 +11,7 @@ vi.mock("@/lib/api", async (orig) => {
 });
 
 import { KnowledgeArticle } from "@/features/knowledge/knowledge-article";
+import { OPEN_CHAT_EVENT } from "@/features/chatbot/open-chat";
 
 const base: KnowledgeDocumentDetail = {
   id: "d1", title: "Visa and Stay", category: "visa-immigration", organization: "NIIED", scope: "national",
@@ -74,5 +75,16 @@ describe("KnowledgeArticle (multilingual)", () => {
     expect(await screen.findByRole("heading", { level: 1, name: "签证与居留" })).toBeInTheDocument();
     expect(screen.getAllByText("Machine translation – not reviewed").length).toBeGreaterThan(0);
     expect(screen.queryByText("Verified translation")).not.toBeInTheDocument();
+  });
+
+  it("“Ask the assistant about this” opens the floating chatbot with the document as context", async () => {
+    const seen: (string | undefined)[] = [];
+    const onOpen = (e: Event) => seen.push((e as CustomEvent<{ question?: string }>).detail.question);
+    window.addEventListener(OPEN_CHAT_EVENT, onOpen);
+    renderWithIntl(<KnowledgeArticle id="d1" />, "id");
+    await screen.findByRole("heading", { level: 1, name: "Visa dan Izin Tinggal" });
+    await userEvent.setup().click(screen.getByTestId("ask-about-document"));
+    window.removeEventListener(OPEN_CHAT_EVENT, onOpen);
+    expect(seen).toEqual(["About “Visa dan Izin Tinggal”: "]);
   });
 });

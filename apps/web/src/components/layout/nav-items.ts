@@ -2,7 +2,6 @@ export const NAV_ITEMS = [
   { href: "/", key: "home" },
   { href: "/announcements", key: "announcements" },
   { href: "/knowledge", key: "knowledge" },
-  { href: "/assistant", key: "assistant" },
   { href: "/support", key: "support" },
 ] as const;
 
