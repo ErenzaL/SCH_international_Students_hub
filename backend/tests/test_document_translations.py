@@ -257,44 +257,7 @@ def test_overview_reports_completion_per_language(env, doc):
     assert by["vi"]["translation"]["translation_status"] == "todo" and "body" not in by["vi"]["translation"]
 
 
-# ----------------------------------------------------------- multilingual assistant
-def _ask(env, text: str, lang: str):  # type: ignore[no-untyped-def]
-    h = env.auth("student")
-    c = env.client.post("/api/v1/conversations", headers=h, json={"language": "en"}).json()
-    r = env.client.post(f"/api/v1/conversations/{c['id']}/messages", headers=h, json={"content": text, "language": lang})
-    assert r.status_code in (200, 201), r.text
-    return r.json()["assistant_message"]
-
-
-def test_assistant_answers_in_selected_language_and_cites_the_original(env, doc):
-    seen = {}
-
-    def answer(system: str, prompt: str) -> str:
-        seen["system"], seen["prompt"] = system, prompt
-        return "Pendaftaran orang asing dilakukan di kantor imigrasi [1]. Bawa paspor Anda [1][9]."
-
-    use_llm(env, ScriptedLLMProvider(answer))
-    msg = _ask(env, "alien registration immigration office passport", "id")
-    assert "Indonesian" in seen["system"] and "Answer ONLY from the numbered official passages" in seen["system"]
-    assert "[1] (source:" in seen["prompt"]
-    assert msg["language"] == "id" and msg["content"].startswith("Pendaftaran") and "[9]" not in msg["content"]
-    assert msg["metadata"]["answer_generation"] == "llm" and msg["metadata"]["model"] == "scripted-1"
-    cited = [c for c in msg["citations"] if c.get("cited")]
-    assert cited and cited[0]["document_id"] == doc["id"] and cited[0]["source_url"] == ARTICLE_URL   # 9.
-
-
-def test_assistant_falls_back_when_generation_is_unsupported(env, doc):
-    use_llm(env, ScriptedLLMProvider(lambda s, p: "Registration is at the immigration office."))   # no citation
-    msg = _ask(env, "alien registration immigration office", "vi")
-    assert msg["metadata"]["answer_generation"] == "fallback" and msg["metadata"]["fallback_reason"] == "no_citations"
-    assert msg["content"].startswith("Đây là thông tin") and "[1]" in msg["content"]   # passages, in Vietnamese
-    use_llm(env, ScriptedLLMProvider(lambda s, p: "INSUFFICIENT_EVIDENCE"))
-    msg = _ask(env, "alien registration immigration office", "zh-CN")
-    assert msg["metadata"]["insufficient_evidence"] and msg["metadata"]["offer_handoff"]
-    assert "无法给出可靠的回答" in msg["content"]
-    use_llm(env, ScriptedLLMProvider(lambda s, p: LLMError("llm_unavailable", "down", transient=True)))
-    msg = _ask(env, "alien registration immigration office", "ko")
-    assert msg["metadata"]["answer_generation"] == "fallback" and msg["content"].startswith("승인된 공식 자료")
+# multilingual assistant behaviour: see tests/test_assistant.py
 
 
 def test_language_preference_persists_across_sessions(env):

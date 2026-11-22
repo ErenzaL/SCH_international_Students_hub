@@ -7,14 +7,17 @@ from __future__ import annotations
 
 from typing import Literal
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import StreamingResponse
 
 from app.api.deps import Pagination, get_services
-from app.core.errors import NotFound, ValidationFailed
+from app.api.sse import sse
+from app.core.errors import Forbidden, NotFound, ValidationFailed
 from app.core.rate_limit import rate_limit
 from app.repositories.base import Query as DbQuery
 from app.repositories.base import get_many, get_one
 from app.schemas.api import (
+    AnonymousChat,
     Availability,
     ConversationCreate,
     ConversationMessage,
@@ -107,6 +110,44 @@ def delete_conversation(conversation_id: str, svc: Services = Depends(get_servic
 def ask(conversation_id: str, body: ConversationMessage, svc: Services = Depends(get_services),
         user: AuthUser = Depends(get_current_user)) -> dict:  # type: ignore[type-arg]
     return svc.conversations.ask(conversation_id, user.id, body.content, body.language)
+
+
+@router.post("/conversations/{conversation_id}/messages/stream", dependencies=[Depends(rate_limit("search"))])
+def ask_stream(conversation_id: str, body: ConversationMessage, request: Request, svc: Services = Depends(get_services),
+               user: AuthUser = Depends(get_current_user)) -> StreamingResponse:
+    """Same as POST …/messages, streamed as server-sent events (status, delta…, done | error)."""
+    svc.conversations.get_own(conversation_id, user.id)   # 404 before the stream starts
+    return sse(lambda emit: svc.conversations.ask(conversation_id, user.id, body.content, body.language, emit=emit),
+               getattr(request.state, "request_id", None))
+
+
+@router.post("/conversations/{conversation_id}/handoff-draft")
+def handoff_draft(conversation_id: str, svc: Services = Depends(get_services),
+                  user: AuthUser = Depends(get_current_user)) -> dict:  # type: ignore[type-arg]
+    """A reviewable draft of a Global Supporter request (nothing is sent). The student confirms with
+    POST /support/tickets (consent=true); the request is routed to the team of their preferred language."""
+    c = svc.conversations.get_own(conversation_id, user.id)
+    from app.services.assistant.handoff import build_handoff_draft
+
+    return build_handoff_draft(svc.store, svc.conversations.llm, c, user.preferred_language)
+
+
+@router.post("/assistant/chat", dependencies=[Depends(rate_limit("search"))])
+def anonymous_chat(body: AnonymousChat, svc: Services = Depends(get_services)) -> dict:  # type: ignore[type-arg]
+    """For visitors who are not signed in: grounded answers without stored history or supporter handoff."""
+    if not svc.settings.assistant_anonymous_chat:
+        raise Forbidden("Please sign in to use the assistant.")
+    return svc.conversations.ask_anonymous(body.message, body.language or "en", [m.model_dump() for m in body.history])
+
+
+@router.post("/assistant/chat/stream", dependencies=[Depends(rate_limit("search"))])
+def anonymous_chat_stream(body: AnonymousChat, request: Request,
+                          svc: Services = Depends(get_services)) -> StreamingResponse:
+    if not svc.settings.assistant_anonymous_chat:
+        raise Forbidden("Please sign in to use the assistant.")
+    history = [m.model_dump() for m in body.history]
+    return sse(lambda emit: svc.conversations.ask_anonymous(body.message, body.language or "en", history, emit=emit),
+               getattr(request.state, "request_id", None))
 
 
 # ------------------------------------------------------------ student tickets

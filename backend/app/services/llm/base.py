@@ -3,7 +3,7 @@
 * ``none`` (default): nothing is generated; the site, retrieval and the assistant's evidence-only replies keep working.
 * ``anthropic``: Claude via the official ``anthropic`` SDK (``LLM_MODEL``, default ``claude-opus-5-5``).
 Every provider exposes one primitive, ``complete(system, prompt)``; the prompts live in the services that use it
-(``services/llm/answers.py``, ``services/translation_drafts.py``) so a provider never decides what is said.
+(``services/assistant/engine.py``, ``services/translation_drafts.py``) so a provider never decides what is said.
 """
 from __future__ import annotations
 
@@ -40,6 +40,9 @@ class LLMProvider(Protocol):
 
     def complete(self, system: str, prompt: str, *, max_tokens: int = 16000, effort: str | None = None) -> LLMResult: ...
 
+    def stream(self, system: str, prompt: str, on_text: Any, *, max_tokens: int = 4096,
+               effort: str | None = None) -> LLMResult: ...
+
 
 class NullLLMProvider:
     name = "none"
@@ -47,6 +50,10 @@ class NullLLMProvider:
     enabled = False
 
     def complete(self, system: str, prompt: str, *, max_tokens: int = 16000, effort: str | None = None) -> LLMResult:
+        raise LLMError("llm_disabled", "No LLM provider is configured (LLM_PROVIDER=none).")
+
+    def stream(self, system: str, prompt: str, on_text: Any, *, max_tokens: int = 4096,
+               effort: str | None = None) -> LLMResult:
         raise LLMError("llm_disabled", "No LLM provider is configured (LLM_PROVIDER=none).")
 
 
@@ -73,20 +80,31 @@ class AnthropicProvider:
             self._client = anthropic.Anthropic(**kwargs)
         return self._client
 
+    def _kwargs(self, system: str, prompt: str, max_tokens: int, effort: str | None) -> dict[str, Any]:
+        return dict(model=self.model, max_tokens=max_tokens, system=system,
+                    messages=[{"role": "user", "content": prompt}], output_config={"effort": effort or self.effort},
+                    # on a policy decline the API re-runs the request on a fallback model inside the same call
+                    betas=["server-side-fallback-2026-07-01"], fallbacks="default")
+
     def complete(self, system: str, prompt: str, *, max_tokens: int = 16000, effort: str | None = None) -> LLMResult:
+        return self._call(lambda c: c.beta.messages.create(**self._kwargs(system, prompt, max_tokens, effort)))
+
+    def stream(self, system: str, prompt: str, on_text: Any, *, max_tokens: int = 4096,
+               effort: str | None = None) -> LLMResult:
+        """Streams text deltas to ``on_text`` and returns the final message (same checks as ``complete``)."""
+        def run(c: Any) -> Any:
+            with c.beta.messages.stream(**self._kwargs(system, prompt, max_tokens, effort)) as s:
+                for text in s.text_stream:
+                    on_text(text)
+                return s.get_final_message()
+
+        return self._call(run)
+
+    def _call(self, fn: Any) -> LLMResult:
         import anthropic
 
         try:
-            response = self._get_client().beta.messages.create(
-                model=self.model,
-                max_tokens=max_tokens,
-                system=system,
-                messages=[{"role": "user", "content": prompt}],
-                output_config={"effort": effort or self.effort},
-                # on a policy decline the API re-runs the request on a fallback model inside the same call
-                betas=["server-side-fallback-2026-07-01"],
-                fallbacks="default",
-            )
+            response = fn(self._get_client())
         except anthropic.BadRequestError as exc:
             raise LLMError("llm_bad_request", f"The model rejected the request: {exc.message}") from exc
         except anthropic.AuthenticationError as exc:
@@ -134,6 +152,13 @@ class ScriptedLLMProvider:
         if isinstance(out, Exception):
             raise out
         return LLMResult(text=str(out), provider=self.name, model=self.model)
+
+    def stream(self, system: str, prompt: str, on_text: Any, *, max_tokens: int = 4096,
+               effort: str | None = None) -> LLMResult:
+        res = self.complete(system, prompt, max_tokens=max_tokens, effort=effort)
+        for i in range(0, len(res.text), 7):   # deliver in small pieces like a real stream
+            on_text(res.text[i:i + 7])
+        return res
 
 
 def build_llm_provider(provider: str, api_key: str, model: str = "claude-opus-5-5", effort: str = "medium",

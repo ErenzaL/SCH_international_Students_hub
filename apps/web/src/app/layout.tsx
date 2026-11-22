@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { SiteHeader } from "@/components/layout/site-header";
+import { ChatWidget } from "@/features/chatbot/chat-widget";
 import { SiteFooter } from "@/components/layout/site-footer";
 import "./globals.css";
 
@@ -31,6 +32,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {children}
           </main>
           <SiteFooter />
+          <ChatWidget />
         </NextIntlClientProvider>
       </body>
     </html>

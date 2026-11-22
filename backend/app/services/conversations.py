@@ -1,10 +1,8 @@
 """Persistent, private AI conversations (students' own data; never indexed into the shared RAG corpus).
 
-With an LLM provider configured, answers are generated in the conversation language from approved ORIGINAL
-passages only, with [n] citations (``services/llm/answers.py``). Without one - or if generation fails, reports
-insufficient evidence, or cites nothing valid - the assistant replies with the approved passages + citations and a
-short framing sentence in that language. It never invents facts, never pretends a human joined, and offers a
-Global Supporter when evidence is missing or the question needs an individual decision.
+Each turn runs the RAG-first engine (``services/assistant/engine.py``): grounded answers from approved ORIGINAL
+passages with [n] citations, evidence assessment, and a Global Supporter offered only when genuinely needed (the
+student must confirm; requests are created only by the explicit support endpoint).
 """
 from __future__ import annotations
 
@@ -12,68 +10,33 @@ import re
 from datetime import UTC, datetime
 from typing import Any
 
+from app.core.config import Settings
 from app.core.errors import Forbidden, InvalidState, NotFound
 from app.repositories.base import Query, Store, get_one
-from app.services.llm.answers import generate_answer, strip_invalid_citations, valid_citations
-from app.services.llm.base import LLMError, LLMProvider, NullLLMProvider
+from app.services.assistant.engine import _HUMAN, AssistantEngine  # noqa: F401  (_HUMAN re-exported for tests)
+from app.services.llm.base import LLMProvider
 from app.services.retrieval.service import RetrievalService
 
 LANGS = ("ko", "en", "id", "vi", "zh-CN")
-PASSAGE_CHARS = 420
-
-TEXT: dict[str, dict[str, str]] = {
-    "found": {
-        "en": "Here is what approved official sources say. This is general guidance, not a decision about your case:",
-        "ko": "승인된 공식 자료의 내용입니다. 일반적인 안내이며 개인 사안에 대한 결정이 아닙니다:",
-        "id": "Berikut informasi dari sumber resmi yang telah disetujui. Ini panduan umum, bukan keputusan atas kasus Anda:",
-        "vi": "Đây là thông tin từ các nguồn chính thức đã được duyệt. Đây là hướng dẫn chung, không phải quyết định cho trường hợp của bạn:",
-        "zh-CN": "以下是已审核官方资料中的内容。这只是一般性指导，并非针对您个人情况的决定：",
-    },
-    "none": {
-        "en": "I could not find this in the approved SCH and Korean government sources, so I cannot answer it reliably.",
-        "ko": "승인된 순천향대학교 및 한국 정부 자료에서 관련 내용을 찾지 못해 신뢰할 수 있는 답변을 드릴 수 없습니다.",
-        "id": "Saya tidak menemukan informasi ini di sumber resmi SCH dan pemerintah Korea yang disetujui, jadi saya tidak dapat menjawab dengan andal.",
-        "vi": "Tôi không tìm thấy thông tin này trong các nguồn chính thức đã duyệt của SCH và chính phủ Hàn Quốc nên không thể trả lời chính xác.",
-        "zh-CN": "我在已审核的顺天乡大学和韩国政府资料中没有找到相关内容，因此无法给出可靠的回答。",
-    },
-    "individual": {
-        "en": "Your question may depend on your personal situation. Only the responsible office can decide individual cases.",
-        "ko": "질문 내용은 개인 상황에 따라 달라질 수 있습니다. 개별 사안은 담당 부서만 결정할 수 있습니다.",
-        "id": "Pertanyaan Anda mungkin bergantung pada situasi pribadi Anda. Hanya kantor yang berwenang yang dapat memutuskan kasus individu.",
-        "vi": "Câu hỏi của bạn có thể phụ thuộc vào hoàn cảnh cá nhân. Chỉ văn phòng phụ trách mới có thể quyết định từng trường hợp.",
-        "zh-CN": "您的问题可能取决于个人情况。个人案例只能由负责部门决定。",
-    },
-    "offer": {
-        "en": "You can ask a Global Supporter for help. Nothing is shared until you choose what to send.",
-        "ko": "글로벌 서포터에게 도움을 요청할 수 있습니다. 보낼 내용을 직접 선택하기 전에는 아무것도 공유되지 않습니다.",
-        "id": "Anda dapat meminta bantuan Global Supporter. Tidak ada yang dibagikan sampai Anda memilih apa yang dikirim.",
-        "vi": "Bạn có thể nhờ Global Supporter hỗ trợ. Không có gì được chia sẻ cho đến khi bạn chọn nội dung gửi đi.",
-        "zh-CN": "您可以向全球支持者求助。在您选择要发送的内容之前，不会共享任何信息。",
-    },
-}
-# "orang" alone is NOT a request for a person: "orang asing" = foreigner (registrasi orang asing)
-_HUMAN = re.compile(r"(human|real person|talk to (a|someone)|supporter|staff|상담|사람|담당자|서포터|manusia|"
-                    r"orang (sungguhan|asli)|bicara dengan (orang|seseorang)|petugas|người thật|nhân viên|tư vấn|"
-                    r"人工|真人|客服|工作人员)", re.I)
-_INDIVIDUAL = re.compile(r"(\bmy (visa|case|application|status|situation)\b|will i (be|get)|am i (allowed|eligible)|"
-                         r"can i (still|get)|제 (비자|경우|신청|상황)|내 (비자|경우|신청|상황)|저는.*(되나요|가능한가요)|"
-                         r"visa saya|kasus saya|apakah saya (bisa|boleh)|visa của tôi|trường hợp của tôi|tôi có được|"
-                         r"我的(签证|情况|申请)|我能不能|我可以.*吗)", re.I)
-_DISPUTE = re.compile(r"(wrong|incorrect|not true|that'?s not|틀렸|아닌데|잘못|salah|tidak benar|sai rồi|không đúng|"
-                      r"不对|错了|不正确)", re.I)
-
-
-def t(key: str, lang: str) -> str:
-    return TEXT[key].get(lang) or TEXT[key]["en"]
 
 
 class ConversationService:
     def __init__(self, store: Store, retrieval: RetrievalService, *, retention_days: int = 365,
-                 llm: LLMProvider | None = None):
+                 llm: LLMProvider | None = None, settings: Settings | None = None):
         self.store = store
         self.retrieval = retrieval
         self.retention_days = retention_days
-        self.llm: LLMProvider = llm or NullLLMProvider()
+        self.settings = settings or Settings(_env_file=None)  # type: ignore[call-arg]
+        self.history_turns = self.settings.assistant_history_turns
+        self.engine = AssistantEngine(retrieval, llm, self.settings)
+
+    @property
+    def llm(self) -> LLMProvider:
+        return self.engine.llm
+
+    @llm.setter
+    def llm(self, provider: LLMProvider) -> None:
+        self.engine.llm = provider
 
     # ------------------------------------------------------------ access
     def get_own(self, conversation_id: str, user_id: str) -> dict[str, Any]:
@@ -120,69 +83,22 @@ class ConversationService:
         self.store.delete("ai_conversations", {"id": conversation_id})
 
     # --------------------------------------------------------------- ask
-    def ask(self, conversation_id: str, user_id: str, content: str, language: str | None = None) -> dict[str, Any]:
+    def ask(self, conversation_id: str, user_id: str, content: str, language: str | None = None,
+            emit: Any = None) -> dict[str, Any]:
+        """One RAG-first assistant turn (see services/assistant/engine.py), persisted in the student's own history.
+        A per-message language never changes the profile."""
         c = self.get_own(conversation_id, user_id)
-        lang = language if language in LANGS else c["language"]  # per-message language never changes the profile
+        lang = language if language in LANGS else c["language"]
         now = datetime.now(UTC).isoformat()
         history, _ = self.store.select("ai_messages", Query(eq={"conversation_id": c["id"]},
-                                                          order=[("created_at", True)], limit=6))
+                                                          order=[("created_at", True)], limit=self.history_turns))
         history.reverse()
         user_msg = self.store.insert("ai_messages", dict(conversation_id=c["id"], role="user", content=content[:8000],
                                                           language=lang))
-        search = self.retrieval.search(content, language=lang, top_k=4)
-        hits = search["results"]
-        reasons = []
-        if not hits:
-            reasons.append("no_evidence")
-        if _HUMAN.search(content):
-            reasons.append("asked_for_human")
-        if _INDIVIDUAL.search(content):
-            reasons.append("individual_decision")
-        if _DISPUTE.search(content):
-            reasons.append("disputed_answer")
-        citations = [{k: h.get(k) for k in ("document_id", "version_id", "chunk_id", "document_title", "heading",
-                                             "source_url", "organization", "authority_type", "verified_at",
-                                             "is_stale", "page", "similarity")} | {"n": i} for i, h in enumerate(hits, 1)]
-        generation: dict[str, Any] = {"answer_generation": "disabled"}
-        answer = None
-        if hits and self.llm.enabled:
-            try:
-                answer, res = generate_answer(self.llm, question=content, hits=hits, language=lang, history=history)
-                generation = {"answer_generation": "llm", "provider": res.provider, "model": res.model}
-                if answer is None:
-                    generation["insufficient_evidence"] = True
-                elif not valid_citations(answer, len(hits)):
-                    generation = {"answer_generation": "fallback", "fallback_reason": "no_citations"}
-                    answer = None
-                else:
-                    answer = strip_invalid_citations(answer, len(hits))
-            except LLMError as exc:
-                generation = {"answer_generation": "fallback", "fallback_reason": exc.code}
-                answer = None
-        if answer is not None:
-            used = set(valid_citations(answer, len(hits)))
-            citations = [c2 | {"cited": c2["n"] in used} for c2 in citations]
-            parts = [answer]
-        elif generation.get("insufficient_evidence"):
-            reasons.append("no_evidence")
-            parts = [t("none", lang)]
-        else:
-            parts = [t("found", lang) if hits else t("none", lang)]
-            for i, h in enumerate(hits, 1):
-                passage = re.sub(r"\s+", " ", h["passage"]).strip()
-                passage = passage[:PASSAGE_CHARS] + ("…" if len(passage) > PASSAGE_CHARS else "")
-                parts.append(f"[{i}] {h['document_title']}{' – ' + h['heading'] if h.get('heading') else ''}\n{passage}")
-        if "individual_decision" in reasons:
-            parts.append(t("individual", lang))
-        offer = bool(reasons)
-        if offer:
-            parts.append(t("offer", lang))
+        out = self.engine.respond(content, language=lang, history=history, emit=emit)
         assistant = self.store.insert("ai_messages", dict(
-            conversation_id=c["id"], role="assistant", content="\n\n".join(parts)[:8000], language=lang,
-            citations=citations, metadata={"offer_handoff": offer, "handoff_reasons": reasons, "evidence": len(hits),
-                                           "retrieval_mode": search["retrieval"]["mode"],
-                                           "warning": search["retrieval"].get("warning"),
-                                           "stale_evidence": any(h.get("is_stale") for h in hits), **generation}))
+            conversation_id=c["id"], role="assistant", content=out["answer"][:8000], language=out["language"],
+            citations=out["citations"], metadata=self._metadata(out)))
         title = c["title"]
         if c["message_count"] == 0 and title == "New conversation":
             title = re.sub(r"\s+", " ", content).strip()[:60] or title
@@ -191,6 +107,26 @@ class ConversationService:
             last_message_preview=re.sub(r"\s+", " ", content).strip()[:120]), {"id": c["id"]})
         return dict(user_message=user_msg, assistant_message=assistant, conversation=self.view(
             self.get_own(conversation_id, user_id)))
+
+    @staticmethod
+    def _metadata(out: dict[str, Any]) -> dict[str, Any]:
+        r = out.get("retrieval") or {}
+        return {"offer_handoff": out["offer_handoff"], "handoff_reasons": out["handoff_reasons"],
+                "evidence_level": out["evidence"], "individual": out["individual"], "follow_ups": out["follow_ups"],
+                "evidence": r.get("hits", 0), "retrieval_mode": r.get("mode"), "warning": r.get("warning"),
+                "rewritten": r.get("rewritten", False), "latency_ms": out.get("latency_ms"),
+                "stale_evidence": any(c.get("is_stale") for c in out["citations"]),
+                "insufficient_evidence": out["evidence"] == "none", **(out.get("generation") or {})}
+
+    def ask_anonymous(self, content: str, language: str, history: list[dict[str, Any]], emit: Any = None
+                      ) -> dict[str, Any]:
+        """Stateless turn for visitors who are not signed in: nothing is stored; the client sends recent turns.
+        Supporter handoff needs an account, so the offer only tells the visitor to sign in."""
+        clean = [{"role": m["role"], "content": str(m["content"])[:2000]} for m in history[-self.history_turns:]
+                 if m.get("role") in ("user", "assistant") and m.get("content")]
+        out = self.engine.respond(content, language=language if language in LANGS else "en", history=clean, emit=emit)
+        return dict(answer=out["answer"], language=out["language"], citations=out["citations"],
+                    metadata=self._metadata(out) | {"sign_in_required_for_handoff": out["offer_handoff"]})
 
     def selected_messages(self, conversation_id: str, user_id: str, message_ids: list[str]) -> list[dict[str, Any]]:
         """Messages the student explicitly selected for sharing (must all belong to their conversation)."""

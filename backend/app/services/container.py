@@ -68,7 +68,7 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     user_notes = UserNotificationService(store)
     retrieval = RetrievalService(store, embedder, settings)
     conversations = ConversationService(store, retrieval, retention_days=settings.conversation_retention_days,
-                                        llm=llm)
+                                        llm=llm, settings=settings)
     support = SupportService(store, conversations, user_notes, retention_days=settings.support_retention_days)
     doc_translations = DocumentTranslationService(store, llm, user_notes, settings)
     jobs = JobRunner(store, ingestion, settings)

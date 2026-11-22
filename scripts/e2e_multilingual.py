@@ -96,9 +96,13 @@ def rest(uid: str | None, path: str) -> list:  # type: ignore[type-arg]
 def responder(system: str, prompt: str) -> str:
     """Scripted LLM: answers cite passage [1]; translations keep codes/numbers/URLs and tag the language."""
     target = next((code for name, code in LANG_OF.items() if f"into {name}" in system or f"in {name}" in system), "en")
-    if "Answer ONLY from the numbered official passages" in system:
-        lang = next((code for name, code in LANG_OF.items() if f"Write the whole answer in {name}" in system), "en")
-        return ANSWERS[lang]
+    if system.startswith("You turn a student's latest message"):      # follow-up rewrite: keep the question
+        q = re.search(r"<latest_message>\n(.*?)\n</latest_message>", prompt, re.S).group(1)  # type: ignore[union-attr]
+        return json.dumps({"standalone": q, "en": q, "ko": q})
+    if system.startswith("You are the SCH International Student Hub assistant"):
+        lang = next((code for name, code in LANG_OF.items() if f"Write in {name}" in system), "en")
+        return ANSWERS[lang] + "\n<<<META>>>\n" + json.dumps({"evidence": "sufficient", "individual": False,
+                                                              "wants_human": False, "follow_ups": []})
     text = re.search(r"<source_text>\n?(.*?)\n?</source_text>", prompt, re.S).group(1)  # type: ignore[union-attr]
     return "\n".join(f"{line} [{target}]" if line.strip() and not line.startswith("|") else line
                      for line in text.splitlines())

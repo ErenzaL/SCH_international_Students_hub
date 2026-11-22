@@ -1056,7 +1056,13 @@ export interface Conversation {
   created_at: string;
   updated_at: string | null;
 }
-export type HandoffReason = "no_evidence" | "asked_for_human" | "individual_decision" | "disputed_answer";
+export type HandoffReason =
+  | "no_evidence"
+  | "asked_for_human"
+  | "individual_decision"
+  | "disputed_answer"
+  | "conflicting_evidence";
+export type EvidenceLevel = "sufficient" | "partial" | "conflicting" | "none" | "small_talk";
 export interface ConversationCitation {
   n: number;
   document_id: string | null;
@@ -1071,6 +1077,8 @@ export interface ConversationCitation {
   is_stale: boolean | null;
   page: number | null;
   similarity: number | null;
+  /** the answer actually cites this passage (generated answers) */
+  cited?: boolean;
 }
 export interface ConversationMessage {
   id: string;
@@ -1082,13 +1090,40 @@ export interface ConversationMessage {
   metadata: {
     offer_handoff?: boolean;
     handoff_reasons?: HandoffReason[];
+    /** number of retrieved passages */
     evidence?: number;
+    evidence_level?: EvidenceLevel;
+    individual?: boolean;
+    follow_ups?: string[];
     retrieval_mode?: string;
     answer_generation?: string;
     warning?: string | null;
+    /** set on the confirmation message posted after a Global Supporter request was created */
+    kind?: "handoff_created";
+    ticket_id?: string;
+    ticket_number?: number;
+    ticket_status?: TicketStatus;
+    sign_in_required_for_handoff?: boolean;
   };
   created_at: string;
 }
+export interface AnonymousChatResponse {
+  answer: string;
+  language: LanguageCode;
+  citations: ConversationCitation[];
+  metadata: ConversationMessage["metadata"];
+}
+
+export interface HandoffDraft {
+  subject: string;
+  summary: string;
+  language: LanguageCode;
+  message_ids: string[];
+  messages: { id: string; role: "user" | "assistant"; content: string; created_at: string }[];
+  references: { title: string; url: string | null }[];
+  reasons: HandoffReason[];
+}
+
 export interface ConversationDetail extends Conversation {
   messages: ConversationMessage[];
 }

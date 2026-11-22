@@ -101,6 +101,11 @@ class Settings(BaseSettings):
     job_stale_seconds: int = 180
     job_startup_stale_seconds: int = 90
     job_max_runtime_seconds: int = 1800     # heartbeats stop after this, so a hung job goes stale and is recovered
+    # --- Assistant ----------------------------------------------------------------
+    # without an LLM: passages at/above this similarity (or keyword/exact matches) count as sufficient evidence
+    assistant_strong_similarity: float = 0.84
+    assistant_anonymous_chat: bool = True     # visitors who are not signed in can chat (no history, no handoff)
+    assistant_history_turns: int = 6          # earlier messages given to rewriting and generation
     # --- PDF extraction --------------------------------------------------------
     # subprocess: a child process per PDF with a hard timeout (a crash or OOM fails the job, not the service)
     pdf_extraction_isolation: str = "subprocess"     # subprocess | inline (tests)

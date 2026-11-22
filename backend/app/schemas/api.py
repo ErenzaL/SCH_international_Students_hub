@@ -333,6 +333,18 @@ class ConversationMessage(BaseModel):
     language: Lang | None = None   # use another language for this message (the profile is not changed)
 
 
+class ChatTurn(BaseModel):
+    role: Literal["user", "assistant"]
+    content: Annotated[str, StringConstraints(max_length=4000)]
+
+
+class AnonymousChat(BaseModel):
+    """Visitors who are not signed in: the browser keeps the conversation and sends its recent turns."""
+    message: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=2000)]
+    language: Lang | None = None
+    history: list[ChatTurn] = Field(default_factory=list, max_length=12)
+
+
 class TicketCreate(BaseModel):
     language: Lang | None = None   # default: the profile's preferred language
     subject: Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=200)]

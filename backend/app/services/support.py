@@ -144,6 +144,16 @@ class SupportService:
         if body.get("additional_message"):
             self._post(t, user, "student", body["additional_message"].strip())
         t = self.route(t["id"])
+        if conv_id:   # the conversation shows that a request was sent (and which one)
+            from app.services.assistant.texts import NATIVE_NAMES
+            from app.services.assistant.texts import t as text
+
+            team = text("team", lang).format(language=NATIVE_NAMES.get(lang, lang))
+            self.store.insert("ai_messages", dict(
+                conversation_id=conv_id, role="assistant", language=lang, citations=[],
+                content=text("handoff_created", lang).format(number=t["ticket_number"], team=team),
+                metadata={"kind": "handoff_created", "ticket_id": t["id"], "ticket_number": t["ticket_number"],
+                          "ticket_status": t["status"], "answer_generation": "template"}))
         return self.student_view(t, with_thread=True)
 
     def route(self, ticket_id: str) -> dict[str, Any]:
