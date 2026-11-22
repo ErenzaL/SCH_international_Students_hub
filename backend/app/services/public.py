@@ -183,6 +183,7 @@ class PublicService:
                     source_url=d.get("canonical_url") or s.get("original_url"),
                     source_published_at=v.get("source_published_at"), verified_at=v.get("approved_at"),
                     valid_until=v.get("valid_until"), excerpt=excerpt(v.get("extracted_text", "")),
+                    version_id=v.get("id"),
                     **stale_info(v.get("approved_at"), s["category"], s.get("stale_after_days")))
 
     def get_document(self, document_id: str) -> dict[str, Any]:

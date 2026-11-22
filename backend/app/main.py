@@ -15,6 +15,7 @@ from app.api import (
     admin_knowledge,
     admin_sources,
     admin_system,
+    document_translations,
     health,
     public,
     support,
@@ -27,13 +28,14 @@ from app.services.container import build_services
 from app.services.embeddings.base import EmbeddingProvider
 from app.services.embeddings.factory import build_embedding_provider
 from app.services.ingestion.fetcher import GuardedFetcher
-from app.services.llm.base import build_llm_provider
+from app.services.llm.base import LLMProvider, build_llm_provider
 
 log = logging.getLogger("app")
 
 
 def create_app(settings: Settings | None = None, *, store: Store | None = None, storage: FileStorage | None = None,
-               embedder: EmbeddingProvider | None = None, fetcher: GuardedFetcher | None = None) -> FastAPI:
+               embedder: EmbeddingProvider | None = None, fetcher: GuardedFetcher | None = None,
+               llm: LLMProvider | None = None) -> FastAPI:
     settings = settings or get_settings()
     configure_logging(settings.log_level)
 
@@ -69,8 +71,9 @@ def create_app(settings: Settings | None = None, *, store: Store | None = None, 
         store, storage = sb, SupabaseFileStorage(sb, settings.source_files_bucket)
     app.state.store = store
     if store is not None:
-        app.state.services = build_services(settings, store, storage, emb,
-                                            build_llm_provider(settings.llm_provider, settings.llm_api_key), fetcher)
+        app.state.services = build_services(settings, store, storage, emb, llm or build_llm_provider(
+            settings.llm_provider, settings.llm_api_key, settings.llm_model, settings.llm_effort,
+            settings.llm_timeout_seconds), fetcher)
 
     app.add_middleware(RequestLoggingMiddleware, max_body_bytes=settings.max_request_body_mb * 1024 * 1024)
     app.add_middleware(
@@ -81,7 +84,7 @@ def create_app(settings: Settings | None = None, *, store: Store | None = None, 
     install_error_handlers(app)
     for r in (health.router, public.router, admin_sources.router, admin_documents.router,
               admin_announcements.router, admin_system.router, admin_intake.router, admin_knowledge.router,
-              admin_knowledge.internal, support.router):
+              admin_knowledge.internal, support.router, document_translations.router):
         app.include_router(r)
     return app
 

@@ -9,11 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldError, Input, Label } from "@/components/ui/input";
 import { LanguageSelect } from "@/features/account/language-select";
-import { isSupabaseConfigured } from "@/lib/constants";
+import { api } from "@/lib/api";
+import { isSupabaseConfigured, LOCALES } from "@/lib/constants";
 import { saveLocalePreference } from "@/lib/i18n/preference";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { buildSignupMetadata } from "@/lib/signup";
-import type { LanguageCode } from "@/types/api";
+import type { LanguageCode, Me } from "@/types/api";
 
 /** Only allow same-site relative redirects (prevents open redirects). */
 export function safeNextPath(next: string | undefined | null): string {
@@ -67,6 +68,13 @@ export function LoginForm({ next }: { next?: string }) {
       if (mode === "signin") {
         const { error: err } = await sb.auth.signInWithPassword({ email, password });
         if (err) throw err;
+        // signed in: the profile's preferred language becomes the default on this device too
+        try {
+          const me = await api.get<Me>("/api/v1/me");
+          if (me.preferred_language_confirmed && LOCALES.includes(me.preferred_language)) saveLocalePreference(me.preferred_language);
+        } catch {
+          /* keep the current site language if the profile cannot be read */
+        }
         router.push(safeNextPath(next));
         router.refresh();
       } else {

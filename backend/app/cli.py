@@ -44,7 +44,8 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     store = SupabaseStore(settings)
     svc = build_services(settings, store, SupabaseFileStorage(store, settings.source_files_bucket),
-                         build_embedding_provider(settings), build_llm_provider(settings.llm_provider, settings.llm_api_key))
+                         build_embedding_provider(settings), build_llm_provider(settings.llm_provider, settings.llm_api_key,
+                                                                       settings.llm_model, settings.llm_effort, settings.llm_timeout_seconds))
     if args.command == "purge-expired":
         print(f"purged: {svc.support.purge_expired()}")
         return 0

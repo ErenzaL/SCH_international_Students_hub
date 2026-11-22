@@ -69,7 +69,9 @@ def document_history(document_id: str, svc: Services = Depends(get_services),
 @router.post("/documents/{document_id}/rollback")
 def rollback(document_id: str, body: RollbackBody, svc: Services = Depends(get_services),
              user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
-    return svc.review.rollback(document_id, body.version_id, user, body.note, svc.sources.view)
+    out = svc.review.rollback(document_id, body.version_id, user, body.note, svc.sources.view)
+    svc.doc_translations.sync(document_id, user.id)   # translations follow the active original version
+    return out
 
 
 @router.post("/documents/{document_id}/cancel")

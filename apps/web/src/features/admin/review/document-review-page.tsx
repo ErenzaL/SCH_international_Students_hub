@@ -8,7 +8,9 @@ import { ArrowLeft, CheckCircle2, Loader2, RotateCcw } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs } from "@/components/ui/tabs";
 import { ErrorState, LoadingState, PageHeader } from "@/components/shared/states";
+import { DocumentTranslationsPanel } from "@/features/admin/documents/document-translations-panel";
 import { ArchiveButton, DeleteDocumentButton, LifecycleBadge, RestoreButton } from "@/features/admin/documents/lifecycle-actions";
 import { DocumentHistory } from "@/features/admin/review/review-extras";
 import { ReviewPanel } from "@/features/admin/review/review-panel";
@@ -37,6 +39,9 @@ export function DocumentReviewPage({ id }: { id: string }) {
   const router = useRouter();
   const me = useMe();
   const [histKey, setHistKey] = useState(0);
+  const [tab, setTab] = useState<"review" | "translations">(
+    typeof window !== "undefined" && window.location.hash === "#translations" ? "translations" : "review",
+  );
   const { data, error, loading, reload } = useApi<DocumentDetail>(`admin-doc:${id}`, () =>
     api.get<DocumentDetail>(`/api/v1/admin/documents/${id}`),
   );
@@ -200,6 +205,23 @@ export function DocumentReviewPage({ id }: { id: string }) {
               <DeleteDocumentButton documentId={data.id} onFinished={() => router.push("/admin/documents")} />
             )}
           </LifecycleBar>
+          <Tabs
+            className="mb-4 mt-2"
+            label={t("tabsLabel")}
+            value={tab}
+            onChange={(v) => setTab(v as "review" | "translations")}
+            items={[
+              { id: "review", label: t("tabReview") },
+              { id: "translations", label: t("tabTranslations") },
+            ]}
+          />
+          {tab === "translations" && (
+            <div role="tabpanel" aria-labelledby="tab-translations">
+              <DocumentTranslationsPanel documentId={data.id} />
+            </div>
+          )}
+          {tab === "review" && (
+          <div role="tabpanel" aria-labelledby="tab-review">
           <ReviewPanel
             detail={data}
             busy={busy}
@@ -262,6 +284,8 @@ export function DocumentReviewPage({ id }: { id: string }) {
           <div className="mt-8 scroll-mt-20" id="history">
             <DocumentHistory documentId={data.id} refreshKey={histKey} />
           </div>
+          </div>
+          )}
         </>
       )}
       <Dialog open={!!chunksFor} onOpenChange={(o) => !o && setChunksFor(null)}>

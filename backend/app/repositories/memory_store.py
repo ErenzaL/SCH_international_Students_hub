@@ -22,15 +22,15 @@ TABLES = (
     "announcement_translations", "ingestion_events", "allowed_source_domains", "admin_notifications",
     "notification_reads", "support_agent_status", "ai_conversations", "ai_messages", "support_tickets",
     "support_ticket_messages", "support_ticket_assignments", "user_notifications", "translation_revisions",
-    "document_suppressions",
+    "document_suppressions", "document_translations", "document_translation_revisions",
 )
 NO_ID = {"categories", "profiles", "supporter_languages", "audit_log", "ingestion_events", "allowed_source_domains",
          "admin_notifications", "notification_reads", "support_agent_status", "support_ticket_assignments",
-         "user_notifications", "translation_revisions", "document_suppressions"}
+         "user_notifications", "translation_revisions", "document_suppressions", "document_translation_revisions"}
 SEQ_ID = {"audit_log", "ingestion_events", "admin_notifications", "support_ticket_assignments", "user_notifications",
-          "translation_revisions", "document_suppressions"}
+          "translation_revisions", "document_suppressions", "document_translation_revisions"}
 HAS_UPDATED_AT = {"knowledge_sources", "source_documents", "announcements", "announcement_translations",
-                  "ai_conversations", "support_tickets", "profiles"}
+                  "ai_conversations", "support_tickets", "profiles", "document_translations"}
 
 
 def now_iso() -> str:
@@ -114,6 +114,12 @@ class MemoryStore:
             "support_ticket_assignments": dict(assigned_by=None, reason=None, ended_at=None),
             "user_notifications": dict(body=None, entity_type=None, entity_id=None, link=None, read_at=None),
             "translation_revisions": dict(note=None, actor_id=None),
+            "document_translations": dict(title="", headings=[], body="", translation_status="todo", provider=None,
+                                          model=None, generated_at=None, human_edited=False, warnings=[],
+                                          is_outdated=False, outdated_at=None, previous_translation_id=None,
+                                          review_note=None, reviewed_by=None, reviewed_at=None, original_verified=False,
+                                          last_edited_by=None, last_edited_at=None, submitted_at=None),
+            "document_translation_revisions": dict(note=None, actor_id=None, provider=None, model=None, headings=[]),
         }.get(table, {})
         for k, v in d.items():
             r.setdefault(k, v)
@@ -170,6 +176,8 @@ class MemoryStore:
             dup(lambda x: x["document_id"] == row["document_id"])
         elif table == "announcement_translations":
             dup(lambda x: x["announcement_id"] == row["announcement_id"] and x["language_code"] == row["language_code"])
+        elif table == "document_translations":
+            dup(lambda x: x["version_id"] == row["version_id"] and x["language_code"] == row["language_code"])
 
     @staticmethod
     def _get(r: Row, c: str) -> Any:
@@ -228,6 +236,8 @@ class MemoryStore:
             self._check_unique(table, r)
             if table == "support_tickets":
                 self._check_ticket(r)
+            if table == "document_translations":
+                self._guard_translation(r, None)
             self.t[table].append(r)
             return copy.deepcopy(r)
 
@@ -254,6 +264,8 @@ class MemoryStore:
                     candidate = {**r, **copy.deepcopy(patch)}
                     if table == "support_tickets":
                         self._check_ticket(candidate)
+                    if table == "document_translations":
+                        self._guard_translation(candidate, r)
                     if table in HAS_UPDATED_AT:
                         candidate["updated_at"] = now_iso()
                     if table == "document_versions" and candidate["verification_status"] in ("draft", "pending_review"):
@@ -280,6 +292,44 @@ class MemoryStore:
             if table == "document_versions":
                 ids = {r["id"] for r in self.t[table]}
                 self.t["document_chunks"] = [c for c in self.t["document_chunks"] if c["version_id"] in ids]
+
+    def _has_language_permission(self, user_id: str | None, lang: str, perm: str) -> bool:
+        p = next((x for x in self.t["profiles"] if x["id"] == user_id), None)
+        if p is None:
+            return False
+        if p["role"] == "super_admin":
+            return True
+        if p["role"] not in ("supporter", "admin"):
+            return False
+        for sl in self.t["supporter_languages"]:
+            if sl["supporter_id"] == user_id and sl["language_code"] == lang:
+                ok = {"support": sl.get("can_support") or sl.get("is_team_lead"),
+                      "review": sl.get("can_review_translations") or sl.get("is_team_lead"),
+                      "lead": sl.get("is_team_lead"), "any": True}.get(perm, False)
+                if ok:
+                    return True
+        return False
+
+    def _guard_translation(self, new: Row, old: Row | None) -> None:
+        """Mirror of public.guard_document_translation (migration 0011)."""
+        v = self._ver(new["version_id"])
+        if not v or v["document_id"] != new["document_id"]:
+            raise ValidationFailed("translation version does not belong to the document")
+        if old is not None and any(new[k] != old[k] for k in ("version_id", "document_id", "language_code")):
+            raise ValidationFailed("a translation stays linked to its original version")
+        if new["translation_status"] != "todo" and not (new.get("title", "").strip() and new.get("body", "").strip()):
+            raise ValidationFailed("translation title and body are required")
+        if new["translation_status"] == "human_approved":
+            if not (new.get("reviewed_by") and new.get("reviewed_at") and new.get("original_verified")):
+                raise ValidationFailed("approval needs a reviewer, a time and original verification")
+            if old is None or old["translation_status"] != "human_approved" or old.get("reviewed_by") != new.get("reviewed_by"):
+                if new.get("is_outdated"):
+                    raise InvalidState("outdated translations cannot be approved")
+                d = self._doc(new["document_id"])
+                if v["verification_status"] != "approved" or not d or d["current_version_id"] != v["id"]:
+                    raise InvalidState("only translations of the current approved original can be approved")
+                if not self._has_language_permission(new.get("reviewed_by"), new["language_code"], "review"):
+                    raise Forbidden(f"the reviewer is not assigned to review {new['language_code']} translations")
 
     # ------------------------------------------------------------ RPC mirror
     def rpc(self, name: str, params: dict[str, Any]) -> Any:
@@ -878,6 +928,7 @@ class MemoryStore:
                 j["document_id"] = None
             if j.get("version_id") in vids:
                 j["version_id"] = None
+        self._drop_translations({d["id"]})
         self.t["source_documents"] = [x for x in self.t["source_documents"] if x["id"] != d["id"]]
         self._refresh_source(d["source_id"])
         return {**check, "deleted": True}
@@ -897,6 +948,13 @@ class MemoryStore:
         shared = {vpath(v) for v in self.t["document_versions"] if v["id"] not in vids} | \
                  {jpath(j) for j in self.t["ingestion_jobs"] if j["id"] not in jids}
         return sorted(p for p in mine if p not in shared)  # type: ignore[type-var]
+
+    def _drop_translations(self, dids: set[str]) -> None:
+        """ON DELETE CASCADE from source_documents / document_versions (guarded deletes only)."""
+        tids = {t["id"] for t in self.t["document_translations"] if t["document_id"] in dids}
+        self.t["document_translations"] = [t for t in self.t["document_translations"] if t["id"] not in tids]
+        self.t["document_translation_revisions"] = [r for r in self.t["document_translation_revisions"]
+                                                    if r["translation_id"] not in tids]
 
     def _src(self, sid: str) -> Row | None:
         return next((s for s in self.t["knowledge_sources"] if s["id"] == sid), None)
@@ -1016,6 +1074,7 @@ class MemoryStore:
             j.update(source_id=None, source_title=s["title"])
         self.t["document_chunks"] = [c for c in self.t["document_chunks"] if c["version_id"] not in vids]
         self.t["document_versions"] = [v for v in self.t["document_versions"] if v["document_id"] not in dids]
+        self._drop_translations(dids)
         self.t["source_documents"] = [d for d in self.t["source_documents"] if d["id"] not in dids]
         self.t["document_suppressions"] = [x for x in self.t["document_suppressions"] if x["source_id"] != s["id"]]
         self.t["knowledge_sources"] = [x for x in self.t["knowledge_sources"] if x["id"] != s["id"]]

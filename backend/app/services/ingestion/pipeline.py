@@ -45,6 +45,7 @@ from app.services.ingestion.sch_board import (
     parse_notice,
 )
 from app.services.ingestion.structured import extract_structured_fields, merge_manual_fields
+from app.services.language_detect import detect_language
 from app.services.ocr.providers import NoOCR, OCRProvider, OCRUnavailable
 from app.services.source_status import derive_source_status
 
@@ -54,7 +55,7 @@ DOC_TYPES = {"website": "webpage", "sch_board": "notice", "pdf": "pdf", "docx": 
 PREVIEW_CHARS = 20000
 # failures worth retrying automatically (with backoff) before the job is marked failed
 TRANSIENT_CODES = {"timeout", "network_error", "robots_unavailable", "embedding_unavailable", "not_indexed",
-                   "upstream_error", "internal_error", "version_conflict"}
+                   "upstream_error", "internal_error", "version_conflict", "llm_rate_limited", "llm_unavailable"}
 
 
 def is_transient(code: str | None) -> bool:
@@ -80,6 +81,7 @@ class IngestionService:
         self.indexer = indexer
         self.fetcher = fetcher or GuardedFetcher(settings)
         self.ocr: OCRProvider = ocr or NoOCR()
+        self.translations: Any = None   # DocumentTranslationService (wired by the container)
         self._sleep = sleep
 
     # ---------------------------------------------------------------- jobs
@@ -131,6 +133,10 @@ class IngestionService:
                 raise IngestionError("source_inactive", "The source is disabled; enable it before ingesting.")
             if job.get("job_type") == "index_version":
                 result = self._run_index(source, job, stats)
+            elif job.get("job_type") == "translate_document":
+                if self.translations is None:
+                    raise IngestionError("translation_unavailable", "Document translation is not configured.")
+                result = self.translations.run_job(job, self._heartbeat, self.event)
             elif source["source_type"] == "sch_board":
                 result = self._run_board(source, job, stats)
             else:
@@ -372,6 +378,14 @@ class IngestionService:
             code = "not_indexed" if "not_indexed" in exc.message else exc.code
             raise IngestionError(code, exc.message) from exc
         self.event(jid, "activate", f"v{v['version_number']} is now the active version and searchable.")
+        if self.translations is not None:
+            try:   # outdate translations of the previous version, create tasks for this one (never blocks activation)
+                sync = self.translations.sync(v["document_id"], v.get("activation_requested_by"))
+                if sync["created"] or sync["outdated"]:
+                    self.event(jid, "translations", f"Translations: {sync['outdated']} marked outdated, "
+                                                    f"{sync['created']} new review task(s).")
+            except Exception:  # noqa: BLE001
+                log.exception("translation sync failed for document %s", v["document_id"])
         if self.notifications:
             self.notifications.notify("version_activated", f"Now searchable: {doc.get('title', '')[:150]}",
                                       f"v{v['version_number']} indexed ({total} chunks) and activated.",
@@ -568,6 +582,9 @@ class IngestionService:
                 patch["title"] = extracted.title[:500]
             if metadata and metadata != (doc.get("metadata") or {}):
                 patch["metadata"] = metadata
+            detected = detect_language(extracted.text)
+            if detected and detected != doc.get("language") and not doc.get("current_version_id"):
+                patch["language"] = detected   # nothing approved yet: correct the original language silently
             if patch:
                 doc = self.store.update("source_documents", patch, {"id": doc["id"]})[0]
             return doc
@@ -575,7 +592,9 @@ class IngestionService:
         try:
             return self.store.insert("source_documents", dict(
                 source_id=source["id"], canonical_url=canonical_url, external_id=external_id,
-                title=(extracted.title or source["title"])[:500], language=extracted.language or source["language"],
+                title=(extracted.title or source["title"])[:500],
+                # content wins over site-wide HTML lang attributes / source defaults when the evidence is clear
+                language=detect_language(extracted.text) or extracted.language or source["language"],
                 document_type=dtype, metadata=metadata or {}))
         except DuplicateError:  # concurrent creation: use the winner
             found = get_one(self.store, "source_documents", **eq)
@@ -634,7 +653,9 @@ class IngestionService:
             self.notifications.notify("review_needed", f"Changes to review: {source['title'][:150]}",
                                       f"{via}: {result['message']}", entity_type="knowledge_source",
                                       entity_id=source["id"], link="/admin/review")
-        if source is not None and job.get("job_type") == "index_version":
+        if job.get("job_type") == "translate_document":
+            pass   # a translation draft says nothing about the source's freshness
+        elif source is not None and job.get("job_type") == "index_version":
             # indexing is not a source check: only refresh the derived status (pending_review -> approved)
             self.store.update("knowledge_sources", {"status": self.derive_source_status(source["id"])}, {"id": source["id"]})
         elif source is not None:
@@ -651,6 +672,12 @@ class IngestionService:
         if not self.notifications or source is None:   # a deleted source is not a sync failure
             return
         title = source["title"][:150] if source else "Unknown source"
+        if job.get("job_type") == "translate_document":
+            self.notifications.notify("translation_failed", f"Translation draft failed: {title}",
+                                      f"{error.message} The original stays searchable; translate manually or retry.",
+                                      severity="warning", entity_type="ingestion_job", entity_id=job["id"],
+                                      link=f"/admin/documents/{(job.get('payload') or {}).get('document_id', '')}")
+            return
         if job.get("job_type") == "index_version":
             self.notifications.notify("indexing_failed", f"Indexing failed: {title}",
                                       f"{error.message} The previously approved version remains active.",

@@ -98,9 +98,18 @@ class Settings(BaseSettings):
     # Shared secret for POST /api/v1/internal/sync/run-due (external scheduler). Empty = endpoint disabled.
     cron_secret: str = Field(default="", repr=False)
 
-    # --- LLM (optional, later phase) ----------------------------------------
-    llm_provider: str = "none"
-    llm_api_key: str = Field(default="", repr=False)
+    # --- LLM (optional): answer generation + translation drafts -------------
+    llm_provider: str = "none"               # none | anthropic
+    llm_api_key: str = Field(default="", repr=False)   # empty = the SDK reads ANTHROPIC_API_KEY
+    llm_model: str = "claude-opus-5-5"
+    llm_effort: str = "medium"               # low | medium | high | xhigh | max
+    llm_timeout_seconds: float = 120.0
+    # translation drafts: documents are translated in chunks of about this many characters (one job per language)
+    translation_chunk_chars: int = 6000
+    # create AI drafts automatically when a new original version is approved (needs an LLM provider)
+    auto_translate_documents: bool = False
+    # show unreviewed machine drafts to students (clearly labelled as machine translation). Off = original only.
+    public_machine_translations: bool = False
 
     # --- Rate limits (per client IP, per minute; in-process) -----------------
     rate_limit_search_per_minute: int = 30

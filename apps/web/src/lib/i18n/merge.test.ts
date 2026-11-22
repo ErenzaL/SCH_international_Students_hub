@@ -14,11 +14,14 @@ describe("deepMerge (fallback to English)", () => {
   });
 
   it("produces a complete catalog for a partially translated locale", () => {
-    const merged = deepMerge(en as never, ko as never) as typeof en;
-    // translated key
+    // a locale that lacks some keys (e.g. a newly added string) still gets the English text for them
+    const partial = { nav: { home: ko.nav.home } };
+    const merged = deepMerge(en as never, partial as never) as typeof en;
     expect(merged.nav.home).toBe("홈");
-    // key that is only in English (admin settings are not translated into Korean)
-    expect(merged.admin.settings.title).toBe("Settings");
+    expect(merged.admin.settings.title).toBe(en.admin.settings.title);
+    // the shipped Korean catalog is complete: admin screens are translated too
+    expect((deepMerge(en as never, ko as never) as typeof en).admin.settings.title).toBe(ko.admin.settings.title);
+    expect(ko.admin.settings.title).not.toBe(en.admin.settings.title);
   });
 });
 

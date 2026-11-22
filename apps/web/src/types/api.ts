@@ -172,6 +172,12 @@ export interface KnowledgeDocumentSummary {
   is_stale?: boolean;
   verification_age_days?: number | null;
   stale_after_days?: number | null;
+  version_id?: string | null;
+  /** Languages with a human-approved translation of the current version. */
+  verified_languages?: LanguageCode[];
+  /** Verified translated title for the requested language (list endpoint with ?lang=). */
+  translated_title?: string | null;
+  display_language?: LanguageCode;
 }
 
 export interface Attachment {
@@ -180,12 +186,158 @@ export interface Attachment {
 }
 
 export interface KnowledgeDocumentDetail extends KnowledgeDocumentSummary {
+  /** The authoritative ORIGINAL (never replaced by a translation). */
   content: string;
   version_id: string;
   version_number: number;
   key_facts?: Record<string, unknown>;
   attachments?: Attachment[];
   notice_no?: string | null;
+  /** Human-approved translation of exactly this version for the requested language (or a labelled machine draft
+   * when the site enables it). null = show the original. */
+  translation?: PublicDocTranslation | null;
+  requested_language?: LanguageCode | null;
+}
+
+export interface PublicDocTranslation {
+  status: "verified" | "machine";
+  language: LanguageCode;
+  title: string;
+  content: string;
+  headings: string[];
+  reviewed_at: string | null;
+  generated_at: string | null;
+  source_version_number: number;
+}
+
+export type DocTranslationStatus =
+  | "todo"
+  | "machine_draft"
+  | "draft"
+  | "in_review"
+  | "changes_requested"
+  | "human_approved"
+  | "rejected";
+
+export interface TranslationWarning {
+  type: "url" | "email" | "phone" | "code" | "number" | "headings" | "table_rows";
+  value: string;
+}
+
+export interface DocTranslation {
+  id: string;
+  document_id: string;
+  version_id: string;
+  source_version_number: number;
+  source_content_hash: string;
+  language_code: LanguageCode;
+  title: string;
+  headings: string[];
+  body?: string;
+  translation_status: DocTranslationStatus;
+  is_outdated: boolean;
+  outdated_at: string | null;
+  provider: string | null;
+  model: string | null;
+  generated_at: string | null;
+  human_edited: boolean;
+  is_machine_translated: boolean;
+  warnings: TranslationWarning[];
+  review_note: string | null;
+  reviewed_by: string | null;
+  reviewed_by_name: string | null;
+  reviewed_at: string | null;
+  last_edited_by: string | null;
+  last_edited_by_name: string | null;
+  last_edited_at: string | null;
+  submitted_at: string | null;
+  previous_translation_id: string | null;
+  updated_at: string | null;
+  created_at: string | null;
+  verified: boolean;
+}
+
+export interface DocTranslationPermissions {
+  can_edit: boolean;
+  can_review: boolean;
+  can_generate: boolean;
+}
+
+export interface TranslationJobBrief {
+  id: string;
+  status: JobStatus;
+  error_code: string | null;
+  error_message: string | null;
+  created_at: string;
+  completed_at: string | null;
+}
+
+export interface LlmInfo {
+  enabled: boolean;
+  provider: string;
+  model: string;
+}
+
+export interface DocTranslationOverview {
+  document_id: string;
+  title: string;
+  original_language: LanguageCode;
+  version_id: string;
+  version_number: number;
+  languages: ({
+    language: LanguageCode;
+    translation: DocTranslation | null;
+    job: TranslationJobBrief | null;
+    has_outdated_previous: boolean;
+    previous_verified: boolean;
+  } & DocTranslationPermissions)[];
+  completion: { verified: number; total: number };
+  llm: LlmInfo;
+}
+
+export interface DocTranslationRevision {
+  id: number;
+  action: string;
+  translation_status: DocTranslationStatus;
+  title: string | null;
+  body: string | null;
+  note: string | null;
+  provider: string | null;
+  model: string | null;
+  actor_id: string | null;
+  actor_name: string;
+  created_at: string;
+}
+
+export interface DocTranslationDetail {
+  original: {
+    document_id: string;
+    version_id: string;
+    version_number: number;
+    title: string;
+    body: string;
+    language: LanguageCode;
+    content_hash: string;
+    headings: string[];
+    source_url: string | null;
+    organization: string;
+    category: string;
+    approved_at: string | null;
+    is_live: boolean;
+  };
+  translation: DocTranslation | null;
+  previous: { translation: DocTranslation; original_body: string | null; original_version_number: number } | null;
+  revisions: DocTranslationRevision[];
+  permissions: DocTranslationPermissions;
+  language: LanguageCode;
+  job: TranslationJobBrief | null;
+  llm: LlmInfo;
+}
+
+export interface DocTranslationTask extends DocTranslation, Partial<Record<"can_edit" | "can_review" | "can_generate", boolean>> {
+  document_title: string;
+  original_language: LanguageCode;
+  document_live: boolean;
 }
 
 export interface Me {

@@ -11,7 +11,7 @@ import { Input, Label, Select } from "@/components/ui/input";
 import { AuthorityBadge, ScopeBadge, StaleBadge } from "@/components/shared/badges";
 import { EmptyState, ErrorState, LoadingState, Pagination } from "@/components/shared/states";
 import { api } from "@/lib/api";
-import { CATEGORY_SLUGS } from "@/lib/constants";
+import { CATEGORY_SLUGS, LOCALE_LABELS } from "@/lib/constants";
 import { useApi } from "@/lib/use-api";
 import { useCategoryName } from "@/lib/use-category-name";
 import { cn, formatDate } from "@/lib/utils";
@@ -27,6 +27,7 @@ export function KnowledgeBrowser({
   initialCategory?: string;
 }) {
   const t = useTranslations("knowledge");
+  const tr = useTranslations("knowledge.tr");
   const c = useTranslations("common");
   const locale = useLocale();
   const categoryName = useCategoryName();
@@ -38,7 +39,8 @@ export function KnowledgeBrowser({
   const [authority, setAuthority] = useState("");
   const [page, setPage] = useState(1);
 
-  const query = { q, category, scope, authority, page, page_size: PAGE_SIZE };
+  // lang: verified translated titles for the site language (originals otherwise)
+  const query = { q, category, scope, authority, page, page_size: PAGE_SIZE, lang: locale };
   const { data, error, loading, reload } = useApi<Page<KnowledgeDocumentSummary>>(
     `knowledge:${JSON.stringify(query)}`,
     () => api.get<Page<KnowledgeDocumentSummary>>("/api/v1/knowledge/documents", query),
@@ -163,15 +165,21 @@ export function KnowledgeBrowser({
                         <AuthorityBadge authority={d.authority_type} />
                         <Badge variant="outline">{categoryName(d.category)}</Badge>
                         {d.is_stale && <StaleBadge days={d.verification_age_days} />}
+                        {d.translated_title ? (
+                          <Badge variant="success">{tr("verifiedBadge")}</Badge>
+                        ) : d.language !== locale ? (
+                          <Badge variant="muted">{tr("originalBadge", { language: LOCALE_LABELS[d.language] ?? d.language })}</Badge>
+                        ) : null}
                       </div>
                       <CardTitle className="mt-1 text-lg">
-                        <Link href={`/knowledge/${d.id}`} className="hover:underline">
-                          {d.title}
+                        <Link href={`/knowledge/${d.id}`} className="hover:underline" lang={d.translated_title ? locale : d.language}>
+                          {d.translated_title ?? d.title}
                         </Link>
                       </CardTitle>
+                      {d.translated_title && <p className="text-xs text-muted-foreground" lang={d.language}>{d.title}</p>}
                     </CardHeader>
                     <CardContent className="space-y-2 text-sm">
-                      {d.excerpt && <p className="line-clamp-3 text-muted-foreground">{d.excerpt}</p>}
+                      {d.excerpt && <p className="line-clamp-3 text-muted-foreground" lang={d.language}>{d.excerpt}</p>}
                       <p className="text-xs text-muted-foreground">
                         {d.organization} · {t("verifiedOn", { date: formatDate(d.verified_at, locale) })}
                       </p>

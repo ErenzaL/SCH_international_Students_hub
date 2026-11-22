@@ -384,3 +384,19 @@ Center and automatic syncs (new fetches are skipped until restored).
     are removed after commit (`source.storage_cleanup` audit; leftovers reported in `files_failed`).
 * Database safeguard: a source with documents or job history cannot be deleted except through `delete_source()`.
   A worker that picks up a job whose source is gone fails it with `source_deleted` and creates nothing.
+
+## Document translations (migration 0011)
+
+* Public: `GET /knowledge/documents/{id}?lang=id` → original fields (`title`, `content`, `language`, `source_url`, …)
+  plus `translation` = `{status: "verified"|"machine", language, title, content, headings, reviewed_at, generated_at,
+  source_version_number}` or `null` (show the original), `verified_languages`. `GET /knowledge/documents?lang=` adds
+  `translated_title` (verified only), `verified_languages`, `display_language`, `version_id`.
+* Staff (language-scoped): `GET /admin/documents/{id}/translations` (per-language overview + completion + LLM info) ·
+  `POST /admin/documents/{id}/translations/drafts` `{languages, force}` → 202 `{items: [{language, job_id}]}` (409
+  `llm_disabled` / `human_draft_exists`) · `GET|PUT /admin/documents/{id}/translations/{lang}` (`{title, body, submit}`)
+  · `POST …/{lang}/approve` `{original_verified: true, note?}` · `POST …/{lang}/reject` `{reason}` ·
+  `POST …/{lang}/request-changes` `{reason}` · `GET /admin/document-translations?status&language&outdated` ·
+  `PATCH /admin/documents/{id}/language` `{language}` (admin).
+* Jobs: `job_type = translate_document`, outcome `translated`. Assistant messages carry
+  `metadata.answer_generation` = `llm` | `fallback` | `disabled` (+ `model`, `fallback_reason`, `insufficient_evidence`)
+  and `citations[].cited`.

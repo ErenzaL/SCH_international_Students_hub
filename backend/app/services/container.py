@@ -7,6 +7,7 @@ from app.core.config import Settings
 from app.repositories.base import FileStorage, Store
 from app.services.announcements import AnnouncementService
 from app.services.conversations import ConversationService
+from app.services.document_translations import DocumentTranslationService
 from app.services.domains import DomainPolicy
 from app.services.embeddings.base import EmbeddingProvider
 from app.services.indexing import IndexingService
@@ -51,6 +52,7 @@ class Services:
     translations: TranslationReviewService
     lifecycle: DocumentLifecycleService
     source_lifecycle: SourceLifecycleService
+    doc_translations: DocumentTranslationService
 
 
 def build_services(settings: Settings, store: Store, storage: FileStorage | None, embedder: EmbeddingProvider,
@@ -65,16 +67,22 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     ingestion = IngestionService(store, storage, settings, indexer, fetcher, ocr, notifications=notifications)
     user_notes = UserNotificationService(store)
     retrieval = RetrievalService(store, embedder, settings)
-    conversations = ConversationService(store, retrieval, retention_days=settings.conversation_retention_days)
+    conversations = ConversationService(store, retrieval, retention_days=settings.conversation_retention_days,
+                                        llm=llm)
     support = SupportService(store, conversations, user_notes, retention_days=settings.support_retention_days)
+    doc_translations = DocumentTranslationService(store, llm, user_notes, settings)
+    jobs = JobRunner(store, ingestion, settings)
+    doc_translations.ingestion, doc_translations.jobs = ingestion, jobs
+    ingestion.translations = doc_translations
     return Services(
         settings=settings, store=store, storage=storage, embedder=embedder, llm=llm, indexer=indexer,
         ingestion=ingestion, review=ReviewService(store, indexer, storage), announcements=announcements,
         public=PublicService(store, announcements), retrieval=retrieval,
         sources=SourceService(store, settings, domains), domains=domains, ocr=ocr,
-        intake=IntakeService(store, storage, settings, ingestion, ocr), jobs=JobRunner(store, ingestion, settings),
+        intake=IntakeService(store, storage, settings, ingestion, ocr), jobs=jobs,
         notifications=notifications, user_notifications=user_notes, conversations=conversations, support=support,
         translations=TranslationReviewService(store, announcements, user_notes),
         lifecycle=DocumentLifecycleService(store, storage),
         source_lifecycle=SourceLifecycleService(store, storage),
+        doc_translations=doc_translations,
     )

@@ -185,6 +185,21 @@ class TranslationUpsert(BaseModel):
     translation_status: Literal["machine_draft", "in_review"] = "in_review"  # machine_draft = save draft
 
 
+class DocTranslationSave(BaseModel):
+    title: Title
+    body: Annotated[str, StringConstraints(min_length=1, max_length=400_000)]
+    submit: bool = False   # False = save draft, True = submit for review
+
+
+class DocLanguage(BaseModel):
+    language: Lang
+
+
+class DocTranslationDraftRequest(BaseModel):
+    languages: Annotated[list[Lang], Field(min_length=1, max_length=5)]
+    force: bool = False    # replace existing human work with a new AI draft
+
+
 class TranslationApprove(BaseModel):
     original_verified: bool = False
     note: Annotated[str, StringConstraints(max_length=2000)] | None = None

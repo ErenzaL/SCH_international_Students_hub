@@ -9,7 +9,7 @@ from app.core.config import Settings, get_settings
 from app.core.constants import CATEGORIES, CATEGORY_SLUGS
 from app.core.errors import ValidationFailed
 from app.core.rate_limit import rate_limit
-from app.schemas.api import SearchRequest
+from app.schemas.api import Lang, SearchRequest
 from app.security.auth import AuthUser, get_current_user
 from app.services.container import Services
 
@@ -70,17 +70,37 @@ def list_documents(
     q: str | None = Query(None, max_length=200), category: str | None = None,
     scope: Literal["university", "national"] | None = None,
     authority: Literal["official_university", "official_government", "staff_communication", "other"] | None = None,
+    lang: Lang | None = None,
     pg: Pagination = Depends(), svc: Services = Depends(get_services),
 ) -> dict:  # type: ignore[type-arg]
+    """``lang``: show verified (human-approved, current) translated titles where they exist; originals otherwise."""
     _check_category(category)
     items, total = svc.public.list_documents(q=q, category=category, scope=scope, page=pg.page, size=pg.page_size,
                                              authority=authority)
+    vids = [i["version_id"] for i in items if i.get("version_id")]
+    verified = svc.doc_translations.verified_languages(vids)
+    titles = svc.doc_translations.verified_titles(vids, lang) if lang else {}
+    for i in items:
+        i["verified_languages"] = sorted(verified.get(i.get("version_id") or "", []))
+        t = titles.get(i.get("version_id") or "")
+        i["translated_title"] = t
+        i["display_language"] = lang if t else i["language"]
     return pg.wrap(items, total)
 
 
 @router.get("/knowledge/documents/{document_id}")
-def get_document(document_id: str, svc: Services = Depends(get_services)) -> dict:  # type: ignore[type-arg]
-    return svc.public.get_document(document_id)
+def get_document(document_id: str, lang: Lang | None = None,
+                 svc: Services = Depends(get_services)) -> dict:  # type: ignore[type-arg]
+    """The authoritative original (``title``/``content``) plus, for ``lang``, the human-approved translation of
+    exactly the current original version (``translation.status = verified``). Without one the original is shown
+    (``translation = null``). Drafts, rejected and outdated translations are never returned."""
+    out = svc.public.get_document(document_id)
+    doc = {"id": document_id, "language": out["language"]}
+    out["translation"] = svc.doc_translations.public_translation(doc, out["version_id"], lang)
+    out["requested_language"] = lang
+    out["verified_languages"] = sorted(svc.doc_translations.verified_languages([out["version_id"]])
+                                       .get(out["version_id"], []))
+    return out
 
 
 @router.get("/me", tags=["auth"])

@@ -46,6 +46,17 @@ describe("message catalogs", () => {
     expect(extra).toEqual([]);
   });
 
+  it.each([
+    ["ko", ko],
+    ["id", id],
+    ["vi", vi],
+    ["zh-CN", zh],
+  ])("%s translates every English key (student and admin screens)", (_name, messages) => {
+    const have = new Set(flatten(messages as Dict));
+    const missing = [...enKeys].filter((k) => !have.has(k));
+    expect(missing).toEqual([]);
+  });
+
   it("every literal translation key used in source exists in en.json", () => {
     const root = path.resolve(__dirname, "..");
     const missing: string[] = [];

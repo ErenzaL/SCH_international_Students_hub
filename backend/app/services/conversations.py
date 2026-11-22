@@ -1,8 +1,10 @@
 """Persistent, private AI conversations (students' own data; never indexed into the shared RAG corpus).
 
-Answer generation (LLM) is not enabled yet: the assistant replies with approved passages + citations and a
-short framing sentence in the conversation language. It never invents facts, never pretends a human joined,
-and offers a Global Supporter when evidence is missing or the question needs an individual decision.
+With an LLM provider configured, answers are generated in the conversation language from approved ORIGINAL
+passages only, with [n] citations (``services/llm/answers.py``). Without one - or if generation fails, reports
+insufficient evidence, or cites nothing valid - the assistant replies with the approved passages + citations and a
+short framing sentence in that language. It never invents facts, never pretends a human joined, and offers a
+Global Supporter when evidence is missing or the question needs an individual decision.
 """
 from __future__ import annotations
 
@@ -12,6 +14,8 @@ from typing import Any
 
 from app.core.errors import Forbidden, InvalidState, NotFound
 from app.repositories.base import Query, Store, get_one
+from app.services.llm.answers import generate_answer, strip_invalid_citations, valid_citations
+from app.services.llm.base import LLMError, LLMProvider, NullLLMProvider
 from app.services.retrieval.service import RetrievalService
 
 LANGS = ("ko", "en", "id", "vi", "zh-CN")
@@ -47,8 +51,10 @@ TEXT: dict[str, dict[str, str]] = {
         "zh-CN": "您可以向全球支持者求助。在您选择要发送的内容之前，不会共享任何信息。",
     },
 }
-_HUMAN = re.compile(r"(human|real person|talk to (a|someone)|supporter|staff|상담|사람|담당자|서포터|manusia|orang|"
-                    r"petugas|người thật|nhân viên|tư vấn|人工|真人|客服|工作人员)", re.I)
+# "orang" alone is NOT a request for a person: "orang asing" = foreigner (registrasi orang asing)
+_HUMAN = re.compile(r"(human|real person|talk to (a|someone)|supporter|staff|상담|사람|담당자|서포터|manusia|"
+                    r"orang (sungguhan|asli)|bicara dengan (orang|seseorang)|petugas|người thật|nhân viên|tư vấn|"
+                    r"人工|真人|客服|工作人员)", re.I)
 _INDIVIDUAL = re.compile(r"(\bmy (visa|case|application|status|situation)\b|will i (be|get)|am i (allowed|eligible)|"
                          r"can i (still|get)|제 (비자|경우|신청|상황)|내 (비자|경우|신청|상황)|저는.*(되나요|가능한가요)|"
                          r"visa saya|kasus saya|apakah saya (bisa|boleh)|visa của tôi|trường hợp của tôi|tôi có được|"
@@ -62,10 +68,12 @@ def t(key: str, lang: str) -> str:
 
 
 class ConversationService:
-    def __init__(self, store: Store, retrieval: RetrievalService, *, retention_days: int = 365):
+    def __init__(self, store: Store, retrieval: RetrievalService, *, retention_days: int = 365,
+                 llm: LLMProvider | None = None):
         self.store = store
         self.retrieval = retrieval
         self.retention_days = retention_days
+        self.llm: LLMProvider = llm or NullLLMProvider()
 
     # ------------------------------------------------------------ access
     def get_own(self, conversation_id: str, user_id: str) -> dict[str, Any]:
@@ -116,10 +124,13 @@ class ConversationService:
         c = self.get_own(conversation_id, user_id)
         lang = language if language in LANGS else c["language"]  # per-message language never changes the profile
         now = datetime.now(UTC).isoformat()
+        history, _ = self.store.select("ai_messages", Query(eq={"conversation_id": c["id"]},
+                                                          order=[("created_at", True)], limit=6))
+        history.reverse()
         user_msg = self.store.insert("ai_messages", dict(conversation_id=c["id"], role="user", content=content[:8000],
                                                           language=lang))
-        res = self.retrieval.search(content, language=lang, top_k=4)
-        hits = res["results"]
+        search = self.retrieval.search(content, language=lang, top_k=4)
+        hits = search["results"]
         reasons = []
         if not hits:
             reasons.append("no_evidence")
@@ -129,15 +140,38 @@ class ConversationService:
             reasons.append("individual_decision")
         if _DISPUTE.search(content):
             reasons.append("disputed_answer")
-        parts = [t("found", lang) if hits else t("none", lang)]
-        citations = []
-        for i, h in enumerate(hits, 1):
-            passage = re.sub(r"\s+", " ", h["passage"]).strip()
-            passage = passage[:PASSAGE_CHARS] + ("…" if len(passage) > PASSAGE_CHARS else "")
-            parts.append(f"[{i}] {h['document_title']}{' – ' + h['heading'] if h.get('heading') else ''}\n{passage}")
-            citations.append({k: h.get(k) for k in ("document_id", "version_id", "chunk_id", "document_title", "heading",
-                                                    "source_url", "organization", "authority_type", "verified_at",
-                                                    "is_stale", "page", "similarity")} | {"n": i})
+        citations = [{k: h.get(k) for k in ("document_id", "version_id", "chunk_id", "document_title", "heading",
+                                             "source_url", "organization", "authority_type", "verified_at",
+                                             "is_stale", "page", "similarity")} | {"n": i} for i, h in enumerate(hits, 1)]
+        generation: dict[str, Any] = {"answer_generation": "disabled"}
+        answer = None
+        if hits and self.llm.enabled:
+            try:
+                answer, res = generate_answer(self.llm, question=content, hits=hits, language=lang, history=history)
+                generation = {"answer_generation": "llm", "provider": res.provider, "model": res.model}
+                if answer is None:
+                    generation["insufficient_evidence"] = True
+                elif not valid_citations(answer, len(hits)):
+                    generation = {"answer_generation": "fallback", "fallback_reason": "no_citations"}
+                    answer = None
+                else:
+                    answer = strip_invalid_citations(answer, len(hits))
+            except LLMError as exc:
+                generation = {"answer_generation": "fallback", "fallback_reason": exc.code}
+                answer = None
+        if answer is not None:
+            used = set(valid_citations(answer, len(hits)))
+            citations = [c2 | {"cited": c2["n"] in used} for c2 in citations]
+            parts = [answer]
+        elif generation.get("insufficient_evidence"):
+            reasons.append("no_evidence")
+            parts = [t("none", lang)]
+        else:
+            parts = [t("found", lang) if hits else t("none", lang)]
+            for i, h in enumerate(hits, 1):
+                passage = re.sub(r"\s+", " ", h["passage"]).strip()
+                passage = passage[:PASSAGE_CHARS] + ("…" if len(passage) > PASSAGE_CHARS else "")
+                parts.append(f"[{i}] {h['document_title']}{' – ' + h['heading'] if h.get('heading') else ''}\n{passage}")
         if "individual_decision" in reasons:
             parts.append(t("individual", lang))
         offer = bool(reasons)
@@ -146,8 +180,9 @@ class ConversationService:
         assistant = self.store.insert("ai_messages", dict(
             conversation_id=c["id"], role="assistant", content="\n\n".join(parts)[:8000], language=lang,
             citations=citations, metadata={"offer_handoff": offer, "handoff_reasons": reasons, "evidence": len(hits),
-                                           "retrieval_mode": res["retrieval"]["mode"], "answer_generation": "disabled",
-                                           "warning": res["retrieval"].get("warning")}))
+                                           "retrieval_mode": search["retrieval"]["mode"],
+                                           "warning": search["retrieval"].get("warning"),
+                                           "stale_evidence": any(h.get("is_stale") for h in hits), **generation}))
         title = c["title"]
         if c["message_count"] == 0 and title == "New conversation":
             title = re.sub(r"\s+", " ", content).strip()[:60] or title

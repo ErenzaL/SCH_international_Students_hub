@@ -32,6 +32,21 @@ def now() -> str:
     return datetime.now(UTC).isoformat()
 
 
+def language_people(store: Store, language: str, perm: str) -> list[str]:
+    """Supporters/admins assigned to a language with the given permission ('review', 'support' or 'any')."""
+    rows, _ = store.select("supporter_languages", Query(eq={"language_code": language}))
+    profs = get_many(store, "profiles", [r["supporter_id"] for r in rows])
+    out = []
+    for r in rows:
+        if (profs.get(r["supporter_id"]) or {}).get("role") not in ("supporter", "admin"):
+            continue
+        ok = {"review": r.get("can_review_translations") or r.get("is_team_lead"),
+              "any": True}.get(perm, r.get("can_support"))
+        if ok:
+            out.append(r["supporter_id"])
+    return out
+
+
 class TranslationReviewService:
     def __init__(self, store: Store, announcements: AnnouncementService, notes: UserNotificationService):
         self.store = store
@@ -85,17 +100,7 @@ class TranslationReviewService:
                                             actor_id=user.id if user else None, details=details))
 
     def _people(self, language: str, perm: str) -> list[str]:
-        rows, _ = self.store.select("supporter_languages", Query(eq={"language_code": language}))
-        profs = get_many(self.store, "profiles", [r["supporter_id"] for r in rows])
-        out = []
-        for r in rows:
-            if (profs.get(r["supporter_id"]) or {}).get("role") not in ("supporter", "admin"):
-                continue
-            ok = {"review": r.get("can_review_translations") or r.get("is_team_lead"),
-                  "any": True}.get(perm, r.get("can_support"))
-            if ok:
-                out.append(r["supporter_id"])
-        return out
+        return language_people(self.store, language, perm)
 
     # ------------------------------------------------------------------- reads
     def detail(self, announcement_id: str, language: str, user: AuthUser) -> dict[str, Any]:
