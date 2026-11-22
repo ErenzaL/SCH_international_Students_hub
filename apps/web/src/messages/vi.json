@@ -1008,7 +1008,28 @@
       "actionsLabel": "Thao tác",
       "submitted": "Đã gửi đi duyệt.",
       "draftSaved": "Đã lưu bản nháp.",
-      "editDraft": "Chỉnh sửa bản nháp"
+      "editDraft": "Chỉnh sửa bản nháp",
+      "progress": {
+        "stage": {
+          "download": "Đang tải tệp",
+          "validate": "Đang kiểm tra tệp",
+          "extract": "Đang trích xuất văn bản",
+          "ocr": "Đang chạy OCR",
+          "process": "Đang tạo bản nháp để duyệt",
+          "fetch": "Đang tải về",
+          "index": "Đang lập chỉ mục",
+          "translate": "Đang dịch",
+          "other": "Đang xử lý"
+        },
+        "waitingForWorker": "Đang chờ tiến trình xử lý",
+        "pages": "trang {done}/{total}",
+        "lastSignal": "tín hiệu cuối cách đây {seconds, plural, one {# giây} other {# giây}}",
+        "staleShort": "Không nhận được tín hiệu từ tiến trình xử lý – tác vụ sẽ được tự động thử lại",
+        "staleLong": "Tiến trình xử lý đã không phản hồi trong vài phút; có thể dịch vụ đã khởi động lại. Tác vụ sẽ được tự động thử lại (lần {attempt}/{max}) và sẽ kết thúc ở trạng thái thất bại kèm lý do nếu không thể hoàn tất.",
+        "resumed": "Đã tiếp tục sau khi bị gián đoạn ở bước “{stage}” (lần thử {attempt})",
+        "pdfSummary": "PDF: {pages} trang, {text} trang có văn bản, {ocr} trang cần OCR · văn bản tiếng Hàn {korean}%",
+        "timings": "Thời gian từng bước"
+      }
     },
     "withdraw": {
       "button": "Thu hồi nội dung đã đăng – xóa khỏi tìm kiếm ngay lập tức",

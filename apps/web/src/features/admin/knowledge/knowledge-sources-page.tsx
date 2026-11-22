@@ -33,6 +33,7 @@ import { EmptyState, ErrorState, LoadingState, PageHeader, Pagination } from "@/
 import { EditSourceDialog } from "@/features/admin/knowledge/edit-source-dialog";
 import { documentKind, validateDocumentFile, type DocumentKind } from "@/features/admin/knowledge/intake-utils";
 import { ArchiveSourceDialog, DeleteSourceDialog, RestoreSourceDialog } from "@/features/admin/knowledge/source-lifecycle-actions";
+import { JobProgress } from "@/features/admin/knowledge/job-progress";
 import { KnowledgeStatsCards } from "@/features/admin/knowledge/stats-cards";
 import { isAdminRole, useMe } from "@/features/admin/shell/admin-context";
 import { SourceDocumentsDialog, type SourceDialogMode } from "@/features/admin/sources/source-documents-dialog";
@@ -110,6 +111,14 @@ function AdminKnowledgeSources() {
     reloadList();
     setStatsKey((k) => k + 1);
   }, [reloadList]);
+
+  // jobs found running when the list loaded (e.g. started elsewhere or before a reload): refresh until they end
+  const hasActive = (data?.items ?? []).some((s) => s.active_job);
+  useEffect(() => {
+    if (!hasActive) return;
+    const id = setInterval(() => reloadList(), 5000);
+    return () => clearInterval(id);
+  }, [hasActive, reloadList]);
 
   useEffect(() => {
     abort.current = new AbortController();
@@ -281,7 +290,7 @@ function AdminKnowledgeSources() {
             <TableBody>
               {data.items.map((s) => {
                 const run = running[s.id];
-                const busy = busyId === s.id || !!run;
+                const busy = busyId === s.id || !!run || !!s.active_job;
                 const fetchable = FETCHABLE_SOURCE_TYPES.includes(s.source_type);
                 const isFile = FILE_SOURCE_TYPES.includes(s.source_type);
                 const isText = s.source_type === "manual_text" || s.source_type === "kakao_message";
@@ -325,6 +334,11 @@ function AdminKnowledgeSources() {
                             <Loader2 className="size-3 animate-spin" aria-hidden /> {e(`jobStatus.${run.status}`)}
                           </span>
                         )}
+                        {(() => {
+                          // live progress: the job followed from this page, or an active job found when listing
+                          const live = run && "job_type" in run ? (run as Job) : s.active_job ?? null;
+                          return live ? <JobProgress job={live} compact /> : null;
+                        })()}
                         {s.last_ingestion_result && (
                           <span className="text-muted-foreground">
                             <JobStatusBadge status={s.last_ingestion_result.status} />{" "}

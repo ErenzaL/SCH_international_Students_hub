@@ -11,15 +11,18 @@ Invariants (see docs/ingestion.md):
 """
 from __future__ import annotations
 
+import copy
 import logging
+import threading
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from app.core.config import Settings
 from app.core.constants import FETCHABLE_SOURCE_TYPES
-from app.core.errors import AppError, DuplicateError, InvalidState, NotFound
+from app.core.errors import AppError, Conflict, DuplicateError, InvalidState, NotFound
 from app.models.domain import ExtractedDocument
 from app.repositories.base import FileStorage, Query, Store, get_one
 from app.security.url_guard import canonicalize_url
@@ -29,13 +32,15 @@ from app.services.ingestion.extractors_files import (
     extract_docx,
     extract_pdf,
     extract_text_file,
+    iter_pdf_pages_png,
+    open_pdf,
     process_manual_text,
-    render_pdf_pages,
     validate_upload,
 )
 from app.services.ingestion.extractors_html import extract_html
 from app.services.ingestion.fetcher import BLOCKED_CODES, GuardedFetcher
 from app.services.ingestion.normalize import content_hash, normalize_text, text_fingerprint
+from app.services.ingestion.pdf_isolation import extract_pdf_isolated
 from app.services.ingestion.privacy import redact_personal_info
 from app.services.ingestion.sch_board import (
     is_sch_board_url,
@@ -88,9 +93,17 @@ class IngestionService:
     def create_job(self, source: dict[str, Any], trigger: str = "manual", requested_by: str | None = None,
                    payload: dict[str, Any] | None = None, job_type: str | None = None) -> dict[str, Any]:
         jt = job_type or ("board_sync" if source["source_type"] == "sch_board" else "ingest")
-        return self.store.insert("ingestion_jobs", dict(
-            source_id=source["id"], status="queued", trigger=trigger, requested_by=requested_by,
-            payload=payload or {}, statistics={}, job_type=jt))
+        row = dict(source_id=source["id"], status="queued", trigger=trigger, requested_by=requested_by,
+                   payload=payload or {}, statistics={}, job_type=jt)
+        if jt not in ("ingest", "board_sync"):
+            return self.store.insert("ingestion_jobs", row)   # e.g. index_version handles its own duplicates
+        try:
+            return self.store.insert("ingestion_jobs", row)
+        except DuplicateError as exc:   # partial unique indexes (migration 0012): one active job per file / source
+            active = self.active_job(source_id=source["id"]) or self.active_job(sha256=(payload or {}).get("sha256"))
+            raise Conflict("This file or source is already being processed; wait for that job to finish.",
+                           details={"job_id": active["id"] if active else None,
+                                    "status": active["status"] if active else None}) from exc
 
     def event(self, job_id: str | None, step: str, message: str, level: str = "info", **data: Any) -> None:
         """Append to the job's step log. Logging must never break ingestion."""
@@ -101,6 +114,29 @@ class IngestionService:
                                                         data=data))
         except Exception:  # noqa: BLE001
             log.warning("could not record ingestion event for job %s", job_id)
+
+    # ----------------------------------------------------- stages + liveness
+    @contextmanager
+    def _stage(self, job: dict[str, Any], stats: dict[str, Any], name: str) -> Iterator[dict[str, Any]]:
+        """Time one pipeline stage. The current stage is persisted (by the ticker) so the admin UI and the next
+        attempt after a restart know where a job was; durations are logged as logfmt (never document content)."""
+        t0 = time.perf_counter()
+        stats.update(stage=name, stage_started_at=utcnow())
+        stats.pop("progress", None)
+        log.info("ingest stage=%s status=start job=%s attempt=%s", name, job["id"], job.get("attempts"))
+        info: dict[str, Any] = {}
+        try:
+            yield info
+        except Exception as exc:
+            ms = int((time.perf_counter() - t0) * 1000)
+            code = getattr(exc, "code", None) or type(exc).__name__
+            stats.setdefault("stages", []).append({"stage": name, "ms": ms, "ok": False, "error": code})
+            log.warning("ingest stage=%s status=failed job=%s duration_ms=%d error=%s", name, job["id"], ms, code)
+            raise
+        ms = int((time.perf_counter() - t0) * 1000)
+        stats.setdefault("stages", []).append({"stage": name, "ms": ms, "ok": True, **info})
+        log.info("ingest stage=%s status=done job=%s duration_ms=%d %s", name, job["id"], ms,
+                 " ".join(f"{k}={v}" for k, v in info.items()))
 
     def _heartbeat(self, job_id: str) -> None:
         try:
@@ -125,9 +161,28 @@ class IngestionService:
         if source is None:   # deleted while queued: never recreate anything for it
             return self._finish(job, None, error=IngestionError("source_deleted", "The source was deleted."))
         started = time.perf_counter()
+        previous = job.get("statistics") or {}
         stats: dict[str, Any] = {}
+        if int(job.get("attempts") or 1) > 1:
+            stats["resumed_from_stage"] = previous.get("stage")
+            self.event(job["id"], "resume",
+                       f"Attempt {job.get('attempts')} of {job.get('max_attempts') or 3}: the previous attempt did not "
+                       f"finish{' (it stopped during ' + previous['stage'] + ')' if previous.get('stage') else ''}, "
+                       "for example because the service restarted. Starting this stage again; nothing from the "
+                       "interrupted attempt was published.", level="warning",
+                       previous_stage=previous.get("stage"), previous_error=job.get("error_code"))
         self.event(job["id"], "start", f"Job started ({job.get('job_type', 'ingest')}, trigger {job.get('trigger')}).",
                    attempt=job.get("attempts"))
+        ticker = _JobTicker(self.store, job, stats, self.settings.job_heartbeat_seconds,
+                            self.settings.job_max_runtime_seconds)
+        ticker.start()
+        try:
+            return self._execute_body(job, source, stats, started)
+        finally:
+            ticker.stop()
+
+    def _execute_body(self, job: dict[str, Any], source: dict[str, Any], stats: dict[str, Any],
+                      started: float) -> dict[str, Any]:
         try:
             if not source["is_active"]:
                 raise IngestionError("source_inactive", "The source is disabled; enable it before ingesting.")
@@ -142,8 +197,11 @@ class IngestionService:
             else:
                 extracted, canonical_url, external_id, extra = self._acquire(source, job, stats)
                 self._set_source_status(source["id"], "processing")
-                result = self.process_extracted(source, extracted, canonical_url, external_id,
-                                                created_by=job.get("requested_by"), stats=stats, job_id=job["id"], **extra)
+                with self._stage(job, stats, "process") as info:   # version + chunks (idempotent by content hash)
+                    result = self.process_extracted(source, extracted, canonical_url, external_id,
+                                                    created_by=job.get("requested_by"), stats=stats, job_id=job["id"],
+                                                    **extra)
+                    info.update(outcome=result.get("outcome"))
             stats["duration_ms"] = int((time.perf_counter() - started) * 1000)
             return self._finish(job, source, result=result, stats=stats)
         except IngestionError as exc:
@@ -172,7 +230,7 @@ class IngestionService:
             self.event(jid, "fetch", f"HTTP {res.status_code}, {len(res.content)} bytes, {res.content_type}",
                        final_url=res.url, redirects=res.redirects)
             if res.content_type == "application/pdf":
-                extracted = extract_pdf(res.content, res.url.rsplit("/", 1)[-1] or "document.pdf")
+                extracted = self._extract_pdf(res.content, res.url.rsplit("/", 1)[-1] or "document.pdf", job, stats)
             else:
                 extracted = extract_html(res.content, res.url, res.encoding, self.settings.min_extracted_chars)
             stats["content_chars"] = len(extracted.text)
@@ -185,24 +243,30 @@ class IngestionService:
             if not path or self.storage is None:
                 raise IngestionError("no_file", "No uploaded file is attached to this job. Upload a file first.")
             self._set_source_status(source["id"], "processing")
-            data = self.storage.download(path)
+            with self._stage(job, stats, "download") as info:
+                data = self.storage.download(path)
+                info["bytes"] = len(data)
             stats["fetched_bytes"] = len(data)
-            mime = validate_upload(stype, filename, None, data, self.settings.max_upload_bytes)
-            self.event(jid, "file", f"Loaded {filename} ({len(data)} bytes) from private storage.")
+            with self._stage(job, stats, "validate"):
+                mime = validate_upload(stype, filename, None, data, self.settings.max_upload_bytes)
+            self.event(jid, "file", f"Loaded {filename} ({len(data)} bytes) from private storage.",
+                       duration_ms=stats["stages"][0]["ms"] if stats.get("stages") else None)
             extra: dict[str, Any] = {"original_file": {k: payload.get(k) for k in
                                                        ("storage_path", "filename", "mime_type", "size", "sha256")}}
             if stype == "pdf":
                 try:
-                    extracted = extract_pdf(data, filename)
+                    extracted = self._extract_pdf(data, filename, job, stats)
                 except ExtractionError as exc:
                     if exc.code != "needs_ocr":
                         raise
-                    extracted = self._ocr_pdf(data, filename, jid, exc)
+                    extracted = self._ocr_pdf(data, filename, jid, exc, job=job, stats=stats)
                     extra["requires_field_confirmation"] = True
             elif stype == "docx":
-                extracted = extract_docx(data, filename)
+                with self._stage(job, stats, "extract"):
+                    extracted = extract_docx(data, filename)
             else:
-                extracted = extract_text_file(data, filename)
+                with self._stage(job, stats, "extract"):
+                    extracted = extract_text_file(data, filename)
             extra["original_file"]["mime_type"] = extra["original_file"].get("mime_type") or mime
             stem = filename.rsplit(".", 1)[0]
             if extracted.title == stem and source.get("title"):
@@ -215,14 +279,51 @@ class IngestionService:
             return extracted, None, "primary", extra
         raise IngestionError("not_fetchable", f"Sources of type '{stype}' are added through the intake forms, not fetched.")
 
-    def _ocr_pdf(self, data: bytes, filename: str, job_id: str, original: ExtractionError) -> ExtractedDocument:
+    def _extract_pdf(self, data: bytes, filename: str, job: dict[str, Any], stats: dict[str, Any]) -> ExtractedDocument:
+        """Text-layer extraction, isolated in a child process by default (hard timeout, crash containment)."""
+        s = self.settings
+
+        def progress(done: int, total: int) -> None:
+            stats["progress"] = {"done": done, "total": total, "unit": "pages"}
+
+        self.event(job["id"], "extract", f"Extracting text from {filename} ({len(data)} bytes; "
+                                         f"{'isolated process' if s.pdf_extraction_isolation == 'subprocess' else 'in-process'}"
+                                         f", timeout {int(s.pdf_extract_timeout_seconds)} s, tables {s.pdf_table_detection}).")
+        with self._stage(job, stats, "extract") as info:
+            if s.pdf_extraction_isolation == "subprocess":
+                ex = extract_pdf_isolated(data, filename, timeout_seconds=s.pdf_extract_timeout_seconds,
+                                          table_mode=s.pdf_table_detection, max_table_items=s.pdf_max_table_items,
+                                          max_pages=s.pdf_max_pages, memory_limit_mb=s.pdf_extract_memory_mb,
+                                          on_progress=progress)
+            else:
+                ex = extract_pdf(data, filename, table_mode=s.pdf_table_detection, max_table_items=s.pdf_max_table_items,
+                                 max_pages=s.pdf_max_pages, on_page=progress)
+            m = ex.metadata
+            info.update(pages=m.get("pages"), pages_with_text=m.get("pages_with_text"), chars=len(ex.text),
+                        hangul_ratio=m.get("hangul_ratio"), needs_ocr_pages=m.get("needs_ocr_pages"))
+        stats["pdf"] = {k: ex.metadata.get(k) for k in ("pages", "pages_with_text", "needs_ocr_pages", "scanned_pages",
+                                                        "vector_text_pages", "hangul_ratio", "chars", "table_mode")}
+        return ex
+
+    def _ocr_pdf(self, data: bytes, filename: str, job_id: str, original: ExtractionError,
+                 job: dict[str, Any] | None = None, stats: dict[str, Any] | None = None) -> ExtractedDocument:
         ok, why = self.ocr.available()
         if not ok:
-            raise IngestionError("needs_ocr", f"{original.message} OCR is not available: {why}")
-        pages = render_pdf_pages(data, self.settings.ocr_max_pdf_pages)
-        self.event(job_id, "ocr", f"Image-only PDF: running {self.ocr.name} OCR on {len(pages)} page(s).")
+            raise IngestionError("needs_ocr", f"{original.message} OCR is not available here: {why}")
+        stats = stats if stats is not None else {}
+        n_pages = min(self.settings.ocr_max_pdf_pages, _pdf_page_count(data))
+        self.event(job_id, "ocr", f"{original.message} Running {self.ocr.name} OCR on {n_pages} page(s).")
+        if job is not None:
+            with self._stage(job, stats, "ocr") as info:
+                out = self._ocr_pages(data, filename, n_pages, stats)
+                info.update(pages=n_pages, chars=len(out.text))
+            return out
+        return self._ocr_pages(data, filename, n_pages, stats)
+
+    def _ocr_pages(self, data: bytes, filename: str, n_pages: int, stats: dict[str, Any]) -> ExtractedDocument:
         parts, confs, warnings = [], [], []
-        for i, png in enumerate(pages, start=1):
+        for i, png in enumerate(iter_pdf_pages_png(data, n_pages), start=1):   # one page image in memory at a time
+            stats["progress"] = {"done": i - 1, "total": n_pages, "unit": "pages"}
             try:
                 r = self.ocr.extract(png, "image/png")
             except OCRUnavailable as exc:
@@ -232,6 +333,7 @@ class IngestionService:
             if r.mean_confidence is not None:
                 confs.append(r.mean_confidence)
             warnings += r.warnings
+            stats["progress"] = {"done": i, "total": n_pages, "unit": "pages"}
         if not parts:
             raise IngestionError("empty_extraction", "OCR found no text in the scanned PDF.")
         title = filename.rsplit(".", 1)[0]
@@ -415,7 +517,14 @@ class IngestionService:
                         notice_count=len(refs), sample_notice=sample)
         res = self.fetcher.fetch(url, language)
         if res.content_type == "application/pdf":
-            ex = extract_pdf(res.content, res.url.rsplit("/", 1)[-1] or "document.pdf")
+            name = res.url.rsplit("/", 1)[-1] or "document.pdf"
+            st = self.settings
+            if st.pdf_extraction_isolation == "subprocess":   # never parse untrusted PDFs inside the API process
+                ex = extract_pdf_isolated(res.content, name, timeout_seconds=min(60.0, st.pdf_extract_timeout_seconds),
+                                          table_mode=st.pdf_table_detection, max_table_items=st.pdf_max_table_items,
+                                          max_pages=st.pdf_max_pages, memory_limit_mb=st.pdf_extract_memory_mb)
+            else:
+                ex = extract_pdf(res.content, name, table_mode=st.pdf_table_detection, max_pages=st.pdf_max_pages)
         else:
             ex = extract_html(res.content, res.url, res.encoding, self.settings.min_extracted_chars)
         text = normalize_text(ex.text)
@@ -630,9 +739,9 @@ class IngestionService:
                 run_after = (datetime.now(UTC) + timedelta(seconds=delay)).isoformat()
                 self.event(job["id"], "retry", f"Transient failure ({error.code}): {error.message} Retrying in {delay}s "
                                                f"(attempt {attempts + 1} of {job.get('max_attempts') or 3}).", level="warning")
-                done = self.store.update("ingestion_jobs", dict(
+                done = self._update_owned(job, dict(
                     status="queued", run_after=run_after, locked_by=None, error_code=error.code,
-                    error_message=error.message, statistics=stats), {"id": job["id"]})[0]
+                    error_message=error.message, statistics=stats))
                 if job.get("job_type") == "index_version":
                     self.store.update("document_versions", {"indexing_status": "queued", "indexing_error": error.message},
                                       {"id": (job.get("payload") or {}).get("version_id")})
@@ -646,7 +755,7 @@ class IngestionService:
                 self.store.update("document_versions", {"indexing_status": "failed", "indexing_error": error.message},
                                   {"id": job["payload"]["version_id"]})
             self._notify_failure(job, source, error)
-        done = self.store.update("ingestion_jobs", patch, {"id": job["id"]})[0]
+        done = self._update_owned(job, patch)
         if error is None and result is not None and result.get("changed") and job.get("job_type") != "index_version" \
                 and source is not None and self.notifications:
             via = {"schedule": "Scheduled check", "retry": "Retry"}.get(job.get("trigger"), "Ingestion")
@@ -667,6 +776,19 @@ class IngestionService:
             self.store.update("knowledge_sources", src_patch, {"id": source["id"]})
         log.info("job %s finished: %s %s", job["id"], patch["status"], patch.get("error_code") or patch.get("outcome"))
         return done
+
+    def _update_owned(self, job: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
+        """Write the job's outcome only if this attempt still owns it. If the job went stale (e.g. this process
+        stalled) and was re-queued, a later attempt owns it now and this late result must not overwrite it."""
+        eq: dict[str, Any] = {"id": job["id"]}
+        if job.get("attempts") is not None:
+            eq["attempts"] = job["attempts"]
+        rows = self.store.update("ingestion_jobs", patch, eq)
+        if rows:
+            return rows[0]
+        log.warning("ingest job=%s attempt=%s result discarded: the job was taken over by a newer attempt",
+                    job["id"], job.get("attempts"))
+        return get_one(self.store, "ingestion_jobs", id=job["id"]) or job
 
     def _notify_failure(self, job: dict[str, Any], source: dict[str, Any] | None, error: IngestionError) -> None:
         if not self.notifications or source is None:   # a deleted source is not a sync failure
@@ -719,6 +841,16 @@ class IngestionService:
                 due.append(s)
         return due
 
+    def active_job(self, *, source_id: str | None = None, sha256: str | None = None) -> dict[str, Any] | None:
+        """The queued/running ingest job for a source or for an uploaded file (by its sha256), if any."""
+        if not source_id and not sha256:
+            return None
+        eq: dict[str, Any] = {"source_id": source_id} if source_id else {"payload->>sha256": sha256}
+        rows, _ = self.store.select("ingestion_jobs", Query(
+            eq=eq, in_={"status": ["queued", "running"], "job_type": ["ingest", "board_sync"]},
+            order=[("created_at", True)], limit=1))
+        return rows[0] if rows else None
+
     def has_open_job(self, source_id: str) -> bool:
         rows, _ = self.store.select("ingestion_jobs", Query(eq={"source_id": source_id},
                                                              in_={"status": ["queued", "running"],
@@ -733,3 +865,47 @@ class IngestionService:
             )
         if not source["is_active"]:
             raise InvalidState("The source is disabled.")
+
+
+def _pdf_page_count(data: bytes) -> int:
+    doc = open_pdf(data)
+    with doc:
+        return int(doc.page_count)
+
+
+class _JobTicker:
+    """Persists heartbeat + current stage/progress of a running job every ``interval`` seconds from a background
+    thread, so long but healthy work (an extraction, OCR, embedding) is never mistaken for a dead worker. It stops
+    after ``max_runtime`` so a genuinely hung job DOES go stale and is recovered by the claim RPC. Updates are
+    conditional on the job still running under this attempt."""
+
+    def __init__(self, store: Store, job: dict[str, Any], stats: dict[str, Any], interval: float, max_runtime: float):
+        self.store, self.job, self.stats = store, job, stats
+        self.interval, self.max_runtime = max(1.0, float(interval)), float(max_runtime)
+        self._stop = threading.Event()
+        self._thread: threading.Thread | None = None
+
+    def start(self) -> None:
+        self._thread = threading.Thread(target=self._run, name=f"job-ticker-{self.job['id'][:8]}", daemon=True)
+        self._thread.start()
+
+    def stop(self) -> None:
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join(timeout=5)
+
+    def _run(self) -> None:
+        started = time.monotonic()
+        while not self._stop.wait(self.interval):
+            if time.monotonic() - started > self.max_runtime:
+                log.warning("ingest job=%s exceeded max runtime %ss; heartbeats stop so it can be recovered",
+                            self.job["id"], int(self.max_runtime))
+                return
+            try:
+                snapshot = copy.deepcopy(self.stats)
+                eq: dict[str, Any] = {"id": self.job["id"], "status": "running"}
+                if self.job.get("attempts") is not None:
+                    eq["attempts"] = self.job["attempts"]
+                self.store.update("ingestion_jobs", {"heartbeat_at": utcnow(), "statistics": snapshot}, eq)
+            except Exception:  # noqa: BLE001 - a missed heartbeat is not fatal
+                log.warning("ingest job=%s heartbeat failed", self.job["id"])

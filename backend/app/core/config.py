@@ -94,7 +94,21 @@ class Settings(BaseSettings):
     conversation_retention_days: int = 365   # AI conversations deleted after this many days without activity
     support_retention_days: int = 365        # resolved support tickets (and their threads) deleted after this   # transient failures re-queue after 30 s, 60 s, 120 s ... (max_attempts)
     job_poll_seconds: float = 10.0
-    job_stale_seconds: int = 900
+    # running jobs heartbeat every job_heartbeat_seconds (a background ticker, also during long extractions);
+    # a job without a heartbeat for job_stale_seconds belongs to a dead worker and is re-queued (or failed after
+    # max_attempts). Right after a restart the first claim uses the shorter job_startup_stale_seconds.
+    job_heartbeat_seconds: float = 15.0
+    job_stale_seconds: int = 180
+    job_startup_stale_seconds: int = 90
+    job_max_runtime_seconds: int = 1800     # heartbeats stop after this, so a hung job goes stale and is recovered
+    # --- PDF extraction --------------------------------------------------------
+    # subprocess: a child process per PDF with a hard timeout (a crash or OOM fails the job, not the service)
+    pdf_extraction_isolation: str = "subprocess"     # subprocess | inline (tests)
+    pdf_extract_timeout_seconds: float = 300.0
+    pdf_extract_memory_mb: int = 0          # address-space cap for the child (Linux); 0 = no extra cap
+    pdf_table_detection: str = "off"        # off | auto (find_tables() costs ~230 MB; enable only on larger plans)
+    pdf_max_table_items: int = 1500         # auto mode: skip table detection on pages with more drawing operations
+    pdf_max_pages: int = 300
     # Shared secret for POST /api/v1/internal/sync/run-due (external scheduler). Empty = endpoint disabled.
     cron_secret: str = Field(default="", repr=False)
 

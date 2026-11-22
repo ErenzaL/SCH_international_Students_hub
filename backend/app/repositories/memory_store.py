@@ -155,6 +155,16 @@ class MemoryStore:
             dup(lambda x: x["supporter_id"] == row["supporter_id"] and x["language_code"] == row["language_code"])
         elif table == "support_agent_status":
             dup(lambda x: x["supporter_id"] == row["supporter_id"])
+        elif table == "ingestion_jobs" and row.get("job_type") in ("ingest", "board_sync") \
+                and row.get("status") in ("queued", "running"):
+            # mirror of the partial unique indexes of migration 0012
+            active = [x for x in rows if x.get("job_type") in ("ingest", "board_sync") and x["status"] in ("queued", "running")]
+            sha = (row.get("payload") or {}).get("sha256")
+            if sha and row.get("job_type") == "ingest" and any(
+                    x.get("job_type") == "ingest" and (x.get("payload") or {}).get("sha256") == sha for x in active):
+                raise DuplicateError("duplicate key on ingestion_jobs (active file)")
+            if row.get("source_id") and any(x.get("source_id") == row["source_id"] for x in active):
+                raise DuplicateError("duplicate key on ingestion_jobs (active source)")
         elif table == "ingestion_jobs" and row.get("job_type") == "index_version" and row.get("status") in ("queued", "running"):
             vid = (row.get("payload") or {}).get("version_id")
             dup(lambda x: x.get("job_type") == "index_version" and x["status"] in ("queued", "running")
@@ -688,8 +698,8 @@ class MemoryStore:
                 continue
             beat = j.get("heartbeat_at") or j.get("started_at") or j["created_at"]
             if (now - datetime.fromisoformat(beat)).total_seconds() > max(p_stale_seconds, 60):
-                if j["attempts"] < j["max_attempts"]:
-                    j.update(status="queued", locked_by=None, run_after=now_iso())
+                if j["attempts"] < j["max_attempts"]:   # same transaction time as SQL now(): due immediately
+                    j.update(status="queued", locked_by=None, run_after=now.isoformat())
                 else:
                     j.update(status="failed", locked_by=None, error_code="interrupted", completed_at=now_iso(),
                              error_message="The worker stopped while this job was running and the retry limit was reached.")

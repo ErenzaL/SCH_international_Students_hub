@@ -1008,7 +1008,28 @@
       "actionsLabel": "Actions",
       "submitted": "Submitted for review.",
       "draftSaved": "Draft saved.",
-      "editDraft": "Edit draft"
+      "editDraft": "Edit draft",
+      "progress": {
+        "stage": {
+          "download": "Loading the file",
+          "validate": "Checking the file",
+          "extract": "Extracting text",
+          "ocr": "Running OCR",
+          "process": "Creating the review draft",
+          "fetch": "Fetching",
+          "index": "Indexing",
+          "translate": "Translating",
+          "other": "Working"
+        },
+        "waitingForWorker": "Waiting for the worker",
+        "pages": "page {done} of {total}",
+        "lastSignal": "last signal {seconds, plural, one {# second} other {# seconds}} ago",
+        "staleShort": "No signal from the worker – it will be retried automatically",
+        "staleLong": "The worker has not reported for several minutes; the service probably restarted. The job is retried automatically (attempt {attempt} of {max}) and ends as failed with a reason if it cannot finish.",
+        "resumed": "Resumed after an interruption during “{stage}” (attempt {attempt})",
+        "pdfSummary": "PDF: {pages} pages, {text} with text, {ocr} need OCR · Korean text {korean}%",
+        "timings": "Stage timings"
+      }
     },
     "withdraw": {
       "button": "Withdraw published content – removes it from search immediately",

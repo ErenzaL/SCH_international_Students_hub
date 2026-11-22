@@ -56,17 +56,19 @@ class JobRunner:
             self._wake.set()
 
     # ------------------------------------------------------------ worker
-    def claim(self) -> dict[str, Any] | None:
-        rows = self.store.rpc("claim_ingestion_job", dict(p_worker=self.worker_id,
-                                                           p_stale_seconds=self.settings.job_stale_seconds))
+    def claim(self, stale_seconds: int | None = None) -> dict[str, Any] | None:
+        """Claim the oldest due job. Running jobs without a heartbeat for ``stale_seconds`` (a dead worker) are
+        re-queued first (or failed once max_attempts is reached) by the same RPC."""
+        rows = self.store.rpc("claim_ingestion_job", dict(
+            p_worker=self.worker_id, p_stale_seconds=stale_seconds or self.settings.job_stale_seconds))
         if isinstance(rows, dict):
             rows = [rows]
         rows = [r for r in (rows or []) if r and r.get("id")]
         return rows[0] if rows else None
 
-    def run_once(self) -> bool:
+    def run_once(self, stale_seconds: int | None = None) -> bool:
         """Claim and execute one job. Returns True if a job was processed."""
-        job = self.claim()
+        job = self.claim(stale_seconds)
         if job is None:
             return False
         log.info("worker %s claimed job %s (attempt %s)", self.worker_id, job["id"], job.get("attempts"))
@@ -75,10 +77,14 @@ class JobRunner:
 
     def _loop(self) -> None:
         log.info("job worker %s started", self.worker_id)
+        # right after a (re)start, jobs still 'running' without a recent heartbeat belonged to the previous process
+        # (live jobs heartbeat every job_heartbeat_seconds): recover them quickly instead of after job_stale_seconds
+        first = True
         while not self._stop.is_set():
             try:
-                while not self._stop.is_set() and self.run_once():
-                    pass
+                while not self._stop.is_set() and self.run_once(self.settings.job_startup_stale_seconds if first else None):
+                    first = False
+                first = False
             except Exception:  # noqa: BLE001 - keep the worker alive; the job row records failures
                 log.exception("job worker iteration failed")
             self._wake.wait(self.settings.job_poll_seconds)

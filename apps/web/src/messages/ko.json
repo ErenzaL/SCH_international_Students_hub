@@ -1008,7 +1008,28 @@
       "actionsLabel": "작업",
       "submitted": "검토를 요청했습니다.",
       "draftSaved": "초안이 저장되었습니다.",
-      "editDraft": "초안 편집"
+      "editDraft": "초안 편집",
+      "progress": {
+        "stage": {
+          "download": "파일 불러오는 중",
+          "validate": "파일 확인 중",
+          "extract": "텍스트 추출 중",
+          "ocr": "OCR 실행 중",
+          "process": "검토용 초안 생성 중",
+          "fetch": "가져오는 중",
+          "index": "색인 중",
+          "translate": "번역 중",
+          "other": "처리 중"
+        },
+        "waitingForWorker": "워커 대기 중",
+        "pages": "{total}페이지 중 {done}페이지",
+        "lastSignal": "마지막 신호: {seconds, plural, one {#초} other {#초}} 전",
+        "staleShort": "워커 신호 없음 – 자동으로 재시도됩니다",
+        "staleLong": "워커가 몇 분 동안 응답하지 않았습니다. 서비스가 다시 시작되었을 가능성이 높습니다. 작업은 자동으로 재시도되며(시도 {attempt}/{max}), 완료할 수 없으면 사유와 함께 실패로 종료됩니다.",
+        "resumed": "“{stage}” 단계에서 중단된 후 재개됨 (시도 {attempt})",
+        "pdfSummary": "PDF: {pages}페이지, 텍스트 있음 {text}, OCR 필요 {ocr} · 한국어 텍스트 {korean}%",
+        "timings": "단계별 소요 시간"
+      }
     },
     "withdraw": {
       "button": "게시된 콘텐츠 철회 – 검색에서 즉시 제거됩니다",

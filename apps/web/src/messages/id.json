@@ -1008,7 +1008,28 @@
       "actionsLabel": "Tindakan",
       "submitted": "Dikirim untuk ditinjau.",
       "draftSaved": "Draf disimpan.",
-      "editDraft": "Edit draf"
+      "editDraft": "Edit draf",
+      "progress": {
+        "stage": {
+          "download": "Memuat file",
+          "validate": "Memeriksa file",
+          "extract": "Mengekstraksi teks",
+          "ocr": "Menjalankan OCR",
+          "process": "Membuat draf untuk ditinjau",
+          "fetch": "Mengambil",
+          "index": "Mengindeks",
+          "translate": "Menerjemahkan",
+          "other": "Memproses"
+        },
+        "waitingForWorker": "Menunggu worker",
+        "pages": "halaman {done} dari {total}",
+        "lastSignal": "sinyal terakhir {seconds, plural, one {# detik} other {# detik}} yang lalu",
+        "staleShort": "Tidak ada sinyal dari worker – tugas akan dicoba lagi secara otomatis",
+        "staleLong": "Worker tidak melapor selama beberapa menit; layanan kemungkinan dimulai ulang. Tugas dicoba lagi secara otomatis (percobaan {attempt} dari {max}) dan akan berakhir sebagai gagal beserta alasannya jika tidak dapat diselesaikan.",
+        "resumed": "Dilanjutkan setelah terhenti saat tahap “{stage}” (percobaan {attempt})",
+        "pdfSummary": "PDF: {pages} halaman, {text} berisi teks, {ocr} perlu OCR · Teks bahasa Korea {korean}%",
+        "timings": "Durasi per tahap"
+      }
     },
     "withdraw": {
       "button": "Tarik konten yang dipublikasikan – langsung menghapusnya dari pencarian",

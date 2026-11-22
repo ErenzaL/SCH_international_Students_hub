@@ -122,6 +122,17 @@ class IntakeService:
             raise Conflict("This exact file was already uploaded.", details={
                 "document_id": dup["document_id"], "version_id": dup["id"], "version_number": dup["version_number"],
                 "verification_status": dup["verification_status"]})
+        # the same file is still being processed (no version yet): do not start a second job for it
+        active = self.ingestion.active_job(sha256=sha)
+        if active:
+            raise Conflict("This file is already being processed. Follow the existing job instead of uploading again.",
+                           code="already_processing", details={"job_id": active["id"], "status": active["status"],
+                                                               "source_id": active.get("source_id")})
+        if source_id:
+            busy = self.ingestion.active_job(source_id=source_id)
+            if busy:
+                raise Conflict("A job for this source is already queued or running; wait for it to finish.",
+                               code="already_processing", details={"job_id": busy["id"], "status": busy["status"]})
         src = self._source_for(source_id, meta, kind, actor)
         info = None
         try:

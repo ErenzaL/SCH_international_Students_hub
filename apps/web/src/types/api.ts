@@ -390,6 +390,8 @@ export interface Source {
   stale_after_days?: number | null;
   last_success_at?: string | null;
   last_change_at?: string | null;
+  /** The source's queued/running job (list endpoint), with stage, progress and liveness. */
+  active_job?: Job | null;
   archived_at?: string | null;
   archive_reason?: string | null;
 }
@@ -458,6 +460,39 @@ export interface Job {
   max_attempts?: number;
   file?: { filename: string; mime_type: string; size: number } | null;
   heartbeat_at?: string | null;
+  /** Current pipeline stage of a running job (download, validate, extract, ocr, process, …). */
+  stage?: string | null;
+  progress?: { done: number; total: number; unit: string } | null;
+  stages?: JobStageTiming[];
+  pdf?: PdfDiagnostics | null;
+  resumed_from_stage?: string | null;
+  /** Seconds since the worker last reported in (running jobs only). */
+  heartbeat_age_seconds?: number | null;
+  /** Running, but no heartbeat for a while: the worker probably restarted; the job is retried automatically. */
+  stale?: boolean;
+}
+
+export interface JobStageTiming {
+  stage: string;
+  ms: number;
+  ok: boolean;
+  error?: string;
+  pages?: number;
+  chars?: number;
+  bytes?: number;
+  hangul_ratio?: number;
+  needs_ocr_pages?: number;
+}
+
+export interface PdfDiagnostics {
+  pages?: number;
+  pages_with_text?: number;
+  needs_ocr_pages?: number;
+  scanned_pages?: number[];
+  vector_text_pages?: number[];
+  hangul_ratio?: number;
+  chars?: number;
+  table_mode?: string;
 }
 
 export interface JobEvent {

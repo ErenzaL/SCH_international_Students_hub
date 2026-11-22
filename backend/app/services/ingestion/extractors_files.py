@@ -19,6 +19,12 @@ from app.services.ingestion.normalize import normalize_text
 
 PDF_MAGIC = b"%PDF-"
 MIN_CHARS_PER_TEXT_PAGE = 20
+# PyMuPDF's find_tables() costs ~230 MB on its first call and its CPU time grows steeply with the number of vector
+# line segments on a page (HWP-exported Korean PDFs draw tables/underlines as thousands of tiny lines). On a 512 MB
+# / 0.1 CPU instance that crashed or stalled ingestion, so table detection is opt-in and budgeted per page.
+TABLE_MODES = ("off", "auto")
+DEFAULT_MAX_TABLE_ITEMS = 1500   # drawing items per page above which find_tables() is skipped (auto mode)
+_HANGUL_RE = re.compile(r"[\uac00-\ud7a3]")
 MAX_DOCX_UNCOMPRESSED = 60 * 1024 * 1024  # zip-bomb guard
 
 # kind -> (allowed extensions, allowed declared content types)
@@ -114,17 +120,41 @@ def _inside(bbox: tuple[float, float, float, float], area: tuple[float, float, f
     return area[0] <= cx <= area[2] and area[1] <= cy <= area[3]
 
 
-def _pdf_page_text(page: Any, body_size: float) -> tuple[str, int]:
-    """Text of one page with detected headings (# / ##) and tables (| a | b |). Returns (text, tables)."""
-    tables: list[tuple[tuple[float, float, float, float], str]] = []
+def _drawing_items(page: Any) -> int:
+    """Number of vector drawing operations on a page (cheap: ~0.15 s / 200k segments, no table analysis)."""
     try:
-        found = page.find_tables()
-        for t in found.tables:
-            md = _md_table(t.extract())
-            if md.count("\n") >= 1:  # at least two rows: a real table, not a framed paragraph
-                tables.append((tuple(t.bbox), md))
-    except Exception:  # noqa: BLE001 - table detection is best effort (older PyMuPDF / odd layouts)
-        tables = []
+        return sum(len(d.get("items") or ()) for d in page.get_cdrawings())
+    except Exception:  # noqa: BLE001 - older PyMuPDF
+        return 0
+
+
+def _image_coverage(page: Any) -> float:
+    """Fraction of the page area covered by images (1.0 = a full-page scan)."""
+    try:
+        area = abs(page.rect)
+        if not area:
+            return 0.0
+        covered = 0.0
+        for info in page.get_image_info():
+            x0, y0, x1, y1 = info.get("bbox") or (0, 0, 0, 0)
+            covered += max(0.0, x1 - x0) * max(0.0, y1 - y0)
+        return min(1.0, covered / area)
+    except Exception:  # noqa: BLE001
+        return 0.0
+
+
+def _pdf_page_text(page: Any, body_size: float, *, tables_enabled: bool = False) -> tuple[str, int]:
+    """Text of one page with detected headings (# / ##) and - only when enabled - tables (| a | b |)."""
+    tables: list[tuple[tuple[float, float, float, float], str]] = []
+    if tables_enabled:
+        try:
+            found = page.find_tables()
+            for t in found.tables:
+                md = _md_table(t.extract())
+                if md.count("\n") >= 1:  # at least two rows: a real table, not a framed paragraph
+                    tables.append((tuple(t.bbox), md))
+        except Exception:  # noqa: BLE001 - table detection is best effort (older PyMuPDF / odd layouts)
+            tables = []
 
     items: list[tuple[float, str]] = [(bbox[1], md) for bbox, md in tables]
     data = page.get_text("dict")
@@ -186,31 +216,67 @@ def open_pdf(data: bytes) -> Any:
     return doc
 
 
-def extract_pdf(data: bytes, filename: str = "document.pdf") -> ExtractedDocument:
+def extract_pdf(data: bytes, filename: str = "document.pdf", *, table_mode: str = "off",
+                max_table_items: int = DEFAULT_MAX_TABLE_ITEMS, max_pages: int | None = None,
+                on_page: Any = None) -> ExtractedDocument:
+    """Text layer of a PDF (Korean included), page by page. ``on_page(done, total)`` reports progress.
+
+    Pages are classified so a document without usable text gets an actionable diagnosis: scanned (images), text
+    drawn as vector outlines (common in HWP exports), or genuinely empty.
+    """
+    if table_mode not in TABLE_MODES:
+        table_mode = "off"
     doc = open_pdf(data)
     with doc:
         total_pages = doc.page_count
+        if max_pages and total_pages > max_pages:
+            raise ExtractionError("too_many_pages", f"The PDF has {total_pages} pages; the limit is {max_pages}. "
+                                                    "Split it into smaller files and upload them separately.")
         body = _body_font_size(doc)
         parts: list[str] = []
         pages_with_text = 0
         table_count = 0
+        tables_skipped = 0
         empty_pages: list[int] = []
+        scanned_pages: list[int] = []
+        vector_pages: list[int] = []
+        hangul = chars = 0
         for i, page in enumerate(doc, start=1):
-            text, n_tables = _pdf_page_text(page, body)
+            items = _drawing_items(page)
+            use_tables = table_mode == "auto" and items <= max_table_items
+            if table_mode == "auto" and not use_tables:
+                tables_skipped += 1
+            text, n_tables = _pdf_page_text(page, body, tables_enabled=use_tables)
             if len(text) < MIN_CHARS_PER_TEXT_PAGE:  # fall back to the plain text layer
                 text = normalize_text(page.get_text("text"))
             if len(text) >= MIN_CHARS_PER_TEXT_PAGE:
                 pages_with_text += 1
                 table_count += n_tables
+                chars += len(text)
+                hangul += len(_HANGUL_RE.findall(text))
                 parts.append(f"[Page {i}]\n{text}")
             else:
                 empty_pages.append(i)
+                if _image_coverage(page) >= 0.5:
+                    scanned_pages.append(i)
+                elif items >= 500:
+                    vector_pages.append(i)
+            if on_page:
+                on_page(i, total_pages)
         meta = doc.metadata or {}
     if pages_with_text == 0:
+        if scanned_pages and len(scanned_pages) >= len(vector_pages):
+            why = (f"this is a scanned PDF ({len(scanned_pages)} of {total_pages} page(s) are images without a text "
+                   "layer)")
+        elif vector_pages:
+            why = (f"the text is drawn as vector shapes on {len(vector_pages)} of {total_pages} page(s) (common for "
+                   "HWP/PDF exports), so there is no selectable text")
+        else:
+            why = f"no selectable text was found in {total_pages} page(s)"
         raise ExtractionError(
             "needs_ocr",
-            f"No selectable text found in {total_pages} page(s): this looks like an image-only scan. "
-            "Use OCR (if configured) or upload screenshots / type the text for review.",
+            f"OCR needed: {why}. Configure OCR (OCR_PROVIDER), upload screenshots of the pages, or paste the text "
+            "for review.",
         )
     title = (meta.get("title") or "").strip() or filename.rsplit(".", 1)[0]
     published = None
@@ -222,28 +288,43 @@ def extract_pdf(data: bytes, filename: str = "document.pdf") -> ExtractedDocumen
             published = None
     warnings = []
     if empty_pages:
-        warnings.append(f"{len(empty_pages)} page(s) had no selectable text (pages {', '.join(map(str, empty_pages[:20]))}); "
-                        "they may be scans and were not extracted.")
+        kind = ("scanned images" if scanned_pages else "vector-drawn text" if vector_pages else "no selectable text")
+        warnings.append(f"{len(empty_pages)} page(s) had no selectable text ({kind}; pages "
+                        f"{', '.join(map(str, empty_pages[:20]))}); they were not extracted - OCR or manual text is "
+                        "needed for them.")
+    if tables_skipped:
+        warnings.append(f"Table layout detection was skipped on {tables_skipped} page(s) with very many drawn lines; "
+                        "table text is kept as plain lines.")
     return ExtractedDocument(
         title=title, text=f"# {title}\n\n" + "\n\n".join(parts), source_published_at=published,
         metadata={
             "extractor": "pymupdf", "pages": total_pages, "pages_with_text": pages_with_text,
             "pages_without_text": total_pages - pages_with_text, "empty_pages": empty_pages[:200],
+            "scanned_pages": scanned_pages[:200], "vector_text_pages": vector_pages[:200],
+            "needs_ocr_pages": len(empty_pages), "chars": chars,
+            "hangul_ratio": round(hangul / chars, 3) if chars else 0.0, "table_mode": table_mode,
             "tables": table_count, "pdf_author": (meta.get("author") or "")[:200] or None, "warnings": warnings,
         },
     )
 
 
-def render_pdf_pages(data: bytes, max_pages: int, dpi: int = 200) -> list[bytes]:
-    """PNG renderings of the first pages (for OCR of image-only PDFs)."""
+def iter_pdf_pages_png(data: bytes, max_pages: int, dpi: int = 200) -> Any:
+    """PNG renderings of the first pages, ONE AT A TIME (an A4 page at 200 dpi is ~11 MB raw; holding all pages
+    of a scan in memory at once is what a 512 MB instance cannot afford)."""
     doc = open_pdf(data)
-    out: list[bytes] = []
     with doc:
         for i, page in enumerate(doc):
             if i >= max_pages:
                 break
-            out.append(page.get_pixmap(dpi=dpi).tobytes("png"))
-    return out
+            pix = page.get_pixmap(dpi=dpi)
+            png = pix.tobytes("png")
+            del pix
+            yield png
+
+
+def render_pdf_pages(data: bytes, max_pages: int, dpi: int = 200) -> list[bytes]:
+    """PNG renderings of the first pages (kept for callers that need a list; prefer ``iter_pdf_pages_png``)."""
+    return list(iter_pdf_pages_png(data, max_pages, dpi))
 
 
 # --------------------------------------------------------------------------- DOCX

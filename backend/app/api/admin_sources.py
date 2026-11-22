@@ -33,7 +33,28 @@ def job_view(store, j: dict, source_title: str | None = None) -> dict:  # type: 
         statistics=j.get("statistics") or {}, attempts=j.get("attempts", 0), max_attempts=j.get("max_attempts", 3),
         file=({k: payload.get(k) for k in ("filename", "mime_type", "size")} if payload.get("filename") else None),
         created_at=j["created_at"], started_at=j.get("started_at"), completed_at=j.get("completed_at"),
-        heartbeat_at=j.get("heartbeat_at"), source_deleted=j.get("source_id") is None)
+        heartbeat_at=j.get("heartbeat_at"), source_deleted=j.get("source_id") is None, **liveness(j))
+
+
+STALE_AFTER_SECONDS = 180   # mirrors Settings.job_stale_seconds (job heartbeats arrive every ~15 s)
+
+
+def liveness(j: dict) -> dict:  # type: ignore[type-arg]
+    """Stage / progress of a running job and whether its worker still looks alive (for the admin UI)."""
+    from datetime import UTC, datetime
+
+    stats = j.get("statistics") or {}
+    age = None
+    beat = j.get("heartbeat_at") or j.get("started_at")
+    if beat:
+        try:
+            age = max(0, int((datetime.now(UTC) - datetime.fromisoformat(str(beat).replace("Z", "+00:00"))).total_seconds()))
+        except ValueError:
+            age = None
+    stale = j.get("status") == "running" and age is not None and age > STALE_AFTER_SECONDS
+    return dict(stage=stats.get("stage"), progress=stats.get("progress"), stages=stats.get("stages") or [],
+                pdf=stats.get("pdf"), resumed_from_stage=stats.get("resumed_from_stage"),
+                heartbeat_age_seconds=age if j.get("status") == "running" else None, stale=stale)
 
 
 def _ingest_error(exc: IngestionError | FetchError | ExtractionError) -> AppError:
@@ -57,6 +78,18 @@ def list_sources(status: str | None = None, source_type: str | None = None, cate
     items, total = svc.sources.list(status=status, source_type=source_type, q=q, page=pg.page, size=pg.page_size,
                                     category=category, sort=sort, desc=order == "desc", active=active,
                                     mine=user.id if user.role == "supporter" else None)
+    # the active (queued/running) job of each listed source, with stage / progress / liveness for the admin UI
+    if items:
+        jobs, _c = svc.store.select("ingestion_jobs", DbQuery(
+            in_={"source_id": [i["id"] for i in items], "status": ["queued", "running"],
+                 "job_type": ["ingest", "board_sync", "ocr_intake"]}, order=[("created_at", True)]))
+        active: dict[str, dict] = {}  # type: ignore[type-arg]
+        for j in jobs:
+            active.setdefault(j["source_id"], j)
+        titles = {i["id"]: i["title"] for i in items}
+        for i in items:
+            j = active.get(i["id"])
+            i["active_job"] = job_view(svc.store, j, titles[i["id"]]) if j else None
     return pg.wrap(items, total)
 
 

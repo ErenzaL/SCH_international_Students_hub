@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { JobStatusBadge } from "@/components/shared/badges";
 import { JobEvents } from "@/features/admin/knowledge/job-events";
+import { JobProgress } from "@/features/admin/knowledge/job-progress";
 import { errorMessage } from "@/lib/api";
 import { waitForJob } from "@/lib/jobs";
 import type { BoardFailure, BoardNoticeStat, Job } from "@/types/api";
@@ -53,6 +54,7 @@ export function JobSummary({ job }: { job: Job }) {
   const warnings = (s.warnings as string[] | undefined) ?? [];
   return (
     <div className="space-y-2">
+      <JobProgress job={job} />
       {job.status === "failed" && (
         <Alert variant="destructive">
           <AlertTitle>{job.error_code ?? t("failed")}</AlertTitle>

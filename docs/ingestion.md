@@ -146,3 +146,47 @@ GitHub Actions (already used for deploys, free for public repositories). Chosen:
 the worker so pending indexing jobs and retries are processed too. Configure `CRON_SECRET` on the backend and
 the same value as a GitHub Actions secret. Index jobs triggered by admins run immediately (the admin's own
 requests keep the instance awake).
+
+## PDF ingestion robustness (2026-11-22)
+
+**Incident.** Uploaded PDFs stayed in `Running` after `[file] Loaded … from private storage`; the service restarted
+during one job and a second upload of the same PDF created a second job. Root cause (reproduced locally):
+`extract_pdf()` called PyMuPDF `page.find_tables()` on every page. Its first call alone grows the process by
+~230 MB (10 pages: 51 → 410 MB peak) and its CPU time grows steeply with the number of vector line segments
+(8,000 segments/page ≈ 3 s/page, 20,000 ≈ 12 s/page on a fast core — HWP-exported Korean PDFs draw tables and
+underlines this way). This ran inside the single 512 MB / ~0.1 CPU web process that also hosts the job worker and
+the ONNX E5 model, so it was killed for memory (restart) or ran for hours, without heartbeats, events or an error.
+The `sentence-transformers is not installed` warning is the expected fallback to ONNX E5 and was not involved.
+
+**Fix.**
+* Text extraction runs in a short-lived child process (`pdf_isolation.py` / `pdf_child.py`) with a hard timeout;
+  the child marks itself as the first OOM-kill candidate. Timeout → `extraction_timeout`, killed child →
+  `extraction_crashed`, corrupt / encrypted / scanned PDFs → `corrupt_file` / `encrypted_file` / `needs_ocr` — always
+  a `Failed` job with an actionable message; the API and worker keep running. Child peak memory ≈ 56 MB.
+* Table layout detection is off by default (`PDF_TABLE_DETECTION=auto` enables it with a per-page budget).
+  Table text is still extracted as plain lines.
+* Page analysis reports pages with text, scanned pages (image coverage), vector-drawn text pages, the Hangul share
+  and pages needing OCR; OCR renders one page image at a time.
+* Every stage (download, validate, extract, ocr, process) is timed; durations and outcomes are logged as logfmt
+  (`ingest stage=extract status=done job=… duration_ms=… pages=… chars=… hangul_ratio=…`, never document text) and
+  stored in `ingestion_jobs.statistics.stages`.
+* A background ticker writes the heartbeat + current stage/progress every 15 s (stops after
+  `JOB_MAX_RUNTIME_SECONDS`, so a hung job still goes stale). Stale threshold 180 s; right after a restart the
+  first claim uses 90 s, so orphaned jobs are re-queued within ~1.5 min (or failed with `interrupted` after
+  `max_attempts`). A resumed attempt records which stage the previous one died in. A late result of a taken-over
+  attempt is discarded (writes are conditional on the attempt number).
+* Duplicates: an upload of a file whose job is still queued/running, or a second job for a busy source, returns
+  409 `already_processing` with the existing job id; partial unique indexes (migration 0012) enforce it in the
+  database. Re-processing is idempotent: versions are unique per content hash, chunks are replaced atomically.
+* Admin → Knowledge Sources shows the active job's stage, page progress, last signal and a stale warning; the job
+  panel adds stage timings, the PDF diagnosis and the resume note. Extracted documents still require review and
+  approval; nothing is indexed for students before approval.
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `PDF_EXTRACTION_ISOLATION` | `subprocess` | `inline` only for tests/debugging |
+| `PDF_EXTRACT_TIMEOUT_SECONDS` | `300` | hard limit per PDF |
+| `PDF_EXTRACT_MEMORY_MB` | `0` | optional address-space cap for the child (Linux) |
+| `PDF_TABLE_DETECTION` | `off` | `auto` = PyMuPDF table detection on pages with ≤ `PDF_MAX_TABLE_ITEMS` drawing operations (needs ≥ 1 GB RAM) |
+| `PDF_MAX_PAGES` | `300` | larger PDFs are rejected with a "split the file" message |
+| `JOB_HEARTBEAT_SECONDS` / `JOB_STALE_SECONDS` / `JOB_STARTUP_STALE_SECONDS` / `JOB_MAX_RUNTIME_SECONDS` | `15` / `180` / `90` / `1800` | liveness and recovery |

@@ -133,11 +133,15 @@ begin
 end $$;
 
 -- persistent job queue: claim, skip locked, stale re-queue, attempts limit
+-- (one active ingest job per source since 0012, so the stale jobs belong to their own sources)
+insert into knowledge_sources (id, title, organization, source_type, authority_type, scope, category) values
+  ('11000000-0000-0000-0000-0000000000a2', 'Queue A', 'SCH', 'pdf', 'official_university', 'university', 'academic-life'),
+  ('11000000-0000-0000-0000-0000000000a3', 'Queue B', 'SCH', 'pdf', 'official_university', 'university', 'academic-life');
 insert into ingestion_jobs (id, source_id, status, job_type) values
   ('51000000-0000-0000-0000-000000000001', '11000000-0000-0000-0000-000000000001', 'queued', 'board_sync');
 insert into ingestion_jobs (id, source_id, status, attempts, max_attempts, heartbeat_at, started_at) values
-  ('51000000-0000-0000-0000-000000000002', '11000000-0000-0000-0000-000000000001', 'running', 1, 3, now() - interval '2 hours', now() - interval '2 hours'),
-  ('51000000-0000-0000-0000-000000000003', '11000000-0000-0000-0000-000000000001', 'running', 3, 3, now() - interval '2 hours', now() - interval '2 hours');
+  ('51000000-0000-0000-0000-000000000002', '11000000-0000-0000-0000-0000000000a2', 'running', 1, 3, now() - interval '2 hours', now() - interval '2 hours'),
+  ('51000000-0000-0000-0000-000000000003', '11000000-0000-0000-0000-0000000000a3', 'running', 3, 3, now() - interval '2 hours', now() - interval '2 hours');
 do $$
 declare j ingestion_jobs;
 begin
