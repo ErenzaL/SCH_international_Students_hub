@@ -62,7 +62,7 @@ class MemoryStore:
             "knowledge_sources": dict(status="registered", sync_frequency="manual", is_active=True, is_test_data=False,
                                       language="ko", original_url=None, last_checked_at=None, last_ingestion_result=None,
                                       created_by=None, config={}, stale_after_days=None, last_success_at=None,
-                                      last_change_at=None),
+                                      last_change_at=None, archived_at=None, archived_by=None, archive_reason=None),
             "source_documents": dict(is_canceled=False, document_type="webpage", language="ko", current_version_id=None,
                                      canonical_url=None, external_id=None, canceled_at=None, canceled_reason=None,
                                      metadata={}, archived_at=None, archived_by=None, archive_reason=None,
@@ -82,7 +82,7 @@ class MemoryStore:
             "ingestion_jobs": dict(status="queued", trigger="manual", outcome=None, document_id=None, version_id=None,
                                    payload={}, error_code=None, error_message=None, statistics={}, requested_by=None,
                                    started_at=None, completed_at=None, job_type="ingest", attempts=0, max_attempts=3,
-                                   run_after=now_iso(), heartbeat_at=None, locked_by=None),
+                                   run_after=now_iso(), heartbeat_at=None, locked_by=None, source_title=None),
             "announcements": dict(publication_status="draft", original_language="ko", source_type="manual_text",
                                   is_test_data=False, target_audience=None, event_date=None, deadline=None,
                                   valid_from=None, evidence_note=None, evidence_url=None, created_by=None,
@@ -272,6 +272,10 @@ class MemoryStore:
             if table == "document_versions" and any(r.get("was_approved") and r["document_id"] != getattr(self, "_deleting", None)
                                                     for r in victims):
                 raise Forbidden("previously approved versions can only be removed with delete_document()")
+            if table == "knowledge_sources" and any(
+                    any(d["source_id"] == r["id"] for d in self.t["source_documents"])
+                    or any(j.get("source_id") == r["id"] for j in self.t["ingestion_jobs"]) for r in victims):
+                raise Forbidden("sources with documents or job history can only be deleted with delete_source()")
             self.t[table] = [r for r in self.t[table] if not all(r.get(c) == v for c, v in eq.items())]
             if table == "document_versions":
                 ids = {r["id"] for r in self.t[table]}
@@ -501,7 +505,7 @@ class MemoryStore:
             if not v or v["verification_status"] != "approved":
                 continue
             d = self._doc(v["document_id"])
-            if not d or d["current_version_id"] != v["id"] or d["is_canceled"]:
+            if not d or d["current_version_id"] != v["id"] or d["is_canceled"] or d.get("archived_at"):
                 continue
             s = next((s for s in self.t["knowledge_sources"] if s["id"] == d["source_id"]), None)
             if not s or not s["is_active"]:
@@ -832,7 +836,9 @@ class MemoryStore:
                 j.get("job_type") == "index_version" and (j.get("payload") or {}).get("version_id") in vids))
                for j in self.t["ingestion_jobs"]):
             blockers.append("busy: an ingestion or indexing job for this document is queued or running")
-        files = sorted({(v.get("original_file") or {}).get("storage_path") for v in vers} - {None})
+        own_jobs = {j["id"] for j in self.t["ingestion_jobs"]
+                    if j.get("document_id") == d["id"] or j.get("version_id") in vids}
+        files = self._exclusive_paths(vids, own_jobs)
         return dict(eligible=not blockers, blockers=blockers, title=d["title"], source_id=d["source_id"],
                     source_type=s.get("source_type"), versions=len(vers),
                     approved_versions=sum(1 for v in vers if v["was_approved"]),
@@ -875,6 +881,145 @@ class MemoryStore:
         self.t["source_documents"] = [x for x in self.t["source_documents"] if x["id"] != d["id"]]
         self._refresh_source(d["source_id"])
         return {**check, "deleted": True}
+
+    # ------------------------------------------------------- source lifecycle (0010)
+    def _exclusive_paths(self, vids: set[str], jids: set[str]) -> list[str]:
+        """Storage paths of these versions/jobs that no other version or job references (safe to remove)."""
+        def vpath(v: Row) -> str | None:
+            return (v.get("original_file") or {}).get("storage_path")
+
+        def jpath(j: Row) -> str | None:
+            return (j.get("payload") or {}).get("storage_path")
+
+        mine = {vpath(v) for v in self.t["document_versions"] if v["id"] in vids} | \
+               {jpath(j) for j in self.t["ingestion_jobs"] if j["id"] in jids}
+        mine.discard(None)
+        shared = {vpath(v) for v in self.t["document_versions"] if v["id"] not in vids} | \
+                 {jpath(j) for j in self.t["ingestion_jobs"] if j["id"] not in jids}
+        return sorted(p for p in mine if p not in shared)  # type: ignore[type-var]
+
+    def _src(self, sid: str) -> Row | None:
+        return next((s for s in self.t["knowledge_sources"] if s["id"] == sid), None)
+
+    def _rpc_archive_source(self, p_source_id: str, p_actor: str, p_reason: str) -> Row:
+        self._assert_admin(p_actor)
+        if not p_reason or len(p_reason.strip()) < 3:
+            raise ValidationFailed("a reason is required")
+        s = self._src(p_source_id)
+        if not s:
+            raise NotFound("source not found")
+        if s.get("archived_at"):
+            raise InvalidState("already archived")
+        ts = now_iso()
+        n = 0
+        for d in self.t["source_documents"]:
+            if d["source_id"] == s["id"] and not d.get("archived_at"):
+                d.update(archived_at=ts, archived_by=p_actor, archive_reason=f"Source archived: {p_reason}")
+                n += 1
+        s.update(archived_at=ts, archived_by=p_actor, archive_reason=p_reason, is_active=False, status="inactive")
+        self._audit("source.archive", "knowledge_source", s["id"], p_actor,
+                    {"reason": p_reason, "title": s["title"], "documents_archived": n})
+        return s
+
+    def _rpc_restore_source(self, p_source_id: str, p_actor: str) -> Row:
+        self._assert_admin(p_actor)
+        s = self._src(p_source_id)
+        if not s:
+            raise NotFound("source not found")
+        if not s.get("archived_at"):
+            raise InvalidState("source is not archived")
+        n = 0
+        for d in self.t["source_documents"]:
+            if d["source_id"] == s["id"] and d.get("archived_at") == s["archived_at"]:
+                d.update(archived_at=None, archived_by=None, archive_reason=None)
+                n += 1
+        s.update(archived_at=None, archived_by=None, archive_reason=None, is_active=True)
+        self._refresh_source(s["id"])
+        self._audit("source.restore", "knowledge_source", s["id"], p_actor, {"documents_restored": n})
+        return s
+
+    def _rpc_source_delete_check(self, p_source_id: str) -> Row:
+        s = self._src(p_source_id)
+        if not s:
+            raise NotFound("source not found")
+        docs = [d for d in self.t["source_documents"] if d["source_id"] == s["id"]]
+        dids = {d["id"] for d in docs}
+        published = sum(1 for d in docs if d["current_version_id"] and not d["is_canceled"] and not d.get("archived_at"))
+        anns = sum(1 for a in self.t["announcements"] if a.get("document_id") in dids)
+        vers = [v for v in self.t["document_versions"] if v["document_id"] in dids]
+        vids = {v["id"] for v in vers}
+        chunks = [c for c in self.t["document_chunks"] if c["version_id"] in vids]
+        searchable = sum(1 for _c, _v, _d, src in self._searchable() if src["id"] == s["id"])
+        jobs = [j for j in self.t["ingestion_jobs"] if j.get("source_id") == s["id"]]
+        running = sum(1 for j in jobs if j["status"] == "running")
+        blockers = []
+        if published:
+            blockers.append(f"published: {published} document(s) are live; withdraw or archive them (or archive the "
+                            "source) first")
+        if anns:
+            blockers.append("announcement: this source backs announcements; cancel those announcements instead")
+        if running:
+            blockers.append("busy: a job for this source is running; try again when it finishes")
+        return dict(eligible=not blockers, blockers=blockers, title=s["title"], organization=s["organization"],
+                    source_type=s["source_type"], is_active=s["is_active"], is_archived=bool(s.get("archived_at")),
+                    documents=len(docs), published_documents=published, versions=len(vers),
+                    approved_versions=sum(1 for v in vers if v["was_approved"]), chunks=len(chunks),
+                    indexed_chunks=sum(1 for c in chunks if c.get("embedding") is not None),
+                    searchable_chunks=searchable, is_searchable=searchable > 0, jobs=len(jobs),
+                    queued_jobs=sum(1 for j in jobs if j["status"] == "queued"), running_jobs=running,
+                    storage_files=self._exclusive_paths(vids, {j["id"] for j in jobs}),
+                    requires_destructive_confirmation=bool(docs), recommended_action="archive" if docs else "delete")
+
+    def _rpc_delete_source(self, p_source_id: str, p_actor: str, p_reason: str, p_confirm_title: str,
+                           p_confirm_destructive: bool = False) -> Row:
+        p = next((x for x in self.t["profiles"] if x["id"] == p_actor), None)
+        if not p or p["role"] != "super_admin":
+            raise Forbidden("forbidden: only a super_admin can permanently delete sources")
+        if not p_reason or len(p_reason.strip()) < 5:
+            raise ValidationFailed("a deletion reason (at least 5 characters) is required")
+        s = self._src(p_source_id)
+        if not s:
+            raise NotFound("source not found")
+        if (p_confirm_title or "").strip() != s["title"].strip():
+            raise ValidationFailed("confirmation does not match the source title")
+        check = self._rpc_source_delete_check(p_source_id)
+        if not check["eligible"]:
+            raise InvalidState("; ".join(check["blockers"]))
+        if check["requires_destructive_confirmation"] and not p_confirm_destructive:
+            raise ValidationFailed(f"confirmation_required: this source has {check['documents']} document(s); confirm "
+                                   "the destructive cleanup explicitly")
+        docs = [d for d in self.t["source_documents"] if d["source_id"] == s["id"]]
+        dids = {d["id"] for d in docs}
+        vers = [v for v in self.t["document_versions"] if v["document_id"] in dids]
+        vids = {v["id"] for v in vers}
+        self._audit("source.delete", "knowledge_source", s["id"], p_actor, {
+            "reason": p_reason, "title": s["title"], "organization": s["organization"], "source_type": s["source_type"],
+            "original_url": s.get("original_url"), "chunks": check["chunks"], "jobs": check["jobs"],
+            "storage_files": check["storage_files"],
+            "documents": [{"document_id": d["id"], "title": d["title"], "canonical_url": d.get("canonical_url"),
+                           "external_id": d.get("external_id"),
+                           "versions": [{"version": v["version_number"], "status": v["verification_status"],
+                                         "content_hash": v["content_hash"], "approved_by": v.get("approved_by")}
+                                        for v in vers if v["document_id"] == d["id"]]} for d in docs]})
+        canceled = 0
+        for j in self.t["ingestion_jobs"]:
+            if j.get("source_id") != s["id"]:
+                continue
+            if j["status"] == "queued":
+                j.update(status="failed", error_code="source_deleted", error_message="The source was deleted.",
+                         completed_at=now_iso(), locked_by=None)
+                canceled += 1
+            if j.get("document_id") in dids:
+                j["document_id"] = None
+            if j.get("version_id") in vids:
+                j["version_id"] = None
+            j.update(source_id=None, source_title=s["title"])
+        self.t["document_chunks"] = [c for c in self.t["document_chunks"] if c["version_id"] not in vids]
+        self.t["document_versions"] = [v for v in self.t["document_versions"] if v["document_id"] not in dids]
+        self.t["source_documents"] = [d for d in self.t["source_documents"] if d["id"] not in dids]
+        self.t["document_suppressions"] = [x for x in self.t["document_suppressions"] if x["source_id"] != s["id"]]
+        self.t["knowledge_sources"] = [x for x in self.t["knowledge_sources"] if x["id"] != s["id"]]
+        return {**check, "deleted": True, "queued_jobs_canceled": canceled}
 
     def _rpc_knowledge_stats(self) -> Row:
         src = self.t["knowledge_sources"]

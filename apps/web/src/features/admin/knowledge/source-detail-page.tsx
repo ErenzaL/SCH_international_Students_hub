@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { ArrowLeft, ChevronDown, ChevronRight, CloudDownload, ExternalLink, Pencil, RotateCcw, Upload } from "lucide-react";
+import { Archive, ArchiveRestore, ArrowLeft, ChevronDown, ChevronRight, CloudDownload, ExternalLink, Pencil, RotateCcw, Trash2, Upload } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import { EditSourceDialog } from "@/features/admin/knowledge/edit-source-dialog"
 import { DocumentUploadBox } from "@/features/admin/knowledge/intake-document";
 import { JobEvents } from "@/features/admin/knowledge/job-events";
 import { JobSummary, JobTracker } from "@/features/admin/knowledge/job-tracker";
+import { ArchiveSourceDialog, DeleteSourceDialog, RestoreSourceDialog } from "@/features/admin/knowledge/source-lifecycle-actions";
 import { SuppressionsSection } from "@/features/admin/knowledge/suppressions-section";
 import { isAdminRole, useMe } from "@/features/admin/shell/admin-context";
 import { api, errorMessage } from "@/lib/api";
@@ -31,6 +33,11 @@ export function SourceDetailPage({ id }: { id: string }) {
   const locale = useLocale();
   const categoryName = useCategoryName();
   const me = useMe();
+  const tl = useTranslations("admin.sourceLifecycle");
+  const router = useRouter();
+  const [lifecycle, setLifecycle] = useState<"archive" | "restore" | "delete" | null>(null);
+  const [deleted, setDeleted] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const [key, setKey] = useState(0);
   const src = useApi<SourceDetail>(`src:${id}:${key}`, () => api.get<SourceDetail>(`/api/v1/admin/sources/${id}`));
   const hist = useApi<SourceHistory>(`src-hist:${id}:${key}`, () => api.get<SourceHistory>(`/api/v1/admin/sources/${id}/history`));
@@ -81,10 +88,29 @@ export function SourceDetailPage({ id }: { id: string }) {
                   <Button variant="outline" onClick={() => setShowUpload((v) => !v)}><Upload /> {t("uploadNewVersion")}</Button>
                 )}
                 <Button variant="outline" onClick={() => setEditing(true)}><Pencil /> {t("edit")}</Button>
+                {isAdminRole(me.role) && (s.archived_at ? (
+                  <Button variant="outline" onClick={() => setLifecycle("restore")}><ArchiveRestore /> {tl("restore")}</Button>
+                ) : (
+                  <Button variant="outline" onClick={() => setLifecycle("archive")}><Archive /> {tl("archive")}</Button>
+                ))}
+                {me.role === "super_admin" && (
+                  <Button variant="destructive" aria-label={tl("deleteAria", { title: s.title })} onClick={() => setLifecycle("delete")}>
+                    <Trash2 /> {tl("delete")}
+                  </Button>
+                )}
               </div>
             }
           />
           {err && <Alert variant="destructive"><AlertDescription>{err}</AlertDescription></Alert>}
+          {notice && <Alert variant="success"><AlertDescription>{notice}</AlertDescription></Alert>}
+          {s.archived_at && (
+            <Alert variant="info">
+              <AlertDescription>
+                {tl("archivedSince", { when: formatDateTime(s.archived_at, locale) })}
+                {s.archive_reason ? ` – ${s.archive_reason}` : ""}
+              </AlertDescription>
+            </Alert>
+          )}
           {activeJob && <JobTracker jobId={activeJob} onDone={() => { setActiveJob(null); refresh(); }} />}
           {showUpload && FILE_SOURCE_TYPES.includes(s.source_type) && (
             <Card><CardContent className="p-4">
@@ -177,6 +203,27 @@ export function SourceDetailPage({ id }: { id: string }) {
         </section>
       )}
 
+      <ArchiveSourceDialog
+        source={lifecycle === "archive" && s ? s : null}
+        onClose={() => setLifecycle(null)}
+        onDone={(text) => { setLifecycle(null); setNotice(text); refresh(); }}
+      />
+      <RestoreSourceDialog
+        source={lifecycle === "restore" && s ? s : null}
+        onClose={() => setLifecycle(null)}
+        onDone={(text) => { setLifecycle(null); setNotice(text); refresh(); }}
+      />
+      {me.role === "super_admin" && (
+        <DeleteSourceDialog
+          source={lifecycle === "delete" && s ? s : null}
+          onClose={() => {
+            setLifecycle(null);
+            if (deleted) router.push("/admin/knowledge-sources");
+          }}
+          onDeleted={() => setDeleted(true)}
+          onArchived={(text) => { setLifecycle(null); setNotice(text); refresh(); }}
+        />
+      )}
       {s && (
         <EditSourceDialog source={editing ? s : null} onClose={() => setEditing(false)} onSaved={() => { setEditing(false); refresh(); }} />
       )}

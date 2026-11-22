@@ -359,3 +359,28 @@ Center and automatic syncs (new fetches are skipped until restored).
 * `GET /admin/sources/{id}/suppressions` → `{items}` · `DELETE /admin/sources/{id}/suppressions/{suppression_id}` (allow re-import).
 * Database safeguards: `source_documents` and previously approved `document_versions` cannot be deleted except through
   `delete_document()` (triggers refuse direct deletes, cascades from sources, and the service role).
+* Storage cleanup only removes files that no other version or job references (shared files are kept).
+
+## Source lifecycle (migration 0010)
+
+* `GET /admin/sources/{id}/deletion-check` (admin) → `{eligible, blockers, title, organization, source_type, is_active,
+  is_archived, documents, published_documents, versions, approved_versions, chunks, indexed_chunks, searchable_chunks,
+  is_searchable, jobs, queued_jobs, running_jobs, storage_files, requires_destructive_confirmation, recommended_action}`.
+* `POST /admin/sources/{id}/archive` `{reason}` (admin, reversible): the source is disabled and every non-archived document
+  is archived with the same timestamp → nothing from it is retrievable; the source cannot be re-enabled (409) or synced
+  until restored. `POST /admin/sources/{id}/restore` (admin) re-enables it and un-archives exactly the documents that the
+  source archive archived (documents archived/withdrawn individually stay hidden). Source views add `archived_at, archive_reason`.
+* `POST /admin/sources/{id}/delete` `{reason (≥5), confirm_title (= title), confirm_destructive}` — **super_admin** (API
+  dependency *and* database function) → `{deleted, title, documents, versions, chunks, jobs_kept, queued_jobs_canceled,
+  files_removed, files_failed}`.
+  * 409 when blocked: published documents (withdraw/archive them or archive the source first), documents backing
+    announcements, or a running job. 422: wrong title, short reason, or documents present without `confirm_destructive`.
+    404 once deleted (repeated requests are safe). 403 for admin / supporter / student.
+  * Effects (one transaction, row-locked so parallel deletes remove once and workers skip its queued jobs): audit
+    tombstone `source.delete` (title, organization, URL, every document with version numbers, content hashes and approvers);
+    queued jobs marked `failed / source_deleted`; documents, versions, chunks and embeddings removed through the guarded
+    `delete_document` path; the source row removed. Job rows are kept with `source_id = null` and a `source_title`
+    snapshot (job views add `source_deleted`); earlier audit entries are untouched. Private files used only by this source
+    are removed after commit (`source.storage_cleanup` audit; leftovers reported in `files_failed`).
+* Database safeguard: a source with documents or job history cannot be deleted except through `delete_source()`.
+  A worker that picks up a job whose source is gone fails it with `source_deleted` and creates nothing.

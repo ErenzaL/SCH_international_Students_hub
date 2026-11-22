@@ -9,8 +9,8 @@ from app.core.errors import AppError, Forbidden, InvalidState, NotFound, UrlNotA
 from app.core.rate_limit import rate_limit
 from app.repositories.base import Query as DbQuery
 from app.repositories.base import get_many, get_one
-from app.schemas.api import SourceCreate, SourcePatch, SubmitText, UrlCheck
-from app.security.auth import AuthUser, require_admin, require_staff
+from app.schemas.api import ReasonBody, SourceCreate, SourceDelete, SourcePatch, SubmitText, UrlCheck
+from app.security.auth import AuthUser, require_admin, require_staff, require_super_admin
 from app.security.url_guard import validate_fetch_url, validate_url_syntax
 from app.services.container import Services
 from app.services.ingestion.errors import ExtractionError, FetchError, IngestionError
@@ -20,9 +20,11 @@ router = APIRouter(prefix="/api/v1/admin", tags=["admin: sources"])
 
 
 def job_view(store, j: dict, source_title: str | None = None) -> dict:  # type: ignore[no-untyped-def,type-arg]
-    if source_title is None:
+    if source_title is None and j.get("source_id"):
         s = get_one(store, "knowledge_sources", id=j["source_id"])
         source_title = s["title"] if s else None
+    if source_title is None:   # the source was deleted: the job row keeps a title snapshot (migration 0010)
+        source_title = j.get("source_title")
     payload = j.get("payload") or {}
     return dict(
         id=j["id"], source_id=j["source_id"], source_title=source_title, status=j["status"], trigger=j["trigger"],
@@ -31,7 +33,7 @@ def job_view(store, j: dict, source_title: str | None = None) -> dict:  # type: 
         statistics=j.get("statistics") or {}, attempts=j.get("attempts", 0), max_attempts=j.get("max_attempts", 3),
         file=({k: payload.get(k) for k in ("filename", "mime_type", "size")} if payload.get("filename") else None),
         created_at=j["created_at"], started_at=j.get("started_at"), completed_at=j.get("completed_at"),
-        heartbeat_at=j.get("heartbeat_at"))
+        heartbeat_at=j.get("heartbeat_at"), source_deleted=j.get("source_id") is None)
 
 
 def _ingest_error(exc: IngestionError | FetchError | ExtractionError) -> AppError:
@@ -165,6 +167,37 @@ def enable_source(source_id: str, svc: Services = Depends(get_services),
     return svc.sources.view(svc.sources.set_active(source_id, True, user.id))
 
 
+# ---------------------------------------------------------- source lifecycle
+@router.get("/sources/{source_id}/deletion-check")
+def source_deletion_check(source_id: str, svc: Services = Depends(get_services),
+                          _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """What a permanent delete would remove, and what blocks it (read-only)."""
+    return svc.source_lifecycle.check(source_id)
+
+
+@router.post("/sources/{source_id}/archive")
+def archive_source(source_id: str, body: ReasonBody, svc: Services = Depends(get_services),
+                   user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """Reversible: disables the source and archives its documents, so nothing from it is retrievable."""
+    svc.source_lifecycle.archive(source_id, user, body.reason)
+    return svc.sources.view(svc.sources.get(source_id))
+
+
+@router.post("/sources/{source_id}/restore")
+def restore_source(source_id: str, svc: Services = Depends(get_services),
+                   user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    svc.source_lifecycle.restore(source_id, user)
+    return svc.sources.view(svc.sources.get(source_id))
+
+
+@router.post("/sources/{source_id}/delete")
+def delete_source(source_id: str, body: SourceDelete, svc: Services = Depends(get_services),
+                  user: AuthUser = Depends(require_super_admin)) -> dict:  # type: ignore[type-arg]
+    """Permanent, super_admin only (also enforced in the database). Published content must be withdrawn or
+    archived first; a source with documents needs ``confirm_destructive``. The audit history is kept."""
+    return svc.source_lifecycle.delete(source_id, user, body.reason, body.confirm_title, body.confirm_destructive)
+
+
 @router.post("/sources/{source_id}/ingest", status_code=202, dependencies=[Depends(rate_limit("ingest"))])
 def ingest_source(source_id: str, background: BackgroundTasks, svc: Services = Depends(get_services),
                   user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
@@ -219,8 +252,10 @@ def list_jobs(source_id: str | None = None, status: str | None = None, job_type:
     eq = {k: v for k, v in (("source_id", source_id), ("status", status), ("job_type", job_type)) if v}
     rows, total = svc.store.select("ingestion_jobs", DbQuery(eq=eq, order=[("created_at", True)], limit=pg.page_size,
                                                             offset=(pg.page - 1) * pg.page_size), count=True)
-    titles = {k: v["title"] for k, v in get_many(svc.store, "knowledge_sources", [r["source_id"] for r in rows]).items()}
-    return pg.wrap([job_view(svc.store, r, titles.get(r["source_id"])) for r in rows], total or 0)
+    titles = {k: v["title"] for k, v in get_many(svc.store, "knowledge_sources",
+                                                 [r["source_id"] for r in rows if r.get("source_id")]).items()}
+    return pg.wrap([job_view(svc.store, r, titles.get(r.get("source_id") or "") or r.get("source_title") or "")
+                    for r in rows], total or 0)
 
 
 @router.get("/ingestion-jobs/{job_id}")
@@ -253,6 +288,8 @@ def retry_job(job_id: str, background: BackgroundTasks, svc: Services = Depends(
         raise NotFound("Job not found.")
     if j["status"] != "failed" and j.get("job_type") != "ocr_intake":
         raise InvalidState("Only failed jobs can be retried.")
+    if not j.get("source_id"):
+        raise InvalidState("The source of this job was deleted; it cannot be retried.")
     source = svc.sources.get(j["source_id"])
     if j.get("job_type") == "index_version":
         v = svc.review.check_approvable((j.get("payload") or {}).get("version_id", ""))

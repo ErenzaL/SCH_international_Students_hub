@@ -238,6 +238,8 @@ export interface Source {
   stale_after_days?: number | null;
   last_success_at?: string | null;
   last_change_at?: string | null;
+  archived_at?: string | null;
+  archive_reason?: string | null;
 }
 
 export interface SourceDetail extends Source {
@@ -284,8 +286,10 @@ export interface SourcePatch {
 
 export interface Job {
   id: string;
-  source_id: string;
+  /** null once the source was permanently deleted (the job row is kept as history). */
+  source_id: string | null;
   source_title: string;
+  source_deleted?: boolean;
   status: JobStatus;
   trigger: "manual" | "schedule" | "retry";
   outcome: JobOutcome | null;
@@ -359,6 +363,43 @@ export interface DeletionResult {
   files_removed: number;
   files_failed: string[];
   reimport_blocked: boolean;
+}
+
+/** GET /admin/sources/{id}/deletion-check (migration 0010). */
+export interface SourceDeletionCheck {
+  eligible: boolean;
+  blockers: string[];
+  title: string;
+  organization: string;
+  source_type: SourceType;
+  is_active: boolean;
+  is_archived: boolean;
+  documents: number;
+  published_documents: number;
+  versions: number;
+  approved_versions: number;
+  chunks: number;
+  indexed_chunks: number;
+  searchable_chunks: number;
+  is_searchable: boolean;
+  jobs: number;
+  queued_jobs: number;
+  running_jobs: number;
+  storage_files: string[];
+  requires_destructive_confirmation: boolean;
+  recommended_action: "archive" | "delete";
+}
+
+export interface SourceDeletionResult {
+  deleted: boolean;
+  title: string;
+  documents: number;
+  versions: number;
+  chunks: number;
+  jobs_kept: number;
+  queued_jobs_canceled: number;
+  files_removed: number;
+  files_failed: string[];
 }
 
 export interface DocumentSuppression {

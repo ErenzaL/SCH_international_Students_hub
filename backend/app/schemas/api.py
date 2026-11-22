@@ -371,3 +371,9 @@ class NotificationsRead(BaseModel):
 class DocumentDelete(BaseModel):
     reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=5, max_length=2000)]
     confirm_title: Annotated[str, StringConstraints(max_length=500)]   # must equal the document title
+
+
+class SourceDelete(BaseModel):
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=5, max_length=2000)]
+    confirm_title: Annotated[str, StringConstraints(max_length=500)]   # must equal the source title
+    confirm_destructive: bool = False   # second confirmation, required when the source still has documents

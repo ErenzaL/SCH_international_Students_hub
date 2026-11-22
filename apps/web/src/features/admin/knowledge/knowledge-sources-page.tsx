@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import {
+  Archive,
+  ArchiveRestore,
   ArrowDown,
   ArrowUp,
   ClipboardPaste,
@@ -18,6 +20,7 @@ import {
   Plus,
   RotateCcw,
   Search,
+  Trash2,
   Upload,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -29,6 +32,7 @@ import { JobStatusBadge, ScopeBadge, SourceStatusBadge, TestDataBadge } from "@/
 import { EmptyState, ErrorState, LoadingState, PageHeader, Pagination } from "@/components/shared/states";
 import { EditSourceDialog } from "@/features/admin/knowledge/edit-source-dialog";
 import { documentKind, validateDocumentFile, type DocumentKind } from "@/features/admin/knowledge/intake-utils";
+import { ArchiveSourceDialog, DeleteSourceDialog, RestoreSourceDialog } from "@/features/admin/knowledge/source-lifecycle-actions";
 import { KnowledgeStatsCards } from "@/features/admin/knowledge/stats-cards";
 import { isAdminRole, useMe } from "@/features/admin/shell/admin-context";
 import { SourceDocumentsDialog, type SourceDialogMode } from "@/features/admin/sources/source-documents-dialog";
@@ -38,6 +42,7 @@ import { CATEGORY_SLUGS, FETCHABLE_SOURCE_TYPES, FILE_SOURCE_TYPES, MAX_UPLOAD_M
 import { waitForJob } from "@/lib/jobs";
 import { useApi } from "@/lib/use-api";
 import { useCategoryName } from "@/lib/use-category-name";
+import { isArchivedSource } from "@/lib/source-lifecycle";
 import { formatDateTime } from "@/lib/utils";
 import type { Job, JobAccepted, Page, Source } from "@/types/api";
 
@@ -65,7 +70,10 @@ export function KnowledgeSourcesPage() {
 }
 
 function AdminKnowledgeSources() {
+  const me = useMe();
+  const isSuper = me.role === "super_admin";
   const t = useTranslations("admin.ks");
+  const tl = useTranslations("admin.sourceLifecycle");
   const ts = useTranslations("admin.sources");
   const c = useTranslations("common");
   const e = useTranslations("enums");
@@ -85,6 +93,9 @@ function AdminKnowledgeSources() {
   const [dialog, setDialog] = useState<{ source: Source; mode: SourceDialogMode } | null>(null);
   const [textSource, setTextSource] = useState<Source | null>(null);
   const [editing, setEditing] = useState<Source | null>(null);
+  const [archiving, setArchiving] = useState<Source | null>(null);
+  const [restoring, setRestoring] = useState<Source | null>(null);
+  const [deleting, setDeleting] = useState<Source | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [statsKey, setStatsKey] = useState(0);
   const uploadRef = useRef<HTMLInputElement>(null);
@@ -275,6 +286,7 @@ function AdminKnowledgeSources() {
                 const isFile = FILE_SOURCE_TYPES.includes(s.source_type);
                 const isText = s.source_type === "manual_text" || s.source_type === "kakao_message";
                 const failed = s.status === "failed" || s.status === "blocked" || s.last_ingestion_result?.status === "failed";
+                const archived = isArchivedSource(s);
                 return (
                   <TableRow key={s.id}>
                     <TableCell className="min-w-56">
@@ -302,6 +314,12 @@ function AdminKnowledgeSources() {
                     <TableCell className="max-w-56 text-xs">
                       <div className="flex flex-col items-start gap-1">
                         <SourceStatusBadge status={s.status} />
+                        {archived && (
+                          <span className="inline-flex flex-col items-start gap-0.5">
+                            <Badge variant="secondary">{tl("archivedBadge")}</Badge>
+                            <span className="text-muted-foreground">{tl("archivedSince", { when: formatDateTime(s.archived_at ?? null, locale) })}</span>
+                          </span>
+                        )}
                         {run && (
                           <span className="inline-flex items-center gap-1 text-muted-foreground" role="status">
                             <Loader2 className="size-3 animate-spin" aria-hidden /> {e(`jobStatus.${run.status}`)}
@@ -336,10 +354,32 @@ function AdminKnowledgeSources() {
                         <Button size="sm" variant="outline" onClick={() => setDialog({ source: s, mode: "content" })}>{ts("actions.viewContent")}</Button>
                         <Button size="sm" variant="outline" onClick={() => setDialog({ source: s, mode: "versions" })}><History /> {ts("actions.viewVersions")}</Button>
                         <Button size="sm" variant="ghost" onClick={() => setEditing(s)}><Pencil /> {t("edit")}</Button>
-                        <Button size="sm" variant="ghost" disabled={busyId === s.id} onClick={() => toggle(s)}>
-                          {s.is_active ? <PauseCircle /> : <PlayCircle />}
-                          {s.is_active ? ts("actions.disable") : ts("actions.enable")}
-                        </Button>
+                        {!archived && (
+                          <Button size="sm" variant="ghost" disabled={busyId === s.id} onClick={() => toggle(s)}>
+                            {s.is_active ? <PauseCircle /> : <PlayCircle />}
+                            {s.is_active ? ts("actions.disable") : ts("actions.enable")}
+                          </Button>
+                        )}
+                        {archived ? (
+                          <Button size="sm" variant="outline" disabled={busy} onClick={() => setRestoring(s)}>
+                            <ArchiveRestore /> {tl("restore")}
+                          </Button>
+                        ) : (
+                          <Button size="sm" variant="outline" disabled={busy} onClick={() => setArchiving(s)}>
+                            <Archive /> {tl("archive")}
+                          </Button>
+                        )}
+                        {isSuper && (
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            disabled={busy}
+                            aria-label={tl("deleteAria", { title: s.title })}
+                            onClick={() => setDeleting(s)}
+                          >
+                            <Trash2 /> {tl("delete")}
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -351,6 +391,39 @@ function AdminKnowledgeSources() {
         </>
       )}
 
+      <ArchiveSourceDialog
+        source={archiving}
+        onClose={() => setArchiving(null)}
+        onDone={(text) => {
+          setArchiving(null);
+          setNotice({ kind: "success", text });
+          reload();
+        }}
+      />
+      <RestoreSourceDialog
+        source={restoring}
+        onClose={() => setRestoring(null)}
+        onDone={(text) => {
+          setRestoring(null);
+          setNotice({ kind: "success", text });
+          reload();
+        }}
+      />
+      {isSuper && (
+        <DeleteSourceDialog
+          source={deleting}
+          onClose={() => setDeleting(null)}
+          onDeleted={(r) => {
+            setNotice({ kind: "success", text: tl("deletedNotice", { title: r.title, count: r.documents }) });
+            reload();
+          }}
+          onArchived={(text) => {
+            setDeleting(null);
+            setNotice({ kind: "success", text });
+            reload();
+          }}
+        />
+      )}
       <SourceDocumentsDialog source={dialog?.source ?? null} mode={dialog?.mode ?? "content"} onClose={() => setDialog(null)} />
       <EditSourceDialog
         source={editing}

@@ -38,7 +38,8 @@ class SourceService:
             updated_at=s.get("updated_at"), last_checked_at=s.get("last_checked_at"),
             last_ingestion_result=s.get("last_ingestion_result"), is_test_data=s.get("is_test_data", False),
             document_count=doc_count or 0, config=s.get("config") or {}, stale_after_days=s.get("stale_after_days"),
-            last_success_at=s.get("last_success_at"), last_change_at=s.get("last_change_at"))
+            last_success_at=s.get("last_success_at"), last_change_at=s.get("last_change_at"),
+            archived_at=s.get("archived_at"), archive_reason=s.get("archive_reason"))
 
     def list(self, *, status: str | None, source_type: str | None, q: str | None, page: int, size: int,
              category: str | None = None, sort: str = "created_at", desc: bool = True, active: bool | None = None,
@@ -117,6 +118,8 @@ class SourceService:
 
     def set_active(self, source_id: str, active: bool, actor_id: str) -> dict[str, Any]:
         s = self.get(source_id)
+        if active and s.get("archived_at"):
+            raise InvalidState("This source is archived. Restore it instead of enabling it.")
         updated = self.store.update("knowledge_sources", dict(
             is_active=active, status=("registered" if active else "inactive")), {"id": source_id})[0]
         self.store.insert("audit_log", dict(action="source.enable" if active else "source.disable",

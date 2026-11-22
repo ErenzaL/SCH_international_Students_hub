@@ -20,6 +20,7 @@ from app.services.ocr.providers import OCRProvider, build_ocr_provider
 from app.services.public import PublicService
 from app.services.retrieval.service import RetrievalService
 from app.services.review import DocumentLifecycleService, ReviewService
+from app.services.source_lifecycle import SourceLifecycleService
 from app.services.sources import SourceService
 from app.services.support import SupportService
 from app.services.translations import TranslationReviewService
@@ -49,6 +50,7 @@ class Services:
     support: SupportService
     translations: TranslationReviewService
     lifecycle: DocumentLifecycleService
+    source_lifecycle: SourceLifecycleService
 
 
 def build_services(settings: Settings, store: Store, storage: FileStorage | None, embedder: EmbeddingProvider,
@@ -74,4 +76,5 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
         notifications=notifications, user_notifications=user_notes, conversations=conversations, support=support,
         translations=TranslationReviewService(store, announcements, user_notes),
         lifecycle=DocumentLifecycleService(store, storage),
+        source_lifecycle=SourceLifecycleService(store, storage),
     )

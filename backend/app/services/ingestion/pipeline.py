@@ -119,9 +119,9 @@ class IngestionService:
 
     def execute(self, job: dict[str, Any]) -> dict[str, Any]:
         """Run a job that is already marked running. Never raises: failures are persisted on job and source."""
-        source = get_one(self.store, "knowledge_sources", id=job["source_id"])
-        if source is None:
-            return self._finish(job, None, error=IngestionError("source_missing", "Source no longer exists."))
+        source = get_one(self.store, "knowledge_sources", id=job["source_id"]) if job.get("source_id") else None
+        if source is None:   # deleted while queued: never recreate anything for it
+            return self._finish(job, None, error=IngestionError("source_deleted", "The source was deleted."))
         started = time.perf_counter()
         stats: dict[str, Any] = {}
         self.event(job["id"], "start", f"Job started ({job.get('job_type', 'ingest')}, trigger {job.get('trigger')}).",
@@ -648,7 +648,7 @@ class IngestionService:
         return done
 
     def _notify_failure(self, job: dict[str, Any], source: dict[str, Any] | None, error: IngestionError) -> None:
-        if not self.notifications:
+        if not self.notifications or source is None:   # a deleted source is not a sync failure
             return
         title = source["title"][:150] if source else "Unknown source"
         if job.get("job_type") == "index_version":
@@ -675,7 +675,8 @@ class IngestionService:
             self.store.update("ingestion_jobs", dict(status="failed", completed_at=utcnow(), error_code="interrupted",
                                                      error_message="The server restarted while this job was running."),
                               {"id": r["id"]})
-            self.store.update("knowledge_sources", {"status": "failed"}, {"id": r["source_id"]})
+            if r.get("source_id"):
+                self.store.update("knowledge_sources", {"status": "failed"}, {"id": r["source_id"]})
         return len(rows)
 
     def due_sources(self, now: datetime | None = None) -> list[dict[str, Any]]:
