@@ -76,8 +76,11 @@ def test_a_b_h_preferred_language_is_validated_and_changeable(world):
 def test_c_conversation_history_persists_and_is_private(world):
     env = world
     c, out = converse(env, "ayu")
-    assert out["assistant_message"]["language"] == "id" and out["assistant_message"]["metadata"]["offer_handoff"]
-    assert "Global Supporter" in out["assistant_message"]["content"]  # honest: no evidence -> offer a human
+    from app.services.assistant.texts import t
+
+    assert out["assistant_message"]["language"] == "id"
+    assert out["assistant_message"]["content"] == t("none", "id")       # honest: nothing found, said in Indonesian
+    assert out["assistant_message"]["metadata"]["offer_handoff"] is False   # no automatic offer for a general question
     # "sign out and back in" = a new token for the same user: history is still there
     fresh = {"Authorization": f"Bearer {make_token(env.users['ayu'])}"}
     lst = env.client.get("/api/v1/conversations", headers=fresh).json()

@@ -77,8 +77,7 @@ describe("ChatWidget", () => {
     await screen.findAllByText(/Bring your passport/);
     await user.type(screen.getByLabelText("Your message"), "and what should I bring?{Enter}");
     await waitFor(() => expect(postStream).toHaveBeenCalledTimes(2));
-    expect(postStream.mock.calls[1][1].history).toEqual([
-      { role: "user", content: "Where do I register?" }, { role: "assistant", content: "Bring your passport [1]." }]);
+    expect(postStream.mock.calls[1][1].history).toEqual([{ role: "user", content: "Where do I register?" }]);
   });
 
   it("visitors are asked to sign in instead of creating a request", async () => {
@@ -114,6 +113,9 @@ describe("ChatWidget", () => {
     await user.click(screen.getByTestId("chat-launcher"));
     await user.type(screen.getByLabelText("Your message"), "talk to a person{Enter}");
     const offer = await screen.findByTestId("handoff-offer");
+    expect(screen.getAllByTestId("handoff-offer")).toHaveLength(1);           // rendered once, as a structured action
+    expect(screen.getAllByText("Would you like a Global Supporter to help with this?")).toHaveLength(1);
+    expect(screen.getByTestId("assistant-answer")).toHaveTextContent(/^I can help prepare a request\.$/);
     expect(post).not.toHaveBeenCalledWith("/api/v1/support/tickets", expect.anything());
     await user.click(screen.getByRole("button", { name: "Yes, prepare a request" }));
     expect(await screen.findByTestId("handoff-review")).toHaveTextContent("Tiếng Việt");

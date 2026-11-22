@@ -1060,9 +1060,11 @@ export type HandoffReason =
   | "no_evidence"
   | "asked_for_human"
   | "individual_decision"
+  | "administrative_action"
   | "disputed_answer"
   | "conflicting_evidence";
-export type EvidenceLevel = "sufficient" | "partial" | "conflicting" | "none" | "small_talk";
+/** "unavailable": an AI answer could not be generated (only sources are shown) */
+export type EvidenceLevel = "sufficient" | "partial" | "conflicting" | "none" | "small_talk" | "unavailable";
 export interface ConversationCitation {
   n: number;
   document_id: string | null;
@@ -1076,8 +1078,12 @@ export interface ConversationCitation {
   verified_at: string | null;
   is_stale: boolean | null;
   page: number | null;
-  similarity: number | null;
-  /** the answer actually cites this passage (generated answers) */
+  /** no longer sent by the assistant (internal retrieval scores are not exposed); kept optional for old messages */
+  similarity?: number | null;
+  /** one citation per source document: all passages of that document used for the answer */
+  chunk_ids?: string[];
+  language?: string | null;
+  /** the answer actually cites this source (generated answers) */
   cited?: boolean;
 }
 export interface ConversationMessage {

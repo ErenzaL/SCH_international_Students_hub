@@ -1,0 +1,1781 @@
+{
+ "benchmark": "retrieval-pilot-0.1",
+ "review_status": "draft_unreviewed (AI-drafted labels)",
+ "queries": 100,
+ "corpus_sha256": "0c3806b109177475",
+ "git_commit": "d573b6d",
+ "index": {
+  "index_seconds": 31.1,
+  "documents": 22,
+  "chunks": 456,
+  "embedded_chunks": 456,
+  "embedding_model": "intfloat/multilingual-e5-small#qint8",
+  "chunk_target_tokens": 320,
+  "chunk_max_tokens": 420,
+  "chunk_overlap_tokens": 48
+ },
+ "top_k": 5,
+ "settings": {
+  "retrieval_min_similarity": 0.8,
+  "fusion": "weighted",
+  "vector_weight": 1.0,
+  "keyword_weight": 0.35,
+  "candidate_pool": 30,
+  "max_chunks_per_document": 3,
+  "code_mismatch_penalty": 0.5
+ },
+ "results": [
+  {
+   "mode": "vector",
+   "overall": {
+    "n": 100,
+    "recall_at_1": 0.69,
+    "recall_at_5": 0.88,
+    "mrr": 0.772,
+    "primary_at_1": 0.58,
+    "code_contamination_at_5": 0.04,
+    "ci95": {
+     "recall_at_1": [
+      0.6,
+      0.78
+     ],
+     "recall_at_5": [
+      0.82,
+      0.94
+     ],
+     "mrr": [
+      0.702,
+      0.84
+     ]
+    }
+   },
+   "per_language": {
+    "ko": {
+     "n": 20,
+     "recall_at_1": 0.5,
+     "recall_at_5": 0.85,
+     "mrr": 0.65,
+     "primary_at_1": 0.4,
+     "code_contamination_at_5": 0.0,
+     "ci95": {
+      "recall_at_1": [
+       0.3,
+       0.7
+      ],
+      "recall_at_5": [
+       0.7,
+       1.0
+      ],
+      "mrr": [
+       0.492,
+       0.808
+      ]
+     }
+    },
+    "en": {
+     "n": 20,
+     "recall_at_1": 0.7,
+     "recall_at_5": 0.85,
+     "mrr": 0.754,
+     "primary_at_1": 0.6,
+     "code_contamination_at_5": 0.067,
+     "ci95": {
+      "recall_at_1": [
+       0.5,
+       0.9
+      ],
+      "recall_at_5": [
+       0.7,
+       1.0
+      ],
+      "mrr": [
+       0.567,
+       0.917
+      ]
+     }
+    },
+    "id": {
+     "n": 20,
+     "recall_at_1": 0.8,
+     "recall_at_5": 0.95,
+     "mrr": 0.875,
+     "primary_at_1": 0.7,
+     "code_contamination_at_5": 0.067,
+     "ci95": {
+      "recall_at_1": [
+       0.6,
+       0.95
+      ],
+      "recall_at_5": [
+       0.85,
+       1.0
+      ],
+      "mrr": [
+       0.75,
+       0.975
+      ]
+     }
+    },
+    "vi": {
+     "n": 20,
+     "recall_at_1": 0.65,
+     "recall_at_5": 0.85,
+     "mrr": 0.733,
+     "primary_at_1": 0.6,
+     "code_contamination_at_5": 0.067,
+     "ci95": {
+      "recall_at_1": [
+       0.45,
+       0.85
+      ],
+      "recall_at_5": [
+       0.65,
+       1.0
+      ],
+      "mrr": [
+       0.55,
+       0.892
+      ]
+     }
+    },
+    "zh-CN": {
+     "n": 20,
+     "recall_at_1": 0.8,
+     "recall_at_5": 0.9,
+     "mrr": 0.85,
+     "primary_at_1": 0.6,
+     "code_contamination_at_5": 0.0,
+     "ci95": {
+      "recall_at_1": [
+       0.6,
+       0.95
+      ],
+      "recall_at_5": [
+       0.75,
+       1.0
+      ],
+      "mrr": [
+       0.7,
+       0.975
+      ]
+     }
+    }
+   },
+   "latency_ms": {
+    "mean": 32.8,
+    "p95": 38.2,
+    "note": "local in-memory store; excludes network/database time"
+   },
+   "misses": [
+    {
+     "question_id": "S01-ko",
+     "scenario_id": "S01",
+     "language": "ko",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": 0.0,
+     "latency_ms": 29.7,
+     "top_titles": [
+      "Changing visa status",
+      "D2 visa extension",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S03-ko",
+     "scenario_id": "S03",
+     "language": "ko",
+     "rank": 3,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 29.4,
+     "top_titles": [
+      "[중요공지] 외국인 유학생 불법 취업(무단 아르바이트) 관련 주의 안내",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S03-vi",
+     "scenario_id": "S03",
+     "language": "vi",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 29.9,
+     "top_titles": [
+      "Change of Address in South Korea",
+      "Resident Card in South Korea",
+      "Resident Card in South Korea"
+     ]
+    },
+    {
+     "question_id": "S04-ko",
+     "scenario_id": "S04",
+     "language": "ko",
+     "rank": 3,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 31.7,
+     "top_titles": [
+      "모집요강",
+      "[중요공지] 외국인 유학생 불법 취업(무단 아르바이트) 관련 주의 안내",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S05-ko",
+     "scenario_id": "S05",
+     "language": "ko",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 36.3,
+     "top_titles": [
+      "[중요공지] 외국인 유학생 불법 취업(무단 아르바이트) 관련 주의 안내",
+      "Resident Card in South Korea",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S06-id",
+     "scenario_id": "S06",
+     "language": "id",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 36.5,
+     "top_titles": [
+      "Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run by Korean Government",
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea"
+     ]
+    },
+    {
+     "question_id": "S06-vi",
+     "scenario_id": "S06",
+     "language": "vi",
+     "rank": 3,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 37.6,
+     "top_titles": [
+      "Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run by Korean Government",
+      "모집요강",
+      "Guide for International Student in Korea"
+     ]
+    },
+    {
+     "question_id": "S07-en",
+     "scenario_id": "S07",
+     "language": "en",
+     "rank": 3,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 37.4,
+     "top_titles": [
+      "Change of Address in South Korea",
+      "Change of Address in South Korea",
+      "Change of Address in South Korea"
+     ]
+    },
+    {
+     "question_id": "S07-id",
+     "scenario_id": "S07",
+     "language": "id",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 38.4,
+     "top_titles": [
+      "Employment in Korea | Work in Korea | Study in Korea | Run by Korean Government",
+      "Employment in Korea | Work in Korea | Study in Korea | Run by Korean Government",
+      "Part-Time Employment for International Students in Korea — RAG Knowledge Base"
+     ]
+    },
+    {
+     "question_id": "S07-zh-CN",
+     "scenario_id": "S07",
+     "language": "zh-CN",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 33.8,
+     "top_titles": [
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S08-ko",
+     "scenario_id": "S08",
+     "language": "ko",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 34.2,
+     "top_titles": [
+      "모집요강",
+      "National Health Insurance",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S11-en",
+     "scenario_id": "S11",
+     "language": "en",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 34.0,
+     "top_titles": [
+      "TOPIK GUIDE",
+      "Resident Card in South Korea",
+      "Medical and Hospital Guide"
+     ]
+    },
+    {
+     "question_id": "S11-id",
+     "scenario_id": "S11",
+     "language": "id",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 30.7,
+     "top_titles": [
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea",
+      "수강신청 안내"
+     ]
+    },
+    {
+     "question_id": "S11-vi",
+     "scenario_id": "S11",
+     "language": "vi",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 32.0,
+     "top_titles": [
+      "모집요강",
+      "Guide for International Student in Korea",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S11-zh-CN",
+     "scenario_id": "S11",
+     "language": "zh-CN",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 31.7,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "수강신청 안내"
+     ]
+    },
+    {
+     "question_id": "S12-en",
+     "scenario_id": "S12",
+     "language": "en",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 35.5,
+     "top_titles": [
+      "Changing visa status",
+      "Resident Card in South Korea",
+      "Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run by Korean Government"
+     ]
+    },
+    {
+     "question_id": "S12-id",
+     "scenario_id": "S12",
+     "language": "id",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 31.3,
+     "top_titles": []
+    },
+    {
+     "question_id": "S12-vi",
+     "scenario_id": "S12",
+     "language": "vi",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 31.8,
+     "top_titles": [
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea"
+     ]
+    },
+    {
+     "question_id": "S12-zh-CN",
+     "scenario_id": "S12",
+     "language": "zh-CN",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 29.7,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "Guide for International Student in Korea"
+     ]
+    },
+    {
+     "question_id": "S13-en",
+     "scenario_id": "S13",
+     "language": "en",
+     "rank": 4,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 30.7,
+     "top_titles": [
+      "Guide for International Student in Korea",
+      "Resident Card in South Korea",
+      "Guide for International Student in Korea"
+     ]
+    },
+    {
+     "question_id": "S14-ko",
+     "scenario_id": "S14",
+     "language": "ko",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 30.6,
+     "top_titles": [
+      "모집요강",
+      "Travel and Re-entry Documents",
+      "[중요공지] 외국인 유학생 불법 취업(무단 아르바이트) 관련 주의 안내"
+     ]
+    },
+    {
+     "question_id": "S14-vi",
+     "scenario_id": "S14",
+     "language": "vi",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 30.8,
+     "top_titles": [
+      "[중요공지] 외국인 유학생 불법 취업(무단 아르바이트) 관련 주의 안내",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S16-ko",
+     "scenario_id": "S16",
+     "language": "ko",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 31.1,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S16-vi",
+     "scenario_id": "S16",
+     "language": "vi",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 30.2,
+     "top_titles": [
+      "모집요강",
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea"
+     ]
+    },
+    {
+     "question_id": "S17-en",
+     "scenario_id": "S17",
+     "language": "en",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 30.1,
+     "top_titles": [
+      "Travel and Re-entry Documents",
+      "D2 visa extension",
+      "Travel and Re-entry Documents"
+     ]
+    },
+    {
+     "question_id": "S17-ko",
+     "scenario_id": "S17",
+     "language": "ko",
+     "rank": 3,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 30.7,
+     "top_titles": [
+      "수강신청 안내",
+      "수강신청 주의사항",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S17-vi",
+     "scenario_id": "S17",
+     "language": "vi",
+     "rank": 3,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 30.5,
+     "top_titles": [
+      "Travel and Re-entry Documents",
+      "D2 visa extension",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S18-ko",
+     "scenario_id": "S18",
+     "language": "ko",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 29.3,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S18-zh-CN",
+     "scenario_id": "S18",
+     "language": "zh-CN",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 30.4,
+     "top_titles": [
+      "모집요강",
+      "Korea's Education System | Plan your studies | Study in Korea | Run by Korean Government",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S19-ko",
+     "scenario_id": "S19",
+     "language": "ko",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 29.7,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S20-en",
+     "scenario_id": "S20",
+     "language": "en",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 31.2,
+     "top_titles": [
+      "Medical and Hospital Guide",
+      "“헬스케어 데이” 및 냉장고 점검 안내",
+      "Resident Card in South Korea"
+     ]
+    }
+   ]
+  },
+  {
+   "mode": "hybrid_legacy",
+   "overall": {
+    "n": 100,
+    "recall_at_1": 0.57,
+    "recall_at_5": 0.8,
+    "mrr": 0.672,
+    "primary_at_1": 0.42,
+    "code_contamination_at_5": 0.04,
+    "ci95": {
+     "recall_at_1": [
+      0.48,
+      0.66
+     ],
+     "recall_at_5": [
+      0.72,
+      0.87
+     ],
+     "mrr": [
+      0.594,
+      0.748
+     ]
+    }
+   },
+   "per_language": {
+    "ko": {
+     "n": 20,
+     "recall_at_1": 0.5,
+     "recall_at_5": 0.7,
+     "mrr": 0.573,
+     "primary_at_1": 0.4,
+     "code_contamination_at_5": 0.0,
+     "ci95": {
+      "recall_at_1": [
+       0.3,
+       0.7
+      ],
+      "recall_at_5": [
+       0.5,
+       0.9
+      ],
+      "mrr": [
+       0.372,
+       0.76
+      ]
+     }
+    },
+    "en": {
+     "n": 20,
+     "recall_at_1": 0.6,
+     "recall_at_5": 0.75,
+     "mrr": 0.675,
+     "primary_at_1": 0.4,
+     "code_contamination_at_5": 0.067,
+     "ci95": {
+      "recall_at_1": [
+       0.4,
+       0.8
+      ],
+      "recall_at_5": [
+       0.55,
+       0.95
+      ],
+      "mrr": [
+       0.475,
+       0.85
+      ]
+     }
+    },
+    "id": {
+     "n": 20,
+     "recall_at_1": 0.6,
+     "recall_at_5": 0.95,
+     "mrr": 0.767,
+     "primary_at_1": 0.55,
+     "code_contamination_at_5": 0.067,
+     "ci95": {
+      "recall_at_1": [
+       0.4,
+       0.8
+      ],
+      "recall_at_5": [
+       0.85,
+       1.0
+      ],
+      "mrr": [
+       0.625,
+       0.9
+      ]
+     }
+    },
+    "vi": {
+     "n": 20,
+     "recall_at_1": 0.5,
+     "recall_at_5": 0.75,
+     "mrr": 0.613,
+     "primary_at_1": 0.3,
+     "code_contamination_at_5": 0.067,
+     "ci95": {
+      "recall_at_1": [
+       0.3,
+       0.7
+      ],
+      "recall_at_5": [
+       0.55,
+       0.9
+      ],
+      "mrr": [
+       0.438,
+       0.787
+      ]
+     }
+    },
+    "zh-CN": {
+     "n": 20,
+     "recall_at_1": 0.65,
+     "recall_at_5": 0.85,
+     "mrr": 0.733,
+     "primary_at_1": 0.45,
+     "code_contamination_at_5": 0.0,
+     "ci95": {
+      "recall_at_1": [
+       0.45,
+       0.85
+      ],
+      "recall_at_5": [
+       0.7,
+       1.0
+      ],
+      "mrr": [
+       0.558,
+       0.892
+      ]
+     }
+    }
+   },
+   "latency_ms": {
+    "mean": 45.1,
+    "p95": 63.9,
+    "note": "local in-memory store; excludes network/database time"
+   },
+   "misses": [
+    {
+     "question_id": "S01-en",
+     "scenario_id": "S01",
+     "language": "en",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": 0.0,
+     "latency_ms": 49.9,
+     "top_titles": [
+      "Resident Card in South Korea",
+      "Guide for International Student in Korea",
+      "Study in Korea | Run by Korean Government"
+     ]
+    },
+    {
+     "question_id": "S01-ko",
+     "scenario_id": "S01",
+     "language": "ko",
+     "rank": 5,
+     "primary_first": false,
+     "contamination": 0.0,
+     "latency_ms": 55.3,
+     "top_titles": [
+      "Study in Korea | Run by Korean Government",
+      "Changing visa status",
+      "Resident Card in South Korea"
+     ]
+    },
+    {
+     "question_id": "S01-vi",
+     "scenario_id": "S01",
+     "language": "vi",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": 0.0,
+     "latency_ms": 58.8,
+     "top_titles": [
+      "Study in Korea | Run by Korean Government",
+      "Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run by Korean Government",
+      "Study in Korea | Run by Korean Government"
+     ]
+    },
+    {
+     "question_id": "S01-zh-CN",
+     "scenario_id": "S01",
+     "language": "zh-CN",
+     "rank": 3,
+     "primary_first": false,
+     "contamination": 0.0,
+     "latency_ms": 72.0,
+     "top_titles": [
+      "Travel and Re-entry Documents",
+      "Study in Korea | Run by Korean Government",
+      "Travel and Re-entry Documents"
+     ]
+    },
+    {
+     "question_id": "S02-ko",
+     "scenario_id": "S02",
+     "language": "ko",
+     "rank": 4,
+     "primary_first": false,
+     "contamination": 0.0,
+     "latency_ms": 41.8,
+     "top_titles": [
+      "[중요공지] 외국인 유학생 불법 취업(무단 아르바이트) 관련 주의 안내",
+      "수강신청 안내",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S03-ko",
+     "scenario_id": "S03",
+     "language": "ko",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 39.9,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S04-ko",
+     "scenario_id": "S04",
+     "language": "ko",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 43.5,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S05-en",
+     "scenario_id": "S05",
+     "language": "en",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 33.8,
+     "top_titles": [
+      "Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run by Korean Government",
+      "Change of Address in South Korea",
+      "Change of Address in South Korea"
+     ]
+    },
+    {
+     "question_id": "S06-vi",
+     "scenario_id": "S06",
+     "language": "vi",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 53.7,
+     "top_titles": [
+      "Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run by Korean Government",
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea"
+     ]
+    },
+    {
+     "question_id": "S07-id",
+     "scenario_id": "S07",
+     "language": "id",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 48.9,
+     "top_titles": [
+      "Employment in Korea | Work in Korea | Study in Korea | Run by Korean Government",
+      "Employment in Korea | Work in Korea | Study in Korea | Run by Korean Government",
+      "Part-Time Employment for International Students in Korea — RAG Knowledge Base"
+     ]
+    },
+    {
+     "question_id": "S07-zh-CN",
+     "scenario_id": "S07",
+     "language": "zh-CN",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 33.9,
+     "top_titles": [
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S08-ko",
+     "scenario_id": "S08",
+     "language": "ko",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 43.4,
+     "top_titles": [
+      "모집요강",
+      "National Health Insurance",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S09-ko",
+     "scenario_id": "S09",
+     "language": "ko",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 43.6,
+     "top_titles": [
+      "모집요강",
+      "Medical and Hospital Guide",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S09-id",
+     "scenario_id": "S09",
+     "language": "id",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 38.7,
+     "top_titles": [
+      "National Health Insurance",
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea"
+     ]
+    },
+    {
+     "question_id": "S10-id",
+     "scenario_id": "S10",
+     "language": "id",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 49.9,
+     "top_titles": [
+      "Part-Time Employment for International Students in Korea — RAG Knowledge Base",
+      "Guide for International Student in Korea",
+      "TOPIK GUIDE"
+     ]
+    },
+    {
+     "question_id": "S10-vi",
+     "scenario_id": "S10",
+     "language": "vi",
+     "rank": 4,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 57.1,
+     "top_titles": [
+      "Part-Time Employment for International Students in Korea — RAG Knowledge Base",
+      "Employment in Korea | Work in Korea | Study in Korea | Run by Korean Government",
+      "Employment in Korea | Work in Korea | Study in Korea | Run by Korean Government"
+     ]
+    },
+    {
+     "question_id": "S10-zh-CN",
+     "scenario_id": "S10",
+     "language": "zh-CN",
+     "rank": 3,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 46.0,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S11-en",
+     "scenario_id": "S11",
+     "language": "en",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 36.1,
+     "top_titles": [
+      "Change of Address in South Korea",
+      "National Health Insurance",
+      "Resident Card in South Korea"
+     ]
+    },
+    {
+     "question_id": "S11-id",
+     "scenario_id": "S11",
+     "language": "id",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 38.4,
+     "top_titles": [
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea",
+      "수강신청 안내"
+     ]
+    },
+    {
+     "question_id": "S11-vi",
+     "scenario_id": "S11",
+     "language": "vi",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 45.7,
+     "top_titles": [
+      "모집요강",
+      "Guide for International Student in Korea",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S11-zh-CN",
+     "scenario_id": "S11",
+     "language": "zh-CN",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 33.1,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "수강신청 안내"
+     ]
+    },
+    {
+     "question_id": "S12-en",
+     "scenario_id": "S12",
+     "language": "en",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 42.2,
+     "top_titles": [
+      "Resident Card in South Korea",
+      "Change of Address in South Korea",
+      "Guide for International Student in Korea"
+     ]
+    },
+    {
+     "question_id": "S12-id",
+     "scenario_id": "S12",
+     "language": "id",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 44.1,
+     "top_titles": []
+    },
+    {
+     "question_id": "S12-vi",
+     "scenario_id": "S12",
+     "language": "vi",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 52.6,
+     "top_titles": [
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea"
+     ]
+    },
+    {
+     "question_id": "S12-zh-CN",
+     "scenario_id": "S12",
+     "language": "zh-CN",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 32.6,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "Guide for International Student in Korea"
+     ]
+    },
+    {
+     "question_id": "S13-en",
+     "scenario_id": "S13",
+     "language": "en",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 39.9,
+     "top_titles": [
+      "Part-Time Employment for International Students in Korea — RAG Knowledge Base",
+      "Guide for International Student in Korea",
+      "Part-Time Employment for International Students in Korea — RAG Knowledge Base"
+     ]
+    },
+    {
+     "question_id": "S13-vi",
+     "scenario_id": "S13",
+     "language": "vi",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 49.7,
+     "top_titles": [
+      "Guide for International Student in Korea",
+      "[생활관] 방학 중 교내(글로벌빌리지) 짐 보관 중단 및 교외 짐 보관 서비스 안내",
+      "[생활관] 2026 동계방학 생활관 입사생 모집 안내"
+     ]
+    },
+    {
+     "question_id": "S14-en",
+     "scenario_id": "S14",
+     "language": "en",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 77.9,
+     "top_titles": [
+      "Study in Korea | Run by Korean Government",
+      "Guide for International Student in Korea",
+      "Travel and Re-entry Documents"
+     ]
+    },
+    {
+     "question_id": "S14-ko",
+     "scenario_id": "S14",
+     "language": "ko",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 42.5,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S14-id",
+     "scenario_id": "S14",
+     "language": "id",
+     "rank": 3,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 44.9,
+     "top_titles": [
+      "Resident Card in South Korea",
+      "Study in Korea | Run by Korean Government",
+      "Guide for International Student in Korea"
+     ]
+    },
+    {
+     "question_id": "S14-vi",
+     "scenario_id": "S14",
+     "language": "vi",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 49.1,
+     "top_titles": [
+      "[중요공지] 외국인 유학생 불법 취업(무단 아르바이트) 관련 주의 안내",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S15-id",
+     "scenario_id": "S15",
+     "language": "id",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": 0.0,
+     "latency_ms": 63.9,
+     "top_titles": [
+      "Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run by Korean Government",
+      "Guide for International Student in Korea",
+      "Changing visa status"
+     ]
+    },
+    {
+     "question_id": "S15-vi",
+     "scenario_id": "S15",
+     "language": "vi",
+     "rank": null,
+     "primary_first": false,
+     "contamination": 0.0,
+     "latency_ms": 69.3,
+     "top_titles": [
+      "Study in Korea | Run by Korean Government",
+      "Study in Korea | Run by Korean Government",
+      "Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run by Korean Government"
+     ]
+    },
+    {
+     "question_id": "S15-zh-CN",
+     "scenario_id": "S15",
+     "language": "zh-CN",
+     "rank": null,
+     "primary_first": false,
+     "contamination": 0.0,
+     "latency_ms": 58.0,
+     "top_titles": [
+      "Study in Korea | Run by Korean Government",
+      "Change of Address in South Korea",
+      "Travel and Re-entry Documents"
+     ]
+    },
+    {
+     "question_id": "S16-ko",
+     "scenario_id": "S16",
+     "language": "ko",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 43.7,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "수강신청 주의사항"
+     ]
+    },
+    {
+     "question_id": "S17-en",
+     "scenario_id": "S17",
+     "language": "en",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 38.7,
+     "top_titles": [
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea"
+     ]
+    },
+    {
+     "question_id": "S17-vi",
+     "scenario_id": "S17",
+     "language": "vi",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 48.7,
+     "top_titles": [
+      "Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run by Korean Government",
+      "Guide for International Student in Korea",
+      "Travel and Re-entry Documents"
+     ]
+    },
+    {
+     "question_id": "S18-ko",
+     "scenario_id": "S18",
+     "language": "ko",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 40.0,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S18-id",
+     "scenario_id": "S18",
+     "language": "id",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 36.1,
+     "top_titles": [
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea"
+     ]
+    },
+    {
+     "question_id": "S18-zh-CN",
+     "scenario_id": "S18",
+     "language": "zh-CN",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 31.3,
+     "top_titles": [
+      "모집요강",
+      "Korea's Education System | Plan your studies | Study in Korea | Run by Korean Government",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S19-ko",
+     "scenario_id": "S19",
+     "language": "ko",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 41.5,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S20-en",
+     "scenario_id": "S20",
+     "language": "en",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 52.9,
+     "top_titles": [
+      "Resident Card in South Korea",
+      "Change of Address in South Korea",
+      "Change of Address in South Korea"
+     ]
+    },
+    {
+     "question_id": "S20-vi",
+     "scenario_id": "S20",
+     "language": "vi",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 53.4,
+     "top_titles": [
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea",
+      "“헬스케어 데이” 및 냉장고 점검 안내"
+     ]
+    }
+   ]
+  },
+  {
+   "mode": "hybrid",
+   "overall": {
+    "n": 100,
+    "recall_at_1": 0.81,
+    "recall_at_5": 0.95,
+    "mrr": 0.873,
+    "primary_at_1": 0.66,
+    "code_contamination_at_5": 0.0,
+    "ci95": {
+     "recall_at_1": [
+      0.73,
+      0.88
+     ],
+     "recall_at_5": [
+      0.9,
+      0.99
+     ],
+     "mrr": [
+      0.813,
+      0.923
+     ]
+    }
+   },
+   "per_language": {
+    "ko": {
+     "n": 20,
+     "recall_at_1": 0.8,
+     "recall_at_5": 0.85,
+     "mrr": 0.825,
+     "primary_at_1": 0.6,
+     "code_contamination_at_5": 0.0,
+     "ci95": {
+      "recall_at_1": [
+       0.6,
+       0.95
+      ],
+      "recall_at_5": [
+       0.7,
+       1.0
+      ],
+      "mrr": [
+       0.65,
+       0.95
+      ]
+     }
+    },
+    "en": {
+     "n": 20,
+     "recall_at_1": 0.8,
+     "recall_at_5": 0.95,
+     "mrr": 0.854,
+     "primary_at_1": 0.65,
+     "code_contamination_at_5": 0.0,
+     "ci95": {
+      "recall_at_1": [
+       0.6,
+       0.95
+      ],
+      "recall_at_5": [
+       0.85,
+       1.0
+      ],
+      "mrr": [
+       0.7,
+       0.967
+      ]
+     }
+    },
+    "id": {
+     "n": 20,
+     "recall_at_1": 0.85,
+     "recall_at_5": 1.0,
+     "mrr": 0.925,
+     "primary_at_1": 0.7,
+     "code_contamination_at_5": 0.0,
+     "ci95": {
+      "recall_at_1": [
+       0.7,
+       1.0
+      ],
+      "recall_at_5": [
+       1.0,
+       1.0
+      ],
+      "mrr": [
+       0.85,
+       1.0
+      ]
+     }
+    },
+    "vi": {
+     "n": 20,
+     "recall_at_1": 0.75,
+     "recall_at_5": 1.0,
+     "mrr": 0.867,
+     "primary_at_1": 0.65,
+     "code_contamination_at_5": 0.0,
+     "ci95": {
+      "recall_at_1": [
+       0.55,
+       0.95
+      ],
+      "recall_at_5": [
+       1.0,
+       1.0
+      ],
+      "mrr": [
+       0.758,
+       0.967
+      ]
+     }
+    },
+    "zh-CN": {
+     "n": 20,
+     "recall_at_1": 0.85,
+     "recall_at_5": 0.95,
+     "mrr": 0.892,
+     "primary_at_1": 0.7,
+     "code_contamination_at_5": 0.0,
+     "ci95": {
+      "recall_at_1": [
+       0.7,
+       1.0
+      ],
+      "recall_at_5": [
+       0.85,
+       1.0
+      ],
+      "mrr": [
+       0.767,
+       1.0
+      ]
+     }
+    }
+   },
+   "latency_ms": {
+    "mean": 70.6,
+    "p95": 112.4,
+    "note": "local in-memory store; excludes network/database time"
+   },
+   "misses": [
+    {
+     "question_id": "S03-vi",
+     "scenario_id": "S03",
+     "language": "vi",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 82.6,
+     "top_titles": [
+      "Change of Address in South Korea",
+      "Resident Card in South Korea",
+      "Resident Card in South Korea"
+     ]
+    },
+    {
+     "question_id": "S04-zh-CN",
+     "scenario_id": "S04",
+     "language": "zh-CN",
+     "rank": 3,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 69.3,
+     "top_titles": [
+      "Travel and Re-entry Documents",
+      "모집요강",
+      "Resident Card in South Korea"
+     ]
+    },
+    {
+     "question_id": "S06-id",
+     "scenario_id": "S06",
+     "language": "id",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 85.7,
+     "top_titles": [
+      "Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run by Korean Government",
+      "Guide for International Student in Korea",
+      "Part-Time Employment for International Students in Korea — RAG Knowledge Base"
+     ]
+    },
+    {
+     "question_id": "S07-en",
+     "scenario_id": "S07",
+     "language": "en",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 68.9,
+     "top_titles": [
+      "Change of Address in South Korea",
+      "Part-Time Employment for International Students in Korea — RAG Knowledge Base",
+      "Change of Address in South Korea"
+     ]
+    },
+    {
+     "question_id": "S08-id",
+     "scenario_id": "S08",
+     "language": "id",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 69.8,
+     "top_titles": [
+      "모집요강",
+      "National Health Insurance",
+      "National Health Insurance"
+     ]
+    },
+    {
+     "question_id": "S11-id",
+     "scenario_id": "S11",
+     "language": "id",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 44.4,
+     "top_titles": [
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea",
+      "수강신청 안내"
+     ]
+    },
+    {
+     "question_id": "S12-en",
+     "scenario_id": "S12",
+     "language": "en",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 73.8,
+     "top_titles": [
+      "Resident Card in South Korea",
+      "Changing visa status",
+      "D2 visa extension"
+     ]
+    },
+    {
+     "question_id": "S12-vi",
+     "scenario_id": "S12",
+     "language": "vi",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 71.3,
+     "top_titles": [
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea",
+      "[생활관] 2026 동계방학 생활관 입사생 모집 안내"
+     ]
+    },
+    {
+     "question_id": "S14-vi",
+     "scenario_id": "S14",
+     "language": "vi",
+     "rank": 3,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 61.7,
+     "top_titles": [
+      "[중요공지] 외국인 유학생 불법 취업(무단 아르바이트) 관련 주의 안내",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S16-ko",
+     "scenario_id": "S16",
+     "language": "ko",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 50.8,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S16-vi",
+     "scenario_id": "S16",
+     "language": "vi",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 65.8,
+     "top_titles": [
+      "모집요강",
+      "Guide for International Student in Korea",
+      "Guide for International Student in Korea"
+     ]
+    },
+    {
+     "question_id": "S17-en",
+     "scenario_id": "S17",
+     "language": "en",
+     "rank": 3,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 66.6,
+     "top_titles": [
+      "Travel and Re-entry Documents",
+      "D2 visa extension",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S17-ko",
+     "scenario_id": "S17",
+     "language": "ko",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 60.3,
+     "top_titles": [
+      "수강신청 주의사항",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S18-ko",
+     "scenario_id": "S18",
+     "language": "ko",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 51.1,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S18-zh-CN",
+     "scenario_id": "S18",
+     "language": "zh-CN",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 32.1,
+     "top_titles": [
+      "모집요강",
+      "Korea's Education System | Plan your studies | Study in Korea | Run by Korean Government",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S19-ko",
+     "scenario_id": "S19",
+     "language": "ko",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 47.3,
+     "top_titles": [
+      "모집요강",
+      "모집요강",
+      "모집요강"
+     ]
+    },
+    {
+     "question_id": "S20-en",
+     "scenario_id": "S20",
+     "language": "en",
+     "rank": 4,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 69.4,
+     "top_titles": [
+      "Resident Card in South Korea",
+      "Guide for International Student in Korea",
+      "Medical and Hospital Guide"
+     ]
+    },
+    {
+     "question_id": "S20-vi",
+     "scenario_id": "S20",
+     "language": "vi",
+     "rank": 2,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 77.7,
+     "top_titles": [
+      "[생활관] 방학 중 교내(글로벌빌리지) 짐 보관 중단 및 교외 짐 보관 서비스 안내",
+      "“헬스케어 데이” 및 냉장고 점검 안내",
+      "Guide for International Student in Korea"
+     ]
+    },
+    {
+     "question_id": "S20-zh-CN",
+     "scenario_id": "S20",
+     "language": "zh-CN",
+     "rank": null,
+     "primary_first": false,
+     "contamination": null,
+     "latency_ms": 52.0,
+     "top_titles": [
+      "수강신청 안내",
+      "모집요강",
+      "Resident Card in South Korea"
+     ]
+    }
+   ]
+  }
+ ],
+ "threshold_study": [
+  {
+   "threshold": 0.76,
+   "queries_keeping_a_relevant_chunk": 0.95,
+   "irrelevant_chunks_removed": 0.005
+  },
+  {
+   "threshold": 0.78,
+   "queries_keeping_a_relevant_chunk": 0.95,
+   "irrelevant_chunks_removed": 0.016
+  },
+  {
+   "threshold": 0.8,
+   "queries_keeping_a_relevant_chunk": 0.94,
+   "irrelevant_chunks_removed": 0.183
+  },
+  {
+   "threshold": 0.82,
+   "queries_keeping_a_relevant_chunk": 0.86,
+   "irrelevant_chunks_removed": 0.445
+  },
+  {
+   "threshold": 0.84,
+   "queries_keeping_a_relevant_chunk": 0.65,
+   "irrelevant_chunks_removed": 0.758
+  }
+ ]
+}

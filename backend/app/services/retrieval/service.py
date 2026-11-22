@@ -206,7 +206,9 @@ class RetrievalService:
             coverage, matched = lex[cid]
             codes_here = find_codes(normalize_codes(texts[cid]))
             exact = bool(qa.codes) and code_matches(qa.codes, codes_here) or bool(c.get("exact_match")) and not qa.codes
-            strong_lex = coverage >= 0.5 or exact
+            # the code itself is one of the weighted terms, so a passage that merely mentions "D-2" does not reach
+            # 0.5 coverage on its own when the question asks about something else as well
+            strong_lex = coverage >= 0.5
             if sim is None and not strong_lex:
                 continue          # keyword-only overlap on weak/broad words is not evidence
             if sim is not None and min_sim and sim < min_sim and not strong_lex:

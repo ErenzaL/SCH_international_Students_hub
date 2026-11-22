@@ -188,7 +188,9 @@ function ChatWidgetInner() {
       } else {
         const res = await postStream<AnonymousChatResponse>("/api/v1/assistant/chat/stream", {
           message: content, language: locale,
-          history: priorTurns.slice(-8).map(({ role, content: c }) => ({ role, content: c.slice(0, 4000) })),
+          // only the visitor's own earlier questions: the server never trusts assistant turns sent by a browser
+          history: priorTurns.filter((m) => m.role === "user").slice(-4)
+            .map(({ role, content: c }) => ({ role, content: c.slice(0, 2000) })),
         }, { signal: ctl.signal, onEvent });
         setMessages((m) => m.map((x) => (x.id === "streaming" ? {
           id: `a-${Date.now()}`, role: "assistant", content: res.answer, citations: res.citations,
@@ -198,7 +200,7 @@ function ChatWidgetInner() {
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") return;
       setMessages((m) => m.map((x) => (x.id === "streaming"
-        ? { ...x, id: `e-${Date.now()}`, streaming: false, failed: true, content: errorMessage(err) } : x)));
+        ? { ...x, id: `e-${Date.now()}`, streaming: false, failed: true, content: chatError(err, t) } : x)));
       setDraft(content);
     } finally {
       setBusy(false);
@@ -389,4 +391,15 @@ function ChatWidgetInner() {
 
 function pathname(): string {
   return typeof window === "undefined" ? "/" : window.location.pathname + window.location.search;
+}
+
+
+/** Friendly, localized error text for a failed assistant turn (stable error codes from the API). */
+export function chatError(err: unknown, t: (key: string) => string): string {
+  const code = err instanceof ApiError ? err.code : "";
+  if (code === "daily_limit") return t("errors.dailyLimit");
+  if (code === "rate_limited") return t("errors.rateLimited");
+  if (code === "network_error" || code === "stream_interrupted") return t("errors.network");
+  if (code === "internal_error" || (err instanceof ApiError && err.status >= 500)) return t("errors.generic");
+  return errorMessage(err);
 }

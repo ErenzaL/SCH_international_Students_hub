@@ -191,7 +191,12 @@ def main() -> None:
     except OSError:
         commit = None
     s = svc.retrieval.settings
-    out = dict(benchmark=bench["dataset_version"], review_status="draft_unreviewed (AI-drafted labels)",
+    from app.services.assistant.prompts import load_system_prompt
+
+    prompt = load_system_prompt(getattr(s, "assistant_prompt_version", "system_v1"))
+    out = dict(benchmark=bench["dataset_version"],
+               prompt_version=prompt.version, prompt_sha256=prompt.sha256,
+               prompt_note="recorded for traceability; retrieval-only evaluation does not use the prompt", review_status="draft_unreviewed (AI-drafted labels)",
                queries=len(bench["records"]), corpus_sha256=hashlib.sha256(a.corpus.read_bytes()).hexdigest()[:16],
                git_commit=commit, index=info, top_k=a.top_k,
                settings=dict(retrieval_min_similarity=s.retrieval_min_similarity, fusion=s.retrieval_fusion,

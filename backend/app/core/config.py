@@ -117,6 +117,13 @@ class Settings(BaseSettings):
     assistant_strong_similarity: float = 0.84
     assistant_anonymous_chat: bool = True     # visitors who are not signed in can chat (no history, no handoff)
     assistant_history_turns: int = 6          # earlier messages given to rewriting and generation
+    # behavioral specification: app/services/assistant/prompts/<version>.txt (recorded with every answer)
+    assistant_prompt_version: str = "system_v2"
+    # follow-up suggestion chips under answers (off: answers end when they are complete)
+    assistant_follow_up_suggestions: bool = False
+    assistant_max_sources: int = 4            # distinct source documents given to the model per answer
+    assistant_max_passages_per_source: int = 2
+    assistant_context_chars: int = 7000       # total passage text sent to the model
     # --- PDF extraction --------------------------------------------------------
     # subprocess: a child process per PDF with a hard timeout (a crash or OOM fails the job, not the service)
     pdf_extraction_isolation: str = "subprocess"     # subprocess | inline (tests)
@@ -146,6 +153,8 @@ class Settings(BaseSettings):
     llm_max_attempts_per_model: int = 2      # primary: 1 try + 1 retry on retryable errors; fallback: same bound
     llm_retry_base_seconds: float = 0.8      # exponential backoff with full jitter
     llm_retry_max_delay_seconds: float = 8.0  # a server-requested delay above this is not waited for (fail over)
+    llm_request_deadline_seconds: float = 45.0  # interactive calls: no new attempt starts after this much time
+    llm_fast_timeout_seconds: float = 12.0    # query rewriting: one quick attempt (fast model first)
     # --- AI usage budgets (in-process, reset at 00:00 KST; one instance) -------------------------------------
     ai_daily_limit_per_client: int = 40      # anonymous visitors, per client IP
     ai_daily_limit_per_user: int = 150       # signed-in students
@@ -162,12 +171,14 @@ class Settings(BaseSettings):
     rate_limit_ingest_per_minute: int = 20
     rate_limit_public_per_minute: int = 120
     rate_limit_chat_user_per_minute: int = 12      # signed-in assistant turns, per user id
+    rate_limit_chat_anonymous_per_minute: int = 6           # anonymous assistant turns per client IP
     rate_limit_chat_anonymous_global_per_minute: int = 60   # all anonymous assistant turns together (spoof-proof cap)
-    # Client IP resolution behind proxies. A header the edge proxy SETS (overwriting any client value) is trusted
-    # first, e.g. "true-client-ip" (Cloudflare in front of Render) - verify with GET /api/v1/admin/system/client-ip.
-    # Otherwise X-Forwarded-For is read from the RIGHT: the entry appended by the outermost of
-    # `trusted_proxy_hops` trusted proxies. The left-most X-Forwarded-For entry is client-controlled and never used.
-    client_ip_header: str = "true-client-ip"
+    # Client IP resolution behind proxies. X-Forwarded-For is read from the RIGHT: the entry appended by the
+    # outermost of `trusted_proxy_hops` trusted proxies (0 = ignore X-Forwarded-For, use the socket peer). The
+    # left-most entry is client-controlled and never used. A header the edge proxy SETS (overwriting any client
+    # value), e.g. "true-client-ip" or "cf-connecting-ip", can be trusted instead - but ONLY after verifying on the
+    # deployment that a client-sent value does not pass through (GET /api/v1/admin/system/client-ip). Empty = off.
+    client_ip_header: str = ""
     trusted_proxy_hops: int = 1
 
     @field_validator("supabase_url")

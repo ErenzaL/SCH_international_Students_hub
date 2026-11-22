@@ -61,6 +61,7 @@ class GeminiProvider:
     def __init__(self, api_key: str, *, primary: str, fallback: str = "", request_timeout: float = 30.0,
                  job_timeout: float = 120.0, thinking_level: str = "low", temperature: float | None = None,
                  max_attempts: int = 2, retry_base: float = 0.8, retry_max_delay: float = 8.0,
+                 deadline: float = 45.0, fast_timeout: float = 12.0,
                  client_factory: Callable[[], Any] | None = None, sleep: Callable[[float], None] = time.sleep):
         self.primary = primary.strip()
         self.fallback = (fallback or "").strip()
@@ -69,11 +70,17 @@ class GeminiProvider:
         self.model = self.primary
         self.request_timeout = request_timeout
         self.job_timeout = job_timeout
-        self.thinking_level = (thinking_level or "").strip().lower()
+        level = (thinking_level or "").strip().lower()
+        if level and level not in ("minimal", "low", "medium", "high"):
+            log.warning("ignoring unsupported GEMINI_THINKING_LEVEL %r (using the model default)", thinking_level)
+            level = ""
+        self.thinking_level = level
         self.temperature = temperature
         self.max_attempts = max(1, min(int(max_attempts), 4))
         self.retry_base = max(0.05, retry_base)
         self.retry_max_delay = max(0.0, retry_max_delay)
+        self.deadline = max(1.0, deadline)
+        self.fast_timeout = max(1.0, fast_timeout)
         self._api_key = api_key
         self._client: Any = None
         self._client_factory = client_factory
@@ -95,11 +102,13 @@ class GeminiProvider:
                     raise LLMError("llm_auth", "The Gemini API key is not configured.") from exc
         return self._client
 
-    def _config(self, system: str, max_tokens: int, effort: str | None) -> Any:
+    def _config(self, system: str, max_tokens: int, effort: str | None, fast: bool = False) -> Any:
         from google.genai import types
 
         level = _EFFORT_TO_LEVEL.get((effort or "").lower(), self.thinking_level) if effort else self.thinking_level
         timeout = self.request_timeout if max_tokens <= INTERACTIVE_MAX_TOKENS else self.job_timeout
+        if fast:
+            timeout = min(timeout, self.fast_timeout)
         kwargs: dict[str, Any] = dict(
             system_instruction=system,
             max_output_tokens=max_tokens + _THINKING_HEADROOM.get(level, 2048),
@@ -113,18 +122,20 @@ class GeminiProvider:
 
     # ------------------------------------------------------------------ public
     def complete(self, system: str, prompt: str, *, max_tokens: int = 16000, effort: str | None = None,
-                 purpose: str = "complete") -> LLMResult:
+                 purpose: str = "complete", fast: bool = False, **_: Any) -> LLMResult:
+        """``fast``: a quick auxiliary call (query rewriting) - one attempt on the fast (fallback, Flash-Lite) model,
+        then one on the other model only if the first is unavailable; short timeout."""
         def one(model: str, state: dict[str, Any]) -> LLMResult:
             resp = self._get_client().models.generate_content(model=model, contents=prompt,
-                                                              config=self._config(system, max_tokens, effort))
+                                                              config=self._config(system, max_tokens, effort, fast))
             text, finish, blocked = _read(resp)
             _check(text, finish, blocked, partial=False)
             return self._result(text, model, resp, state)
 
-        return self._run(one, purpose=purpose)
+        return self._run(one, purpose=purpose, fast=fast, interactive=max_tokens <= INTERACTIVE_MAX_TOKENS)
 
     def stream(self, system: str, prompt: str, on_text: Any, *, max_tokens: int = 4096,
-               effort: str | None = None, purpose: str = "stream") -> LLMResult:
+               effort: str | None = None, purpose: str = "stream", **_: Any) -> LLMResult:
         def one(model: str, state: dict[str, Any]) -> LLMResult:
             parts: list[str] = []
             last: Any = None
@@ -142,16 +153,24 @@ class GeminiProvider:
             _check(text, finish, blocked, partial=bool(state.get("delivered")))
             return self._result(text, model, last, state)
 
-        return self._run(one, purpose=purpose)
+        return self._run(one, purpose=purpose, interactive=True)
 
     # ------------------------------------------------------------------ policy
-    def _run(self, one: Callable[[str, dict[str, Any]], LLMResult], *, purpose: str) -> LLMResult:
-        chain = [("primary", self.primary)] + ([("fallback", self.fallback)] if self.fallback else [])
+    def _run(self, one: Callable[[str, dict[str, Any]], LLMResult], *, purpose: str, fast: bool = False,
+             interactive: bool = True) -> LLMResult:
+        if fast:
+            chain = ([("fallback", self.fallback)] if self.fallback else []) + [("primary", self.primary)]
+            attempts_per_model = 1
+        else:
+            chain = [("primary", self.primary)] + ([("fallback", self.fallback)] if self.fallback else [])
+            attempts_per_model = self.max_attempts
         state: dict[str, Any] = {"delivered": False, "attempts": 0}
         started = time.perf_counter()
         last: _Failure | None = None
         for role, model in chain:
-            for attempt in range(1, self.max_attempts + 1):
+            for attempt in range(1, attempts_per_model + 1):
+                if interactive and state["attempts"] and time.perf_counter() - started >= self.deadline:
+                    break         # the request already took too long: stop here instead of holding the worker
                 state["attempts"] += 1
                 state["role"] = role
                 t0 = time.perf_counter()
@@ -164,6 +183,7 @@ class GeminiProvider:
                     failure = _classify(exc, model)
                 else:
                     res.latency_ms = int((time.perf_counter() - started) * 1000)
+                    res.fallback_used = res.model_role == "fallback" and not fast
                     usage.attempt(provider=self.name, model=res.model, role=role, purpose=purpose, attempt=attempt,
                                   outcome="ok", latency_ms=int((time.perf_counter() - t0) * 1000),
                                   input_tokens=res.input_tokens, output_tokens=res.output_tokens,
@@ -173,7 +193,10 @@ class GeminiProvider:
                 if state["delivered"]:          # text already reached the student: never retry or fail over
                     failure.error.partial = True
                     failure.retry_same = failure.fallback_ok = False
-                delay = self._delay(attempt, failure) if failure.retry_same and attempt < self.max_attempts else None
+                delay = self._delay(attempt, failure) if failure.retry_same and attempt < attempts_per_model else None
+                if delay is not None and interactive:
+                    remaining = self.deadline - (time.perf_counter() - started)
+                    delay = delay if delay < remaining else None
                 usage.attempt(provider=self.name, model=model, role=role, purpose=purpose, attempt=attempt,
                               outcome="error", latency_ms=int((time.perf_counter() - t0) * 1000),
                               error_code=failure.error.code, retry_in_s=delay)
@@ -183,7 +206,7 @@ class GeminiProvider:
                 self._sleep(delay)
             if last is None or not last.fallback_ok:
                 break
-        usage.request(fallback_used=state.get("role") == "fallback")
+        usage.request(fallback_used=state.get("role") == "fallback" and not fast)
         assert last is not None
         raise last.error
 

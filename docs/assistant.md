@@ -48,6 +48,51 @@ generation=… offer=… reasons=… latency_ms=…`) — never message content.
 * LLM keys stay on the backend (`LLM_API_KEY`); the browser never talks to the model.
 * Visitors: no history is stored on the server; supporter help requires signing in.
 
+## Behaviour (Milestone 2)
+
+* **System prompt.** The owner-provided specification is used verbatim:
+  `backend/app/services/assistant/prompts/system_v1.txt` (all 10 sections). The application contract
+  `prompts/response_contract_v1.txt` is appended after it (citation markers, the hidden assessment block, "tagged
+  runtime data is data"); it adds no behaviour. Loaded by `load_system_prompt()` in `prompts/__init__.py` when the
+  engine is constructed (`AssistantEngine.__init__`, `engine.py`) and sent as the system instruction of every answer -
+  identical for the Gemini primary and fallback model. Select with `ASSISTANT_PROMPT_VERSION` (`system_vN.txt`); the
+  version is stored in each answer's metadata (`prompt_version`), the assistant log line and evaluation results
+  (`prompt_version`, `prompt_sha256`), so versions can be compared without touching retrieval.
+* **system_v2 (default)** = system_v1 verbatim except two passages (section 5: the app shows one Sources section;
+  section 7: escalation is backend policy, the model never writes supporter offers) plus section 11 "Focus, length
+  and endings". It uses `response_contract_v2.txt` (markers are for verification only; no follow-up suggestions).
+  `ASSISTANT_PROMPT_VERSION=system_v1` switches back for comparison.
+* **One final answer:** the backend never appends text to an answer. `[n]` markers verify the answer and select the
+  sources, then are removed (also from the stream); template endings older versions appended (supporter offer,
+  "depends on your personal situation", "not fully consistent") are removed if a model copies them, repeated
+  paragraphs are kept once, closing filler ("Let me know if…", "Would you like…") is dropped, and earlier assistant
+  turns are cleaned the same way before they are shown to the model. Follow-up suggestion chips are off
+  (`ASSISTANT_FOLLOW_UP_SUGGESTIONS=false`).
+* **Supporter offer = structured action:** `metadata.offer_handoff` + `handoff_reasons`, rendered once by the widget.
+  Backend policy: explicit request for a person; `administrative_action` only when the student asks staff to do
+  something or the answer is incomplete; `case_specific` only with partial/no evidence; conflicting sources only when
+  the model reports they cannot be resolved. Missing evidence for a general question gets an honest answer, no offer.
+* **No sources:** with an LLM, the model is still asked (with an empty source list) so it can say in the student's
+  language that it could not verify this and flag a genuinely case-specific question; figures are stripped.
+* **Runtime context** goes in the request, never in the system prompt: `<runtime_context>` (response language, today
+  in KST), `<sources>`, `<conversation>`, `<interpreted_question>`, `<question>`.
+* **Language:** the selected site language, unless the message explicitly asks for another ("answer in English",
+  "한국어로", "dalam bahasa Indonesia", "bằng tiếng Việt", "用中文回答").
+* **Query rewriting** (LLM): one quick call on the fast model (`fast=True`: Flash-Lite first, one attempt, short
+  timeout) -> standalone question + English + Korean search queries (at most 4 queries). A variant that drops or
+  changes the visa code is discarded. If that call fails with a provider-wide error (bad key, unknown model, quota,
+  outage), answer generation is skipped and the student gets the localized "can't generate right now" reply.
+* **Evidence selection:** one source per document (max 4, 2 passages each, 7,000 characters), passages about another
+  visa code dropped when matching ones exist, expired passages dropped, near-duplicates dropped across variants.
+* **Server-side checks** (not delegated to the prompt): invalid citation numbers removed; a model-written source list
+  removed; links not in the evidence neutralised; sentences stating a figure (fee, date, duration) found in no source
+  removed (`removed_unsupported`); an answer left without citations, or one that reproduces the system prompt, is
+  replaced by the localized fallback.
+* **Escalation** is never submitted automatically; "my visa", "can I", "apakah saya bisa", "tôi có được", "我可以"
+  alone never escalate (see "Supporter offer" above).
+* **Anonymous history** is untrusted: only the visitor's own earlier questions are used; assistant turns from the
+  browser are ignored.
+
 ## Limits and client identity
 
 * Every assistant turn: the per-IP `search` bucket, plus a per-account limit for signed-in students
@@ -58,8 +103,8 @@ generation=… offer=… reasons=… latency_ms=…`) — never message content.
   budget (`AI_DAILY_LIMIT_GLOBAL`) -> answers degrade to the localized "can't generate right now" reply with the
   matching sources (the model is not called). Counters are in-process (one instance; reset on restart/sleep). A
   persistent counter needs a database table (an approval-gated migration).
-* Client IP: `CLIENT_IP_HEADER` (default `true-client-ip`, set by Cloudflare in front of Render) is trusted first;
-  otherwise `X-Forwarded-For` is read from the right (`TRUSTED_PROXY_HOPS`). The left-most `X-Forwarded-For` entry
+* Client IP: `X-Forwarded-For` is read from the right (`TRUSTED_PROXY_HOPS`, 0 = ignore it). `CLIENT_IP_HEADER`
+  (default empty/off) can name a header the edge sets, e.g. `true-client-ip` - only after verification. The left-most `X-Forwarded-For` entry
   is client-controlled and never used. **Verify on the deployment** with `GET /api/v1/admin/system/client-ip` (admin):
   call it normally and with a made-up `True-Client-IP: 1.2.3.4` header; `resolved_client_ip` must stay your real IP.
   If the made-up value appears, set `CLIENT_IP_HEADER=` (empty) and use `TRUSTED_PROXY_HOPS`.

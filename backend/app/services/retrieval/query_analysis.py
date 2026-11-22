@@ -18,9 +18,19 @@ import re
 from dataclasses import dataclass, field
 
 CODE_LETTERS = "DEFGH"
-# letter, optional separator, 1-2 digits, optional "-<digits|R>" subtype; never glued to other letters/digits
+# letter, optional separator, 1-2 digits, optional subtype "-<digits>" or "-R"/"R" (a subtype needs the hyphen, so
+# "F-2 3 years" stays F-2); never glued to other letters/digits
 _CODE = re.compile(rf"(?<![A-Za-z0-9])([{CODE_LETTERS}{CODE_LETTERS.lower()}])[ -]?(\d{{1,2}})"
-                   r"(?:[ -]?(\d{1,2}|[Rr])(?![A-Za-z0-9]))?(?![A-Za-z0-9])")
+                   r"(?:-(\d{1,2})(?![A-Za-z0-9])|-?([Rr])(?![A-Za-z0-9]))?(?![A-Za-z0-9])")
+_COUNTDOWN_BEFORE = re.compile(r"(마감|접수|신청|deadline|due)\s*[(:]?\s*$", re.I)
+
+
+def _is_countdown(text: str, m: re.Match[str]) -> bool:
+    """'마감 D-7', 'D-3일', 'D-1 day' are deadline countdowns, not the D-7 / D-3 visa codes."""
+    if m.group(1).upper() != "D":
+        return False
+    after = text[m.end(): m.end() + 5]
+    return bool(re.match(r"\s?(일|days?\b)", after, re.I) or _COUNTDOWN_BEFORE.search(text[max(0, m.start() - 12): m.start()]))
 
 CONCEPTS: list[tuple[str, tuple[str, ...]]] = [
     ("residence_card", ("arc", "residence card", "resident card", "alien registration", "foreigner registration",
@@ -34,7 +44,7 @@ CONCEPTS: list[tuple[str, tuple[str, ...]]] = [
     ("part_time_work", ("part-time", "part time", "parttime", "시간제 취업", "시간제취업", "아르바이트", "알바",
                         "paruh waktu", "kerja sambilan", "làm thêm", "việc làm thêm", "打工", "兼职")),
     ("stay_extension", ("extension of stay", "stay extension", "extend", "extension", "체류기간 연장", "체류기간연장",
-                        "연장", "perpanjang", "perpanjangan", "memperpanjang", "diperpanjang", "gia hạn", "延长", "延期")),
+                        "extending", "extended", "연장", "perpanjang", "perpanjangan", "memperpanjang", "diperpanjang", "gia hạn", "延长", "延期")),
     ("tuition", ("tuition", "등록금", "uang kuliah", "biaya kuliah", "học phí", "学费")),
     ("scholarship", ("scholarship", "장학금", "장학", "beasiswa", "học bổng", "奖学金")),
     ("course_registration", ("course registration", "register for courses", "class registration", "수강신청",
@@ -87,12 +97,18 @@ def canonical_code(letter: str, num: str, sub: str | None) -> str:
     return f"{letter.upper()}-{int(num)}" + (f"-{sub.upper()}" if sub else "")
 
 
+def _canon(m: re.Match[str]) -> str:
+    return canonical_code(m.group(1), m.group(2), m.group(3) or m.group(4))
+
+
 def find_codes(text: str) -> set[str]:
-    return {canonical_code(m.group(1), m.group(2), m.group(3)) for m in _CODE.finditer(text or "")}
+    text = text or ""
+    return {_canon(m) for m in _CODE.finditer(text) if not _is_countdown(text, m)}
 
 
 def normalize_codes(text: str) -> str:
-    return _CODE.sub(lambda m: canonical_code(m.group(1), m.group(2), m.group(3)), text or "")
+    text = text or ""
+    return _CODE.sub(lambda m: m.group(0) if _is_countdown(text, m) else _canon(m), text)
 
 
 def code_variants(code: str) -> list[str]:
@@ -114,7 +130,11 @@ def _form_pattern(form: str) -> re.Pattern[str]:
     f = re.escape(form.lower())
     if _CJK.search(form):
         return re.compile(f)                       # CJK/Hangul: no word boundaries (particles attach)
-    return re.compile(rf"(?<![a-z0-9]){f}")         # word-start match ("visa" matches "visas", not "arcade" for arc)
+    if len(form) <= 6 and " " not in form:
+        # short words must match whole words ("nhi" must not match Vietnamese "nhiều", "arc" not "archive",
+        # "clinic" not "clinical"); a plural -s/-es is allowed
+        return re.compile(rf"(?<![a-z0-9]){f}(?:e?s)?(?![a-z0-9À-ɏḀ-ỿ])")
+    return re.compile(rf"(?<![a-z0-9]){f}")         # longer words: word-start match ("hospital" -> "hospitals")
 
 
 @dataclass
@@ -194,9 +214,10 @@ def analyze(query: str) -> QueryAnalysis:
     for t in terms:                       # ... then its equivalents in other languages
         if t.key.startswith("concept:"):
             keyword.extend(t.forms)
-    keyword = [k for k in dict.fromkeys(keyword) if k][:MAX_KEYWORD_TOKENS]
+    # very short Latin forms (arc, nhi) would substring-match everything in SQL ILIKE; acronyms go via exact terms
+    keyword = [k for k in dict.fromkeys(keyword) if k and (len(k) > 3 or _CJK.search(k))][:MAX_KEYWORD_TOKENS]
     exact = [v for c in sorted(codes) for v in code_variants(c)]
-    exact += [m.group(0).upper() for m in re.finditer(r"(?<![A-Za-z])(TOPIK|NHIS|ARC|HiKorea)(?![A-Za-z])", normalized,
+    exact += [m.group(0).upper() for m in re.finditer(r"(?<![A-Za-z])(TOPIK|NHIS|NHI|ARC|HiKorea)(?![A-Za-z])", normalized,
                                                      re.I)]
     exact = [e for e in dict.fromkeys(exact) if re.fullmatch(r"[A-Za-z0-9]+([ -][A-Za-z0-9]+)*", e)][:8]
     return QueryAnalysis(normalized=normalized, codes=codes, terms=terms, keyword_tokens=keyword, exact_terms=exact,
@@ -218,8 +239,42 @@ def lexical_scores(qa: QueryAnalysis, texts: dict[str, str]) -> dict[str, tuple[
     def idf(key: str) -> float:
         return math.log(1 + (n - df[key] + 0.5) / (df[key] + 0.5))
 
-    total = sum(idf(t.key) for t in qa.terms) or 1.0
-    return {cid: (sum(idf(t.key) for t in hs) / total, [t.key for t in hs]) for cid, hs in hits.items()}
+    out: dict[str, tuple[float, list[str]]] = {}
+    for cid, hs in hits.items():
+        # script-aware coverage: a plain query word written in a script the passage does not use (an English word
+        # against a Korean notice) could never match, so it does not count against that passage. Glossary concepts
+        # and codes always count - they carry forms in every script.
+        script = _script(lowered[cid])
+        counted = [t for t in qa.terms if not t.key.startswith("tok:") or _term_script(t) in (script, "mixed")
+                   or script == "mixed"]
+        total = sum(idf(t.key) for t in counted) or 1.0
+        full = sum(idf(t.key) for t in qa.terms) or 1.0
+        checkable = total / full            # share of the query (by weight) this passage could have matched at all
+        coverage = min(1.0, sum(idf(t.key) for t in hs) / total)
+        # less checkable -> less confident: a single concept match on a document in another script is a candidate,
+        # not proof (keeps a long Korean guide that mentions "TOPIK" once from outranking the TOPIK guide)
+        out[cid] = (coverage * (0.5 + 0.5 * checkable), [t.key for t in hs])
+    return out
+
+
+def _script(text: str) -> str:
+    """Dominant script of a text: 'hangul', 'han', 'latin' or 'mixed'."""
+    letters = [c for c in text if c.isalpha()]
+    if not letters:
+        return "mixed"
+    hangul = sum(1 for c in letters if "가" <= c <= "힣") / len(letters)
+    han = sum(1 for c in letters if "一" <= c <= "鿿") / len(letters)
+    if hangul >= 0.6:
+        return "hangul"
+    if han >= 0.6:
+        return "han"
+    if hangul + han <= 0.1:
+        return "latin"
+    return "mixed"
+
+
+def _term_script(term: Term) -> str:
+    return _script(" ".join(term.forms))
 
 
 def token_set(text: str) -> set[str]:

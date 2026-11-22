@@ -13,7 +13,7 @@ from fastapi.responses import StreamingResponse
 from app.api.deps import Pagination, get_services
 from app.api.sse import sse
 from app.core.errors import Forbidden, NotFound, ValidationFailed
-from app.core.rate_limit import limit_assistant_turn, rate_limit
+from app.core.rate_limit import limit_ai_action, limit_assistant_turn, rate_limit
 from app.repositories.base import Query as DbQuery
 from app.repositories.base import get_many, get_one
 from app.schemas.api import (
@@ -130,6 +130,7 @@ def handoff_draft(conversation_id: str, svc: Services = Depends(get_services),
     """A reviewable draft of a Global Supporter request (nothing is sent). The student confirms with
     POST /support/tickets (consent=true); the request is routed to the team of their preferred language."""
     c = svc.conversations.get_own(conversation_id, user.id)
+    limit_ai_action(user.id, svc.settings, ai_enabled=svc.llm.enabled)   # the summary may call the LLM
     from app.services.assistant.handoff import build_handoff_draft
 
     return build_handoff_draft(svc.store, svc.conversations.llm, c, user.preferred_language)

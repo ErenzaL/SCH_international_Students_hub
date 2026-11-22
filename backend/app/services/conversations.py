@@ -126,9 +126,12 @@ class ConversationService:
                       ) -> dict[str, Any]:
         """Stateless turn for visitors who are not signed in: nothing is stored; the client sends recent turns.
         Supporter handoff needs an account, so the offer only tells the visitor to sign in."""
-        clean = [{"role": m["role"], "content": str(m["content"])[:2000]} for m in history[-self.history_turns:]
-                 if m.get("role") in ("user", "assistant") and m.get("content")]
-        out = self.engine.respond(content, language=language if language in LANGS else "en", history=clean, emit=emit)
+        # browser-supplied history is untrusted: only the visitor's own earlier questions are used (for follow-ups);
+        # assistant turns sent by the client are ignored, so nobody can put words in the assistant's mouth
+        clean = [{"role": "user", "content": str(m["content"])[:2000]} for m in history
+                 if m.get("role") == "user" and m.get("content")][-4:]
+        out = self.engine.respond(content, language=language if language in LANGS else "en", history=clean, emit=emit,
+                                  trusted_history=False)
         return dict(answer=out["answer"], language=out["language"], citations=out["citations"],
                     metadata=self._metadata(out) | {"sign_in_required_for_handoff": out["offer_handoff"]})
 

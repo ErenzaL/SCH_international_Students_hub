@@ -1751,6 +1751,12 @@
       "references": "Sources mentioned: {list}",
       "consent": "I agree to share this summary and the selected messages with a Global Supporter of my language team.",
       "send": "Send request"
+    },
+    "errors": {
+      "dailyLimit": "You've reached today's limit for assistant answers. Please try again tomorrow, or browse the Knowledge Center.",
+      "rateLimited": "You're sending messages a little too quickly. Please wait a moment and try again.",
+      "network": "The connection was interrupted before the answer finished. Please try again.",
+      "generic": "The assistant couldn't answer right now. Please try again in a moment."
     }
   }
 }

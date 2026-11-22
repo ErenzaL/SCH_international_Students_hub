@@ -1,11 +1,12 @@
 """In-process rate limits and daily AI budgets (single Render instance).
 
 Client identity behind proxies (see ``client_ip``):
-  * a header the edge proxy SETS (``CLIENT_IP_HEADER``, default ``true-client-ip`` from Cloudflare in front of
-    Render) is trusted first - verify on the deployment with ``GET /api/v1/admin/system/client-ip``;
-  * otherwise ``X-Forwarded-For`` is read from the RIGHT: proxies append, so only the entries added by the
+  * ``X-Forwarded-For`` is read from the RIGHT: proxies append, so only the entries added by the
     ``TRUSTED_PROXY_HOPS`` trusted proxies are reliable. The left-most entry is whatever the client sent and is
-    never used (it was the bypass found in the audit).
+    never used (it was the bypass found in the audit). ``TRUSTED_PROXY_HOPS=0`` ignores the header entirely;
+  * a header the edge proxy SETS (``CLIENT_IP_HEADER``, e.g. ``true-client-ip``) is trusted first, but it is OFF
+    by default: enable it only after ``GET /api/v1/admin/system/client-ip`` shows that a client-sent value does not
+    pass through (otherwise every request could claim a new identity);
 Spoofing can still never exceed the GLOBAL anonymous cap (``rate_limit_chat_anonymous_global_per_minute``) or the
 global daily AI budget, so a misconfigured proxy setting degrades fairness, not cost safety.
 
@@ -37,11 +38,17 @@ class DailyLimitReached(AppError):
 
 
 class SlidingWindowLimiter:
+    MAX_KEYS = 50_000
+
     def __init__(self) -> None:
         self._hits: dict[tuple[str, str], deque[float]] = defaultdict(deque)
         self._lock = threading.Lock()
+        self._last_sweep = 0.0
 
     def check(self, key: str, bucket: str, limit: int, window: float = 60.0) -> None:
+        """Count one hit; RateLimited when ``limit`` hits already fall inside the window. limit <= 0 = unlimited."""
+        if limit <= 0:
+            return
         now = time.monotonic()
         with self._lock:
             q = self._hits[(bucket, key)]
@@ -51,9 +58,15 @@ class SlidingWindowLimiter:
                 retry = max(1, int(window - (now - q[0])))
                 raise RateLimited(f"Too many requests. Try again in {retry}s.", details={"retry_after": retry})
             q.append(now)
-            if len(self._hits) > 50_000:   # bound memory: drop idle keys
-                for k in [k for k, v in self._hits.items() if not v or now - v[-1] > window][:25_000]:
+            # bound memory: sweep idle keys at most every 10 s, then evict the oldest if still above the cap
+            if len(self._hits) > self.MAX_KEYS and now - self._last_sweep > 10:
+                self._last_sweep = now
+                for k in [k for k, v in self._hits.items() if not v or now - v[-1] > window]:
                     self._hits.pop(k, None)
+                if len(self._hits) > self.MAX_KEYS:
+                    oldest = sorted(self._hits.items(), key=lambda kv: kv[1][-1] if kv[1] else 0.0)
+                    for k, _v in oldest[: len(self._hits) - self.MAX_KEYS]:
+                        self._hits.pop(k, None)
 
     def reset(self) -> None:
         with self._lock:
@@ -72,6 +85,12 @@ class DailyBudget:
         day = datetime.now(KST).date().isoformat()
         if day != self._day:
             self._day, self._counts = day, defaultdict(int)
+
+    def available(self, key: str, limit: int) -> bool:
+        """Would ``take`` succeed? (nothing is consumed)"""
+        with self._lock:
+            self._roll()
+            return limit <= 0 or self._counts.get(key, 0) < limit
 
     def take(self, key: str, limit: int) -> bool:
         """Consume one unit; False (nothing consumed) when the key reached its limit. limit <= 0 = unlimited."""
@@ -123,10 +142,10 @@ def client_ip(request: Request, settings: Settings | None = None) -> str:
         ip = _valid_ip(request.headers.get(header))
         if ip:
             return ip
-    fwd = request.headers.get("x-forwarded-for")
+    n = int(s.trusted_proxy_hops if s.trusted_proxy_hops is not None else 1)
+    fwd = request.headers.get("x-forwarded-for") if n > 0 else None
     if fwd:
         hops = [h for h in (x.strip() for x in fwd.split(",")) if h]
-        n = max(1, int(s.trusted_proxy_hops or 1))
         if hops:
             ip = _valid_ip(hops[-n] if len(hops) >= n else hops[0])
             if ip:
@@ -160,11 +179,30 @@ def limit_assistant_turn(request: Request, s: Settings, *, user_id: str | None, 
     Signed-in students are limited per account; anonymous visitors per client IP AND by a global anonymous cap
     that header spoofing cannot get around. Daily limits apply only when answers are AI-generated."""
     if user_id:
-        limiter.check(f"user:{user_id}", "chat-user", s.rate_limit_chat_user_per_minute)
         key, daily = f"user:{user_id}", s.ai_daily_limit_per_user
-    else:
-        limiter.check("anonymous", "chat-anon-global", s.rate_limit_chat_anonymous_global_per_minute)
-        key, daily = f"ip:{client_ip(request, s)}", s.ai_daily_limit_per_client
-    if ai_enabled and not ai_budget.take(key, daily):
-        raise DailyLimitReached("You have reached today's limit for assistant answers. Please try again tomorrow, "
-                                "or browse the Knowledge Center.", details={"limit": daily})
+        limiter.check(key, "chat-user", s.rate_limit_chat_user_per_minute)
+        _daily(key, daily, ai_enabled)
+        return
+    key, daily = f"ip:{client_ip(request, s)}", s.ai_daily_limit_per_client
+    # per-client checks FIRST, so one client (or a refused request) can never use up the shared global slots
+    limiter.check(key, "chat-anon-ip", s.rate_limit_chat_anonymous_per_minute)
+    if ai_enabled and not ai_budget.available(key, daily):
+        raise _daily_error(daily)
+    limiter.check("anonymous", "chat-anon-global", s.rate_limit_chat_anonymous_global_per_minute)
+    _daily(key, daily, ai_enabled)
+
+
+def limit_ai_action(user_id: str, s: Settings, *, ai_enabled: bool) -> None:
+    """Other per-user AI calls (e.g. the supporter-handoff summary): per-minute limit + the user's daily budget."""
+    limiter.check(f"user:{user_id}", "ai-action", s.rate_limit_chat_user_per_minute)
+    _daily(f"user:{user_id}", s.ai_daily_limit_per_user, ai_enabled)
+
+
+def _daily_error(limit: int) -> DailyLimitReached:
+    return DailyLimitReached("You have reached today's limit for assistant answers. Please try again tomorrow, "
+                             "or browse the Knowledge Center.", details={"limit": limit})
+
+
+def _daily(key: str, limit: int, ai_enabled: bool) -> None:
+    if ai_enabled and not ai_budget.take(key, limit):
+        raise _daily_error(limit)

@@ -1751,6 +1751,12 @@
       "references": "Nguồn được nhắc đến: {list}",
       "consent": "Tôi đồng ý chia sẻ bản tóm tắt này và các tin nhắn đã chọn với một Global Supporter trong nhóm ngôn ngữ của tôi.",
       "send": "Gửi yêu cầu"
+    },
+    "errors": {
+      "dailyLimit": "Bạn đã dùng hết lượt trả lời của trợ lý hôm nay. Vui lòng thử lại vào ngày mai hoặc xem Trung tâm Kiến thức.",
+      "rateLimited": "Bạn đang gửi tin nhắn hơi nhanh. Vui lòng đợi một chút rồi thử lại.",
+      "network": "Kết nối bị gián đoạn trước khi câu trả lời hoàn tất. Vui lòng thử lại.",
+      "generic": "Trợ lý hiện không thể trả lời. Vui lòng thử lại sau ít phút."
     }
   }
 }

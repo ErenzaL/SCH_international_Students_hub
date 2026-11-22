@@ -1751,6 +1751,12 @@
       "references": "Sumber yang disebutkan: {list}",
       "consent": "Saya setuju membagikan ringkasan ini dan pesan yang dipilih kepada Global Supporter dari tim bahasa saya.",
       "send": "Kirim permintaan"
+    },
+    "errors": {
+      "dailyLimit": "Anda telah mencapai batas jawaban asisten hari ini. Silakan coba lagi besok, atau telusuri Pusat Pengetahuan.",
+      "rateLimited": "Anda mengirim pesan terlalu cepat. Mohon tunggu sebentar lalu coba lagi.",
+      "network": "Koneksi terputus sebelum jawaban selesai. Silakan coba lagi.",
+      "generic": "Asisten tidak dapat menjawab saat ini. Silakan coba lagi sebentar lagi."
     }
   }
 }

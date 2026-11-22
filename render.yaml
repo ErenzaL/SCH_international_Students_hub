@@ -27,12 +27,13 @@ services:
       - { key: GEMINI_PRIMARY_MODEL, value: gemini-3.6-flash }       # gemini-3.5-flash is deprecated -> routed here
       - { key: GEMINI_FALLBACK_MODEL, value: gemini-3.5-flash-lite }
       - { key: GEMINI_THINKING_LEVEL, value: low }
+      - { key: ASSISTANT_PROMPT_VERSION, value: system_v2 }  # backend/app/services/assistant/prompts/system_v2.txt (v1 kept)
       - { key: LLM_REQUEST_TIMEOUT_SECONDS, value: "30" }
       - { key: LLM_MAX_ATTEMPTS_PER_MODEL, value: "2" }
       - { key: AI_DAILY_LIMIT_PER_CLIENT, value: "40" }   # anonymous visitors, per client IP
       - { key: AI_DAILY_LIMIT_PER_USER, value: "150" }    # signed-in students
       - { key: AI_DAILY_LIMIT_GLOBAL, value: "1500" }     # all generated answers per KST day
-      - { key: CLIENT_IP_HEADER, value: true-client-ip }  # verify: GET /api/v1/admin/system/client-ip
+      - { key: CLIENT_IP_HEADER, value: "" }              # set (e.g. true-client-ip) ONLY after the client-ip check passes
       - { key: TRUSTED_PROXY_HOPS, value: "1" }
       # Phase 2 ---------------------------------------------------------------------------------
       - { key: JOB_EXECUTION, value: worker }        # persistent queue claimed by an in-process worker

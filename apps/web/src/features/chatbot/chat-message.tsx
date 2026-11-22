@@ -22,12 +22,18 @@ function citeHref(c: ConversationCitation | undefined): string | null {
   return c.document_id ? `/knowledge/${c.document_id}` : c.source_url;
 }
 
-/** Sources to list under an answer: the ones the answer cites (or all, for evidence-only replies). */
+/** Sources to list under an answer: the ones the answer cites (or all, for evidence-only replies), each document
+ * once (older messages stored one citation per passage). */
 export function visibleCitations(m: Pick<ChatMsg, "citations" | "metadata">): ConversationCitation[] {
   const cs = m.citations ?? [];
   const generated = m.metadata?.answer_generation === "llm";
-  const cited = cs.filter((c) => c.cited);
-  return generated ? cited : cs;
+  const seen = new Set<string>();
+  return (generated ? cs.filter((c) => c.cited) : cs).filter((c) => {
+    const key = c.document_id ?? c.source_url ?? c.document_title ?? String(c.n);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export function ChatMessageView({ m, onRetry }: { m: ChatMsg; onRetry?: () => void }) {
@@ -60,9 +66,10 @@ export function ChatMessageView({ m, onRetry }: { m: ChatMsg; onRetry?: () => vo
               renderCitation: (n, key) => {
                 const href = citeHref(byN.get(n));
                 return href ? (
-                  <a key={key} href={href} className="align-super text-[0.7em] font-semibold text-primary no-underline"
+                  <a key={key} href={href}
+                     className="ml-0.5 inline-flex min-w-[1.1rem] -translate-y-1 items-center justify-center rounded-full bg-primary/10 px-1 text-[0.65em] font-semibold leading-4 text-primary no-underline hover:bg-primary/20"
                      aria-label={t("sourceN", { n })} title={byN.get(n)?.document_title ?? undefined}>
-                    [{n}]
+                    {n}
                   </a>
                 ) : null;
               },
@@ -80,10 +87,12 @@ export function ChatMessageView({ m, onRetry }: { m: ChatMsg; onRetry?: () => vo
           </p>
         )}
         {sources.length > 0 && !m.streaming && (
-          <ol className="space-y-1 border-t border-border/60 pt-2 text-xs" aria-label={t("sources")}>
+          <div className="border-t border-border/60 pt-2 text-xs" data-testid="answer-sources">
+          <p className="mb-1 font-semibold text-muted-foreground">{t("sources")}</p>
+          <ul className="space-y-1" aria-label={t("sources")}>
             {sources.map((c) => (
               <li key={c.n} className="flex items-start gap-1.5">
-                <span className="font-semibold text-muted-foreground">[{c.n}]</span>
+                <span aria-hidden className="mt-1.5 size-1 shrink-0 rounded-full bg-muted-foreground/60" />
                 <span className="min-w-0 flex-1">
                   {c.document_id ? (
                     <Link href={`/knowledge/${c.document_id}`} className="font-medium text-primary hover:underline">
@@ -103,7 +112,8 @@ export function ChatMessageView({ m, onRetry }: { m: ChatMsg; onRetry?: () => vo
                 )}
               </li>
             ))}
-          </ol>
+          </ul>
+          </div>
         )}
       </div>
     </div>

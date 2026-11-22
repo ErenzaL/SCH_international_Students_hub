@@ -49,10 +49,11 @@ class LLMProvider(Protocol):
     model: str
     enabled: bool
 
-    def complete(self, system: str, prompt: str, *, max_tokens: int = 16000, effort: str | None = None) -> LLMResult: ...
+    def complete(self, system: str, prompt: str, *, max_tokens: int = 16000, effort: str | None = None,
+                 **_: Any) -> LLMResult: ...
 
     def stream(self, system: str, prompt: str, on_text: Any, *, max_tokens: int = 4096,
-               effort: str | None = None) -> LLMResult: ...
+               effort: str | None = None, **_: Any) -> LLMResult: ...
 
 
 class NullLLMProvider:
@@ -60,11 +61,12 @@ class NullLLMProvider:
     model = ""
     enabled = False
 
-    def complete(self, system: str, prompt: str, *, max_tokens: int = 16000, effort: str | None = None) -> LLMResult:
+    def complete(self, system: str, prompt: str, *, max_tokens: int = 16000, effort: str | None = None,
+                 **_: Any) -> LLMResult:
         raise LLMError("llm_disabled", "No LLM provider is configured (LLM_PROVIDER=none).")
 
     def stream(self, system: str, prompt: str, on_text: Any, *, max_tokens: int = 4096,
-               effort: str | None = None) -> LLMResult:
+               effort: str | None = None, **_: Any) -> LLMResult:
         raise LLMError("llm_disabled", "No LLM provider is configured (LLM_PROVIDER=none).")
 
 
@@ -97,11 +99,12 @@ class AnthropicProvider:
                     # on a policy decline the API re-runs the request on a fallback model inside the same call
                     betas=["server-side-fallback-2026-07-01"], fallbacks="default")
 
-    def complete(self, system: str, prompt: str, *, max_tokens: int = 16000, effort: str | None = None) -> LLMResult:
+    def complete(self, system: str, prompt: str, *, max_tokens: int = 16000, effort: str | None = None,
+                 **_: Any) -> LLMResult:
         return self._call(lambda c: c.beta.messages.create(**self._kwargs(system, prompt, max_tokens, effort)))
 
     def stream(self, system: str, prompt: str, on_text: Any, *, max_tokens: int = 4096,
-               effort: str | None = None) -> LLMResult:
+               effort: str | None = None, **_: Any) -> LLMResult:
         """Streams text deltas to ``on_text`` and returns the final message (same checks as ``complete``)."""
         def run(c: Any) -> Any:
             with c.beta.messages.stream(**self._kwargs(system, prompt, max_tokens, effort)) as s:
@@ -157,7 +160,8 @@ class ScriptedLLMProvider:
         self.model = model
         self.calls: list[tuple[str, str]] = []
 
-    def complete(self, system: str, prompt: str, *, max_tokens: int = 16000, effort: str | None = None) -> LLMResult:
+    def complete(self, system: str, prompt: str, *, max_tokens: int = 16000, effort: str | None = None,
+                 **_: Any) -> LLMResult:
         self.calls.append((system, prompt))
         out = self.responder(system, prompt)
         if isinstance(out, Exception):
@@ -165,7 +169,7 @@ class ScriptedLLMProvider:
         return LLMResult(text=str(out), provider=self.name, model=self.model)
 
     def stream(self, system: str, prompt: str, on_text: Any, *, max_tokens: int = 4096,
-               effort: str | None = None) -> LLMResult:
+               effort: str | None = None, **_: Any) -> LLMResult:
         res = self.complete(system, prompt, max_tokens=max_tokens, effort=effort)
         for i in range(0, len(res.text), 7):   # deliver in small pieces like a real stream
             on_text(res.text[i:i + 7])
@@ -192,6 +196,8 @@ def build_llm_provider(provider: str, api_key: str, model: str = "claude-opus-5-
             max_attempts=getattr(s, "llm_max_attempts_per_model", 2),
             retry_base=getattr(s, "llm_retry_base_seconds", 0.8),
             retry_max_delay=getattr(s, "llm_retry_max_delay_seconds", 8.0),
+            deadline=getattr(s, "llm_request_deadline_seconds", 45.0),
+            fast_timeout=getattr(s, "llm_fast_timeout_seconds", 12.0),
         )
     if p not in ("none", ""):
         log.warning("unknown LLM_PROVIDER %r; answer generation and translation drafts are disabled", provider)
