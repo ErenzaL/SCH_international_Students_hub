@@ -1,0 +1,5 @@
+# Local multilingual embeddings (intfloat/multilingual-e5-small, 384-d).
+# CPU-only PyTorch wheels keep the install small on Linux (Render).
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.3
+sentence-transformers>=3.0

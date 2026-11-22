@@ -1,0 +1,34 @@
+# secrets
+.env
+.env.*
+!.env.example
+.env.example
+*.pem
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+# node / next
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+# misc
+.DS_Store
+*.log
+.vscode/
+.idea/
+.env
+.env.*
+!.env.example
+
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+node_modules/
+.next/
+supabase/.temp/
