@@ -7,6 +7,19 @@ from app.core.config import Settings, get_settings
 router = APIRouter(tags=["health"])
 
 
+@router.get("/")
+def root(settings: Settings = Depends(get_settings)) -> dict:  # type: ignore[type-arg]
+    """Small landing response so visiting the bare API URL is not a 404. Touches nothing external."""
+    return {
+        "name": "SCH International Student Hub API",
+        "status": "ok",
+        "version": settings.app_version,
+        "docs": "/docs",
+        "health": "/health",
+        "api": "/api/v1",
+    }
+
+
 @router.get("/health")
 def health(settings: Settings = Depends(get_settings)) -> dict:  # type: ignore[type-arg]
     """Liveness + configuration summary. Never touches the model or the database."""
