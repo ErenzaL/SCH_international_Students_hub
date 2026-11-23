@@ -1,0 +1,26 @@
+{
+ "backend": "working tree backend",
+ "pipelines": [
+  "B",
+  "C"
+ ],
+ "dry_run": true,
+ "budget": {
+  "assistant_max_sources": 4,
+  "assistant_max_passages_per_source": 3,
+  "assistant_context_chars": 9000
+ },
+ "prompt_sha16": "602ba59399c5a54c",
+ "llm": "NullLLMProvider",
+ "index": {
+  "index_seconds": 33.7,
+  "documents": 24,
+  "chunks": 765,
+  "embedded_chunks": 765,
+  "embedding_model": "intfloat/multilingual-e5-small#qint8",
+  "chunk_target_tokens": 320,
+  "chunk_max_tokens": 420,
+  "chunk_overlap_tokens": 48
+ },
+ "questions": 5
+}

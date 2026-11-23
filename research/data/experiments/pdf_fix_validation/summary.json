@@ -1,0 +1,1249 @@
+{
+ "fix": "extractors_files._body_font_size: character-weighted modal span size over all pages (was: first 20 pages)",
+ "documents": [
+  {
+   "version_id": "9551711d-3960-4d0b-8c6f-2cda7931f47d",
+   "title": "Guide for International Student in Korea",
+   "file": "20260127135736.pdf",
+   "sha256_16": "163b819fbd35c475",
+   "pages": 104,
+   "creation_date": "D:20251222160200+09'00'",
+   "identical_output": false,
+   "identical_except_control_chars": true,
+   "production_chars": 157061,
+   "old": {
+    "chars": 157035,
+    "heading_char_share": 0.027,
+    "heading_lines": 174,
+    "distinct_chunk_headings": 91,
+    "extraction_recall": 1.0,
+    "chunk_recall": 0.9854,
+    "chunk_recall_incl_headings": 0.9976,
+    "hangul_words_text_layer": 84,
+    "hangul_words_in_chunks": 84,
+    "line_accuracy": 1.0,
+    "lines_checked": 4293,
+    "unverified_lines": [],
+    "table_cell_recall": 0.739,
+    "pages_with_text": 104,
+    "pages_cited": 103,
+    "pages_not_cited": [
+     1
+    ],
+    "chunks": 164,
+    "median_chars": 895.0,
+    "p10_chars": 199,
+    "share_under_100": 0.055,
+    "max_tokens": 381,
+    "control_chars": 481,
+    "body_size": 8.0,
+    "extract_ms": 1230,
+    "text_sha16": "eb4087729fe90239"
+   },
+   "new": {
+    "chars": 156577,
+    "heading_char_share": 0.027,
+    "heading_lines": 174,
+    "distinct_chunk_headings": 91,
+    "extraction_recall": 1.0,
+    "chunk_recall": 0.9854,
+    "chunk_recall_incl_headings": 0.9976,
+    "hangul_words_text_layer": 84,
+    "hangul_words_in_chunks": 84,
+    "line_accuracy": 1.0,
+    "lines_checked": 4293,
+    "unverified_lines": [],
+    "table_cell_recall": 0.739,
+    "pages_with_text": 104,
+    "pages_cited": 103,
+    "pages_not_cited": [
+     1
+    ],
+    "chunks": 164,
+    "median_chars": 895.0,
+    "p10_chars": 198,
+    "share_under_100": 0.055,
+    "max_tokens": 381,
+    "control_chars": 0,
+    "body_size": 8.0,
+    "extract_ms": 1795,
+    "text_sha16": "03ac90334ccd1093",
+    "missing_words_top": [
+     [
+      "support",
+      29
+     ],
+     [
+      "employment",
+      15
+     ],
+     [
+      "1",
+      15
+     ],
+     [
+      "living",
+      13
+     ],
+     [
+      "2",
+      12
+     ],
+     [
+      "information",
+      9
+     ],
+     [
+      "korea",
+      7
+     ],
+     [
+      "3",
+      7
+     ],
+     [
+      "academic",
+      7
+     ],
+     [
+      "other",
+      7
+     ],
+     [
+      "4",
+      6
+     ],
+     [
+      "metropolitan",
+      6
+     ],
+     [
+      "abroad",
+      5
+     ],
+     [
+      "city",
+      5
+     ],
+     [
+      "settlement",
+      4
+     ],
+     [
+      "life",
+      4
+     ],
+     [
+      "job",
+      4
+     ],
+     [
+      "guidebook",
+      3
+     ],
+     [
+      "studying",
+      3
+     ],
+     [
+      "study",
+      3
+     ],
+     [
+      "status",
+      3
+     ],
+     [
+      "5",
+      3
+     ],
+     [
+      "services",
+      3
+     ],
+     [
+      "waste",
+      3
+     ],
+     [
+      "province",
+      3
+     ]
+    ],
+    "missing_words_total": 339
+   }
+  },
+  {
+   "version_id": "dc08c44c-56b1-4b89-9ff6-7394a181fe47",
+   "title": "모집요강",
+   "file": "2027_________1_____________________________________________________________.pdf",
+   "sha256_16": "3c19b0f314e5250c",
+   "pages": 14,
+   "creation_date": "D:20261013114418+09'00'",
+   "identical_output": false,
+   "identical_except_control_chars": true,
+   "production_chars": 18092,
+   "old": {
+    "chars": 16531,
+    "heading_char_share": 0.068,
+    "heading_lines": 71,
+    "distinct_chunk_headings": 24,
+    "extraction_recall": 1.0,
+    "chunk_recall": 0.9606,
+    "chunk_recall_incl_headings": 0.9785,
+    "hangul_words_text_layer": 3168,
+    "hangul_words_in_chunks": 3038,
+    "line_accuracy": 1.0,
+    "lines_checked": 650,
+    "unverified_lines": [],
+    "table_cell_recall": 0.8424,
+    "pages_with_text": 14,
+    "pages_cited": 12,
+    "pages_not_cited": [
+     1,
+     2
+    ],
+    "chunks": 50,
+    "median_chars": 357.0,
+    "p10_chars": 37,
+    "share_under_100": 0.32,
+    "max_tokens": 413,
+    "control_chars": 62,
+    "body_size": 9.0,
+    "extract_ms": 955,
+    "text_sha16": "5d403c0b13b60796"
+   },
+   "new": {
+    "chars": 16471,
+    "heading_char_share": 0.069,
+    "heading_lines": 71,
+    "distinct_chunk_headings": 24,
+    "extraction_recall": 1.0,
+    "chunk_recall": 0.9606,
+    "chunk_recall_incl_headings": 0.9785,
+    "hangul_words_text_layer": 3168,
+    "hangul_words_in_chunks": 3038,
+    "line_accuracy": 1.0,
+    "lines_checked": 650,
+    "unverified_lines": [],
+    "table_cell_recall": 0.8424,
+    "pages_with_text": 14,
+    "pages_cited": 12,
+    "pages_not_cited": [
+     1,
+     2
+    ],
+    "chunks": 50,
+    "median_chars": 356.5,
+    "p10_chars": 37,
+    "share_under_100": 0.32,
+    "max_tokens": 413,
+    "control_chars": 0,
+    "body_size": 9.0,
+    "extract_ms": 946,
+    "text_sha16": "2a721bc5b2227417",
+    "missing_words_top": [
+     [
+      "및",
+      12
+     ],
+     [
+      "p",
+      11
+     ],
+     [
+      "안내",
+      9
+     ],
+     [
+      "입학서류",
+      7
+     ],
+     [
+      "제출",
+      6
+     ],
+     [
+      "원서접수",
+      5
+     ],
+     [
+      "유의사항",
+      4
+     ],
+     [
+      "가신입학",
+      4
+     ],
+     [
+      "나편입학",
+      4
+     ],
+     [
+      "장학제도",
+      3
+     ],
+     [
+      "전형료",
+      3
+     ],
+     [
+      "가",
+      3
+     ],
+     [
+      "전형",
+      3
+     ],
+     [
+      "모집인원",
+      2
+     ],
+     [
+      "지원자격",
+      2
+     ],
+     [
+      "전형일정",
+      2
+     ],
+     [
+      "06",
+      2
+     ],
+     [
+      "절차",
+      2
+     ],
+     [
+      "전형안내",
+      2
+     ],
+     [
+      "제출서류",
+      2
+     ],
+     [
+      "10",
+      2
+     ],
+     [
+      "11",
+      2
+     ],
+     [
+      "등록금",
+      2
+     ],
+     [
+      "납부",
+      2
+     ],
+     [
+      "반환",
+      2
+     ]
+    ],
+    "missing_words_total": 161
+   }
+  },
+  {
+   "version_id": "30cf5af7-1f65-4e57-afa7-bc2485c828e7",
+   "title": "수강신청 안내",
+   "file": "1._2026_________2_______________________.pdf",
+   "sha256_16": "2e548632703ae59d",
+   "pages": 5,
+   "creation_date": "D:20260723130733+09'00'",
+   "identical_output": true,
+   "identical_except_control_chars": true,
+   "production_chars": 6232,
+   "old": {
+    "chars": 6265,
+    "heading_char_share": 0.037,
+    "heading_lines": 9,
+    "distinct_chunk_headings": 8,
+    "extraction_recall": 1.0,
+    "chunk_recall": 0.9809,
+    "chunk_recall_incl_headings": 1.0,
+    "hangul_words_text_layer": 1194,
+    "hangul_words_in_chunks": 1171,
+    "line_accuracy": 1.0,
+    "lines_checked": 219,
+    "unverified_lines": [],
+    "table_cell_recall": 0.9272,
+    "pages_with_text": 5,
+    "pages_cited": 5,
+    "pages_not_cited": [],
+    "chunks": 15,
+    "median_chars": 482,
+    "p10_chars": 186,
+    "share_under_100": 0.067,
+    "max_tokens": 355,
+    "control_chars": 0,
+    "body_size": 12.0,
+    "extract_ms": 84,
+    "text_sha16": "2e68d69c5edaf38b"
+   },
+   "new": {
+    "chars": 6265,
+    "heading_char_share": 0.037,
+    "heading_lines": 9,
+    "distinct_chunk_headings": 8,
+    "extraction_recall": 1.0,
+    "chunk_recall": 0.9809,
+    "chunk_recall_incl_headings": 1.0,
+    "hangul_words_text_layer": 1194,
+    "hangul_words_in_chunks": 1171,
+    "line_accuracy": 1.0,
+    "lines_checked": 219,
+    "unverified_lines": [],
+    "table_cell_recall": 0.9272,
+    "pages_with_text": 5,
+    "pages_cited": 5,
+    "pages_not_cited": [],
+    "chunks": 15,
+    "median_chars": 482,
+    "p10_chars": 186,
+    "share_under_100": 0.067,
+    "max_tokens": 355,
+    "control_chars": 0,
+    "body_size": 12.0,
+    "extract_ms": 73,
+    "text_sha16": "2e68d69c5edaf38b",
+    "missing_words_top": [
+     [
+      "수강신청",
+      3
+     ],
+     [
+      "및",
+      2
+     ],
+     [
+      "기타",
+      2
+     ],
+     [
+      "2026",
+      1
+     ],
+     [
+      "학년도",
+      1
+     ],
+     [
+      "학기",
+      1
+     ],
+     [
+      "안내",
+      1
+     ],
+     [
+      "학부",
+      1
+     ],
+     [
+      "기간",
+      1
+     ],
+     [
+      "방법",
+      1
+     ],
+     [
+      "문의",
+      1
+     ],
+     [
+      "주요사항",
+      1
+     ],
+     [
+      "041",
+      1
+     ],
+     [
+      "530",
+      1
+     ],
+     [
+      "안내사항",
+      1
+     ],
+     [
+      "ocu",
+      1
+     ],
+     [
+      "7",
+      1
+     ],
+     [
+      "한국열린사이버대학",
+      1
+     ],
+     [
+      "컨소시엄",
+      1
+     ],
+     [
+      "수강신청관련",
+      1
+     ],
+     [
+      "사례",
+      1
+     ],
+     [
+      "유의사항",
+      1
+     ],
+     [
+      "순천향",
+      1
+     ],
+     [
+      "대표번호",
+      1
+     ],
+     [
+      "1114",
+      1
+     ]
+    ],
+    "missing_words_total": 29
+   }
+  },
+  {
+   "version_id": "c0a3b255-a553-4bcc-994e-b0ba68513873",
+   "title": "수강신청 주의사항",
+   "file": "2026_________2_______________________________________________________.pdf",
+   "sha256_16": "60e462b614f67d97",
+   "pages": 2,
+   "creation_date": "D:20260730171623+09'00'",
+   "identical_output": true,
+   "identical_except_control_chars": true,
+   "production_chars": 1864,
+   "old": {
+    "chars": 1924,
+    "heading_char_share": 0.058,
+    "heading_lines": 2,
+    "distinct_chunk_headings": 1,
+    "extraction_recall": 1.0,
+    "chunk_recall": 0.9823,
+    "chunk_recall_incl_headings": 1.0,
+    "hangul_words_text_layer": 348,
+    "hangul_words_in_chunks": 342,
+    "line_accuracy": 1.0,
+    "lines_checked": 69,
+    "unverified_lines": [],
+    "table_cell_recall": 0.9091,
+    "pages_with_text": 2,
+    "pages_cited": 2,
+    "pages_not_cited": [],
+    "chunks": 4,
+    "median_chars": 489.0,
+    "p10_chars": 252,
+    "share_under_100": 0.0,
+    "max_tokens": 380,
+    "control_chars": 0,
+    "body_size": 12.0,
+    "extract_ms": 24,
+    "text_sha16": "cec92d5db56df3fb"
+   },
+   "new": {
+    "chars": 1924,
+    "heading_char_share": 0.058,
+    "heading_lines": 2,
+    "distinct_chunk_headings": 1,
+    "extraction_recall": 1.0,
+    "chunk_recall": 0.9823,
+    "chunk_recall_incl_headings": 1.0,
+    "hangul_words_text_layer": 348,
+    "hangul_words_in_chunks": 342,
+    "line_accuracy": 1.0,
+    "lines_checked": 69,
+    "unverified_lines": [],
+    "table_cell_recall": 0.9091,
+    "pages_with_text": 2,
+    "pages_cited": 2,
+    "pages_not_cited": [],
+    "chunks": 4,
+    "median_chars": 489.0,
+    "p10_chars": 252,
+    "share_under_100": 0.0,
+    "max_tokens": 380,
+    "control_chars": 0,
+    "body_size": 12.0,
+    "extract_ms": 24,
+    "text_sha16": "cec92d5db56df3fb",
+    "missing_words_top": [
+     [
+      "2026",
+      1
+     ],
+     [
+      "학년도",
+      1
+     ],
+     [
+      "2",
+      1
+     ],
+     [
+      "학기",
+      1
+     ],
+     [
+      "기간",
+      1
+     ],
+     [
+      "외국인",
+      1
+     ],
+     [
+      "유학생",
+      1
+     ],
+     [
+      "안내",
+      1
+     ]
+    ],
+    "missing_words_total": 8
+   }
+  },
+  {
+   "version_id": "d5e39775-7b22-4801-b046-06d7ae5d695f",
+   "title": "외국인학생취업관련 정보",
+   "file": "employment.pdf",
+   "sha256_16": "4080dcc3fffd2fee",
+   "pages": 6,
+   "creation_date": "",
+   "identical_output": false,
+   "identical_except_control_chars": true,
+   "production_chars": 5763,
+   "old": {
+    "chars": 5761,
+    "heading_char_share": 0.057,
+    "heading_lines": 16,
+    "distinct_chunk_headings": 10,
+    "extraction_recall": 1.0,
+    "chunk_recall": 0.9533,
+    "chunk_recall_incl_headings": 0.9856,
+    "hangul_words_text_layer": 1143,
+    "hangul_words_in_chunks": 1085,
+    "line_accuracy": 1.0,
+    "lines_checked": 197,
+    "unverified_lines": [],
+    "table_cell_recall": 0.9237,
+    "pages_with_text": 6,
+    "pages_cited": 6,
+    "pages_not_cited": [],
+    "chunks": 18,
+    "median_chars": 243.5,
+    "p10_chars": 43,
+    "share_under_100": 0.333,
+    "max_tokens": 408,
+    "control_chars": 45,
+    "body_size": 9.4,
+    "extract_ms": 104,
+    "text_sha16": "85696fc8ff7de6a9"
+   },
+   "new": {
+    "chars": 5711,
+    "heading_char_share": 0.057,
+    "heading_lines": 16,
+    "distinct_chunk_headings": 10,
+    "extraction_recall": 1.0,
+    "chunk_recall": 0.9533,
+    "chunk_recall_incl_headings": 0.9856,
+    "hangul_words_text_layer": 1143,
+    "hangul_words_in_chunks": 1085,
+    "line_accuracy": 1.0,
+    "lines_checked": 197,
+    "unverified_lines": [],
+    "table_cell_recall": 0.9237,
+    "pages_with_text": 6,
+    "pages_cited": 6,
+    "pages_not_cited": [],
+    "chunks": 18,
+    "median_chars": 243.5,
+    "p10_chars": 43,
+    "share_under_100": 0.333,
+    "max_tokens": 408,
+    "control_chars": 0,
+    "body_size": 9.4,
+    "extract_ms": 104,
+    "text_sha16": "134d23669a4eed3f",
+    "missing_words_top": [
+     [
+      "취득",
+      4
+     ],
+     [
+      "외국인유학생",
+      3
+     ],
+     [
+      "취업",
+      2
+     ],
+     [
+      "가",
+      2
+     ],
+     [
+      "취업관련",
+      2
+     ],
+     [
+      "정보",
+      2
+     ],
+     [
+      "거주자격",
+      2
+     ],
+     [
+      "가점",
+      2
+     ],
+     [
+      "부여",
+      2
+     ],
+     [
+      "영주자격",
+      2
+     ],
+     [
+      "나",
+      2
+     ],
+     [
+      "다",
+      2
+     ],
+     [
+      "10",
+      1
+     ],
+     [
+      "12",
+      1
+     ],
+     [
+      "시간제",
+      1
+     ],
+     [
+      "아르바이트",
+      1
+     ],
+     [
+      "2",
+      1
+     ],
+     [
+      "경우",
+      1
+     ],
+     [
+      "해당",
+      1
+     ],
+     [
+      "d",
+      1
+     ],
+     [
+      "7",
+      1
+     ],
+     [
+      "점",
+      1
+     ],
+     [
+      "또는",
+      1
+     ],
+     [
+      "따라",
+      1
+     ],
+     [
+      "우대조건",
+      1
+     ]
+    ],
+    "missing_words_total": 65
+   }
+  },
+  {
+   "version_id": "612108fb-e5fa-4d52-be8c-0d6cf440f426",
+   "title": "한국 유학생 생활 가이드북",
+   "file": "guideBook_ko.pdf",
+   "sha256_16": "8f892bb8dcb08f13",
+   "pages": 94,
+   "creation_date": "D:20210305094724+09'00'",
+   "identical_output": false,
+   "identical_except_control_chars": false,
+   "production_chars": 85568,
+   "old": {
+    "chars": 85566,
+    "heading_char_share": 0.747,
+    "heading_lines": 2479,
+    "distinct_chunk_headings": 284,
+    "extraction_recall": 0.9999,
+    "chunk_recall": 0.2664,
+    "chunk_recall_incl_headings": 0.4114,
+    "hangul_words_text_layer": 12314,
+    "hangul_words_in_chunks": 3007,
+    "line_accuracy": 1.0,
+    "lines_checked": 659,
+    "unverified_lines": [],
+    "table_cell_recall": 0.2548,
+    "pages_with_text": 90,
+    "pages_cited": 77,
+    "pages_not_cited": [
+     1,
+     2,
+     6,
+     37,
+     69,
+     79,
+     81,
+     83,
+     87,
+     88,
+     89,
+     93,
+     94
+    ],
+    "chunks": 291,
+    "median_chars": 37,
+    "p10_chars": 12,
+    "share_under_100": 0.887,
+    "max_tokens": 367,
+    "control_chars": 22,
+    "body_size": 6.2,
+    "extract_ms": 2841,
+    "text_sha16": "2975646c3c95f171"
+   },
+   "new": {
+    "chars": 77208,
+    "heading_char_share": 0.038,
+    "heading_lines": 160,
+    "distinct_chunk_headings": 96,
+    "extraction_recall": 0.9997,
+    "chunk_recall": 0.9737,
+    "chunk_recall_incl_headings": 0.9901,
+    "hangul_words_text_layer": 12314,
+    "hangul_words_in_chunks": 11911,
+    "line_accuracy": 1.0,
+    "lines_checked": 2704,
+    "unverified_lines": [],
+    "table_cell_recall": 0.8535,
+    "pages_with_text": 90,
+    "pages_cited": 88,
+    "pages_not_cited": [
+     1,
+     2
+    ],
+    "chunks": 178,
+    "median_chars": 449.0,
+    "p10_chars": 92,
+    "share_under_100": 0.118,
+    "max_tokens": 415,
+    "control_chars": 0,
+    "body_size": 9.4,
+    "extract_ms": 3656,
+    "text_sha16": "df76ed22c60b1fa6",
+    "missing_words_top": [
+     [
+      "가",
+      16
+     ],
+     [
+      "나",
+      15
+     ],
+     [
+      "다",
+      10
+     ],
+     [
+      "부록",
+      5
+     ],
+     [
+      "입증서류",
+      5
+     ],
+     [
+      "라",
+      5
+     ],
+     [
+      "취득",
+      5
+     ],
+     [
+      "있는가",
+      5
+     ],
+     [
+      "bus",
+      5
+     ],
+     [
+      "외국인",
+      4
+     ],
+     [
+      "1",
+      4
+     ],
+     [
+      "유학",
+      4
+     ],
+     [
+      "어떠한가",
+      4
+     ],
+     [
+      "장",
+      3
+     ],
+     [
+      "생활",
+      3
+     ],
+     [
+      "서비스",
+      3
+     ],
+     [
+      "d",
+      3
+     ],
+     [
+      "마",
+      3
+     ],
+     [
+      "유학생",
+      2
+     ],
+     [
+      "가이드북",
+      2
+     ],
+     [
+      "2021",
+      2
+     ],
+     [
+      "개정판",
+      2
+     ],
+     [
+      "4",
+      2
+     ],
+     [
+      "절차",
+      2
+     ],
+     [
+      "한국",
+      2
+     ]
+    ],
+    "missing_words_total": 453
+   },
+   "headings_kept_examples": [
+    "외국인",
+    "유학생",
+    "가이드북",
+    "2021 개정판",
+    "* 표준입학허가서",
+    "가. 기본원칙",
+    "나. 제출서류",
+    "guideBook_ko",
+    "목차",
+    "제1장 한국으로 유학 준비",
+    "1 정보 수집",
+    "2 유학 결정 시 고려 사항",
+    "3 사증(비자) 신청 및 획득 절차",
+    "(1) 사증발급인정서란 ?",
+    "(2) 유학(D-2)",
+    "(3) 일반연수(D-4)",
+    "사증발급신청서 APPLICATION FOR VISA",
+    "4 한국 도착",
+    "(1) 입국 절차",
+    "(2) 교통",
+    "관련민원 및 문의",
+    "제2장 한국의 교육 및 입학 절차",
+    "1 어학 교육",
+    "가. 대학 부설 한국어 연수기관",
+    "* 사증발급인정신청서",
+    "* 여권",
+    "* 사진",
+    "* 재학증명서 또는 최종학력 입증서류",
+    "* 재정 입증서류 (미화 1만달러 상당)",
+    "* 연수계획서"
+   ],
+   "lines_untagged_by_fix": 2326,
+   "published_from_pdf_metadata": "2021-03-05 00:00:00+00:00"
+  }
+ ],
+ "recovered_examples": [
+  {
+   "page": 67,
+   "heading": "다. 놀이공원",
+   "gained_share": 1.0,
+   "text": "- 롯데월드: http://adventure.lotteworld.com 서울특별시 송파구 올림픽로 240\n- 에버랜드: http://www.everland.com 경기도 용인시 처인구 포곡읍 에버랜드로 199\n- 서울랜드: http://www.seoulland.co.kr 경기도 과천시 광명로 181\n- 경주월드: http://www.gjw.co.kr 경상북도 경주시 보문로 544\n- 이월드: http://www.eworld.kr 대구광역시 달서구 두류공원로 200\n- 월미도마이랜드: http://www.my-land.kr 인천광역시 중구 월미로 252"
+  },
+  {
+   "page": 19,
+   "heading": "(1) 입국 절차",
+   "gained_share": 0.92,
+   "text": "- 기내에서 배부 받은 여행자 휴대품 신고서에 세관 신고 대상 물품을 기재하고 여행자의"
+  },
+  {
+   "page": 19,
+   "heading": "(1) 입국 절차",
+   "gained_share": 0.92,
+   "text": "- 기내에서 배부 받은 여행자 휴대품 신고서에 세관 신고 대상 물품을 기재하고 여행자의"
+  },
+  {
+   "page": 36,
+   "heading": "가. 외국인 등록",
+   "gained_share": 0.92,
+   "text": "외국인등록을 면제할 필요가 있다고 인정되는 외국인\n- 사증없이 입국하여 6개월 미만 체류하려는 캐나다국가 국민"
+  },
+  {
+   "page": 23,
+   "heading": "* 연수계획서",
+   "gained_share": 0.88,
+   "text": "사회의 일반적 현상과 공공시설 이용 등 일상적 업무 수행에 필요한 기본어휘\n비교적 복잡한 조사와 연결어미, 종결어미, 보조용언, 친숙한 사회적 소재로 담화 구성, 광고/\n인터뷰/일기예보의 이해"
+  },
+  {
+   "page": 23,
+   "heading": "* 연수계획서",
+   "gained_share": 0.84,
+   "text": "초급 1\n일상생활에 필수적인 기초 단어와 기본적인 문장 구조를 구성하기\n인사, 자기소개, 물건사기, 음식 주문하기 등 기본생활에 필요한 회화 익히기"
+  },
+  {
+   "page": 23,
+   "heading": "* 연수계획서",
+   "gained_share": 0.82,
+   "text": "입 문\n한글 자모의 맞춤법과 음가, 음절 구조의 특성 이해\n기초 단어와 간단한 문장을 이해하고 표현하는 능력"
+  },
+  {
+   "page": 40,
+   "heading": "가. 기본원칙",
+   "gained_share": 0.82,
+   "text": "•(대상) 인증대학 재학생 중 평균학점 (이수학점 기준) C학점 (평점 2.0) 이상인 자\n•(제출서류) 원칙적으로 미 징구\n- FIMS 상 학사정보 확인으로 대체하고 재정입증 서류 생략"
+  },
+  {
+   "page": 24,
+   "heading": "* 연수계획서",
+   "gained_share": 0.81,
+   "text": "중급 2\n속담, 기본적인 시사 어휘와 자주 쓰이는 추상적 어휘와 시사용어\n신문과 텔레비전을 통해 기본적인 시사 문제를 다루며 한국문화 이해"
+  },
+  {
+   "page": 24,
+   "heading": "* 연수계획서",
+   "gained_share": 0.81,
+   "text": "고급 1\n다양한 관용어와 외래어 등을 배우며 사회현상과 관련된 추상적 어휘 공부\n정치, 경제, 사회, 문화에 대한 다양한 시사 자료와 비교적 쉬운 문학작품 공부"
+  },
+  {
+   "page": 12,
+   "heading": "(3) 일반연수(D-4)",
+   "gained_share": 0.8,
+   "text": "- 국·공립 연구기관이나 연수원 등에서 기술, 기능 등을 연수하는 자\n- 외국인투자기업 또는 외국에 투자한 기업체 등에서 인턴(실습사원)으로 교육 또는 연수를"
+  },
+  {
+   "page": 36,
+   "heading": "가. 외국인 등록",
+   "gained_share": 0.8,
+   "text": "•대한민국 국적을 상실하고 외국국적을 취득하였거나 우리나라에서 출생한 외국인등이\n체류자격을 부여받아 그날부터 90일을 초과하여 체류하려는 외국인"
+  },
+  {
+   "page": 36,
+   "heading": "가. 외국인 등록",
+   "gained_share": 0.79,
+   "text": "등록금 납입증명서로 대체 가능\n•결핵검진확인서(대상자에 한함)\n- 단기체류자격으로 입국한 결핵 고위험국가 국민이 장기체류자격으로 변경을 신청한 경우\n- 장기체류자격으로 체류중인 결핵고위험국가 외국인이 이 지침 최소 시행(’16. 3.2.) 이후"
+  },
+  {
+   "page": 24,
+   "heading": "* 연수계획서",
+   "gained_share": 0.78,
+   "text": "심 화\n대학이나 대학원 진학, 취업의 준비 단계로서, 모국어 화자 수준의 한국어 숙달을 목표로 교양\n과목은 물론 전공과목까지도 수강할 수 있는 능력 기르기"
+  },
+  {
+   "page": 40,
+   "heading": "나. 제출서류",
+   "gained_share": 0.78,
+   "text": "④ 재정입증 서류\n⑤ 모집요강 (연수일정 명시) 또는 연수계획서 (한국어연수생에 한함)\n⑥ 체류지 입증서류(임대차계약서, 숙소제공 확인서, 체류기간 만료예고 통지우편물, 공공"
+  },
+  {
+   "page": 74,
+   "heading": "가. 외국인유학생 시간제 취업(아르바이트)",
+   "gained_share": 0.76,
+   "text": "(5) 시간제 취업허가의 특례(허가제외 대상)\n•유학자격의 본질적 사항을 침해하지 아니하는 범위 내에서 일시적 사례금, 상금 기타 일상"
+  },
+  {
+   "page": 19,
+   "heading": "(1) 입국 절차",
+   "gained_share": 0.75,
+   "text": "(라) 수하물 찾기: 입국심사를 마치고 전면 전광판을 통해 수하물 수취대 번호를 확인한 후"
+  },
+  {
+   "page": 40,
+   "heading": "나. 제출서류",
+   "gained_share": 0.75,
+   "text": "- 재학증명서, 교환학생 연장증명서, 연구생 증명서 등\n③ 학업을 정상적으로 수행하고 있음을 입증하는 서류"
+  },
+  {
+   "page": 60,
+   "heading": "가. 우편서비스",
+   "gained_share": 0.75,
+   "text": "※ 금지 품목을 발송할 경우 물품을 압수당하거나 추가적인 세금이 부과되기도 한다. 반드시 취급"
+  },
+  {
+   "page": 77,
+   "heading": "나. 구직비자(D-10)",
+   "gained_share": 0.74,
+   "text": "국내대회 입상 및 언론 등에 보도된 경우)\n•고소득 전문가 입증서류(해당자에 한함)\n- 자국 공공기관이 발행한 전년도 근로소득 입증서류\n•이적동의서(해당자에 한함)\n- E1~E7자격자로 취업활동을 하다가 중도 퇴직한 경우에 퇴직 당시 고용주의 동의 필요\n•체제비 입증 서류(유학 사증 준용)"
+  },
+  {
+   "page": 36,
+   "heading": "가. 외국인 등록",
+   "gained_share": 0.73,
+   "text": "•외국인등록 예외: 아래 외국인에 대하여는 외국인등록이 면제\n- 외교, 공무, 협정(A-1, A-2, A-3)\n- 외교, 산업, 국방상 중요한 업무에 종사하는 자 및 그의 가족과 기타 법무부장관이 특별히"
+  },
+  {
+   "page": 46,
+   "heading": "나. 지하철",
+   "gained_share": 0.73,
+   "text": "지하철이 운행되는 도시로는 서울·수도권 외에 부산, 대구, 광주, 대전이 있다. 수도권의 지하철은\n이용자가 많으며 보편적인 대중교통 수단으로 자리를 잡고 있다. 운행노선도 다양하며 지하철\n만으로 수도권 대부분의 지역이 이동 가능하다. 부산, 대구, 광주, 대전의 지하철은 수도권과\n비교해 규모가 작으며 수요가 많지 않으나 시내지역 이동에 편의를 제공하면 조금씩 승객이\n늘어나는 추세이다. 운행노선은 1~3개 선으로 적은편이지만, 현재도 지속적으로 확장되고 있기\n때문에 차후 운행상황은 더욱 좋아지게 될 것으로 보인다."
+  },
+  {
+   "page": 77,
+   "heading": "다. 취업정보",
+   "gained_share": 0.73,
+   "text": "해외우수기술인재를 고용하고자 하는 기업에게 산업통상자원부 장관의 위임을 받아\nKOTRA 사장 명의의 고용추천서 발급을 통해 특정활동비자(E-7) 발급을 지원하여 사증\n및 체류 상의 우대를 부여하는 제도"
+  },
+  {
+   "page": 11,
+   "heading": "(2) 유학(D-2)",
+   "gained_share": 0.71,
+   "text": "● 유학생 중점관리 국가: 기니, 말리, 에티오피아, 우간다, 카메룬\n㉮ 아포스티유 (Apostille) 확인을 받은 학위 (학력) 등 입증서류\n㉯ 출신학교가 속한 국가 주재 한국영사 또는 주한 공관 영사확인을 받은 학위 등 입증"
+  },
+  {
+   "page": 13,
+   "heading": "(3) 일반연수(D-4)",
+   "gained_share": 0.71,
+   "text": "- 원본 심사를 원칙으로 하고 필요 시 사본에 담당자의 원본 대조필 확인 후 첨부\n⑤ 재정 입증서류(미화 1만달러 상당)"
+  },
+  {
+   "page": 24,
+   "heading": "* 연수계획서",
+   "gained_share": 0.71,
+   "text": "고급 2\n전문 분야에 대한 용어와 속어, 은어, 약어 등을 폭 넓게 배우기\n정치, 경제, 사회 뿐 만이 아니라 철학, 사상 등 추상적인 내용을 이해하기"
+  },
+  {
+   "page": 34,
+   "heading": "마. 장학금",
+   "gained_share": 0.71,
+   "text": "지원분야\n해외 대학/연구기관 소속으로 박사학위 논문 출판을 위한 수정 집필 등을 포함한 연구수행"
+  },
+  {
+   "page": 40,
+   "heading": "가. 기본원칙",
+   "gained_share": 0.71,
+   "text": "•(대상) 하위대학 등 재학생 중 평균학점 (이수학점 기준) D학점 (평점 1.0 이하) 이하인 자\n및 연수생의 경우 출석율 70% 이하인 자\n•(제출서류) FIMS상 학사정보 활용 (재학여부, 학점 등), 재정입증 서류"
+  },
+  {
+   "page": 40,
+   "heading": "나. 제출서류",
+   "gained_share": 0.71,
+   "text": "요금 납부영수증, 기숙사비 영수증 등)\n⑦ 유학생보험증서 또는 국민건강보험 증서(초·중·고 재학생 중 해당자)"
+  },
+  {
+   "page": 76,
+   "heading": "나. 구직비자(D-10)",
+   "gained_share": 0.71,
+   "text": "제출하게 하여 재외공관장 재량으로 사증발급\n- 취업희망 직종이 전공과목과 직접 관련이 있거나 관련이 많은 경우에는 구직사증"
+  },
+  {
+   "page": 39,
+   "heading": "나. 제출서류",
+   "gained_share": 0.7,
+   "text": "•신청서, 여권, 외국인등록증, 수수료\n•재학 (연구)을 입증하는 서류\n- (예시) 재학증명서, 교환학생 연장증명서, 연구생 증명서 등\n•학업을 정상적으로 수행하고 있음을 입증하는 서류\n- (예시) 성적증명서, 출석확인서 등\n•재정입증 서류\n•모집요강 (연수일정 명시) 또는 연수 계획서 (한국어연수생에 한함)\n•체류지 입증서류(임대차계약서, 숙소제공 확인서, 체류기간 만료예고 통지우편물, 공공\n요금 납부영수증, 기숙사비 영수증 등)"
+  },
+  {
+   "page": 59,
+   "heading": "가. 우편서비스",
+   "gained_share": 0.7,
+   "text": "※ 중량 50g 초과 시, 규격외 우편물에 해당 (규격요건은 ‘우편물규격’ 참조)\n※ 국내특급은 30kg까지 (6kg 초과 1kg 마다 400원 가산)\n※ 50g 까지 규격 외 엽서는 350원 (규격봉투 25g 초과 50g까지 요금) 적용"
+  },
+  {
+   "page": 75,
+   "heading": "나. 구직비자(D-10)",
+   "gained_share": 0.7,
+   "text": "•(점수요건) 별첨 구직자격 점수표에 따라 총 190점 중 기본항목이 20점 이상이면서\n총 득점이 60점 이상인 사람\n•(전공 및 직종) 자격요건을 구비하고 취업희망 직종이 전공분야 및 허용대상인\n전문직종에 해당하는 경우 사증발급 허용"
+  },
+  {
+   "page": 77,
+   "heading": "나. 구직비자(D-10)",
+   "gained_share": 0.7,
+   "text": "발급한 증명서\n※ 연구기관 연구활동 수료자: 수료증명서\n※ 연수기관 연수활동 수료자: 연수활동 수료증명서\n※ 교환학생 : 학교장 발행 교환학생 경력 확인 증명\n•한국어 능력 입증서류(해당자에 한함)\n- TOPIK(유효기간 이내) 또는 KIIP 이수증빙서류\n•고용추천서(해당자에 한함)\n- 관계 중앙행정기관장 추천: 부처(위임기관) 발행 고용추천서\n- 재외공관장 추천: 공관 내부추천 문서\n* 학력입증서류, 경력증명서, 해당 단체 추천서 또는 관련 입증자료(권위 있는 국제 또는"
+  },
+  {
+   "page": 49,
+   "heading": "라. 기차",
+   "gained_share": 0.69,
+   "text": "이전에는 보편적으로 사용되었지만 현재는 KTX나 새마을호가 정차하지 않는 역을 중심으로\n운행이 되고 있다."
+  },
+  {
+   "page": 49,
+   "heading": "라. 기차",
+   "gained_share": 0.69,
+   "text": "이전에는 보편적으로 사용되었지만 현재는 KTX나 새마을호가 정차하지 않는 역을 중심으로\n운행이 되고 있다."
+  },
+  {
+   "page": 76,
+   "heading": "나. 구직비자(D-10)",
+   "gained_share": 0.68,
+   "text": "•(법위반자) 최근 1년 이내 출입국관리법 등을 위반하여 자비귀국 등으로 출국명령을\n받은 적이 있거나, 통고처분 또는 벌금을 부과 받은 합산 금액이 200만원을 초과하는\n경우* 신청 제한\n* 단, 입국 규제된 사실이 없고 기업 등의 초청을 받아 인턴사원 등으로 연수 예정인 경우에는"
+  },
+  {
+   "page": 77,
+   "heading": "다. 취업정보",
+   "gained_share": 0.68,
+   "text": "외국인 고급과학기술인력에게 우리나라의 사증취득과 국내체류 관련(자격·활동·기간 등)\n허가과정에서 편의를 제공함으로써 우수한 외국인 과학기술인력의 국내고용을 촉진하기\n위해 과학기술정보통신부 장관이 발급하는 추천서"
+  },
+  {
+   "page": 78,
+   "heading": "다. 긴급 전화번호 숙지",
+   "gained_share": 0.68,
+   "text": "화재나 범죄 등 각종 사고를 대비하여 긴급신고 번호를 미리 숙지하거나 휴대폰에 저장하도록\n한다. 또한, 코로나19 및 이와 같은 감염병 예방을 위해 현지 지역 상황에 따른 수칙을 인지하여\n지키도록 한다."
+  },
+  {
+   "page": 9,
+   "heading": "2 유학 결정 시 고려 사항",
+   "gained_share": 0.67,
+   "text": "외국인 계절학기\n방학기간 동안 한국어 및 한국학 관련 프로그램에 참가하는 외국인\n대학생\n2~3개월"
+  }
+ ],
+ "recovered_paragraphs_total": 217
+}

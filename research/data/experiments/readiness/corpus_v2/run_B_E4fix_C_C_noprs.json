@@ -1,0 +1,31 @@
+{
+ "backend": "working tree backend",
+ "pipelines": [
+  "B",
+  "E4fix",
+  "C",
+  "C_noprs"
+ ],
+ "index": {
+  "index_seconds": 32.3,
+  "documents": 24,
+  "chunks": 765,
+  "embedded_chunks": 765,
+  "embedding_model": "intfloat/multilingual-e5-small#qint8",
+  "chunk_target_tokens": 320,
+  "chunk_max_tokens": 420,
+  "chunk_overlap_tokens": 48
+ },
+ "budget": {
+  "assistant_max_sources": 4,
+  "assistant_max_passages_per_source": 3,
+  "assistant_context_chars": 9000
+ },
+ "deployed_budget": {
+  "assistant_max_sources": 4,
+  "assistant_max_passages_per_source": 3,
+  "assistant_context_chars": 9000
+ },
+ "corpus": "research/data/experiments/chunking/C0_existing/corpus.json",
+ "reranker": "model_int8.onnx batch 4, 1 thread"
+}

@@ -1,0 +1,3 @@
+variant,threads,batch,rss_python_mb,rss_api_modules_mb,rss_with_e5_int8_mb,rss_with_e5_and_reranker_mb,peak_rss_mb,reranker_load_seconds,median_rerank_ms
+api_footprint,1,4,14,78,455,613,1116,0.47,3824.3
+api_footprint,2,4,14,78,479,640,893,0.5,2568.3

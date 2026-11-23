@@ -92,6 +92,19 @@ Known nondeterminism: the local in-memory store breaks E1 ties by random chunk U
 changes E1 rankings slightly (see `reports/ERRATA.md`). The committed candidate files are the ones every reported
 number was computed from; do not regenerate them to "refresh" a result.
 
+## Production readiness (after Milestone 5)
+
+Report: `reports/production_readiness/production_readiness_report.md`. Scripts (all local; nothing touches production):
+
+| Script | Phase | Output |
+|---|---|---|
+| `validate_pdf_fix.py` | PDF extractor fix on the six production PDF originals (read-only copies in `data/raw_private/pdfs/`) | `data/experiments/pdf_fix_validation/` |
+| `export_reranker_onnx.py` | mMiniLM -> ONNX fp32 / optimized / INT8 (`research/.venv-rerank`) | `research/models/mminilm/` (git-ignored) |
+| `bench_reranker_runtime.py run` | memory, load time, CPU latency, throughput per variant (fresh process each) | `data/experiments/reranker_runtime/` |
+| `run_readiness_eval.py` | A (deployed code, from a `git worktree` of main) / B / C retrieval + context selection | `data/experiments/readiness/` |
+| `readiness_analysis.py` | agreement, quality, paired bootstrap + Holm | `reports/production_readiness/*.csv` |
+| `run_answer_abc.py` | end-to-end answers A / B / C with one LLM (**uses the owner's Gemini quota; run only when approved**) | `data/experiments/answers_abc/` |
+
 ## Large files and data that is not committed
 
 - **Compressed intermediates.** Files above ~5 MB (first-stage candidate pools and reliability traces) are committed as

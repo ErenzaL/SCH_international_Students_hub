@@ -52,3 +52,5 @@ research/data/experiments/chunking/*/corpus.json
 # the plain working copies stay local
 research/data/results/**/candidates_*.jsonl
 research/data/experiments/reliability/*/traces.jsonl
+# exported reranker models (regenerable: research/scripts/export_reranker_onnx.py)
+research/models/

@@ -1,0 +1,1 @@
+{"variant": "api_footprint", "threads": 1, "batch": 4, "rss_python_mb": 14, "rss_api_modules_mb": 78, "rss_with_e5_int8_mb": 455, "rss_with_e5_and_reranker_mb": 613, "peak_rss_mb": 1116, "reranker_load_seconds": 0.47, "median_rerank_ms": 3824.3}

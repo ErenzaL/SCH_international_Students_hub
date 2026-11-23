@@ -130,6 +130,9 @@ Read-only checks; missing metadata is reported as unknown.
 | Validity period | 24 |
 | Source domain | 21 |
 
+> **Correction (2026-11-23, see `ERRATA.md`):** the publication-date count describes the research snapshot, which
+> does not export `source_published_at`. In production 21 of 26 approved documents have a publication date.
+
 - **Duplicate content:** 96% of the employment PDF is contained in the guidebook.
 - **Old edition:** the guidebook declares a 2021 edition.
 

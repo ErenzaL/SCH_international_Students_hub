@@ -33,3 +33,19 @@ questions (MRR 0.700 vs 0.698) and E2S for 8; B0 was identical.
 qualitative conclusion "E2 > E1" (gap ≈ 0.10 MRR) is unaffected. Results were not rerun; the published files are kept.
 Production E1 uses PostgreSQL's own deterministic ordering and is not affected. The chunk-quality experiment
 (notebook 13) reports a rebuilt-C0 control to quantify this noise for its comparisons.
+
+## 2026-11-23 - "Publication date unknown for 26 of 26 documents" was a property of the snapshot, not of production
+
+**What.** The Milestone 5 final report (section "Source reliability") and notebook 14 reported the publication date as
+unknown for all 26 corpus_v2 documents. The source-quality check read the research snapshot
+(`data/snapshots/corpus_v2/document_inventory.csv` + corpus text), which does not export `source_published_at`
+(it is stored on `document_versions`, not on the document). Notebook 14 says so, but the report presented the count
+as a fact about the sources.
+
+**Measured** (read-only query of production, 2026-11-23, 26 approved current documents): `source_published_at` is set
+for **21 of 26** (oldest 2013-12-23; one is 2026-12-31, a date in the future that editors should check);
+`valid_from` for 3 and `valid_until` for 2. The validity-period counts in the report (unknown for 24) agree with this.
+
+**Impact.** Only the "publication date unknown" count was wrong; the recommendation (show editors a source-quality
+report, never change metadata automatically) stands. The original files are kept; the production readiness report
+uses the corrected counts. A future snapshot export should include `source_published_at`.

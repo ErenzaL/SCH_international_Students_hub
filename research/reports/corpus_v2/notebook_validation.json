@@ -1,12 +1,12 @@
 {
- "executed_at": "2026-11-23T08:24:31.508965+00:00",
+ "executed_at": "2026-11-23T10:15:33.976176+00:00",
  "kernel": "sch-research",
  "snapshot": "corpus_v2",
  "results": [
   {
    "notebook": "01_dataset_exploration.ipynb",
    "status": "ok",
-   "seconds": 2.4,
+   "seconds": 5.3,
    "code_cells": 10,
    "inline_figures": 2,
    "not_evaluated_notices": 0,
@@ -15,7 +15,7 @@
   {
    "notebook": "02_chunk_analysis.ipynb",
    "status": "ok",
-   "seconds": 2.6,
+   "seconds": 3.8,
    "code_cells": 7,
    "inline_figures": 2,
    "not_evaluated_notices": 0,
@@ -24,7 +24,7 @@
   {
    "notebook": "03_retrieval_evaluation.ipynb",
    "status": "ok",
-   "seconds": 2.3,
+   "seconds": 3.4,
    "code_cells": 8,
    "inline_figures": 2,
    "not_evaluated_notices": 0,
@@ -33,7 +33,7 @@
   {
    "notebook": "04_multilingual_analysis.ipynb",
    "status": "ok",
-   "seconds": 2.6,
+   "seconds": 3.8,
    "code_cells": 8,
    "inline_figures": 1,
    "not_evaluated_notices": 0,
@@ -42,7 +42,7 @@
   {
    "notebook": "05_llm_answer_evaluation.ipynb",
    "status": "ok",
-   "seconds": 1.7,
+   "seconds": 2.4,
    "code_cells": 6,
    "inline_figures": 0,
    "not_evaluated_notices": 2,
@@ -51,7 +51,7 @@
   {
    "notebook": "06_model_comparison.ipynb",
    "status": "ok",
-   "seconds": 1.6,
+   "seconds": 2.4,
    "code_cells": 3,
    "inline_figures": 0,
    "not_evaluated_notices": 1,
@@ -60,7 +60,7 @@
   {
    "notebook": "07_ablation_study.ipynb",
    "status": "ok",
-   "seconds": 2.0,
+   "seconds": 3.0,
    "code_cells": 5,
    "inline_figures": 1,
    "not_evaluated_notices": 0,
@@ -69,7 +69,7 @@
   {
    "notebook": "08_final_research_report.ipynb",
    "status": "ok",
-   "seconds": 2.1,
+   "seconds": 3.0,
    "code_cells": 8,
    "inline_figures": 1,
    "not_evaluated_notices": 0,
@@ -78,7 +78,7 @@
   {
    "notebook": "09_retrieval_error_analysis.ipynb",
    "status": "ok",
-   "seconds": 2.2,
+   "seconds": 3.2,
    "code_cells": 7,
    "inline_figures": 1,
    "not_evaluated_notices": 0,
@@ -87,7 +87,7 @@
   {
    "notebook": "10_multilingual_reranking.ipynb",
    "status": "ok",
-   "seconds": 3.1,
+   "seconds": 4.9,
    "code_cells": 8,
    "inline_figures": 3,
    "not_evaluated_notices": 0,
@@ -96,7 +96,7 @@
   {
    "notebook": "11_context_selection_experiments.ipynb",
    "status": "ok",
-   "seconds": 2.1,
+   "seconds": 3.1,
    "code_cells": 5,
    "inline_figures": 1,
    "not_evaluated_notices": 1,
@@ -105,7 +105,7 @@
   {
    "notebook": "12_statistical_comparison.ipynb",
    "status": "ok",
-   "seconds": 2.6,
+   "seconds": 4.0,
    "code_cells": 7,
    "inline_figures": 1,
    "not_evaluated_notices": 1,
@@ -114,7 +114,7 @@
   {
    "notebook": "13_korean_pdf_chunk_quality.ipynb",
    "status": "ok",
-   "seconds": 4.7,
+   "seconds": 7.4,
    "code_cells": 16,
    "inline_figures": 3,
    "not_evaluated_notices": 0,
@@ -123,7 +123,7 @@
   {
    "notebook": "14_retrieval_reliability_analysis.ipynb",
    "status": "ok",
-   "seconds": 7.6,
+   "seconds": 5.9,
    "code_cells": 14,
    "inline_figures": 2,
    "not_evaluated_notices": 1,
