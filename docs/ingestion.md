@@ -196,10 +196,14 @@ the stored text. To apply an extractor fix to an existing document:
   ever activated automatically. Audited as `version.reextract_requested`.
 * `python -m app.cli reextract <version_id>` prints the same dry-run report; `--apply` creates the pending version.
 
+**Bullet glyphs are not headings.** A line's heading size and weight come from the spans that contain letters or digits. A large bullet glyph (the guidebook sets `*` at 12 pt before 9.4 pt text) no longer turns a checklist item into a `##` section heading:
+- 47 guidebook items and 3 in one other PDF are affected;
+- the words are identical across all 6 production PDFs.
+
 **Older sources.** A new version whose publication date (PDF metadata or page) or declared edition ("2021 개정판")
 is older than `SOURCE_REVIEW_AGE_DAYS` (default 3 years) gets a reviewer warning to verify time-sensitive guidance
 (fees, deadlines, visa, work and insurance rules, contacts) before approving. It is a warning only: nothing is
-hidden, changed or published automatically. The assistant already passes each source's publication date to the
+hidden, changed or published automatically. A second warning lists the pages to re-verify per topic (immigration / visa, employment, insurance, fees / amounts), from the `[Page N]` markers. The assistant already passes each source's publication date to the
 model (`published: 2021-03-05`).
 
 ## PDF ingestion robustness (2026-11-22)

@@ -97,7 +97,8 @@
       "human_approved": "Ditinjau manusia",
       "rejected": "Ditolak",
       "todo": "Belum dimulai",
-      "changes_requested": "Perubahan diminta"
+      "changes_requested": "Perubahan diminta",
+      "needs_review": "Terjemahan mesin – perlu ditinjau"
     },
     "scope": {
       "university": "Khusus SCH",
@@ -253,7 +254,8 @@
     "organization": "Organisasi",
     "sourcePublished": "Sumber diterbitkan",
     "verifiedAt": "Disetujui pada",
-    "officialSource": "Buka sumber asli"
+    "officialSource": "Buka sumber asli",
+    "machineTranslated": "Terjemahan mesin"
   },
   "knowledge": {
     "title": "Pusat Informasi",
@@ -327,10 +329,46 @@
       "statusVerified": "Diverifikasi oleh Global Supporter",
       "statusMachine": "Terjemahan mesin (belum diperiksa)",
       "statusOriginal": "Anda sedang membaca teks asli",
-      "statusNone": "Belum tersedia – menampilkan teks asli"
+      "statusNone": "Belum tersedia – menampilkan teks asli",
+      "machineUnverifiedTitle": "Terjemahan mesin yang belum diverifikasi",
+      "machineHighRiskNote": "Ini terjemahan otomatis yang belum diperiksa siapa pun. Isinya menyangkut aturan yang detailnya penting (visa, kerja, asuransi, biaya, atau tenggat). Selalu pastikan tanggal, jumlah, dan persyaratan di dokumen asli berbahasa {original} sebelum bertindak.",
+      "summaryTitle": "Hanya ringkasan, bukan terjemahan lengkap",
+      "summaryNote": "Dokumen ini panjang, jadi hanya judul dan ringkasan otomatis yang diterjemahkan. Isi lengkapnya ada di dokumen asli berbahasa {original}.",
+      "summaryHeading": "Ringkasan otomatis ({language})",
+      "translatedTextHeading": "Teks terjemahan ({language})"
     },
     "askAssistant": "Tanya asisten tentang dokumen ini",
-    "askAssistantPrefill": "Tentang “{title}”: "
+    "askAssistantPrefill": "Tentang “{title}”: ",
+    "original": {
+      "heading": "Dokumen asli",
+      "pdfNote": "Ini adalah berkas asli ({file}) sebagaimana diterbitkan. Gunakan bilah alat untuk berpindah halaman, memperbesar, atau melihat layar penuh.",
+      "viewerLabel": "Dokumen asli: {title}",
+      "loading": "Memuat dokumen asli…",
+      "loadFailed": "Dokumen asli tidak dapat ditampilkan di sini.",
+      "loadFailedHint": "Anda tetap dapat membukanya di tab baru atau mengunduhnya.",
+      "previousPage": "Halaman sebelumnya",
+      "nextPage": "Halaman berikutnya",
+      "pageNumber": "Nomor halaman",
+      "pageN": "Halaman {n}",
+      "zoomIn": "Perbesar",
+      "zoomOut": "Perkecil",
+      "fitWidth": "Sesuaikan lebar",
+      "fullScreen": "Layar penuh",
+      "exitFullScreen": "Keluar dari layar penuh",
+      "openOriginal": "Buka dokumen asli",
+      "downloadOriginal": "Unduh dokumen asli",
+      "webTitle": "Informasi ini berasal dari halaman web resmi",
+      "webBody": "Bacalah di situs aslinya: itulah versi resmi, dan isinya mungkin sudah diperbarui sejak ditambahkan di sini.",
+      "openWebPage": "Buka halaman resmi",
+      "wordNoPreview": "Pratinjau dokumen Word ini tidak tersedia.",
+      "wordNoPreviewHint": "Unduh berkas aslinya untuk membacanya dengan format lengkap.",
+      "wordPreviewNote": "Pratinjau berformat dari berkas Word asli. Tata letak halaman bisa sedikit berbeda; unduh berkas asli untuk dokumen yang persis.",
+      "wordImagesOmitted": "{n} gambar tidak ditampilkan dalam pratinjau; gambar tersebut ada di berkas asli.",
+      "downloadWord": "Unduh berkas Word asli",
+      "textVersion": "Versi teks (diekstrak untuk pencarian dan terjemahan)",
+      "textVersionNote": "Teks ini diekstrak dari berkas asli. Tata letak, tabel, dan gambar bisa hilang; dokumen asli di atas adalah acuan resminya.",
+      "webTextNote": "Teks yang diambil dari halaman resmi saat ditambahkan. Halaman resmi adalah acuannya dan mungkin sudah berubah."
+    }
   },
   "assistant": {
     "title": "Asisten AI",
@@ -1205,7 +1243,8 @@
         "human_approved": "Disetujui",
         "rejected": "Ditolak",
         "outdated": "Usang",
-        "published": "Disetujui & dipublikasikan"
+        "published": "Disetujui & dipublikasikan",
+        "needs_review": "Mesin – perlu ditinjau"
       },
       "language": "Bahasa",
       "myLanguages": "Bahasa saya",
@@ -1270,7 +1309,28 @@
       "reason": "Alasan",
       "cancel": "Batal",
       "panelTitle": "Terjemahan",
-      "panelNote": "Setiap bahasa ditinjau dan dipublikasikan secara terpisah oleh peninjau yang ditugaskan."
+      "panelNote": "Setiap bahasa ditinjau dan dipublikasikan secara terpisah oleh peninjau yang ditugaskan.",
+      "machine": {
+        "title": "Terjemahan mesin",
+        "generated": "Dibuat {date} dengan {model}. Belum ditinjau sampai disetujui di bawah.",
+        "failed": "Percobaan terakhir gagal: {error}",
+        "waiting": "Menunggu untuk dicoba lagi: {error}",
+        "disabled": "Terjemahan mesin tidak tersedia (penyedia AI belum dikonfigurasi).",
+        "run": "Terjemahkan dengan mesin",
+        "retry": "Terjemahkan ulang",
+        "queued": "Terjemahan mesin masuk antrean. Hasilnya muncul di sini setelah siap.",
+        "state": {
+          "pending": "Dalam antrean",
+          "processing": "Sedang menerjemahkan…",
+          "completed": "Terjemahan mesin siap – belum ditinjau",
+          "needs_review": "Gagal pemeriksaan otomatis – perlu ditinjau",
+          "failed": "Gagal",
+          "outdated": "Usang – dokumen asli berubah",
+          "approved": "Disetujui peninjau",
+          "human_draft": "Sedang disunting seseorang",
+          "missing": "Belum diterjemahkan"
+        }
+      }
     },
     "teams": {
       "title": "Tim bahasa",
@@ -1474,7 +1534,8 @@
         "changes_requested": "Perubahan diminta",
         "human_approved": "Terverifikasi",
         "rejected": "Ditolak",
-        "outdated": "Usang"
+        "outdated": "Usang",
+        "needs_review": "Mesin – gagal pemeriksaan, perlu ditinjau"
       },
       "previousOutdated": "Terjemahan sebelumnya usang",
       "generating": "Membuat draf AI…",
@@ -1518,7 +1579,15 @@
         "code": "Kode visa atau kode resmi tidak ada: {value}",
         "number": "Angka tidak ada atau berubah: {value}",
         "headings": "Jumlah judul bagian berbeda ({value})",
-        "table_rows": "Jumlah baris tabel berbeda ({value})"
+        "table_rows": "Jumlah baris tabel berbeda ({value})",
+        "language": "Terjemahan tidak tampak dalam bahasa sasaran ({value}).",
+        "truncated": "Terjemahan tampaknya terpotong ({value}).",
+        "missing_sections": "Beberapa bagian tampaknya hilang ({value}).",
+        "placeholder": "Sisa teks penampung atau pembungkus: {value}",
+        "number_added": "Angka yang tidak ada di dokumen asli: {value}",
+        "url_added": "Tautan yang tidak ada di dokumen asli: {value}",
+        "email_added": "Alamat e-mail yang tidak ada di dokumen asli: {value}",
+        "code_added": "Kode visa/status yang tidak ada di dokumen asli: {value}"
       },
       "saveDraft": "Simpan draf",
       "submit": "Kirim untuk ditinjau",

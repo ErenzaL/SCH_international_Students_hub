@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, Query
 
 from app.api.deps import Pagination, get_services
 from app.schemas.api import (
@@ -53,10 +53,12 @@ def submit_announcement(announcement_id: str, svc: Services = Depends(get_servic
 
 
 @router.post("/announcements/{announcement_id}/approve")
-def approve_announcement(announcement_id: str, body: NoteBody | None = None, svc: Services = Depends(get_services),
+def approve_announcement(announcement_id: str, background: BackgroundTasks, body: NoteBody | None = None,
+                         svc: Services = Depends(get_services),
                          user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
     out = svc.announcements.approve(announcement_id, user, body.note if body else None)
-    svc.translations.on_original_published(announcement_id, user)  # per-language tasks + team notifications
+    # per-language tasks + team notifications; machine translations (if enabled) run after the response
+    svc.translations.on_original_published(announcement_id, user, background)
     return out
 
 
@@ -81,7 +83,7 @@ def announcement_history(announcement_id: str, svc: Services = Depends(get_servi
 def _flat(detail: dict) -> dict:  # type: ignore[type-arg]
     """Translation fields at the top level (Phase 1 shape) + original / revisions / permissions."""
     return {**(detail.get("translation") or {}), "original": detail["original"], "revisions": detail["revisions"],
-            "permissions": detail["permissions"], "language": detail["language"]}
+            "permissions": detail["permissions"], "language": detail["language"], "machine": detail.get("machine")}
 
 
 @router.get("/announcements/{announcement_id}/translations/{language}")
@@ -115,6 +117,22 @@ def reject_translation(announcement_id: str, language: Lang, body: ReasonBody, s
 def request_translation_changes(announcement_id: str, language: Lang, body: ReasonBody,
                                 svc: Services = Depends(get_services), user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
     return _flat(svc.translations.request_changes(announcement_id, language, user, body.reason))
+
+
+@router.post("/announcements/{announcement_id}/translations/{language}/machine-translate", status_code=202)
+def machine_translate(announcement_id: str, language: Lang, background: BackgroundTasks, force: bool = False,
+                      svc: Services = Depends(get_services), user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
+    """Queue (or retry) the machine translation of a published announcement for one language. ``force`` replaces
+    a person's draft and needs the review permission for the language."""
+    from app.core.errors import Forbidden
+
+    perms = svc.translations.permissions(user, language)
+    if not (perms["can_edit"] or perms["can_review"] or user.role in ("admin", "super_admin")):
+        raise Forbidden("You are not assigned to translations in this language.")
+    if force and not (perms["can_review"] or user.role == "super_admin"):
+        raise Forbidden("Replacing a person's translation needs the review permission for this language.")
+    job = svc.announcement_translator.queue(announcement_id, language, user.id, force=force, background=background)
+    return dict(job_id=job["id"], status=job["status"])
 
 
 @router.get("/announcements/{announcement_id}/translations/{language}/share-text")

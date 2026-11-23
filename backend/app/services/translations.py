@@ -52,6 +52,7 @@ class TranslationReviewService:
         self.store = store
         self.ann = announcements
         self.notes = notes
+        self.auto: Any = None    # AnnouncementAutoTranslator (machine translations; wired by the container)
 
     # ---------------------------------------------------------------- original
     def original(self, announcement_id: str) -> dict[str, Any]:
@@ -116,7 +117,7 @@ class TranslationReviewService:
             names = self._names([r.get("actor_id") for r in rows])
             revs = [{**r, "actor_name": names.get(r.get("actor_id") or "")} for r in rows]
         return dict(original=orig, translation=self.view(t, orig) if t else None, revisions=revs, permissions=perms,
-                    language=language)
+                    language=language, machine=self.auto.admin_info(t) if self.auto is not None else None)
 
     def tasks(self, user: AuthUser, status: str | None, language: str | None, outdated: bool | None, page: int,
               size: int) -> tuple[list[dict[str, Any]], int]:
@@ -251,7 +252,7 @@ class TranslationReviewService:
         return dict(text="\n".join(lines), language=language, announcement_id=announcement_id)
 
     # ------------------------------------------------------------------- hooks
-    def on_original_published(self, announcement_id: str, actor: AuthUser | None) -> int:
+    def on_original_published(self, announcement_id: str, actor: AuthUser | None, background: Any = None) -> int:
         """Create translation tasks for every other language and notify that language's team."""
         orig = self.original(announcement_id)
         created = 0
@@ -267,6 +268,8 @@ class TranslationReviewService:
                                        entity_type="announcement", entity_id=announcement_id,
                                        link=f"/admin/translations/{announcement_id}/{lang}")
         self.mark_outdated(announcement_id, actor)
+        if self.auto is not None:   # machine translations (when enabled): queued, never blocking publication
+            self.auto.on_published(announcement_id, actor.id if actor else None, background)
         return created
 
     def mark_outdated(self, announcement_id: str, actor: AuthUser | None) -> int:

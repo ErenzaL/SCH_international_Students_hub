@@ -97,7 +97,8 @@
       "human_approved": "已人工审核",
       "rejected": "已驳回",
       "todo": "未开始",
-      "changes_requested": "需要修改"
+      "changes_requested": "需要修改",
+      "needs_review": "机器翻译 – 需审核"
     },
     "scope": {
       "university": "仅限 SCH",
@@ -253,7 +254,8 @@
     "organization": "机构",
     "sourcePublished": "来源发布日期",
     "verifiedAt": "批准日期",
-    "officialSource": "打开原始来源"
+    "officialSource": "打开原始来源",
+    "machineTranslated": "机器翻译"
   },
   "knowledge": {
     "title": "知识中心",
@@ -327,10 +329,46 @@
       "statusVerified": "已由全球支持者审核",
       "statusMachine": "机器翻译（未经审核）",
       "statusOriginal": "您正在阅读原文",
-      "statusNone": "暂无译文 – 显示原文"
+      "statusNone": "暂无译文 – 显示原文",
+      "machineUnverifiedTitle": "未经核实的机器翻译",
+      "machineHighRiskNote": "这是尚未经任何人检查的自动翻译，内容涉及细节很重要的规定（签证、工作、保险、费用或截止日期）。在采取行动前，请务必在{original}原文中核对日期、金额和要求。",
+      "summaryTitle": "仅为摘要，并非完整翻译",
+      "summaryNote": "此文件较长，因此只翻译了标题和自动摘要。完整内容请见{original}原文。",
+      "summaryHeading": "自动摘要（{language}）",
+      "translatedTextHeading": "译文（{language}）"
     },
     "askAssistant": "向助手询问此文档",
-    "askAssistantPrefill": "关于“{title}”："
+    "askAssistantPrefill": "关于“{title}”：",
+    "original": {
+      "heading": "原始文件",
+      "pdfNote": "这是已发布的原始文件（{file}）。可使用工具栏翻页、缩放或全屏查看。",
+      "viewerLabel": "原始文件：{title}",
+      "loading": "正在加载原始文件…",
+      "loadFailed": "无法在此显示原始文件。",
+      "loadFailedHint": "您仍可以在新标签页中打开或下载。",
+      "previousPage": "上一页",
+      "nextPage": "下一页",
+      "pageNumber": "页码",
+      "pageN": "第 {n} 页",
+      "zoomIn": "放大",
+      "zoomOut": "缩小",
+      "fitWidth": "适合宽度",
+      "fullScreen": "全屏",
+      "exitFullScreen": "退出全屏",
+      "openOriginal": "打开原件",
+      "downloadOriginal": "下载原件",
+      "webTitle": "此信息来自官方网页",
+      "webBody": "请在原网站上阅读：那里是正式版本，自添加到这里以来可能已有更新。",
+      "openWebPage": "打开官方页面",
+      "wordNoPreview": "此 Word 文件无法预览。",
+      "wordNoPreviewHint": "请下载原始文件，以完整格式阅读。",
+      "wordPreviewNote": "这是原始 Word 文件的格式化预览。页面版式可能略有不同；如需准确文件，请下载原件。",
+      "wordImagesOmitted": "有 {n} 张图片未在预览中显示，它们在原始文件中。",
+      "downloadWord": "下载原始 Word 文件",
+      "textVersion": "文本版本（为搜索和翻译而提取）",
+      "textVersionNote": "此文本提取自原始文件，版式、表格和图片可能丢失；以上方的原始文件为准。",
+      "webTextNote": "这是添加时从官方页面获取的文本。以官方页面为准，其内容可能已有变化。"
+    }
   },
   "assistant": {
     "title": "AI 助手",
@@ -1205,7 +1243,8 @@
         "human_approved": "已批准",
         "rejected": "已驳回",
         "outdated": "已过时",
-        "published": "已批准并发布"
+        "published": "已批准并发布",
+        "needs_review": "机器 – 需审核"
       },
       "language": "语言",
       "myLanguages": "我的语言",
@@ -1270,7 +1309,28 @@
       "reason": "原因",
       "cancel": "取消",
       "panelTitle": "翻译",
-      "panelNote": "每种语言都由其指定的审核人独立审核和发布。"
+      "panelNote": "每种语言都由其指定的审核人独立审核和发布。",
+      "machine": {
+        "title": "机器翻译",
+        "generated": "于 {date} 由 {model} 生成。在下方批准前均为未审核状态。",
+        "failed": "上次尝试失败：{error}",
+        "waiting": "等待重试：{error}",
+        "disabled": "无法使用机器翻译（未配置 AI 服务）。",
+        "run": "机器翻译",
+        "retry": "重新翻译",
+        "queued": "已将机器翻译加入队列，完成后会显示在这里。",
+        "state": {
+          "pending": "排队中",
+          "processing": "翻译中…",
+          "completed": "机器翻译已完成 – 未审核",
+          "needs_review": "未通过自动检查 – 需审核",
+          "failed": "失败",
+          "outdated": "已过时 – 原文已更改",
+          "approved": "已由审核人批准",
+          "human_draft": "有人正在编辑",
+          "missing": "尚未翻译"
+        }
+      }
     },
     "teams": {
       "title": "语言团队",
@@ -1474,7 +1534,8 @@
         "changes_requested": "需要修改",
         "human_approved": "已审核",
         "rejected": "已驳回",
-        "outdated": "已过时"
+        "outdated": "已过时",
+        "needs_review": "机器 – 未通过检查，需审核"
       },
       "previousOutdated": "之前的译文已过时",
       "generating": "正在生成 AI 草稿…",
@@ -1518,7 +1579,15 @@
         "code": "缺少签证或官方代码：{value}",
         "number": "数字缺失或被更改：{value}",
         "headings": "标题数量不一致（{value}）",
-        "table_rows": "表格行数不一致（{value}）"
+        "table_rows": "表格行数不一致（{value}）",
+        "language": "译文看起来不是目标语言（{value}）。",
+        "truncated": "译文似乎被截断（{value}）。",
+        "missing_sections": "似乎缺少部分段落（{value}）。",
+        "placeholder": "残留的占位或包装文本：{value}",
+        "number_added": "原文中没有的数字：{value}",
+        "url_added": "原文中没有的链接：{value}",
+        "email_added": "原文中没有的电子邮件地址：{value}",
+        "code_added": "原文中没有的签证/身份代码：{value}"
       },
       "saveDraft": "保存草稿",
       "submit": "提交审核",

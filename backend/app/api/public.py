@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Literal
 
 from fastapi import APIRouter, Depends, Query, Request
+from fastapi.responses import Response
 
 from app.api.deps import Pagination, get_services
 from app.core.config import Settings, get_settings
@@ -12,6 +13,8 @@ from app.core.rate_limit import rate_limit
 from app.schemas.api import Lang, SearchRequest
 from app.security.auth import AuthUser, get_current_user
 from app.services.container import Services
+
+TARGET_LANGS = ("ko", "en", "id", "vi", "zh-CN")
 
 router = APIRouter(prefix="/api/v1", tags=["public"], dependencies=[Depends(rate_limit("public"))])
 
@@ -36,17 +39,23 @@ def list_announcements(
     q: str | None = Query(None, max_length=200), category: str | None = None,
     language: Literal["ko", "en", "id", "vi", "zh-CN"] | None = None,
     status: Literal["active", "upcoming", "expired"] | None = None,
+    display_language: Lang | None = None,
     pg: Pagination = Depends(), svc: Services = Depends(get_services),
 ) -> dict:  # type: ignore[type-arg]
+    """``display_language``: titles in that language where a translation students may see exists
+    (``display_title`` + ``display_title_status`` verified | machine); originals otherwise."""
     _check_category(category)
     items, total = svc.public.list_announcements(q=q, category=category, language=language, status=status,
-                                                 page=pg.page, size=pg.page_size)
+                                                 page=pg.page, size=pg.page_size, display_language=display_language)
     return pg.wrap(items, total)
 
 
 @router.get("/announcements/{announcement_id}")
-def get_announcement(announcement_id: str, svc: Services = Depends(get_services)) -> dict:  # type: ignore[type-arg]
-    return svc.public.get_announcement(announcement_id)
+def get_announcement(announcement_id: str, lang: Lang | None = None,
+                     svc: Services = Depends(get_services)) -> dict:  # type: ignore[type-arg]
+    """The original announcement plus, for ``lang``, the translation students may see (``translation``: verified,
+    or a labelled machine translation when enabled; null = show the original)."""
+    return svc.public.get_announcement(announcement_id, lang)
 
 
 @router.get("/assistant/status")
@@ -79,12 +88,13 @@ def list_documents(
                                              authority=authority)
     vids = [i["version_id"] for i in items if i.get("version_id")]
     verified = svc.doc_translations.verified_languages(vids)
-    titles = svc.doc_translations.verified_titles(vids, lang) if lang else {}
+    titles = svc.doc_translations.display_titles(vids, lang) if lang and lang in TARGET_LANGS else {}
     for i in items:
         i["verified_languages"] = sorted(verified.get(i.get("version_id") or "", []))
         t = titles.get(i.get("version_id") or "")
-        i["translated_title"] = t
-        i["display_language"] = lang if t else i["language"]
+        i["translated_title"] = t[0] if t and i["language"] != lang else None
+        i["translated_title_status"] = t[1] if t and i["language"] != lang else None
+        i["display_language"] = lang if i["translated_title"] else i["language"]
     return pg.wrap(items, total)
 
 
@@ -101,6 +111,29 @@ def get_document(document_id: str, lang: Lang | None = None,
     out["verified_languages"] = sorted(svc.doc_translations.verified_languages([out["version_id"]])
                                        .get(out["version_id"], []))
     return out
+
+
+@router.get("/knowledge/documents/{document_id}/original")
+def get_document_original(document_id: str, download: bool = False,
+                          svc: Services = Depends(get_services)) -> Response:
+    """The ORIGINAL file (PDF / Word / text) of a public document's current approved version, streamed from private
+    storage after the same checks as the document page. ``?download=1`` asks the browser to save it."""
+    from urllib.parse import quote
+
+    data, filename, mime = svc.public.original_file(document_id)
+    attach = download or not mime.startswith(("application/pdf", "text/plain"))   # Word files are always downloads
+    disposition = "attachment" if attach else "inline"
+    return Response(content=data, media_type=mime, headers={
+        "Content-Disposition": f"{disposition}; filename*=UTF-8''{quote(filename)}",
+        "Cache-Control": "private, max-age=300", "X-Content-Type-Options": "nosniff",
+        "Content-Length": str(len(data))})
+
+
+@router.get("/knowledge/documents/{document_id}/original/preview")
+def get_document_original_preview(document_id: str, svc: Services = Depends(get_services)) -> dict:  # type: ignore[type-arg]
+    """Formatted HTML preview of a Word original (escaped, script-free; shown in a sandboxed iframe)."""
+    out = svc.public.original_preview(document_id)
+    return dict(html=out["html"], omitted_images=out["omitted_images"])
 
 
 @router.get("/me", tags=["auth"])

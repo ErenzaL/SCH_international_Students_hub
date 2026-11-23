@@ -25,6 +25,7 @@ MIN_CHARS_PER_TEXT_PAGE = 20
 TABLE_MODES = ("off", "auto")
 DEFAULT_MAX_TABLE_ITEMS = 1500   # drawing items per page above which find_tables() is skipped (auto mode)
 _HANGUL_RE = re.compile(r"[\uac00-\ud7a3]")
+_WORD_CHAR_RE = re.compile(r"[^\W_]")      # a letter or digit in any script
 # C0 control characters other than \t \n. InDesign exports put an invisible "indent to here" mark (\x07) after list
 # markers ("- \x07text"); it carries no content.
 _CONTROL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f]")
@@ -173,8 +174,11 @@ def _pdf_page_text(page: Any, body_size: float, *, tables_enabled: bool = False)
             if not spans:
                 continue
             text = "".join(s["text"] for s in line.get("spans", [])).strip()
-            size = max(s.get("size", 0) for s in spans)
-            bold = all((s.get("flags", 0) & 16) for s in spans)
+            # heading size/weight come from the spans that carry words: a large bullet glyph ("*" set at 12 pt in
+            # front of 9.4 pt text in the 2021 guidebook) must not turn a list item into a section heading
+            wordy = [s for s in spans if _WORD_CHAR_RE.search(s["text"])] or spans
+            size = max(s.get("size", 0) for s in wordy)
+            bold = all((s.get("flags", 0) & 16) for s in wordy)
             short = len(text) <= 120 and not text.endswith((".", ",", "다.", "요."))
             if body_size and short and size >= body_size * 1.7:
                 lines.append(f"\n# {text}\n")

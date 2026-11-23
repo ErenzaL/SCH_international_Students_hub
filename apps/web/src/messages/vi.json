@@ -97,7 +97,8 @@
       "human_approved": "Đã được người duyệt",
       "rejected": "Bị từ chối",
       "todo": "Chưa bắt đầu",
-      "changes_requested": "Yêu cầu chỉnh sửa"
+      "changes_requested": "Yêu cầu chỉnh sửa",
+      "needs_review": "Bản dịch máy – cần xem xét"
     },
     "scope": {
       "university": "Riêng SCH",
@@ -253,7 +254,8 @@
     "organization": "Tổ chức",
     "sourcePublished": "Nguồn công bố",
     "verifiedAt": "Duyệt ngày",
-    "officialSource": "Mở nguồn gốc"
+    "officialSource": "Mở nguồn gốc",
+    "machineTranslated": "Dịch máy"
   },
   "knowledge": {
     "title": "Trung tâm thông tin",
@@ -327,10 +329,46 @@
       "statusVerified": "Đã được Global Supporter duyệt",
       "statusMachine": "Bản dịch máy (chưa được kiểm tra)",
       "statusOriginal": "Bạn đang đọc bản gốc",
-      "statusNone": "Chưa có – đang hiển thị bản gốc"
+      "statusNone": "Chưa có – đang hiển thị bản gốc",
+      "machineUnverifiedTitle": "Bản dịch máy chưa được kiểm chứng",
+      "machineHighRiskNote": "Đây là bản dịch tự động chưa ai kiểm tra. Nội dung liên quan đến các quy định mà chi tiết rất quan trọng (visa, việc làm, bảo hiểm, chi phí hoặc thời hạn). Hãy luôn kiểm tra ngày tháng, số tiền và yêu cầu trong bản gốc tiếng {original} trước khi làm theo.",
+      "summaryTitle": "Chỉ là bản tóm tắt, không phải bản dịch đầy đủ",
+      "summaryNote": "Tài liệu này dài nên chỉ tiêu đề và bản tóm tắt tự động được dịch. Nội dung đầy đủ có trong bản gốc tiếng {original}.",
+      "summaryHeading": "Tóm tắt tự động ({language})",
+      "translatedTextHeading": "Văn bản đã dịch ({language})"
     },
     "askAssistant": "Hỏi trợ lý về tài liệu này",
-    "askAssistantPrefill": "Về “{title}”: "
+    "askAssistantPrefill": "Về “{title}”: ",
+    "original": {
+      "heading": "Tài liệu gốc",
+      "pdfNote": "Đây là tệp gốc ({file}) như đã được công bố. Dùng thanh công cụ để chuyển trang, phóng to hoặc xem toàn màn hình.",
+      "viewerLabel": "Tài liệu gốc: {title}",
+      "loading": "Đang tải tài liệu gốc…",
+      "loadFailed": "Không thể hiển thị tài liệu gốc tại đây.",
+      "loadFailedHint": "Bạn vẫn có thể mở trong thẻ mới hoặc tải xuống.",
+      "previousPage": "Trang trước",
+      "nextPage": "Trang sau",
+      "pageNumber": "Số trang",
+      "pageN": "Trang {n}",
+      "zoomIn": "Phóng to",
+      "zoomOut": "Thu nhỏ",
+      "fitWidth": "Vừa chiều rộng",
+      "fullScreen": "Toàn màn hình",
+      "exitFullScreen": "Thoát toàn màn hình",
+      "openOriginal": "Mở bản gốc",
+      "downloadOriginal": "Tải bản gốc",
+      "webTitle": "Thông tin này lấy từ một trang web chính thức",
+      "webBody": "Hãy đọc trên trang web gốc: đó là phiên bản chính thức và có thể đã được cập nhật sau khi được thêm vào đây.",
+      "openWebPage": "Mở trang chính thức",
+      "wordNoPreview": "Không có bản xem trước cho tài liệu Word này.",
+      "wordNoPreviewHint": "Hãy tải tệp gốc để đọc với đầy đủ định dạng.",
+      "wordPreviewNote": "Bản xem trước có định dạng của tệp Word gốc. Bố cục trang có thể hơi khác; hãy tải bản gốc để xem chính xác.",
+      "wordImagesOmitted": "{n} hình ảnh không hiển thị trong bản xem trước; chúng có trong tệp gốc.",
+      "downloadWord": "Tải tệp Word gốc",
+      "textVersion": "Phiên bản văn bản (trích xuất để tìm kiếm và dịch)",
+      "textVersionNote": "Văn bản này được trích xuất từ tệp gốc. Bố cục, bảng và hình ảnh có thể bị mất; tài liệu gốc ở trên là căn cứ chính thức.",
+      "webTextNote": "Văn bản lấy từ trang chính thức khi được thêm vào. Trang chính thức là căn cứ và có thể đã thay đổi."
+    }
   },
   "assistant": {
     "title": "Trợ lý AI",
@@ -1205,7 +1243,8 @@
         "human_approved": "Đã duyệt",
         "rejected": "Bị từ chối",
         "outdated": "Lỗi thời",
-        "published": "Đã duyệt & đăng"
+        "published": "Đã duyệt & đăng",
+        "needs_review": "Máy – cần xem xét"
       },
       "language": "Ngôn ngữ",
       "myLanguages": "Ngôn ngữ của tôi",
@@ -1270,7 +1309,28 @@
       "reason": "Lý do",
       "cancel": "Hủy",
       "panelTitle": "Bản dịch",
-      "panelNote": "Mỗi ngôn ngữ được những người duyệt được phân công duyệt và đăng độc lập."
+      "panelNote": "Mỗi ngôn ngữ được những người duyệt được phân công duyệt và đăng độc lập.",
+      "machine": {
+        "title": "Dịch máy",
+        "generated": "Tạo lúc {date} bằng {model}. Chưa được xem xét cho đến khi được duyệt bên dưới.",
+        "failed": "Lần thử gần nhất thất bại: {error}",
+        "waiting": "Đang chờ thử lại: {error}",
+        "disabled": "Không thể dịch máy (chưa cấu hình nhà cung cấp AI).",
+        "run": "Dịch bằng máy",
+        "retry": "Dịch lại",
+        "queued": "Đã đưa bản dịch máy vào hàng đợi. Kết quả sẽ hiện ở đây khi sẵn sàng.",
+        "state": {
+          "pending": "Đang chờ",
+          "processing": "Đang dịch…",
+          "completed": "Bản dịch máy đã xong – chưa xem xét",
+          "needs_review": "Không qua kiểm tra tự động – cần xem xét",
+          "failed": "Thất bại",
+          "outdated": "Đã cũ – bản gốc đã thay đổi",
+          "approved": "Đã được người duyệt chấp thuận",
+          "human_draft": "Có người đang chỉnh sửa",
+          "missing": "Chưa được dịch"
+        }
+      }
     },
     "teams": {
       "title": "Nhóm ngôn ngữ",
@@ -1474,7 +1534,8 @@
         "changes_requested": "Yêu cầu chỉnh sửa",
         "human_approved": "Đã duyệt",
         "rejected": "Bị từ chối",
-        "outdated": "Lỗi thời"
+        "outdated": "Lỗi thời",
+        "needs_review": "Máy – không qua kiểm tra, cần xem xét"
       },
       "previousOutdated": "Bản dịch trước đã lỗi thời",
       "generating": "Đang tạo bản nháp AI…",
@@ -1518,7 +1579,15 @@
         "code": "Thiếu mã visa hoặc mã chính thức: {value}",
         "number": "Thiếu hoặc thay đổi số: {value}",
         "headings": "Số lượng tiêu đề khác nhau ({value})",
-        "table_rows": "Số dòng của bảng khác nhau ({value})"
+        "table_rows": "Số dòng của bảng khác nhau ({value})",
+        "language": "Bản dịch có vẻ không phải ngôn ngữ đích ({value}).",
+        "truncated": "Bản dịch có vẻ bị cắt ngắn ({value}).",
+        "missing_sections": "Có vẻ thiếu một số phần ({value}).",
+        "placeholder": "Còn sót văn bản giữ chỗ hoặc bao bọc: {value}",
+        "number_added": "Con số không có trong bản gốc: {value}",
+        "url_added": "Liên kết không có trong bản gốc: {value}",
+        "email_added": "Địa chỉ e-mail không có trong bản gốc: {value}",
+        "code_added": "Mã visa/tư cách lưu trú không có trong bản gốc: {value}"
       },
       "saveDraft": "Lưu bản nháp",
       "submit": "Gửi đi duyệt",

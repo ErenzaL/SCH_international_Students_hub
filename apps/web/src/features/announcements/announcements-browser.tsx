@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { LayoutGrid, List, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
@@ -29,7 +29,9 @@ export function AnnouncementsBrowser() {
   const [view, setView] = useState<"card" | "list">("card");
   const [page, setPage] = useState(1);
 
-  const query = { q, category, language, status, page, page_size: PAGE_SIZE };
+  const locale = useLocale();
+  // titles in the reader's language where a translation they may see exists (originals otherwise)
+  const query = { q, category, language, status, page, page_size: PAGE_SIZE, display_language: locale };
   const { data, error, loading, reload } = useApi<Page<AnnouncementSummary>>(
     `announcements:${JSON.stringify(query)}`,
     () => api.get<Page<AnnouncementSummary>>("/api/v1/announcements", query),

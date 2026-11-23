@@ -97,7 +97,8 @@
       "human_approved": "Human-reviewed",
       "rejected": "Rejected",
       "todo": "Not started",
-      "changes_requested": "Changes requested"
+      "changes_requested": "Changes requested",
+      "needs_review": "Machine translation – needs review"
     },
     "scope": {
       "university": "SCH-specific",
@@ -253,7 +254,8 @@
     "organization": "Organization",
     "sourcePublished": "Source published",
     "verifiedAt": "Approved on",
-    "officialSource": "Open original source"
+    "officialSource": "Open original source",
+    "machineTranslated": "Machine-translated"
   },
   "knowledge": {
     "title": "Knowledge Center",
@@ -327,10 +329,46 @@
       "statusVerified": "Verified by a Global Supporter",
       "statusMachine": "Machine translation (not reviewed)",
       "statusOriginal": "You are reading the original",
-      "statusNone": "Not yet available – showing the original"
+      "statusNone": "Not yet available – showing the original",
+      "machineUnverifiedTitle": "Unverified machine translation",
+      "machineHighRiskNote": "This is an automatic translation that no one has checked yet. It covers rules where details matter (visa, work, insurance, fees or deadlines). Always confirm dates, amounts and requirements in the {original} original before acting.",
+      "summaryTitle": "Summary only, not a full translation",
+      "summaryNote": "This document is long, so only its title and an automatic summary were translated. The complete content is in the {original} original.",
+      "summaryHeading": "Automatic summary ({language})",
+      "translatedTextHeading": "Translated text ({language})"
     },
     "askAssistant": "Ask the assistant about this",
-    "askAssistantPrefill": "About “{title}”: "
+    "askAssistantPrefill": "About “{title}”: ",
+    "original": {
+      "heading": "Original document",
+      "pdfNote": "This is the original file ({file}) as published. Use the toolbar to change pages, zoom or view it full screen.",
+      "viewerLabel": "Original document: {title}",
+      "loading": "Loading the original document…",
+      "loadFailed": "The original document could not be displayed here.",
+      "loadFailedHint": "You can still open it in a new tab or download it.",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "pageNumber": "Page number",
+      "pageN": "Page {n}",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "fitWidth": "Fit width",
+      "fullScreen": "Full screen",
+      "exitFullScreen": "Exit full screen",
+      "openOriginal": "Open original",
+      "downloadOriginal": "Download original",
+      "webTitle": "This information comes from an official web page",
+      "webBody": "Read it on the original website: it is the authoritative version and may have been updated since it was added here.",
+      "openWebPage": "Open the official page",
+      "wordNoPreview": "A preview of this Word document is not available.",
+      "wordNoPreviewHint": "Download the original file to read it with its full formatting.",
+      "wordPreviewNote": "Formatted preview of the original Word file. Page layout may differ slightly; download the original for the exact document.",
+      "wordImagesOmitted": "{n} image(s) are not shown in the preview; they are in the original file.",
+      "downloadWord": "Download the original Word file",
+      "textVersion": "Text version (extracted for search and translation)",
+      "textVersionNote": "This text was extracted from the original file. Layout, tables and images may be lost; the original document above is authoritative.",
+      "webTextNote": "Text captured from the official page when it was added. The official page is authoritative and may have changed."
+    }
   },
   "assistant": {
     "title": "AI Assistant",
@@ -1205,7 +1243,8 @@
         "human_approved": "Approved",
         "rejected": "Rejected",
         "outdated": "Outdated",
-        "published": "Approved & published"
+        "published": "Approved & published",
+        "needs_review": "Machine – needs review"
       },
       "language": "Language",
       "myLanguages": "My languages",
@@ -1270,7 +1309,28 @@
       "reason": "Reason",
       "cancel": "Cancel",
       "panelTitle": "Translations",
-      "panelNote": "Each language is reviewed and published independently by its assigned reviewers."
+      "panelNote": "Each language is reviewed and published independently by its assigned reviewers.",
+      "machine": {
+        "title": "Machine translation",
+        "generated": "Generated {date} with {model}. Unreviewed until approved below.",
+        "failed": "Last attempt failed: {error}",
+        "waiting": "Waiting to retry: {error}",
+        "disabled": "Machine translation is not available (no AI provider is configured).",
+        "run": "Machine-translate",
+        "retry": "Translate again",
+        "queued": "Machine translation queued. It appears here when it is ready.",
+        "state": {
+          "pending": "Queued",
+          "processing": "Translating…",
+          "completed": "Machine translation ready – unreviewed",
+          "needs_review": "Failed automated checks – needs review",
+          "failed": "Failed",
+          "outdated": "Outdated – the original changed",
+          "approved": "Approved by a reviewer",
+          "human_draft": "A person is editing",
+          "missing": "Not translated yet"
+        }
+      }
     },
     "teams": {
       "title": "Language teams",
@@ -1474,7 +1534,8 @@
         "changes_requested": "Changes requested",
         "human_approved": "Verified",
         "rejected": "Rejected",
-        "outdated": "Outdated"
+        "outdated": "Outdated",
+        "needs_review": "Machine – failed checks, needs review"
       },
       "previousOutdated": "Previous translation outdated",
       "generating": "Generating an AI draft…",
@@ -1518,7 +1579,15 @@
         "code": "Visa or official code missing: {value}",
         "number": "Number missing or changed: {value}",
         "headings": "Number of headings differs ({value})",
-        "table_rows": "Number of table rows differs ({value})"
+        "table_rows": "Number of table rows differs ({value})",
+        "language": "The translation does not look like the target language ({value}).",
+        "truncated": "The translation looks cut off ({value}).",
+        "missing_sections": "Sections seem to be missing ({value}).",
+        "placeholder": "Leftover placeholder or wrapper text: {value}",
+        "number_added": "Number not in the original: {value}",
+        "url_added": "Link not in the original: {value}",
+        "email_added": "E-mail address not in the original: {value}",
+        "code_added": "Visa / status code not in the original: {value}"
       },
       "saveDraft": "Save draft",
       "submit": "Submit for review",

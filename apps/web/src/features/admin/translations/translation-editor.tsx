@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { AlertTriangle, ArrowLeft, Check, ClipboardCopy, MessageSquareWarning, Save, Send, XCircle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Bot, Check, ClipboardCopy, MessageSquareWarning, RotateCcw, Save, Send, XCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +17,7 @@ import { LOCALE_LABELS } from "@/lib/constants";
 import { useAction } from "@/lib/use-action";
 import { useApi } from "@/lib/use-api";
 import { formatDate, formatDateTime } from "@/lib/utils";
-import type { LanguageCode, TranslationDetail } from "@/types/api";
+import type { LanguageCode, MachineTranslationInfo, TranslationDetail } from "@/types/api";
 
 /** Original announcement next to the draft; save / submit / approve / reject / request changes. */
 export function TranslationEditor({ announcementId, language }: { announcementId: string; language: LanguageCode }) {
@@ -129,6 +129,18 @@ export function TranslationEditor({ announcementId, language }: { announcementId
       )}
       {action.error && <Alert variant="destructive">{errorMessage(action.error)}</Alert>}
       {done && <Alert variant="success" className="whitespace-pre-wrap">{done}</Alert>}
+      {data.machine && original.language !== language && (
+        <MachinePanel info={data.machine} canRun={permissions.can_edit || permissions.can_review}
+          published={original.publication_status === "published"} busy={action.busy}
+          onRun={async () => {
+            setDone(null);
+            const res = await action.run(() => api.post(`${base}/machine-translate`));
+            if (res) {
+              setDone(t("machine.queued"));
+              reload();
+            }
+          }} />
+      )}
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
@@ -282,5 +294,50 @@ export function TranslationEditor({ announcementId, language }: { announcementId
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+/** Automatic machine translation for this language: status, model, automated checks and a retry button. */
+function MachinePanel({ info, canRun, published, busy, onRun }: {
+  info: MachineTranslationInfo; canRun: boolean; published: boolean; busy: boolean; onRun: () => void;
+}) {
+  const t = useTranslations("admin.trreview.machine");
+  const tw = useTranslations("admin.doctr.warning");
+  const locale = useLocale();
+  const running = info.state === "pending" || info.state === "processing";
+  return (
+    <Card data-testid="machine-panel">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex flex-wrap items-center gap-2 text-base">
+          <Bot className="size-4 text-primary" aria-hidden /> {t("title")}
+          <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium" data-testid="machine-state">{t(`state.${info.state}`)}</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2 text-sm">
+        {info.generated_at && (
+          <p className="text-muted-foreground">
+            {t("generated", { date: formatDateTime(info.generated_at, locale), model: info.model ?? info.provider ?? "?" })}
+          </p>
+        )}
+        {info.job?.status === "failed" && info.job.error_message && (
+          <p className="text-destructive">{t("failed", { error: info.job.error_message })}</p>
+        )}
+        {info.job?.status === "queued" && info.job.error_code && (
+          <p className="text-muted-foreground">{t("waiting", { error: info.job.error_message ?? info.job.error_code })}</p>
+        )}
+        {info.warnings.length > 0 && (
+          <ul className="list-disc space-y-0.5 pl-5 text-amber-800 dark:text-amber-300">
+            {info.warnings.map((w, i) => <li key={i}>{tw.has(w.type) ? tw(w.type, { value: w.value }) : `${w.type}: ${w.value}`}</li>)}
+          </ul>
+        )}
+        {!info.llm_enabled ? (
+          <p className="text-muted-foreground">{t("disabled")}</p>
+        ) : canRun && published && info.state !== "approved" && info.state !== "human_draft" && (
+          <Button size="sm" variant="outline" disabled={busy || running} onClick={onRun} data-testid="machine-run">
+            <RotateCcw /> {info.state === "missing" || (info.state === "pending" && !info.job) ? t("run") : t("retry")}
+          </Button>
+        )}
+      </CardContent>
+    </Card>
   );
 }

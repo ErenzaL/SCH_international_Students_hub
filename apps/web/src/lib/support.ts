@@ -102,6 +102,7 @@ export function translationBadge(t: { translation_status: TranslationStatus; is_
   const v: Record<TranslationStatus, Variant> = {
     todo: "muted",
     machine_draft: "secondary",
+    needs_review: "warning",
     in_review: "info",
     changes_requested: "warning",
     human_approved: "success",

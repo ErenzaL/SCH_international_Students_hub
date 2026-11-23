@@ -91,7 +91,8 @@ class MemoryStore:
             "announcement_translations": dict(translation_status="machine_draft", reviewed_by=None, reviewed_at=None,
                                               source_content_hash=None, is_outdated=False, review_note=None,
                                               original_verified_by=None, original_verified_at=None,
-                                              last_edited_by=None, last_edited_at=None, submitted_at=None),
+                                              last_edited_by=None, last_edited_at=None, submitted_at=None,
+                                              provider=None, model=None, generated_at=None, warnings=[]),
             "profiles": dict(role="student", preferred_language="en", display_name=None, email=None,
                              preferred_language_confirmed=False),
             "audit_log": dict(details={}, actor_id=None, entity_id=None),
@@ -118,7 +119,7 @@ class MemoryStore:
                                           model=None, generated_at=None, human_edited=False, warnings=[],
                                           is_outdated=False, outdated_at=None, previous_translation_id=None,
                                           review_note=None, reviewed_by=None, reviewed_at=None, original_verified=False,
-                                          last_edited_by=None, last_edited_at=None, submitted_at=None),
+                                          last_edited_by=None, last_edited_at=None, submitted_at=None, scope="full"),
             "document_translation_revisions": dict(note=None, actor_id=None, provider=None, model=None, headings=[]),
         }.get(table, {})
         for k, v in d.items():
@@ -169,6 +170,12 @@ class MemoryStore:
             vid = (row.get("payload") or {}).get("version_id")
             dup(lambda x: x.get("job_type") == "index_version" and x["status"] in ("queued", "running")
                 and (x.get("payload") or {}).get("version_id") == vid)
+        elif table == "ingestion_jobs" and row.get("job_type") in ("translate_document", "translate_announcement") \
+                and row.get("status") in ("queued", "running"):
+            # mirror of the partial unique index of migration 0013: one open job per translation row
+            tid = (row.get("payload") or {}).get("translation_id")
+            dup(lambda x: x.get("job_type") in ("translate_document", "translate_announcement")
+                and x["status"] in ("queued", "running") and (x.get("payload") or {}).get("translation_id") == tid)
         elif table == "source_documents":
             if row.get("canonical_url"):
                 dup(lambda x: x["source_id"] == row["source_id"] and x.get("canonical_url") == row["canonical_url"])

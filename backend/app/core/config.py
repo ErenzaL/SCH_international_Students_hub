@@ -185,6 +185,19 @@ class Settings(BaseSettings):
     auto_translate_documents: bool = False
     # show unreviewed machine drafts to students (clearly labelled as machine translation). Off = original only.
     public_machine_translations: bool = False
+    # --- automatic machine translation (app/services/translation/auto.py) -------------------------------------
+    auto_translate_announcements: bool = False    # queue machine translations when an announcement is published
+    auto_translate_languages: str = "ko,en"       # target languages generated automatically (others: by request)
+    translation_model: str = ""                   # Gemini model for translation jobs ("" = the assistant's models)
+    translation_full_max_chars: int = 12000       # longer documents: title + AI summary only (labelled as summary)
+    translation_summary_source_chars: int = 40000  # text given to the summarizer (plus all section headings)
+    translation_max_requests_per_job: int = 6      # model calls per job (title + parts); longer -> human translation
+    translation_daily_job_limit: int = 60          # translation jobs started per UTC day; more wait until tomorrow
+    translation_quota_retry_seconds: int = 3600    # provider quota exhausted: try the job again after this long
+    translation_max_deferrals: int = 24            # ... at most this many times, then the job fails visibly
+    # unreviewed machine translations of immigration / employment / insurance / fee / legal content:
+    # 'label' = shown with a prominent "unverified" label; 'review' = hidden until a reviewer approves it
+    machine_translation_high_risk: str = "label"
 
     # --- Rate limits (per client IP, per minute; in-process) -----------------
     rate_limit_search_per_minute: int = 30

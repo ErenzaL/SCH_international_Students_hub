@@ -25,6 +25,7 @@ from app.services.review import DocumentLifecycleService, ReviewService
 from app.services.source_lifecycle import SourceLifecycleService
 from app.services.sources import SourceService
 from app.services.support import SupportService
+from app.services.translation.auto import AnnouncementAutoTranslator, translation_llm
 from app.services.translations import TranslationReviewService
 
 
@@ -55,6 +56,7 @@ class Services:
     source_lifecycle: SourceLifecycleService
     doc_translations: DocumentTranslationService
     rag_health: RagHealthService
+    announcement_translator: AnnouncementAutoTranslator
 
 
 def build_services(settings: Settings, store: Store, storage: FileStorage | None, embedder: EmbeddingProvider,
@@ -72,21 +74,28 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     conversations = ConversationService(store, retrieval, retention_days=settings.conversation_retention_days,
                                         llm=llm, settings=settings)
     support = SupportService(store, conversations, user_notes, retention_days=settings.support_retention_days)
-    doc_translations = DocumentTranslationService(store, llm, user_notes, settings)
+    tr_llm = translation_llm(settings, llm)           # display translations may use their own (cheaper) model
+    doc_translations = DocumentTranslationService(store, tr_llm, user_notes, settings)
     jobs = JobRunner(store, ingestion, settings)
     doc_translations.ingestion, doc_translations.jobs = ingestion, jobs
     ingestion.translations = doc_translations
+    translations = TranslationReviewService(store, announcements, user_notes)
+    ann_auto = AnnouncementAutoTranslator(store, tr_llm, settings, user_notes)
+    ann_auto.ingestion, ann_auto.jobs, ann_auto.reviews = ingestion, jobs, translations
+    translations.auto = ingestion.announcement_translator = ann_auto
+    public = PublicService(store, announcements, storage)
+    public.announcement_translator = ann_auto
     rag_health = RagHealthService(store, embedder.model_id, notifications)
     ingestion.rag_health = announcements.rag_health = rag_health
     return Services(
         settings=settings, store=store, storage=storage, embedder=embedder, llm=llm, indexer=indexer,
         ingestion=ingestion, review=ReviewService(store, indexer, storage), announcements=announcements,
-        public=PublicService(store, announcements), retrieval=retrieval,
+        public=public, retrieval=retrieval,
         sources=SourceService(store, settings, domains), domains=domains, ocr=ocr,
         intake=IntakeService(store, storage, settings, ingestion, ocr), jobs=jobs,
         notifications=notifications, user_notifications=user_notes, conversations=conversations, support=support,
-        translations=TranslationReviewService(store, announcements, user_notes),
+        translations=translations,
         lifecycle=DocumentLifecycleService(store, storage),
         source_lifecycle=SourceLifecycleService(store, storage),
-        doc_translations=doc_translations, rag_health=rag_health,
+        doc_translations=doc_translations, rag_health=rag_health, announcement_translator=ann_auto,
     )

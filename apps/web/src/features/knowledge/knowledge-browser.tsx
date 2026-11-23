@@ -165,7 +165,9 @@ export function KnowledgeBrowser({
                         <AuthorityBadge authority={d.authority_type} />
                         <Badge variant="outline">{categoryName(d.category)}</Badge>
                         {d.is_stale && <StaleBadge days={d.verification_age_days} />}
-                        {d.translated_title ? (
+                        {d.translated_title && d.translated_title_status === "machine" ? (
+                          <Badge variant="warning">{tr("machineBadge")}</Badge>
+                        ) : d.translated_title ? (
                           <Badge variant="success">{tr("verifiedBadge")}</Badge>
                         ) : d.language !== locale ? (
                           <Badge variant="muted">{tr("originalBadge", { language: LOCALE_LABELS[d.language] ?? d.language })}</Badge>
