@@ -173,37 +173,70 @@ def _matches(text: str, pattern: re.Pattern[str]) -> bool:
 # =========================================================================== deadline extraction (deterministic)
 _FULL_DATE = re.compile(r"(20\d{2})\s*(?:[./-]|년)\s*(\d{1,2})\s*(?:[./-]|월)\s*(\d{1,2})\s*일?")
 _MONTH_DAY = re.compile(r"(?<![\d.])(\d{1,2})\s*월\s*(\d{1,2})\s*일")
+# "11/23" only counts as a date next to a range mark, "까지" or inside brackets (never "1/2 학기")
+_SLASH = re.compile(r"(?<![\d/.])(\d{1,2})\s*/\s*(\d{1,2})(?![\d/])")
+# the end of a range written short after its start: "2026. 11. 23.(월) ~ 11. 29.(일)", "11/23~29", "~ 2027. 1. 5."
+_RANGE_END = re.compile(r"\.?(?:\s*\([^)]{1,6}\))?(?:\s*\d{1,2}:\d{2})?\s*[~∼～]\s*"
+                        r"(?:(?P<y>20\d{2})\s*(?:[./-]|년)\s*)?(?:(?P<m>\d{1,2})\s*(?:[./]|월)\s*)?(?P<d>\d{1,2})(?![\d:])")
 _DEADLINE_WORDS = re.compile(r"마감|까지|기한|접수\s*기간|신청\s*기간|제출|deadline|due|until|no later than|apply by|"
                              r"hạn|batas|截止", re.IGNORECASE)
+_APPLY_WORDS = re.compile(r"신청|접수|모집|지원|apply|application|registration", re.IGNORECASE)
 _EVENT_WORDS = re.compile(r"일시|행사|시험일|개최|event|exam date|date and time|ngày thi|tanggal|时间|日期", re.IGNORECASE)
+
+
+def _line_dates(line: str, year: int) -> tuple[list[tuple[date, bool]], bool]:
+    """(dates in reading order with year_assumed, the line contains a range) - see extract_dates."""
+    toks: list[tuple[int, int, date, bool]] = []
+
+    def free(a: int, b: int) -> bool:
+        return all(b <= s or a >= e for s, e, _d, _x in toks)
+
+    def add(a: int, b: int, y: int, mo: int, d: int, assumed: bool) -> None:
+        try:
+            if free(a, b):
+                toks.append((a, b, date(y, mo, d), assumed))
+        except ValueError:
+            pass
+
+    for m in _FULL_DATE.finditer(line):
+        add(m.start(), m.end(), int(m[1]), int(m[2]), int(m[3]), False)
+    for m in _MONTH_DAY.finditer(line):
+        add(m.start(), m.end(), year, int(m[1]), int(m[2]), True)
+    for m in _SLASH.finditer(line):
+        around = line[max(0, m.start() - 2): m.end() + 3]
+        if re.search(r"[~∼～(（)）]|까지", around):
+            add(m.start(), m.end(), year, int(m[1]), int(m[2]), True)
+    ranged = False
+    for _a, b, start, assumed in sorted(toks):   # a copy: range ends are added to toks while iterating
+        r = _RANGE_END.match(line, b)
+        if not r or not free(r.start("d"), r.end()):
+            continue
+        ranged = True
+        y = int(r["y"]) if r["y"] else start.year
+        mo = int(r["m"]) if r["m"] else start.month
+        d = int(r["d"])
+        if not r["m"] and not r["y"] and d < start.day:      # "11/28~2" ends in the next month
+            mo, y = (1, y + 1) if mo == 12 else (mo + 1, y)
+        add(r.start("d"), r.end(), y, mo, d, assumed and not r["y"])
+    toks.sort()
+    return [(d, x) for _a, _b, d, x in toks], ranged or bool(re.search(r"[~∼～]", line))
 
 
 def extract_dates(text: str, *, default_year: int | None = None, limit: int = 12) -> list[dict[str, Any]]:
     """Dates written in a text, each with the line it was quoted from and a kind (deadline / event / date).
     Purely pattern-based: nothing is inferred beyond what the text says; a date without a year uses
-    ``default_year`` and is marked ``year_assumed``."""
+    ``default_year`` and is marked ``year_assumed``. In a range the last date is the deadline."""
     out: list[dict[str, Any]] = []
     year = default_year or today_kst().year
     for line in (text or "").splitlines():
         line = line.strip()
         if not line:
             continue
-        found: list[tuple[date, bool]] = []
-        for m in _FULL_DATE.finditer(line):
-            try:
-                found.append((date(int(m[1]), int(m[2]), int(m[3])), False))
-            except ValueError:
-                continue
-        if not found:
-            for m in _MONTH_DAY.finditer(line):
-                try:
-                    found.append((date(year, int(m[1]), int(m[2])), True))
-                except ValueError:
-                    continue
+        found, ranged = _line_dates(line, year)
         if not found:
             continue
-        kind = "deadline" if _DEADLINE_WORDS.search(line) else "event" if _EVENT_WORDS.search(line) else "date"
-        # a range "A ~ B" with a deadline word: the LAST date is the deadline
+        deadline = _DEADLINE_WORDS.search(line) or (ranged and _APPLY_WORDS.search(line))
+        kind = "deadline" if deadline else "event" if _EVENT_WORDS.search(line) else "date"
         for i, (d, assumed) in enumerate(found):
             k = kind if (kind != "deadline" or i == len(found) - 1) else "period_start"
             out.append(dict(date=d.isoformat(), kind=k, quote=line[:240], year_assumed=assumed))

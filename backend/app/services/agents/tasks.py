@@ -465,6 +465,10 @@ class AgentTaskService:
             self._event(task, agent.id, "error", None, message, dict(code=code))
             if task.get("schedule_id"):
                 self.store.update("agent_schedules", dict(last_error=f"{code}: {message}"[:500]), {"id": task["schedule_id"]})
+                notes = getattr(self.svc, "notifications", None)
+                if notes is not None:      # nobody is watching a scheduled task: tell the admins
+                    notes.notify("agent_schedule_failed", f"Scheduled {task['task_type']} failed ({agent.name})",
+                                 message[:500], severity="error", entity_type="agent_task", entity_id=task["id"])
             return
         citations = [dict(title=i.get("title"), href=i.get("href"), kind=i.get("kind"), reliability=i.get("reliability"))
                      for i in output.get("items", []) if i.get("href")][:40]

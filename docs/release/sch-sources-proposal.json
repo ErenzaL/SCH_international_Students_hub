@@ -1,0 +1,207 @@
+{
+ "note": "Proposal for admin approval. Each entry is the body of POST /api/v1/admin/discovery/sources (minus validated_2026_11_24). Nothing here is configured in production.",
+ "sources": [
+  {
+   "agent_id": "announcement",
+   "name": "SCH 국제교육교류처 유학생 공지사항",
+   "kind": "sch_board",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?table_name=noti_fore&loc_mnu=3",
+   "category": "university-announcements",
+   "language": "ko",
+   "config": {
+    "max_items": 10
+   },
+   "validated_2026_11_24": {
+    "status": "ok",
+    "items_read": 5,
+    "with_date": 5,
+    "with_deadline": 2,
+    "newest": "2026-11-23",
+    "seconds": 8.7
+   }
+  },
+  {
+   "agent_id": "announcement",
+   "name": "순천향대학교 공지사항",
+   "kind": "listing",
+   "url": "https://home.sch.ac.kr/sch/06/010100.jsp",
+   "category": "university-announcements",
+   "language": "ko",
+   "config": {
+    "item_selector": "table tbody tr",
+    "title_selector": "td.subject a",
+    "date_selector": "td.date",
+    "link_selector": "td.subject a",
+    "skip_selector": "span.notice",
+    "content_selector": "div.board_contents",
+    "attachment_selector": "div.board_file",
+    "max_items": 10
+   },
+   "validated_2026_11_24": {
+    "status": "ok",
+    "items_read": 5,
+    "with_date": 5,
+    "with_deadline": 5,
+    "newest": "2026-11-23",
+    "seconds": 9.9
+   }
+  },
+  {
+   "agent_id": "announcement",
+   "name": "순천향대학교 학사공지",
+   "kind": "listing",
+   "url": "https://home.sch.ac.kr/sch/06/010200.jsp",
+   "category": "academic-life",
+   "language": "ko",
+   "config": {
+    "item_selector": "table tbody tr",
+    "title_selector": "td.subject a",
+    "date_selector": "td.date",
+    "link_selector": "td.subject a",
+    "skip_selector": "span.notice",
+    "content_selector": "div.board_contents",
+    "attachment_selector": "div.board_file",
+    "max_items": 10
+   },
+   "validated_2026_11_24": {
+    "status": "ok",
+    "items_read": 5,
+    "with_date": 5,
+    "with_deadline": 4,
+    "newest": "2026-11-23",
+    "seconds": 8.4
+   }
+  },
+  {
+   "agent_id": "announcement",
+   "name": "순천향대학교 학사일정",
+   "kind": "page",
+   "url": "https://home.sch.ac.kr/sch/05/010000.jsp",
+   "category": "academic-life",
+   "language": "ko",
+   "config": {
+    "max_items": 10
+   },
+   "validated_2026_11_24": {
+    "status": "ok",
+    "items_read": 1,
+    "with_date": 0,
+    "with_deadline": 0,
+    "newest": null,
+    "seconds": 0.3
+   }
+  },
+  {
+   "agent_id": "scholarship",
+   "name": "순천향대학교 장학공지",
+   "kind": "listing",
+   "url": "https://home.sch.ac.kr/sch/06/010300.jsp",
+   "category": "scholarships",
+   "language": "ko",
+   "config": {
+    "item_selector": "table tbody tr",
+    "title_selector": "td.subject a",
+    "date_selector": "td.date",
+    "link_selector": "td.subject a",
+    "skip_selector": "span.notice",
+    "content_selector": "div.board_contents",
+    "attachment_selector": "div.board_file",
+    "max_items": 10
+   },
+   "validated_2026_11_24": {
+    "status": "ok",
+    "items_read": 5,
+    "with_date": 5,
+    "with_deadline": 3,
+    "newest": "2026-11-18",
+    "seconds": 8.5
+   }
+  },
+  {
+   "agent_id": "scholarship",
+   "name": "순천향대학교 취업정보",
+   "kind": "listing",
+   "url": "https://home.sch.ac.kr/sch/06/020000.jsp",
+   "category": "employment-internships",
+   "language": "ko",
+   "config": {
+    "item_selector": "table tbody tr",
+    "title_selector": "td.subject a",
+    "date_selector": "td.date",
+    "link_selector": "td.subject a",
+    "skip_selector": "span.notice",
+    "content_selector": "div.board_contents",
+    "attachment_selector": "div.board_file",
+    "max_items": 10
+   },
+   "validated_2026_11_24": {
+    "status": "ok",
+    "items_read": 5,
+    "with_date": 5,
+    "with_deadline": 2,
+    "newest": "2026-11-20",
+    "seconds": 8.6
+   }
+  },
+  {
+   "agent_id": "scholarship",
+   "name": "SCH 국제교육교류처 취업·아르바이트 공지",
+   "kind": "sch_board",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?table_name=over_sea&loc_mnu=5",
+   "category": "part-time-employment",
+   "language": "ko",
+   "config": {
+    "max_items": 10
+   },
+   "validated_2026_11_24": {
+    "status": "ok",
+    "items_read": 5,
+    "with_date": 5,
+    "with_deadline": 3,
+    "newest": "2026-11-10",
+    "seconds": 8.4
+   }
+  },
+  {
+   "agent_id": "scholarship",
+   "name": "Study in Korea 장학금 공지",
+   "kind": "listing",
+   "url": "https://www.studyinkorea.go.kr/ko/notice/scholarshipsList.do?boardSort=3",
+   "category": "scholarships",
+   "language": "ko",
+   "config": {
+    "item_selector": "a.board-text-item",
+    "title_selector": "p.title",
+    "date_selector": "span.date",
+    "max_items": 10
+   },
+   "validated_2026_11_24": {
+    "status": "ok",
+    "items_read": 5,
+    "with_date": 5,
+    "with_deadline": 0,
+    "newest": "2026-10-06",
+    "seconds": 0.5
+   }
+  },
+  {
+   "agent_id": "scholarship",
+   "name": "Study in Korea GKS 장학금 안내",
+   "kind": "page",
+   "url": "https://www.studyinkorea.go.kr/ko/plan/scholarship.do",
+   "category": "scholarships",
+   "language": "ko",
+   "config": {
+    "max_items": 10
+   },
+   "validated_2026_11_24": {
+    "status": "ok",
+    "items_read": 1,
+    "with_date": 0,
+    "with_deadline": 0,
+    "newest": null,
+    "seconds": 0.5
+   }
+  }
+ ]
+}

@@ -128,8 +128,8 @@ class DiscoveryService:
         sources = [s for s in self.list_sources(agent_id) if s["enabled"]]
         if source_ids:
             sources = [s for s in sources if s["id"] in set(source_ids)]
-        if scheduled:      # sources that keep failing wait for an admin instead of being hammered
-            sources = [s for s in sources if s["consecutive_failures"] < MAX_FAILURES]
+        if scheduled:      # failing sources back off (1 h, 2 h, 4 h ... 24 h) and stop after MAX_FAILURES
+            sources = [s for s in sources if s["consecutive_failures"] < MAX_FAILURES and not self._backing_off(s)]
         sources = sources[: max(1, min(max_sources, self.settings.discovery_max_sources))]
         state: dict[str, Any] = dict(sources_total=len(sources), sources_done=0, items_found=0, new=0, updated=0,
                                      sources=[dict(id=s["id"], name=s["name"], url=s["url"], status="pending")
@@ -155,6 +155,33 @@ class DiscoveryService:
         return dict(sources=results, **{k: state[k] for k in ("sources_total", "sources_done", "items_found", "new",
                                                                "updated")})
 
+    @staticmethod
+    def _backing_off(s: dict[str, Any], now: datetime | None = None) -> bool:
+        n = s["consecutive_failures"]
+        if not n or not s.get("last_checked_at"):
+            return False
+        wait = timedelta(hours=min(2 ** (n - 1), 24))
+        return (now or datetime.now(UTC)) - datetime.fromisoformat(s["last_checked_at"]) < wait
+
+    def _failed(self, s: dict[str, Any], status: str, code: str, message: str, checked: str, scheduled: bool) -> None:
+        failures = s["consecutive_failures"] + 1
+        self.store.update("discovery_sources", dict(last_checked_at=checked, last_status=status,
+                                                    last_error=f"{code}: {message}"[:500],
+                                                    consecutive_failures=failures), {"id": s["id"]})
+        log.warning("discovery source %s %s (%s), %d failure(s) in a row", s["id"], status, code, failures)
+        # alert admins once when a source starts failing repeatedly, and once when it is paused
+        if self.notifications is not None and (status == "blocked" or failures in (3, MAX_FAILURES)):
+            paused = failures >= MAX_FAILURES
+            self.notifications.notify(
+                "discovery_source_failing",
+                f"Official source {'paused' if paused else 'failing'}: {s['name'][:120]}",
+                f"{status} ({code}) {failures} time(s) in a row."
+                + (" Scheduled checks skip it until an admin resets it." if paused else
+                   " The site refused automated access; it is not retried automatically." if status == "blocked" else
+                   " Scheduled checks back off between attempts."),
+                severity="error" if paused or status == "blocked" else "warning",
+                entity_type="discovery_source", entity_id=s["id"])
+
     def check_source(self, s: dict[str, Any], *, max_items: int | None = None, scheduled: bool = False,
                      summarize: bool = False, tick: Callable[[], None] = lambda: None) -> dict[str, Any]:
         out: dict[str, Any] = dict(source_id=s["id"], name=s["name"], url=s["url"], status="ok", found=0, new=0,
@@ -171,18 +198,11 @@ class DiscoveryService:
             res = self.connectors.run(s, max_items=max_items, on_item=tick)
         except (FetchError, ExtractionError) as exc:
             status = "blocked" if exc.code in BLOCKED else "failed"
-            self.store.update("discovery_sources", dict(last_checked_at=checked, last_status=status,
-                                                        last_error=f"{exc.code}: {exc.message}"[:500],
-                                                        consecutive_failures=s["consecutive_failures"] + 1),
-                              {"id": s["id"]})
-            log.warning("discovery source %s %s: %s", s["id"], status, exc.code)
+            self._failed(s, status, exc.code, exc.message, checked, scheduled)
             out.update(status=status, error=exc.code, checked_at=checked)
             return out
         except AppError as exc:     # e.g. the URL is no longer on the allowlist
-            self.store.update("discovery_sources", dict(last_checked_at=checked, last_status="failed",
-                                                        last_error=f"{exc.code}: {exc.message}"[:500],
-                                                        consecutive_failures=s["consecutive_failures"] + 1),
-                              {"id": s["id"]})
+            self._failed(s, "failed", exc.code, exc.message, checked, scheduled)
             out.update(status="failed", error=exc.code, checked_at=checked)
             return out
         summaries = 0

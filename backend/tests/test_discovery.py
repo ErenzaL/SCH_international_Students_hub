@@ -113,6 +113,38 @@ def test_open_only_when_the_source_supports_it():
     assert guessed["open_status"] == "open" and {"year_assumed", "open_status_uncertain"} <= set(guessed["flags"])
 
 
+def test_regressions_from_the_live_sch_boards():
+    """Titles and phrasing seen on home.sch.ac.kr / sgee.sch.ac.kr on 2026-11-24."""
+    t = date(Y, 11, 24)
+    # "접수 마감: 11/27" states the deadline; it does not mean the application has closed
+    f = analyse("[학점교류] 동계학기 학점교류 신청안내(~11/27)", f"접수 마감: {Y}. 11. 27.(목) 17:00", published_on=f"{Y}-11-23",
+                today=t)
+    assert f["open_status"] == "open" and f["next_deadline"] == f"{Y}-11-27"
+    gone = analyse("근로장학생 모집", "신청이 마감되었습니다.", published_on=f"{Y}-11-01", today=t)
+    assert gone["open_status"] == "closed" and gone["open_reason"] == "source_says_closed"
+    # an office name in brackets is not what the notice offers
+    assert classify("[대학일자리플러스센터] 산업체 특강 홍보 요청", "")["opportunity_kind"] is None
+    assert classify("[국제교육교류처] 2027년 교환학생 선발 안내", "")["opportunity_kind"] == "program"
+    assert classify("[채용공고] 사업단 행정직원(계약직) 모집 (~11/30)", "")["opportunity_kind"] == "job"
+    assert classify("[(재)인천인재평생교육진흥원] 대학생 기업 탐방 모집", "")["opportunity_kind"] is None
+
+
+def test_short_range_ends_inherit_year_and_month():
+    from app.services.agents.tools import extract_dates
+
+    ds = extract_dates(f"신청 기간: {Y}. 11. 23.(월) ~ 11. 29.(일) 17:00까지")
+    assert [(d["date"], d["kind"], d["year_assumed"]) for d in ds] == [
+        (f"{Y}-11-23", "period_start", False), (f"{Y}-11-29", "deadline", False)]
+    ds = extract_dates("근로장학생 희망근로지 신청 안내 (11/23~29 신청)", default_year=Y)
+    assert [(d["date"], d["kind"]) for d in ds] == [(f"{Y}-11-23", "period_start"), (f"{Y}-11-29", "deadline")]
+    assert extract_dates("접수: 11/28~2", default_year=Y)[-1]["date"] == f"{Y}-12-02"         # into the next month
+    assert extract_dates(f"모집 기간 {Y}.12.28 ~ {Y + 1}.1.5")[-1]["date"] == f"{Y + 1}-01-05"
+    assert extract_dates("평점 3.5 이상, 1/2 학기 이수자") == []                                  # not dates
+    f = analyse("[학생신청용] 동계방학 근로장학생 신청 안내 (11/23~29 신청)", "", published_on=f"{Y}-11-18",
+                today=date(Y, 11, 24))
+    assert f["open_status"] == "open" and f["next_deadline"] == f"{Y}-11-29"
+
+
 def test_incorrect_and_missing_dates_are_flagged():
     t = date(Y, 6, 1)
     f = analyse("장학금 신청", f"신청 마감: {Y}-04-01 까지", published_on=f"{Y}-05-01", today=t)
@@ -153,6 +185,44 @@ def test_canonical_urls_and_connector_config_validation():
     with pytest.raises(Exception, match="notice01"):
         validate_config("sch_board", SIK_LIST, {})
     assert validate_config("listing", SIK_LIST, {"item_selector": "a", "max_items": 999})["max_items"] == 30
+    # per-source pace: never faster than 1 s, at most 10 s
+    assert validate_config("listing", SIK_LIST, {"item_selector": "a", "delay_seconds": 0.1})["delay_seconds"] == 1.0
+    assert validate_config("listing", SIK_LIST, {"item_selector": "a", "delay_seconds": 60})["delay_seconds"] == 10.0
+    # the same article linked from page 1 and page 2 of a board is one item
+    a = "https://home.sch.ac.kr/sch/06/010300.jsp?mode=view&article_no=1&pager.offset=0&board_no=9"
+    b = "https://home.sch.ac.kr/sch/06/010300.jsp?mode=view&article_no=1&pager.offset=10&board_no=9"
+    assert canonical(a) == canonical(b)
+
+
+def test_home_sch_board_markup_with_pinned_rows(env):
+    """home.sch.ac.kr board markup (2026-11-24): rows with td.subject / td.date; pinned rows carry span.notice."""
+    url = "https://home.sch.ac.kr/sch/06/010300.jsp"
+    def row(no, title, d, pinned=False):  # type: ignore[no-untyped-def]
+        seq = '<span class="notice">공지</span>' if pinned else str(no)
+        return (f'<tr><td class="seq">{seq}</td><td class="subject"><a href="?mode=view&amp;article_no={no}&amp;board_wrapper='
+                f'%2Fsch%2F06%2F010300.jsp&amp;pager.offset=0&amp;board_no=9"> {title} </a></td>'
+                f'<td class="writer"><span>작성자:</span> 학생지원팀</td><td class="date"><span>날짜:</span> {d}</td></tr>')
+    env.page(url, "<table><tbody>" + row(1, "오래된 고정 공지", "2024-07-18", True) + row(2, f"[장학] 동계 근로장학생 신청 안내 (~{(TODAY + timedelta(days=5)).month}/{(TODAY + timedelta(days=5)).day})", D(-1))
+             + row(3, "학자금 중복지원 방지 안내", D(-10)) + "</tbody></table>")
+    article = ("<html><body><div class='layer'><ul><li><a href='/sch/promo.jsp'>홍보신청</a></li></ul></div>"
+               "<div class='board_view'><div class='board_title'>작성자 : 학생지원팀 - 등록일 : 2026-11-18 - 조회수 : 1048</div>"
+               "<div class='board_contents'><p>지원 자격: 재학생</p><p><a href='https://forms.gle/xyz'>온라인 신청</a></p></div>"
+               "<div class='board_file'><a href='/download?f=1'>근로장학생 신청서.hwp</a></div></div></body></html>")
+    for no in (2, 3):
+        env.page(f"{url}?mode=view&article_no={no}&board_wrapper=%2Fsch%2F06%2F010300.jsp&pager.offset=0&board_no=9", article)
+    admin_source(env, agent_id="scholarship", name="순천향대학교 장학공지", kind="listing", url=url,
+                 config={"item_selector": "table tbody tr", "title_selector": "td.subject a", "date_selector": "td.date",
+                         "link_selector": "td.subject a", "skip_selector": "span.notice",
+                         "content_selector": "div.board_contents", "attachment_selector": "div.board_file"})
+    t = run_task(env, "scholarship", "opportunity_discovery").json()
+    titles = [i["title"] for i in t["output"]["items"]]
+    assert "오래된 고정 공지" not in titles and len(titles) == 2
+    first = next(i for i in t["output"]["items"] if "근로장학생" in i["title"])
+    assert first["published_on"] == D(-1) and first["open_status"] == "open" and first["opportunity_kind"] == "scholarship"
+    # only the article: the site menu's "홍보신청" and the author / view-count line are not part of the notice
+    assert [x["text"] for x in first["application_links"]] == ["온라인 신청", "근로장학생 신청서.hwp"]
+    assert "조회수" not in (first["excerpt"] or "") and first["eligibility"] == ["지원 자격: 재학생"]
+    assert "pager.offset" not in [r for r in env.store.select("discovered_items")[0] if "근로" in r["title"]][0]["item_key"]
 
 
 # =================================================================================== source validation
@@ -435,3 +505,58 @@ def test_a_discovery_task_of_a_dead_worker_is_recovered(env):
     assert svc.jobs.run_once() is True
     t = env.client.get(f"/api/v1/agent-tasks/{r.json()['id']}", headers=env.auth("admin")).json()
     assert t["status"] == "completed" and t["attempts"] == 2 and t["output"]["new_count"] == 3
+
+
+# =================================================================================== scheduling readiness
+def test_failing_sources_back_off_and_alert_admins(env):
+    src = admin_source(env)
+    env.pages[src["url"]] = lambda req: httpx.Response(503, text="maintenance")
+    svc = env.app.state.services.discovery
+    for expected in (1, 2):
+        env.store.update("discovery_sources", {"last_checked_at": None}, {"id": src["id"]})
+        svc.check_sources("announcement", scheduled=True)
+        assert svc.get_source(src["id"])["consecutive_failures"] == expected
+    # inside the back-off window (2 h after the 2nd failure) a scheduled run skips the source
+    assert svc.check_sources("announcement", scheduled=True)["sources_total"] == 0
+    s = svc.get_source(src["id"])
+    later = (datetime.fromisoformat(s["last_checked_at"]) + timedelta(hours=3)).isoformat()
+    assert svc._backing_off(s, datetime.fromisoformat(later)) is False
+    env.store.update("discovery_sources", {"last_checked_at": (datetime.now(UTC) - timedelta(hours=3)).isoformat()},
+                     {"id": src["id"]})
+    svc.check_sources("announcement", scheduled=True)                       # 3rd failure: admins are alerted
+    alerts = [n for n in env.store.select("admin_notifications")[0] if n["kind"] == "discovery_source_failing"]
+    assert len(alerts) == 1 and alerts[0]["severity"] == "warning" and "3 time(s)" in alerts[0]["message"]
+    # robots.txt refusal: alerted at once as an error
+    env.page("https://sgee.sch.ac.kr/robots.txt", "User-agent: *\nDisallow: /", "text/plain")
+    env.app.state.services.ingestion.fetcher._robots.clear()
+    env.store.update("discovery_sources", {"last_checked_at": None, "consecutive_failures": 0}, {"id": src["id"]})
+    svc.check_source(svc.get_source(src["id"]), scheduled=True)
+    alerts = [n for n in env.store.select("admin_notifications")[0] if n["kind"] == "discovery_source_failing"]
+    assert alerts[-1]["severity"] == "error" and "refused" in alerts[-1]["message"]
+
+
+def test_scheduled_runs_never_duplicate_and_failures_alert(env):
+    from app.services.agents import handlers
+
+    env.settings.agent_schedules_enabled = True
+    env.settings.job_execution = "worker"           # the first scheduled task stays queued (worker not running)
+    env.app.state.services.jobs.kick = lambda: None
+    agents = env.app.state.services.agents
+    sched = next(s for s in env.store.select("agent_schedules")[0] if s["task_type"] == "announcement_discovery")
+    env.store.update("agent_schedules", {"enabled": True}, {"id": sched["id"]})
+    assert agents.run_due_schedules()["queued"] == 1
+    env.store.update("agent_schedules", {"next_run_at": None}, {"id": sched["id"]})       # due again at once
+    agents.run_due_schedules()
+    tasks = [t for t in env.store.select("agent_tasks")[0] if t["schedule_id"] == sched["id"]]
+    assert len(tasks) == 1                          # the still-queued run is reused, not duplicated
+    original = handlers.HANDLERS["announcement_discovery"]
+    handlers.HANDLERS["announcement_discovery"] = lambda svc, ctx, task: (_ for _ in ()).throw(ValueError("boom"))
+    try:
+        claimed = agents.claim("w1", 300)
+        agents.execute(claimed)
+    finally:
+        handlers.HANDLERS["announcement_discovery"] = original
+    alerts = [n for n in env.store.select("admin_notifications")[0] if n["kind"] == "agent_schedule_failed"]
+    assert len(alerts) == 1 and alerts[0]["severity"] == "error"
+    assert env.store.select("agent_schedules", )[0] and next(
+        s for s in env.store.select("agent_schedules")[0] if s["id"] == sched["id"])["last_error"].startswith("internal_error")

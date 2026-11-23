@@ -156,9 +156,13 @@ function Actor({ c, selected, bubble, onSelect, state }: {
   const style = { width: w, height: CHARACTER_HEIGHT, transform: `translate3d(${start.left}px, ${start.top}px, 0)`,
     zIndex: c.home.y };
   const img = (
-    // eslint-disable-next-line @next/next/no-img-element -- original transparent PNG, shown at its own aspect ratio
-    <img src={`/office/characters/${c.file}`} alt="" width={w} height={CHARACTER_HEIGHT} draggable={false}
-      decoding="async" className="pointer-events-none block h-full w-full object-contain drop-shadow-[0_3px_2px_rgba(91,70,54,0.18)]" />
+     
+    <picture>
+      {/* the same artwork re-encoded as WebP (about a quarter of the bytes); the original PNG is the fallback */}
+      <source type="image/webp" srcSet={`/office/characters/webp/${c.file.replace(/\.png$/, ".webp")}`} />
+      <img src={`/office/characters/${c.file}`} alt="" width={w} height={CHARACTER_HEIGHT} draggable={false}
+        decoding="async" className="pointer-events-none block h-full w-full object-contain drop-shadow-[0_3px_2px_rgba(91,70,54,0.18)]" />
+    </picture>
   );
   if (!c.interactive) {
     return (

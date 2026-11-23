@@ -176,15 +176,7 @@ Bugs found and fixed while testing:
    | `DISCOVERY_MAX_SOURCES` | 10 |
    | `DISCOVERY_MIN_CHECK_INTERVAL_SECONDS` | 600 |
 
-3. **As an admin, add sources.** Suggested, all on the default allowlist:
-
-   | Source | Kind and settings |
-   |---|---|
-   | SCH 유학생 공지사항 | `sch_board`, `…notice01.php?table_name=noti_fore&loc_mnu=3` |
-   | SCH 취업·아르바이트 board | `sch_board`, `table_name=over_sea` |
-   | Study in Korea 장학금 공지 | `listing`, selectors `a.board-text-item` / `p.title` / `span.date` |
-   | Study in Korea GKS page | `page` |
-
+3. **As an admin, add sources.** Use the validated proposal in `docs/release/sch-sources-proposal.json` (9 sources, checked live on 2026-11-24). Connector options added for the university boards: `skip_selector` (pinned rows), `content_selector` / `attachment_selector` (article body and forms only), and `delay_seconds` (slower pace per source).
 4. **Run one manual check per agent from the office,** then review the candidates.
 5. **Enabling schedules is a separate decision:** set the server switch, then enable each schedule.
 

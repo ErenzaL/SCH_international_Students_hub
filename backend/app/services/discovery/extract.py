@@ -38,8 +38,12 @@ ELIGIBILITY = re.compile(r"(?:지원|신청|응시|참가)?\s*자격|대상\s*[:
 APPLY_TEXT = re.compile(r"신청|지원하기|접수|apply|application|register|registration|등록|지원서|신청서|form|"
                         r"daftar|đăng ký|报名|申请", re.I)
 APPLY_URL = re.compile(r"apply|application|signup|sign-up|register|form|forms\.gle|docs\.google\.com/forms|recruit", re.I)
-CLOSED = re.compile(r"접수\s*기간이\s*아닙니다|접수\s*마감|모집\s*마감|마감되었|종료되었|closed|no longer accepting|"
-                    r"applications? (?:are|is) closed|not (?:currently )?accepting|ditutup|đã đóng|已截止", re.I)
+# explicit statements only: "접수 마감: 11/27" means "the deadline is", not "it has closed"
+CLOSED = re.compile(r"접수\s*기간이\s*아닙니다|(?:접수|모집|신청)(?:이|가)?\s*마감되었|마감되었습니다|조기\s*마감|종료되었습니다|"
+                    r"applications? (?:are|is) (?:now )?closed|no longer accepting|not (?:currently )?accepting|"
+                    r"pendaftaran (?:telah )?ditutup|đã đóng|已截止", re.I)
+# "[대학일자리플러스센터] ..." names the office that posted it; it says nothing about what the notice offers
+_ORG_PREFIX = re.compile(r"\[\s*[^\]]*?(?:센터|사업단|교류처|본부|위원회|협회|재단|진흥원|연구원|대학원|학과|팀|처|과|원|단|실|청|부)\s*\]")
 OPEN = re.compile(r"접수\s*중|모집\s*중|applications? (?:are|is) (?:now )?open|now accepting|sedang dibuka|đang mở|正在接受", re.I)
 
 
@@ -55,8 +59,9 @@ def classify(title: str, text: str) -> dict[str, Any]:
         if word:
             break
     kind, kind_word = None, None
+    offer = _ORG_PREFIX.sub(" ", title)
     for k, rx in KIND_RULES:
-        m = rx.search(title)          # the title states what a notice offers; body words are too noisy
+        m = rx.search(offer)          # the title states what a notice offers; body words are too noisy
         if m:
             kind, kind_word = k, m.group(0)
             break

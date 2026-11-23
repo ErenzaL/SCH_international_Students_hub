@@ -62,7 +62,9 @@ class ConnectorResult:
 def canonical(url: str) -> str:
     """Scheme + host lower-cased, no fragment, no tracking parameters."""
     p = urlsplit(url.strip())
-    query = "&".join(q for q in p.query.split("&") if q and not re.match(r"(utm_\w+|fbclid|gclid)=", q))
+    # tracking and paging parameters never identify a notice (the same article is linked from page 1 and page 2)
+    query = "&".join(q for q in p.query.split("&")
+                     if q and not re.match(r"(utm_\w+|fbclid|gclid|pager\.offset|pageIndex|currentPage)=", q))
     return urlunsplit((p.scheme.lower(), (p.hostname or "").lower() + (f":{p.port}" if p.port else ""), p.path or "/",
                        query, ""))
 
@@ -79,10 +81,13 @@ def _date(text: str | None) -> str | None:
         return None
 
 
-def anchors(html: str, base: str, limit: int = 200) -> list[dict[str, str]]:
+CONTENT_ROOTS = "main, article, .board_contents, .board_view, #contents, #content, .content, .view_td"
+
+
+def anchors(html: str, base: str, limit: int = 200, root_selector: str | None = None) -> list[dict[str, str]]:
     """http(s) links of the page's main content (the whole body when there is no main region), as plain data."""
     soup = BeautifulSoup(html, "lxml")
-    root = soup.select_one("main, article, #contents, #content, .content, .view_td") or soup.body or soup
+    root = (soup.select_one(root_selector) if root_selector else None) or soup.select_one(CONTENT_ROOTS) or soup.body or soup
     out: list[dict[str, str]] = []
     for a in root.select("a[href]"):
         url = urljoin(base, str(a["href"]))
@@ -98,7 +103,8 @@ def validate_config(kind: str, url: str, config: dict[str, Any]) -> dict[str, An
     if kind not in KINDS:
         raise ValidationFailed(f"Unknown connector kind '{kind}'.")
     allowed = {"max_items", "max_pages", "item_selector", "title_selector", "date_selector", "link_selector",
-               "include_url", "follow_items"}
+               "include_url", "follow_items", "skip_selector", "delay_seconds", "content_selector",
+               "attachment_selector"}
     unknown = set(config) - allowed
     if unknown:
         raise ValidationFailed(f"Unknown connector settings: {', '.join(sorted(unknown))}.")
@@ -107,7 +113,10 @@ def validate_config(kind: str, url: str, config: dict[str, Any]) -> dict[str, An
         out["max_items"] = max(1, min(int(config["max_items"]), 30))
     if "max_pages" in config:
         out["max_pages"] = max(1, min(int(config["max_pages"]), 3))
-    for k in ("item_selector", "title_selector", "date_selector", "link_selector"):
+    if "delay_seconds" in config:     # a slower pace for a sensitive site (never faster than the global delay)
+        out["delay_seconds"] = max(1.0, min(float(config["delay_seconds"]), 10.0))
+    for k in ("item_selector", "title_selector", "date_selector", "link_selector", "skip_selector", "content_selector",
+              "attachment_selector"):
         if config.get(k):
             v = str(config[k])
             if len(v) > 200:
@@ -145,12 +154,14 @@ class Connectors:
         self.delay = delay_seconds
         self.default_items = default_items
         self.sleep = sleep
+        self._pace = delay_seconds
 
     def run(self, source: dict[str, Any], *, max_items: int | None = None,
             on_item: Callable[[], None] | None = None) -> ConnectorResult:
         cfg = source.get("config") or {}
         limit = max(1, min(int(max_items or cfg.get("max_items") or self.default_items), 30))
         tick = on_item or (lambda: None)
+        self._pace = max(self.delay, float(cfg.get("delay_seconds") or 0))
         if source["kind"] == "sch_board":
             return self._sch_board(source, limit, tick)
         if source["kind"] == "listing":
@@ -172,7 +183,7 @@ class Connectors:
         entries: list[Entry] = []
         requests = 1
         for ref in refs:
-            self.sleep(self.delay)
+            self.sleep(self._pace)
             tick()
             try:
                 page = self._get(ref.url, "ko")
@@ -208,6 +219,8 @@ class Connectors:
         for el in items:
             if len(entries) >= limit:
                 break
+            if cfg.get("skip_selector") and el.select_one(cfg["skip_selector"]):
+                continue          # e.g. rows pinned to the top of a board (often years old)
             if cfg.get("title_selector"):
                 title_el = el.select_one(cfg["title_selector"])
             else:   # without a title selector the link text is the title (not the whole row with its date)
@@ -231,9 +244,9 @@ class Connectors:
             else:
                 entry = Entry(key=canonical(link), url=link, title=title, published_on=published, text="", flags=flags)
                 if cfg.get("follow_items", True):
-                    self.sleep(self.delay)
+                    self.sleep(self._pace)
                     tick()
-                    entry = self._follow(entry, source.get("language"))
+                    entry = self._follow(entry, source.get("language"), cfg)
                     requests += 1
                 else:
                     entry.text = el.get_text("\n", strip=True)[:2000]
@@ -253,7 +266,8 @@ class Connectors:
         url = urljoin(base, href)
         return url if url.startswith(("https://", "http://")) else None
 
-    def _follow(self, entry: Entry, language: str | None) -> Entry:
+    def _follow(self, entry: Entry, language: str | None, cfg: dict[str, Any] | None = None) -> Entry:
+        cfg = cfg or {}
         try:
             res = self._get(entry.url, language)
         except FetchError as exc:
@@ -265,14 +279,24 @@ class Connectors:
         if res.content_type == "application/pdf":
             entry.text = self._pdf_text(res.content, entry.url)
             return entry
-        try:
-            doc = extract_html(res.content, res.url, res.encoding, 1)
+        html = decode_html(res.content)
+        soup = BeautifulSoup(html, "lxml")
+        body = soup.select_one(cfg["content_selector"]) if cfg.get("content_selector") else None
+        try:   # only the article when the admin named it (no menus, author / view-count lines or site buttons)
+            doc = extract_html(str(body) if body is not None else res.content, res.url,
+                               None if body is not None else res.encoding, 1)
         except ExtractionError as exc:
             entry.flags.append("detail_failed")
             entry.error = exc.code
             return entry
         entry.text = doc.text[:MAX_TEXT]
-        entry.links = anchors(decode_html(res.content), res.url)
+        entry.links = anchors(html, res.url, root_selector=cfg.get("content_selector"))
+        if cfg.get("attachment_selector"):
+            box = soup.select_one(cfg["attachment_selector"])
+            if box is not None:
+                entry.attachments = [{"name": a.get_text(" ", strip=True)[:300], "url": urljoin(res.url, str(a["href"]))}
+                                     for a in box.select("a[href]") if a.get_text(strip=True)
+                                     and urljoin(res.url, str(a["href"])).startswith(("https://", "http://"))][:10]
         if not entry.published_on and doc.source_published_at:
             entry.published_on = doc.source_published_at.date().isoformat()
         return entry
