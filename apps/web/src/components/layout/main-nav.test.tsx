@@ -17,11 +17,12 @@ describe("MainNav", () => {
       Announcements: "/announcements",
       "Knowledge Center": "/knowledge",
       "Student Support": "/support",
+      "AI Office": "/ai-office",
     };
     for (const [label, href] of Object.entries(expected)) {
       expect(screen.getByRole("link", { name: label })).toHaveAttribute("href", href);
     }
-    expect(NAV_ITEMS).toHaveLength(4);
+    expect(NAV_ITEMS).toHaveLength(5);
     // the floating SCH Assistant is the only assistant: no separate page in the navigation
     expect(screen.queryByRole("link", { name: "AI Assistant" })).toBeNull();
     expect(NAV_ITEMS.some((i) => (i.href as string) === "/assistant")).toBe(false);
