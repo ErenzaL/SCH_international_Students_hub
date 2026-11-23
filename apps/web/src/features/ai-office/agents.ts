@@ -15,7 +15,9 @@
  *   human_handoff      the existing consented Global Supporter request (inside rag_chat for signed-in students,
  *                      or the Student Support page) - the student writes and sends it themselves
  *
- * Future agents (scheduled discovery, deadline tracking, drafting notices ...) plug into the same shapes:
+ * Phase 2 (agent-api.ts, agent-work.tsx): the capabilities marked available below that are not Phase 1 tools run
+ * through the backend agent system (app/services/agents) in each character's "Tasks" tab.
+ * Future agents (competition / program discovery, drafting notices ...) plug into the same shapes:
  * `AgentTask` carries status, sources and a confirmation step; anything with access "write" must stop at
  * "needs_confirmation" until a person approves it.
  */
@@ -61,7 +63,7 @@ export interface AgentTask {
   createdAt: string;
 }
 
-export type PanelTab = "chat" | "guides" | "notices" | "events" | "opportunities" | "desks" | "help" | "support" | "about";
+export type PanelTab = "chat" | "work" | "guides" | "notices" | "events" | "opportunities" | "desks" | "help" | "support" | "about";
 
 const read = (id: string, tool: ToolId, extra: Partial<AgentCapability> = {}): AgentCapability =>
   ({ id, tool, status: "available", access: "read", requiresConfirmation: false, ...extra });
@@ -71,24 +73,23 @@ const planned = (id: string, tool: ToolId, access: "read" | "write" = "read"): A
 /** Capabilities by role; tabs follow the order of the available ones. */
 export const CAPABILITIES: Record<CharacterRole, AgentCapability[]> = {
   reception: [read("chat", "rag_chat"), read("directory", "office_directory")],
-  guide: [read("help", "office_help"), read("directory", "office_directory")],
+  guide: [read("help", "office_help"), read("directory", "office_directory"), read("notice_summary", "notice_summary")],
   supporter: [read("chat", "rag_chat"), planned("notice_drafting", "notice_drafting", "write")],
   supporterLead: [read("handoff", "human_handoff"), read("chat", "rag_chat")],
   visa: [read("chat", "rag_chat"), read("guides", "knowledge_list", { categories: ["visa-immigration"] }),
-    planned("visa_procedure_guide", "visa_procedure_guide")],
+    read("visa_procedure_guide", "visa_procedure_guide")],
   academic: [read("chat", "rag_chat"), read("guides", "knowledge_list", { categories: ["academic-life"] }),
     read("notices", "announcement_list", { announcementCategory: "university-announcements" })],
   topik: [read("chat", "rag_chat"), read("guides", "knowledge_list", { categories: ["topik-korean"] })],
   opportunities: [
     read("opportunities", "announcement_list", { announcementCategory: "scholarships", categories: ["scholarships"] }),
     read("chat", "rag_chat"),
-    planned("scholarship_search", "scholarship_search"), planned("competition_discovery", "competition_discovery"),
-    planned("program_discovery", "program_discovery"), planned("deadline_tracker", "deadline_tracker")],
-  events: [read("events", "event_list"), read("chat", "rag_chat"), planned("event_monitor", "event_monitor"),
-    planned("notice_summary", "notice_summary")],
+    read("scholarship_search", "scholarship_search"), planned("deadline_tracker", "deadline_tracker"),
+    planned("competition_discovery", "competition_discovery"), planned("program_discovery", "program_discovery")],
+  events: [read("events", "event_list"), read("chat", "rag_chat"), read("event_monitor", "event_monitor")],
   career: [read("chat", "rag_chat"),
     read("guides", "knowledge_list", { categories: ["employment-internships", "part-time-employment"] }),
-    planned("job_search", "job_search")],
+    read("job_search", "job_search")],
   visitor: [],
 };
 
@@ -104,6 +105,8 @@ export function tabsFor(role: CharacterRole): PanelTab[] {
     const tab = c.id === "opportunities" ? "opportunities" : TAB_FOR_TOOL[c.tool];
     if (tab && !tabs.includes(tab)) tabs.push(tab);
   }
+  // Phase 2: every staff member has a "Tasks" tab backed by the backend agent system (second, after the main tab)
+  if (CAPABILITIES[role].length > 0) tabs.splice(Math.min(1, tabs.length), 0, "work");
   if (CAPABILITIES[role].length > 0) tabs.push("about");
   return tabs;
 }

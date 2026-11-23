@@ -33,6 +33,7 @@ class JobRunner:
         self._wake = threading.Event()
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
+        self.agents: Any = None          # AgentTaskService: agent tasks share this worker (one at a time)
 
     @property
     def inline(self) -> bool:
@@ -70,9 +71,20 @@ class JobRunner:
         """Claim and execute one job. Returns True if a job was processed."""
         job = self.claim(stale_seconds)
         if job is None:
-            return False
+            return self.run_agent_task_once(stale_seconds)
         log.info("worker %s claimed job %s (attempt %s)", self.worker_id, job["id"], job.get("attempts"))
         self.ingestion.execute(job)
+        return True
+
+    def run_agent_task_once(self, stale_seconds: int | None = None) -> bool:
+        """Claim and execute one agent task (after ingestion jobs: content processing keeps priority)."""
+        if self.agents is None:
+            return False
+        task = self.agents.claim(self.worker_id, stale_seconds or self.settings.job_stale_seconds)
+        if task is None:
+            return False
+        log.info("worker %s claimed agent task %s (%s/%s)", self.worker_id, task["id"], task["agent_id"], task["task_type"])
+        self.agents.execute(task)
         return True
 
     def _loop(self) -> None:

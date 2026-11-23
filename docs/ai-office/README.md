@@ -94,17 +94,10 @@ The browser checks covered desktop at 1440 × 900, phone at 390 × 844 with touc
 
 - **Retrieval isn't scoped per desk.** The desks use the general RAG flow; the backend has no per-category chat retrieval yet.
 - **Static artwork.** The PNGs have no sprite frames, so idle and walking are a gentle bob or waddle. There is no blinking, and characters don't turn to face their direction.
-- **No live discovery.** No live scholarship, competition, job or event search: those capabilities are shown as "coming later" and never run.
+- **No open-web discovery.** Scholarship, job and event searches cover published Hub content (Phase 2); competitions and programs are still "coming later".
 - **No sound.**
 - **Images are served at their original size.** About 1.5 MB in total, loaded only on `/ai-office`.
 
-## Phase 2 plan (advanced agents)
+## Phase 2 (implemented): agents, tools and tasks
 
-1. **Backend scoping.** An optional, validated `topic` on the chat endpoints that limits retrieval to a category allow-list (server-side, so the client cannot widen it). Desks pass their topic.
-2. **Agent tasks.** A `agent_tasks` table and API following `AgentTask`: status, sources, result and confirmation. Run on the existing durable job queue and the external scheduler (`run-due`).
-3. **Read-only agents first:**
-   - an announcement watcher (new or updated notices → summaries in 5 languages, from published content only);
-   - a deadline tracker (deadlines from published announcements → reminders the student subscribes to);
-   - an opportunity collector (scholarships and competitions from an admin-approved list of official sites, through the existing guarded fetcher and the normal review workflow; nothing is shown before approval).
-4. **Write actions need confirmation.** Drafting multilingual notices, sending reminders and submitting forms stop at `needs_confirmation` until an authorized person approves; they are audited and use the existing permissions.
-5. **Office integration.** Characters show task badges ("3 new scholarships to review"). Capabilities switch from "coming later" to "available" only when their tool is live.
+Each character now has a backend agent with permitted tools, durable tasks, approval for actions with side effects, and a status icon in the office. See [agents.md](agents.md).

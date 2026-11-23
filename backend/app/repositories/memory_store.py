@@ -23,13 +23,14 @@ TABLES = (
     "notification_reads", "support_agent_status", "ai_conversations", "ai_messages", "support_tickets",
     "support_ticket_messages", "support_ticket_assignments", "user_notifications", "translation_revisions",
     "document_suppressions", "document_translations", "document_translation_revisions",
+    "agent_tasks", "agent_task_events", "agent_schedules",
 )
-NO_ID = {"categories", "profiles", "supporter_languages", "audit_log", "ingestion_events", "allowed_source_domains",
+NO_ID = {"agent_task_events", "categories", "profiles", "supporter_languages", "audit_log", "ingestion_events", "allowed_source_domains",
          "admin_notifications", "notification_reads", "support_agent_status", "support_ticket_assignments",
          "user_notifications", "translation_revisions", "document_suppressions", "document_translation_revisions"}
-SEQ_ID = {"audit_log", "ingestion_events", "admin_notifications", "support_ticket_assignments", "user_notifications",
+SEQ_ID = {"agent_task_events", "audit_log", "ingestion_events", "admin_notifications", "support_ticket_assignments", "user_notifications",
           "translation_revisions", "document_suppressions", "document_translation_revisions"}
-HAS_UPDATED_AT = {"knowledge_sources", "source_documents", "announcements", "announcement_translations",
+HAS_UPDATED_AT = {"agent_tasks", "agent_schedules", "knowledge_sources", "source_documents", "announcements", "announcement_translations",
                   "ai_conversations", "support_tickets", "profiles", "document_translations"}
 
 
@@ -120,6 +121,14 @@ class MemoryStore:
                                           is_outdated=False, outdated_at=None, previous_translation_id=None,
                                           review_note=None, reviewed_by=None, reviewed_at=None, original_verified=False,
                                           last_edited_by=None, last_edited_at=None, submitted_at=None, scope="full"),
+            "agent_tasks": dict(requested_by=None, parent_task_id=None, depth=0, language=None, params={},
+                                status="queued", stage=None, cancel_requested=False, idempotency_key=None, output=None,
+                                citations=[], error_code=None, error_message=None, attempts=0, max_attempts=3,
+                                run_after=now_iso(), heartbeat_at=None, locked_by=None, schedule_id=None,
+                                started_at=None, completed_at=None),
+            "agent_task_events": dict(tool=None, data={}),
+            "agent_schedules": dict(params={}, enabled=False, interval_minutes=1440, state={}, last_run_at=None,
+                                    last_success_at=None, next_run_at=None, last_error=None, updated_by=None),
             "document_translation_revisions": dict(note=None, actor_id=None, provider=None, model=None, headings=[]),
         }.get(table, {})
         for k, v in d.items():
@@ -176,6 +185,13 @@ class MemoryStore:
             tid = (row.get("payload") or {}).get("translation_id")
             dup(lambda x: x.get("job_type") in ("translate_document", "translate_announcement")
                 and x["status"] in ("queued", "running") and (x.get("payload") or {}).get("translation_id") == tid)
+        elif table == "agent_tasks" and row.get("idempotency_key") and row.get("status") in ("queued", "running", "awaiting_approval"):
+            # mirror of agent_tasks_active_dedupe_uidx (migration 0014)
+            dup(lambda x: x.get("idempotency_key") == row["idempotency_key"]
+                and (x.get("requested_by") or "system") == (row.get("requested_by") or "system")
+                and x["status"] in ("queued", "running", "awaiting_approval"))
+        elif table == "agent_schedules":
+            dup(lambda x: x["agent_id"] == row["agent_id"] and x["task_type"] == row["task_type"])
         elif table == "source_documents":
             if row.get("canonical_url"):
                 dup(lambda x: x["source_id"] == row["source_id"] and x.get("canonical_url") == row["canonical_url"])
@@ -720,6 +736,29 @@ class MemoryStore:
                  locked_by=p_worker)
         return [j]
 
+    def _rpc_claim_agent_task(self, p_worker: str, p_stale_seconds: int = 300) -> list[Row]:
+        """Mirror of public.claim_agent_task (migration 0014)."""
+        now = datetime.now(UTC)
+        with self._lock:
+            for j in self.t["agent_tasks"]:
+                if j["status"] != "running":
+                    continue
+                beat = j.get("heartbeat_at") or j.get("started_at") or j["created_at"]
+                if (now - datetime.fromisoformat(beat)).total_seconds() > max(p_stale_seconds, 60):
+                    if j["attempts"] < j["max_attempts"]:
+                        j.update(status="queued", locked_by=None, run_after=now.isoformat())
+                    else:
+                        j.update(status="failed", locked_by=None, error_code="interrupted", completed_at=now_iso(),
+                                 error_message="The worker stopped while this task was running and the retry limit was reached.")
+            queued = sorted((j for j in self.t["agent_tasks"] if j["status"] == "queued"
+                             and datetime.fromisoformat(j["run_after"]) <= now), key=lambda j: j["created_at"])
+            if not queued:
+                return []
+            j = queued[0]
+            j.update(status="running", attempts=j["attempts"] + 1, started_at=now_iso(), heartbeat_at=now_iso(),
+                     locked_by=p_worker)
+            return [copy.deepcopy(j)]
+
     def _rpc_request_version_changes(self, p_version_id: str, p_actor: str, p_note: str) -> Row:
         self._assert_admin(p_actor)
         if not p_note or len(p_note.strip()) < 3:
@@ -1143,6 +1182,10 @@ def seed_categories(store: MemoryStore) -> None:
 
     for slug, name, desc, order in CATEGORIES:
         store.insert("categories", dict(slug=slug, name=name, description=desc, sort_order=order))
+    # migration 0014 seeds the proactive agent jobs, all disabled
+    for agent_id, task_type, minutes in (("announcement", "announcement_digest", 720), ("scholarship", "scholarship_scan", 1440),
+                                         ("events", "event_digest", 720), ("career", "career_scan", 1440)):
+        store.insert("agent_schedules", dict(agent_id=agent_id, task_type=task_type, interval_minutes=minutes))
 
 
 _ = timedelta

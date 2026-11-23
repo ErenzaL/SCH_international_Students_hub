@@ -68,6 +68,7 @@ export interface AnimatorOptions {
 
 export class OfficeAnimator {
   private actors = new Map<string, Actor>();
+  private busy = new Set<string>();
   private frame: number | null = null;
   private last = 0;
   private running = false;
@@ -132,6 +133,12 @@ export class OfficeAnimator {
     this.paint(a);
   }
 
+  /** An agent working on a task (backend state): it finishes its current step, then stays where it is. */
+  setBusy(id: string, busy: boolean): void {
+    if (busy) this.busy.add(id);
+    else this.busy.delete(id);
+  }
+
   release(id: string): void {
     const a = this.actors.get(id);
     if (!a || a.phase !== "held") return;
@@ -182,7 +189,7 @@ export class OfficeAnimator {
       if (a.phase === "held") continue;
       if (a.phase === "idle") {
         a.timer -= dt;
-        if (a.timer <= 0 && !this.degraded && a.path.length > 1) {
+        if (a.timer <= 0 && !this.degraded && a.path.length > 1 && !this.busy.has(a.c.id)) {
           a.leg = (a.leg + 1) % a.path.length;
           a.phase = "walk";
           a.waited = 0;

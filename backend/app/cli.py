@@ -65,7 +65,7 @@ def main(argv: list[str] | None = None) -> int:
     svc = build_services(settings, store, SupabaseFileStorage(store, settings.source_files_bucket),
                          build_embedding_provider(settings), build_llm_from_settings(settings))
     if args.command == "purge-expired":
-        print(f"purged: {svc.support.purge_expired()}")
+        print(f"purged: {svc.support.purge_expired() | {'agent_tasks': svc.agents.purge_expired()}}")
         return 0
     if args.command == "reindex-approved":
         from app.repositories.base import Query
@@ -99,6 +99,8 @@ def main(argv: list[str] | None = None) -> int:
         done = svc.ingestion.run_job(job["id"])
         print(f"- {source['title']}: {done['status']} {done.get('outcome') or done.get('error_code') or ''}")
         failed += done["status"] == "failed"
+    # scheduled agents: queued for the API worker; does nothing unless AGENT_SCHEDULES_ENABLED and an admin enabled one
+    print(f"agent schedules: {svc.agents.run_due_schedules()}")
     try:   # the scheduled run also verifies that every published document is still searchable (alerts, no changes)
         check_rag(svc, notify=True)
     except Exception:  # noqa: BLE001 - a failed check must not fail the sync run

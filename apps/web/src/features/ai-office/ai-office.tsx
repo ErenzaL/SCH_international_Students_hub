@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl";
 import { ArrowLeft, CircleHelp, Users } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { useAgentDirectory } from "@/features/ai-office/agent-api";
 import { CHARACTERS, INTERACTIVE, ZONES } from "@/features/ai-office/characters";
 import { HelpContent, OfficePanel, Portrait } from "@/features/ai-office/office-panel";
 import { OfficeScene, type SceneHandle } from "@/features/ai-office/office-scene";
@@ -30,6 +31,7 @@ export function AiOffice() {
   const scene = useRef<SceneHandle | null>(null);
   const opener = useRef<HTMLElement | null>(null);
   const bubbleTimer = useRef<number | null>(null);
+  const directory = useAgentDirectory();     // backend-owned agent states (working / waiting / ...)
 
   const onReady = useCallback((h: SceneHandle) => {
     scene.current = h;
@@ -111,12 +113,15 @@ export function AiOffice() {
       {/* with a conversation open on desktop the office re-fits beside the panel: everyone stays visible and clickable */}
       <div className={cn("min-h-0 flex-1 transition-[padding] duration-300", current && !minimized && "md:pr-[440px]")}
         data-testid="office-area">
-        <OfficeScene selectedId={selected} bubble={bubble} onSelect={(id, el) => select(id, el)} onReady={onReady} />
+        <OfficeScene selectedId={selected} bubble={bubble} onSelect={(id, el) => select(id, el)} onReady={onReady}
+          states={directory.agents ? Object.fromEntries(directory.agents.map((a) => [a.character_id, a.state])) : undefined} />
       </div>
 
       {current && (
         <OfficePanel key={current.id} c={current} minimized={minimized} onClose={close}
-          onMinimize={() => setMinimized(true)} onRestore={() => setMinimized(false)} onSelect={(id) => select(id)} />
+          onMinimize={() => setMinimized(true)} onRestore={() => setMinimized(false)} onSelect={(id) => select(id)}
+          agent={directory.byCharacter(current.id)} agents={directory.agents} agentsSignedIn={directory.signedIn}
+          onAgentsChanged={() => void directory.refresh()} />
       )}
 
       <Dialog open={helpOpen} onOpenChange={setHelpOpen}>

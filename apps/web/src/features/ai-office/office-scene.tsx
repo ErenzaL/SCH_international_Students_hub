@@ -12,6 +12,8 @@ import { Backdrop } from "@/features/ai-office/backdrop";
 import {
   CHARACTER_HEIGHT, CHARACTERS, FURNITURE, STAGE, ZONES, characterWidth, type OfficeCharacter,
 } from "@/features/ai-office/characters";
+import type { AgentState } from "@/features/ai-office/agent-api";
+import { StateDot } from "@/features/ai-office/agent-work";
 import { FurnitureArt } from "@/features/ai-office/furniture";
 import { OfficeAnimator, placement } from "@/features/ai-office/movement";
 import { useOfficeLabels } from "@/features/ai-office/use-office-labels";
@@ -24,8 +26,10 @@ export interface SceneHandle {
   release: (id: string) => void;
 }
 
-export function OfficeScene({ selectedId, bubble, onSelect, onReady }: {
+export function OfficeScene({ selectedId, bubble, onSelect, onReady, states }: {
   selectedId: string | null;
+  /** Phase 2: each agent's state from the backend, by character id (idle characters show no badge) */
+  states?: Record<string, AgentState>;
   /** speech bubble shown above a character (greeting after a click) */
   bubble: { id: string; text: string } | null;
   onSelect: (id: string, el: HTMLButtonElement) => void;
@@ -84,6 +88,13 @@ export function OfficeScene({ selectedId, bubble, onSelect, onReady }: {
     };
   }, [onReady]);
 
+  // a working agent stays at its desk (the backend owns the state; the animator only stops new walks)
+  useEffect(() => {
+    const a = animator.current;
+    if (!a) return;
+    for (const c of CHARACTERS) a.setBusy(c.id, states?.[c.id] === "working");
+  }, [states]);
+
   const ready = view.scale > 0;
   return (
     <div ref={box} data-testid="office-viewport"
@@ -111,7 +122,7 @@ export function OfficeScene({ selectedId, bubble, onSelect, onReady }: {
           ))}
           {CHARACTERS.map((c) => (
             <Actor key={c.id} c={c} selected={selectedId === c.id} bubble={bubble?.id === c.id ? bubble.text : null}
-              onSelect={onSelect} />
+              onSelect={onSelect} state={states?.[c.id]} />
           ))}
         </div>
       </div>
@@ -131,11 +142,13 @@ function ZoneSign({ label, x, y, hanging }: { label: string; x: number; y: numbe
   );
 }
 
-function Actor({ c, selected, bubble, onSelect }: {
+function Actor({ c, selected, bubble, onSelect, state }: {
   c: OfficeCharacter; selected: boolean; bubble: string | null;
   onSelect: (id: string, el: HTMLButtonElement) => void;
+  state?: AgentState;
 }) {
   const t = useTranslations("office");
+  const tState = useTranslations("office.agent.states");
   const labels = useOfficeLabels();
   const w = characterWidth(c);
   const start = placement(c, c.home);
@@ -155,12 +168,18 @@ function Actor({ c, selected, bubble, onSelect }: {
     );
   }
   const role = labels.roleTitle(c);
+  const busy = state && state !== "idle" ? ` (${tState(state)})` : "";
   // bubbles / tooltips open towards the middle of the office for people standing near an edge (never clipped)
   const anchor = c.home.x < 300 ? "left-0" : c.home.x > STAGE.w - 300 ? "right-0" : "left-1/2 -translate-x-1/2";
   const tail = c.home.x < 300 ? "left-8" : c.home.x > STAGE.w - 300 ? "right-8" : "left-1/2 -translate-x-1/2";
   return (
-    <div data-actor={c.id} data-phase="idle" className="office-actor absolute left-0 top-0" style={style}>
-      <button type="button" data-testid={`character-${c.id}`} aria-label={t("talkTo", { name: c.name, role })}
+    <div data-actor={c.id} data-phase="idle" data-state={state ?? "idle"} className="office-actor absolute left-0 top-0" style={style}>
+      {state && state !== "idle" && (
+        <span aria-hidden className="pointer-events-none absolute right-1 top-1 z-[1]" data-testid={`state-${c.id}`}>
+          <StateDot state={state} />
+        </span>
+      )}
+      <button type="button" data-testid={`character-${c.id}`} aria-label={t("talkTo", { name: c.name, role }) + busy}
         aria-pressed={selected} onClick={(e) => onSelect(c.id, e.currentTarget)}
         className="group relative block h-full w-full cursor-pointer rounded-2xl outline-none focus-visible:ring-4 focus-visible:ring-[#7FB7E6]">
         <span className={cn("office-bob block h-full w-full transition-[filter] duration-200",

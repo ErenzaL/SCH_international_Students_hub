@@ -199,6 +199,16 @@ class Settings(BaseSettings):
     # 'label' = shown with a prominent "unverified" label; 'review' = hidden until a reviewer approves it
     machine_translation_high_risk: str = "label"
 
+    # --- AI Support Office agents (Phase 2) ----------------------------------
+    agent_tasks_enabled: bool = True               # background agent tasks (read-only tools work regardless)
+    agent_max_active_tasks_per_user: int = 5       # queued + running + awaiting approval
+    agent_daily_tasks_per_user: int = 30           # tasks created per user per KST day
+    agent_tool_runs_per_minute: int = 30           # instant tool runs per user / client IP
+    agent_task_timeout_seconds: int = 180          # a task that runs longer fails (checked between steps)
+    agent_task_retention_days: int = 30            # finished tasks (and their step log) are deleted afterwards
+    # master switch for scheduled agents. Even when true, each schedule runs only after an admin enables it.
+    agent_schedules_enabled: bool = False
+
     # --- Rate limits (per client IP, per minute; in-process) -----------------
     rate_limit_search_per_minute: int = 30
     rate_limit_ingest_per_minute: int = 20

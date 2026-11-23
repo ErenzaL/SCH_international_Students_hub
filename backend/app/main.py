@@ -15,6 +15,7 @@ from app.api import (
     admin_knowledge,
     admin_sources,
     admin_system,
+    agents,
     document_translations,
     health,
     public,
@@ -82,7 +83,7 @@ def create_app(settings: Settings | None = None, *, store: Store | None = None, 
     install_error_handlers(app)
     for r in (health.router, public.router, admin_sources.router, admin_documents.router,
               admin_announcements.router, admin_system.router, admin_intake.router, admin_knowledge.router,
-              admin_knowledge.internal, support.router, document_translations.router):
+              admin_knowledge.internal, support.router, document_translations.router, agents.router):
         app.include_router(r)
     return app
 

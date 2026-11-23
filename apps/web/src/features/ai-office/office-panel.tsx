@@ -12,6 +12,8 @@ import { BadgeCheck, Clock, History, LifeBuoy, Minus, Plus, X } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { ChatBody } from "@/features/chatbot/chat-body";
 import { useAssistantChat } from "@/features/chatbot/use-assistant-chat";
+import type { AgentInfo } from "@/features/ai-office/agent-api";
+import { AgentWork } from "@/features/ai-office/agent-work";
 import { CAPABILITIES, capability, tabsFor, type PanelTab } from "@/features/ai-office/agents";
 import { INTERACTIVE, type OfficeCharacter } from "@/features/ai-office/characters";
 import { EventsList, GuidesList, NoticesList, OpportunitiesList } from "@/features/ai-office/desk-resources";
@@ -20,13 +22,19 @@ import { useOfficeLabels } from "@/features/ai-office/use-office-labels";
 import { cn } from "@/lib/utils";
 import type { LanguageCode } from "@/types/api";
 
-export function OfficePanel({ c, minimized, onClose, onMinimize, onRestore, onSelect }: {
+export function OfficePanel({ c, minimized, onClose, onMinimize, onRestore, onSelect, agent, agents, agentsSignedIn = false,
+  onAgentsChanged }: {
   c: OfficeCharacter;
   minimized: boolean;
   onClose: () => void;
   onMinimize: () => void;
   onRestore: () => void;
   onSelect: (id: string) => void;
+  /** Phase 2: this character's backend agent (directory entry) and all agents (names for delegation) */
+  agent?: AgentInfo;
+  agents?: AgentInfo[] | null;
+  agentsSignedIn?: boolean;
+  onAgentsChanged?: () => void;
 }) {
   const t = useTranslations("office");
   const locale = useLocale() as LanguageCode;
@@ -51,8 +59,11 @@ export function OfficePanel({ c, minimized, onClose, onMinimize, onRestore, onSe
 
   const role = labels.roleTitle(c);
   const lines = c.role === "supporter" && c.language ? SUPPORTER_LINES[c.language] : null;
-  const welcome = lines ? lines.welcome : t(`desk.${c.role}.welcome`, { name: c.name });
-  const examples = lines ? [...lines.examples] : [t(`desk.${c.role}.example1`), t(`desk.${c.role}.example2`), t(`desk.${c.role}.example3`)];
+  // only characters with a chat have welcome / example texts (the guide robot has none)
+  const hasChat = tabs.includes("chat");
+  const welcome = lines ? lines.welcome : hasChat ? t(`desk.${c.role}.welcome`, { name: c.name }) : "";
+  const examples = lines ? [...lines.examples] : hasChat
+    ? [t(`desk.${c.role}.example1`), t(`desk.${c.role}.example2`), t(`desk.${c.role}.example3`)] : [];
 
   if (minimized) {
     return (
@@ -117,7 +128,15 @@ export function OfficePanel({ c, minimized, onClose, onMinimize, onRestore, onSe
             setTab("chat");
           }} />}
           {tab === "about" && <Capabilities c={c} />}
-          {tab !== "about" && tab !== "help" && tabs.includes("chat") && (
+          {tab === "work" && (
+            <AgentWork c={c} agent={agent} agents={agents ?? null} signedIn={agentsSignedIn || chat.signedIn}
+              onSelect={onSelect} onChanged={() => onAgentsChanged?.()}
+              onAnswerInChat={(message) => {
+                setTab("chat");
+                void chat.send(message);
+              }} />
+          )}
+          {tab !== "about" && tab !== "help" && tab !== "work" && tabs.includes("chat") && (
             <Button variant="outline" size="sm" onClick={() => setTab("chat")}>{t("askMe", { name: c.name })}</Button>
           )}
         </div>

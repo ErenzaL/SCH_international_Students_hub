@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from app.core.config import Settings
 from app.repositories.base import FileStorage, Store
+from app.services.agents.tasks import AgentTaskService
 from app.services.announcements import AnnouncementService
 from app.services.conversations import ConversationService
 from app.services.document_translations import DocumentTranslationService
@@ -57,6 +58,7 @@ class Services:
     doc_translations: DocumentTranslationService
     rag_health: RagHealthService
     announcement_translator: AnnouncementAutoTranslator
+    agents: AgentTaskService = None  # type: ignore[assignment]  # set right after construction (needs Services)
 
 
 def build_services(settings: Settings, store: Store, storage: FileStorage | None, embedder: EmbeddingProvider,
@@ -87,7 +89,7 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     public.announcement_translator = ann_auto
     rag_health = RagHealthService(store, embedder.model_id, notifications)
     ingestion.rag_health = announcements.rag_health = rag_health
-    return Services(
+    services = Services(
         settings=settings, store=store, storage=storage, embedder=embedder, llm=llm, indexer=indexer,
         ingestion=ingestion, review=ReviewService(store, indexer, storage), announcements=announcements,
         public=public, retrieval=retrieval,
@@ -99,3 +101,6 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
         source_lifecycle=SourceLifecycleService(store, storage),
         doc_translations=doc_translations, rag_health=rag_health, announcement_translator=ann_auto,
     )
+    services.agents = jobs.agents = AgentTaskService(services)
+    services.agents.worker_id = jobs.worker_id
+    return services
