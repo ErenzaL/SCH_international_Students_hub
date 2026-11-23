@@ -1,0 +1,21 @@
+metric,a,b,n,mean_a,mean_b,diff,lo,hi,a_better,b_better,relative_pct,mcnemar_p,ci_excludes_zero,snapshot
+support,E2S+EV,E2S,100,0.58,0.58,0.0,0.0,0.0,0,0,0.0,1.0,False,corpus_v2
+term_coverage,E2S+EV,E2S,100,0.585,0.585,0.0,0.0,0.0,0,0,0.0,,False,corpus_v2
+support,E4+EV,E4,100,0.65,0.65,0.0,0.0,0.0,0,0,0.0,1.0,False,corpus_v2
+term_coverage,E4+EV,E4,100,0.64,0.64,0.0,0.0,0.0,0,0,0.0,1.0,False,corpus_v2
+support,E4,E2S,100,0.65,0.58,0.07,0.03,0.13,8,1,12.068965517241383,0.0390625,True,corpus_v2
+term_coverage,E4,E2S,100,0.64,0.585,0.055,0.02,0.095,6,0,9.401709401709402,,True,corpus_v2
+support,E4+EV,E2S,100,0.65,0.58,0.07,0.03,0.13,8,1,12.068965517241383,0.0390625,True,corpus_v2
+term_coverage,E4+EV,E2S,100,0.64,0.585,0.055,0.02,0.095,6,0,9.401709401709402,,True,corpus_v2
+support,E2S+EV,E2S,100,0.63,0.63,0.0,0.0,0.0,0,0,0.0,1.0,False,corpus_v2_p1
+term_coverage,E2S+EV,E2S,100,0.64,0.64,0.0,0.0,0.0,0,0,0.0,1.0,False,corpus_v2_p1
+support,E4+EV,E4,100,0.65,0.65,0.0,0.0,0.0,0,0,0.0,1.0,False,corpus_v2_p1
+term_coverage,E4+EV,E4,100,0.69,0.68,0.01,0.0,0.03,1,0,1.4705882352941175,1.0,False,corpus_v2_p1
+support,E4,E2S,100,0.65,0.63,0.02,-0.03,0.07,5,3,3.1746031746031744,0.7265625,False,corpus_v2_p1
+term_coverage,E4,E2S,100,0.68,0.64,0.04,0.0,0.09,5,1,6.25,0.21875,False,corpus_v2_p1
+support,E4+EV,E2S,100,0.65,0.63,0.02,-0.03,0.07,5,3,3.1746031746031744,0.7265625,False,corpus_v2_p1
+term_coverage,E4+EV,E2S,100,0.69,0.64,0.05,0.01,0.1,5,0,7.8125,0.0625,True,corpus_v2_p1
+support,E2S [P1],E2S,100,0.63,0.58,0.05,0.01,0.1,6,1,8.620689655172415,0.125,True,P1 vs v2
+term_coverage,E2S [P1],E2S,100,0.64,0.585,0.055,0.005,0.125,6,0,9.401709401709402,,True,P1 vs v2
+support,E4 [P1],E4,100,0.65,0.65,0.0,-0.05,0.06,4,4,0.0,1.0,False,P1 vs v2
+term_coverage,E4 [P1],E4,100,0.68,0.64,0.04,0.0,0.09,4,0,6.25,0.125,False,P1 vs v2

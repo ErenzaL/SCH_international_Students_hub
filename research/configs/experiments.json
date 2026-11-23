@@ -1,0 +1,105 @@
+{
+ "config_version": "experiments-1.0",
+ "created": "2026-11-23",
+ "shared": {
+  "embedding_model": "intfloat/multilingual-e5-small",
+  "embedding_variant": "ONNX int8 (qint8)",
+  "embedding_dimensions": 384,
+  "embedding_prefixes": {
+   "passage": "passage: ",
+   "query": "query: "
+  },
+  "embedding_max_tokens": 512,
+  "chunker": {
+   "version": "v1",
+   "target_tokens": 320,
+   "max_tokens": 420,
+   "overlap_tokens": 48,
+   "token_estimate": "words*1.3 + CJK characters (heuristic, not a tokenizer)"
+  },
+  "vector_store": {
+   "database": "Supabase PostgreSQL",
+   "extension": "pgvector 0.8.2 (production)",
+   "index": "HNSW, vector_cosine_ops, default parameters (m=16, ef_construction=64)",
+   "keyword_index": "GIN on to_tsvector('simple', heading || content) + pg_trgm GIN on content",
+   "eligibility": "searchable_chunks view: approved current version, not canceled/archived, active source, inside validity window"
+  },
+  "retrieval_min_similarity": 0.8,
+  "top_k_evaluated": 10,
+  "relevance": "document-level, binary; any expected document counts"
+ },
+ "methods": {
+  "B0": {
+   "name": "Vector-only",
+   "mode": "vector",
+   "description": "pgvector cosine top-k on the query embedding; semantic-only matches below 0.80 dropped"
+  },
+  "E1": {
+   "name": "Original hybrid (SQL RRF)",
+   "mode": "hybrid_legacy",
+   "description": "search_knowledge_v2: vector leg + keyword leg (simple tsquery OR + ILIKE + exact identifiers), equal-weight reciprocal-rank fusion k=60"
+  },
+  "E2": {
+   "name": "Improved hybrid (weighted fusion)",
+   "mode": "hybrid",
+   "parameters": {
+    "vector_weight": 1.0,
+    "keyword_weight": 0.35,
+    "candidate_pool": 30,
+    "max_chunks_per_document": 3,
+    "code_mismatch_penalty": 0.5,
+    "rrf_k": 60,
+    "keyword_admission": "rarity-weighted, script-aware coverage >= 0.5",
+    "query_analysis": "visa-code normalisation, multilingual glossary (17 concepts), rarity-weighted lexical coverage"
+   }
+  },
+  "E2S": {
+   "name": "E2 + assistant evidence selection",
+   "mode": "engine",
+   "local_only": true,
+   "parameters": {
+    "max_sources": 4,
+    "max_passages_per_source": 3,
+    "context_chars": 9000,
+    "query_rewriting": "disabled in this experiment (no LLM)"
+   },
+   "note": "ranks the <= 4 source documents the answer model would receive"
+  },
+  "E3": {
+   "name": "Hybrid + cross-encoder reranking",
+   "status": "not implemented",
+   "note": "not run; no results reported"
+  }
+ },
+ "generation": {
+  "provider": "Google Gemini via google-genai",
+  "configured_primary_model": "gemini-3.8-flash (Render, reported by the owner)",
+  "configured_fallback_model": "gemini-3.5-flash-lite",
+  "prompt_version": "system_v2",
+  "contract_version": "response_contract_v2",
+  "prompt_sha256_12": "602ba59399c5",
+  "thinking_level": "low",
+  "answer_max_tokens": 2048
+ },
+ "datasets": {
+  "retrieval-pilot-0.1": {
+   "file": "data/benchmarks/retrieval_pilot_v0.1.json",
+   "role": "development set (used for tuning in Milestones 1-2.2: results optimistic)",
+   "review_status": "draft_unreviewed"
+  },
+  "retrieval-heldout-0.2": {
+   "file": "data/benchmarks/retrieval_heldout_v0.2.json",
+   "role": "held-out test (frozen 2026-11-23 before its first evaluation; never used for tuning)",
+   "review_status": "draft_unreviewed"
+  },
+  "retrieval-reviewed-1.0": {
+   "file": "data/benchmarks/retrieval_reviewed_v1.0.json",
+   "role": "independently human-reviewed set",
+   "status": "not yet created (no reviews)"
+  }
+ },
+ "targets": {
+  "local": "repository working tree, in-memory index rebuilt from the public corpus snapshot with the production chunker and embedder",
+  "production": "deployed public search API (commit 7e647cd), real Supabase/pgvector index; latency includes network round-trip"
+ }
+}

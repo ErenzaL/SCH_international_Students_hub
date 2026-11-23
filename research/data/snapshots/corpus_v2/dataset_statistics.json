@@ -1,0 +1,479 @@
+{
+ "announcements": {
+  "canceled": 1,
+  "pending_approval": 1,
+  "published": 4
+ },
+ "chunks": {
+  "active": 766,
+  "active_with_embedding": 766,
+  "active_without_embedding": 0,
+  "by_category_active": {
+   "academic-life": 81,
+   "daily-living": 552,
+   "employment-internships": 37,
+   "health-insurance": 16,
+   "part-time-employment": 36,
+   "university-announcements": 7,
+   "visa-immigration": 37
+  },
+  "by_language_active": {
+   "en": 384,
+   "ko": 382
+  },
+  "chunk_strategy": {
+   "v1": 767
+  },
+  "duplicate_content_across_active_documents": 0,
+  "duplicate_content_within_version": 1,
+  "embedding_dimensions": [
+   384
+  ],
+  "embedding_models": {
+   "intfloat/multilingual-e5-small#qint8": 766,
+   "none": 1
+  },
+  "historical": 1,
+  "per_document_active": {
+   "max": 291,
+   "mean": 30.64,
+   "min": 1
+  },
+  "searchable_via_view": 766,
+  "size_chars_active": {
+   "max": 2068,
+   "mean": 397.4,
+   "median": 186.5,
+   "min": 2,
+   "p25": 44,
+   "p75": 547.5
+  },
+  "size_estimated_tokens_active": {
+   "max": 431,
+   "mean": 103.8,
+   "median": 49,
+   "min": 1
+  },
+  "size_histogram_chars_active": {
+   "0-249": 417,
+   "1000-1499": 50,
+   "1500-1999": 46,
+   "2000+": 3,
+   "250-499": 133,
+   "500-999": 117
+  },
+  "total_rows": 767
+ },
+ "documents": {
+  "active_searchable": 25,
+  "active_without_chunks": 0,
+  "archived": 0,
+  "by_category": {
+   "academic-life": 5,
+   "daily-living": 7,
+   "employment-internships": 1,
+   "health-insurance": 2,
+   "part-time-employment": 2,
+   "university-announcements": 5,
+   "visa-immigration": 3
+  },
+  "by_document_type": {
+   "announcement": 5,
+   "docx": 9,
+   "pdf": 6,
+   "webpage": 5
+  },
+  "by_language": {
+   "en": 15,
+   "ko": 10
+  },
+  "by_source_type": {
+   "docx": 9,
+   "manual_text": 5,
+   "pdf": 6,
+   "website": 5
+  },
+  "canceled": 1,
+  "indexed_active (all chunks embedded)": 25,
+  "total": 26,
+  "with_an_approved_current_version": 26,
+  "with_valid_until": 2
+ },
+ "generated_at": "2026-11-23T02:32:29.13071+00:00",
+ "jobs": {
+  "index_version:succeeded": 21,
+  "ingest:failed": 2,
+  "ingest:succeeded": 22
+ },
+ "pages": {
+  "documents_with_page_markers_on_chunks": 6,
+  "documents_with_page_metadata": 6,
+  "total_pages_from_chunk_page_markers": 223,
+  "total_pages_from_extraction_metadata": 225
+ },
+ "per_document": [
+  {
+   "category": "daily-living",
+   "chunks": 291,
+   "document_type": "pdf",
+   "embedded": 291,
+   "id": "d60bc363-0aae-44e5-b0c3-df8c61ad6f66",
+   "language": "ko",
+   "max_page_marker": 92,
+   "pages_metadata": 94,
+   "source_type": "pdf",
+   "text_chars": 85568,
+   "title": "한국 유학생 생활 가이드북"
+  },
+  {
+   "category": "daily-living",
+   "chunks": 164,
+   "document_type": "pdf",
+   "embedded": 164,
+   "id": "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+   "language": "en",
+   "max_page_marker": 104,
+   "pages_metadata": 104,
+   "source_type": "pdf",
+   "text_chars": 157061,
+   "title": "Guide for International Student in Korea"
+  },
+  {
+   "category": "academic-life",
+   "chunks": 47,
+   "document_type": "pdf",
+   "embedded": 47,
+   "id": "da416585-7ae2-40e9-b158-f252fab6be57",
+   "language": "ko",
+   "max_page_marker": 14,
+   "pages_metadata": 14,
+   "source_type": "pdf",
+   "text_chars": 18092,
+   "title": "모집요강"
+  },
+  {
+   "category": "employment-internships",
+   "chunks": 37,
+   "document_type": "webpage",
+   "embedded": 37,
+   "id": "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+   "language": "en",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "website",
+   "text_chars": 20790,
+   "title": "Employment in Korea | Work in Korea | Study in Korea | Run by Korean Government"
+  },
+  {
+   "category": "daily-living",
+   "chunks": 31,
+   "document_type": "webpage",
+   "embedded": 31,
+   "id": "26fbef6d-9eb0-4279-b8da-af0753c4512b",
+   "language": "en",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "website",
+   "text_chars": 11121,
+   "title": "Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run b"
+  },
+  {
+   "category": "daily-living",
+   "chunks": 21,
+   "document_type": "docx",
+   "embedded": 21,
+   "id": "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+   "language": "en",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "docx",
+   "text_chars": 8688,
+   "title": "Change of Address in South Korea"
+  },
+  {
+   "category": "visa-immigration",
+   "chunks": 21,
+   "document_type": "webpage",
+   "embedded": 21,
+   "id": "c5cefc3c-092f-4032-86ba-3496973fbb3c",
+   "language": "en",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "website",
+   "text_chars": 8172,
+   "title": "Study in Korea | Run by Korean Government"
+  },
+  {
+   "category": "daily-living",
+   "chunks": 21,
+   "document_type": "docx",
+   "embedded": 21,
+   "id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+   "language": "en",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "docx",
+   "text_chars": 12713,
+   "title": "Resident Card in South Korea"
+  },
+  {
+   "category": "part-time-employment",
+   "chunks": 18,
+   "document_type": "pdf",
+   "embedded": 18,
+   "id": "96b0fee4-18e9-4ea2-adb5-db654c9ac238",
+   "language": "ko",
+   "max_page_marker": 6,
+   "pages_metadata": 6,
+   "source_type": "pdf",
+   "text_chars": 5763,
+   "title": "외국인학생취업관련 정보"
+  },
+  {
+   "category": "part-time-employment",
+   "chunks": 18,
+   "document_type": "docx",
+   "embedded": 18,
+   "id": "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+   "language": "en",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "docx",
+   "text_chars": 9969,
+   "title": "Part-Time Employment for International Students in Korea — RAG Knowledge Base"
+  },
+  {
+   "category": "daily-living",
+   "chunks": 16,
+   "document_type": "webpage",
+   "embedded": 16,
+   "id": "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+   "language": "en",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "website",
+   "text_chars": 4607,
+   "title": "Living Costs and Expenses | Life in Korea | Study in Korea | Run by Korean Gover"
+  },
+  {
+   "category": "academic-life",
+   "chunks": 15,
+   "document_type": "pdf",
+   "embedded": 15,
+   "id": "d032674b-e938-43dd-a21f-f4b79dcab42f",
+   "language": "ko",
+   "max_page_marker": 5,
+   "pages_metadata": 5,
+   "source_type": "pdf",
+   "text_chars": 6232,
+   "title": "수강신청 안내"
+  },
+  {
+   "category": "visa-immigration",
+   "chunks": 8,
+   "document_type": "docx",
+   "embedded": 8,
+   "id": "a37644b0-53e5-48ee-b861-9876e2c88195",
+   "language": "en",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "docx",
+   "text_chars": 3930,
+   "title": "Changing visa status"
+  },
+  {
+   "category": "health-insurance",
+   "chunks": 8,
+   "document_type": "docx",
+   "embedded": 8,
+   "id": "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+   "language": "en",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "docx",
+   "text_chars": 3921,
+   "title": "National Health Insurance"
+  },
+  {
+   "category": "academic-life",
+   "chunks": 8,
+   "document_type": "docx",
+   "embedded": 8,
+   "id": "b3f79749-2756-4ae1-8bc0-31662164d333",
+   "language": "en",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "docx",
+   "text_chars": 3796,
+   "title": "TOPIK GUIDE"
+  },
+  {
+   "category": "daily-living",
+   "chunks": 8,
+   "document_type": "docx",
+   "embedded": 8,
+   "id": "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+   "language": "en",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "docx",
+   "text_chars": 3233,
+   "title": "Travel and Re-entry Documents"
+  },
+  {
+   "category": "visa-immigration",
+   "chunks": 8,
+   "document_type": "docx",
+   "embedded": 8,
+   "id": "4650e940-a12f-464c-be4a-285c607e88ef",
+   "language": "en",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "docx",
+   "text_chars": 3274,
+   "title": "D2 visa extension"
+  },
+  {
+   "category": "health-insurance",
+   "chunks": 8,
+   "document_type": "docx",
+   "embedded": 8,
+   "id": "744fdb55-6239-47ca-ab92-18eafb77d677",
+   "language": "en",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "docx",
+   "text_chars": 3213,
+   "title": "Medical and Hospital Guide"
+  },
+  {
+   "category": "academic-life",
+   "chunks": 7,
+   "document_type": "webpage",
+   "embedded": 7,
+   "id": "7df6e287-15fa-499c-a181-1669bcb04cb0",
+   "language": "en",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "website",
+   "text_chars": 4981,
+   "title": "Korea's Education System | Plan your studies | Study in Korea | Run by Korean Go"
+  },
+  {
+   "category": "academic-life",
+   "chunks": 4,
+   "document_type": "pdf",
+   "embedded": 4,
+   "id": "ae1cbab7-4248-4536-b725-847c7a61cd64",
+   "language": "ko",
+   "max_page_marker": 2,
+   "pages_metadata": 2,
+   "source_type": "pdf",
+   "text_chars": 1864,
+   "title": "수강신청 주의사항"
+  },
+  {
+   "category": "university-announcements",
+   "chunks": 3,
+   "document_type": "announcement",
+   "embedded": 3,
+   "id": "c9be6492-bbde-4f28-8f75-146540661e96",
+   "language": "ko",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "manual_text",
+   "text_chars": 1056,
+   "title": "[중요공지] 외국인 유학생 불법 취업(무단 아르바이트) 관련 주의 안내"
+  },
+  {
+   "category": "university-announcements",
+   "chunks": 1,
+   "document_type": "announcement",
+   "embedded": 1,
+   "id": "1ce185c2-8806-45f6-b84a-d63d429c8f86",
+   "language": "ko",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "manual_text",
+   "text_chars": 411,
+   "title": "“헬스케어 데이” 및 냉장고 점검 안내"
+  },
+  {
+   "category": "university-announcements",
+   "chunks": 1,
+   "document_type": "announcement",
+   "embedded": 1,
+   "id": "d14d2192-5d21-42ea-b69d-6fa7ae16a292",
+   "language": "ko",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "manual_text",
+   "text_chars": 454,
+   "title": "[생활관] 2026 동계방학 생활관 입사생 모집 안내"
+  },
+  {
+   "category": "university-announcements",
+   "chunks": 1,
+   "document_type": "announcement",
+   "embedded": 1,
+   "id": "838c1cca-f431-49c3-84d1-09062695eaed",
+   "language": "ko",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "manual_text",
+   "text_chars": 437,
+   "title": "기말평가 안내"
+  },
+  {
+   "category": "university-announcements",
+   "chunks": 1,
+   "document_type": "announcement",
+   "embedded": 1,
+   "id": "b76361b8-c4b1-4a16-8802-d23fca2bb275",
+   "language": "ko",
+   "max_page_marker": null,
+   "pages_metadata": null,
+   "source_type": "manual_text",
+   "text_chars": 370,
+   "title": "[생활관] 방학 중 교내(글로벌빌리지) 짐 보관 중단 및 교외 짐 보관 서비스 안내"
+  }
+ ],
+ "pgvector_version": "0.8.2",
+ "vector_index": [
+  {
+   "definition": "CREATE UNIQUE INDEX document_chunks_pkey ON public.document_chunks USING btree (id)",
+   "name": "document_chunks_pkey"
+  },
+  {
+   "definition": "CREATE UNIQUE INDEX document_chunks_version_id_chunk_index_key ON public.document_chunks USING btree (version_id, chunk_index)",
+   "name": "document_chunks_version_id_chunk_index_key"
+  },
+  {
+   "definition": "CREATE INDEX document_chunks_version_idx ON public.document_chunks USING btree (version_id)",
+   "name": "document_chunks_version_idx"
+  },
+  {
+   "definition": "CREATE INDEX document_chunks_tsv_idx ON public.document_chunks USING gin (search_tsv)",
+   "name": "document_chunks_tsv_idx"
+  },
+  {
+   "definition": "CREATE INDEX document_chunks_trgm_idx ON public.document_chunks USING gin (content extensions.gin_trgm_ops)",
+   "name": "document_chunks_trgm_idx"
+  },
+  {
+   "definition": "CREATE INDEX document_chunks_embedding_idx ON public.document_chunks USING hnsw (embedding extensions.vector_cosine_ops)",
+   "name": "document_chunks_embedding_idx"
+  }
+ ],
+ "versions": {
+  "by_indexing_status": {
+   "indexed": 22,
+   "not_indexed": 1,
+   "queued": 3
+  },
+  "by_status": {
+   "approved": 26
+  },
+  "total": 26
+ }
+}

@@ -1,0 +1,108 @@
+{
+ "old": "corpus_v1",
+ "new": "corpus_v2",
+ "added_documents": [
+  {
+   "id": "96b0fee4-18e9-4ea2-adb5-db654c9ac238",
+   "title": "외국인학생취업관련 정보",
+   "language": "ko",
+   "category": "part-time-employment"
+  },
+  {
+   "id": "d60bc363-0aae-44e5-b0c3-df8c61ad6f66",
+   "title": "한국 유학생 생활 가이드북",
+   "language": "ko",
+   "category": "daily-living"
+  }
+ ],
+ "removed_documents": [],
+ "datasets": {
+  "pilot_v0.1": {
+   "questions": 100,
+   "by_method": {
+    "B0": {
+     "improved": 0,
+     "worse": 20,
+     "unchanged": 80,
+     "lost_top1": 6,
+     "added_document_ranked_first": 19,
+     "candidate_label_revisions": 0
+    },
+    "E1": {
+     "improved": 7,
+     "worse": 22,
+     "unchanged": 71,
+     "lost_top1": 14,
+     "added_document_ranked_first": 20,
+     "candidate_label_revisions": 0
+    },
+    "E2": {
+     "improved": 2,
+     "worse": 19,
+     "unchanged": 79,
+     "lost_top1": 14,
+     "added_document_ranked_first": 21,
+     "candidate_label_revisions": 0
+    },
+    "E2S": {
+     "improved": 0,
+     "worse": 16,
+     "unchanged": 84,
+     "lost_top1": 12,
+     "added_document_ranked_first": 22,
+     "candidate_label_revisions": 0
+    }
+   },
+   "scenarios_with_evidence_in_added_documents": []
+  },
+  "heldout_v0.2": {
+   "questions": 100,
+   "by_method": {
+    "B0": {
+     "improved": 0,
+     "worse": 20,
+     "unchanged": 80,
+     "lost_top1": 10,
+     "added_document_ranked_first": 27,
+     "candidate_label_revisions": 8
+    },
+    "E1": {
+     "improved": 9,
+     "worse": 24,
+     "unchanged": 67,
+     "lost_top1": 12,
+     "added_document_ranked_first": 22,
+     "candidate_label_revisions": 6
+    },
+    "E2": {
+     "improved": 2,
+     "worse": 21,
+     "unchanged": 77,
+     "lost_top1": 8,
+     "added_document_ranked_first": 24,
+     "candidate_label_revisions": 7
+    },
+    "E2S": {
+     "improved": 3,
+     "worse": 20,
+     "unchanged": 77,
+     "lost_top1": 6,
+     "added_document_ranked_first": 23,
+     "candidate_label_revisions": 7
+    }
+   },
+   "scenarios_with_evidence_in_added_documents": [
+    "H01",
+    "H03",
+    "H06",
+    "H07",
+    "H11",
+    "H13",
+    "H14",
+    "H16",
+    "H17",
+    "H19"
+   ]
+  }
+ }
+}

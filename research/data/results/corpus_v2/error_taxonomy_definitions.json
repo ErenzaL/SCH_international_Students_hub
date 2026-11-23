@@ -1,0 +1,38 @@
+{
+ "below_similarity_threshold": {
+  "rule": "expected document's best dense similarity < 0.80, so dense-only hits are filtered",
+  "possible_improvement": "lower/learn the threshold per language; rely on reranking of a wider pool"
+ },
+ "visa_code_confusion": {
+  "rule": "question names a visa code; the top passage is about a different code",
+  "possible_improvement": "stronger code-mismatch handling; code-aware reranking"
+ },
+ "same_script_distractor": {
+  "rule": "top document shares the question's script/language while the expected document is in another language",
+  "possible_improvement": "cross-lingual reranker; query translation (ko/en variants)"
+ },
+ "long_document_dominance": {
+  "rule": "top document is a long multi-topic guide (>= 100 chunks) and is not the expected primary source",
+  "possible_improvement": "per-document caps; section-level titles; reranking"
+ },
+ "cross_language_miss": {
+  "rule": "question language differs from the expected document and it is not in the top 5",
+  "possible_improvement": "multilingual reranker; translated query variants; glossary coverage"
+ },
+ "keyword_ambiguity": {
+  "rule": "top passage wins on keyword coverage (>= 0.5) but is the wrong document",
+  "possible_improvement": "down-weight keyword leg for generic terms; reranking"
+ },
+ "competing_topical_document": {
+  "rule": "top document is in the same category as the expected one (topically adjacent)",
+  "possible_improvement": "reranking; better section granularity; review labels"
+ },
+ "possible_label_gap": {
+  "rule": "the top passage contains the scenario's evidence terms but its document is not labelled",
+  "possible_improvement": "human label review (may be a correct answer)"
+ },
+ "other": {
+  "rule": "no rule matched",
+  "possible_improvement": "manual inspection"
+ }
+}

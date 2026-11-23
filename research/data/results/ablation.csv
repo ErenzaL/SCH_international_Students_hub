@@ -1,0 +1,57 @@
+target,dataset,step,what,metric,n,baseline,variant,diff_pp,lo_pp,hi_pp,relative_pct,ci_excludes_zero
+local,heldout_v0.2,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,Recall@1,100,0.64,0.53,-11.0,-18.0,-4.0,-17.1875,True
+local,heldout_v0.2,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,Recall@5,100,0.83,0.84,1.0,-3.0,6.0,1.2048192771084338,False
+local,heldout_v0.2,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,MRR,100,0.7183333333333333,0.649,-6.9333333333333345,-11.433750000000002,-2.6000000000000005,-9.651972157772624,True
+local,heldout_v0.2,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,nDCG@5,100,0.6831177618095208,0.643372887245038,-3.9744874564482795,-8.648096403635165,0.9462991520908987,-5.818158564520707,False
+local,heldout_v0.2,E2 vs B0,improved hybrid vs vector-only,Recall@1,100,0.64,0.67,3.0,-6.0,13.0,4.6875,False
+local,heldout_v0.2,E2 vs B0,improved hybrid vs vector-only,Recall@5,100,0.83,0.89,6.0,1.0,11.0,7.228915662650603,True
+local,heldout_v0.2,E2 vs B0,improved hybrid vs vector-only,MRR,100,0.7183333333333333,0.7623333333333333,4.3999999999999995,-1.6170833333333332,10.984583333333338,6.125290023201856,False
+local,heldout_v0.2,E2 vs B0,improved hybrid vs vector-only,nDCG@5,100,0.6831177618095208,0.7550399944879022,7.19222326783813,2.3269744327449864,12.659989184742084,10.528526221872117,True
+local,heldout_v0.2,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,Recall@1,100,0.53,0.67,14.000000000000002,3.0,27.0,26.415094339622645,True
+local,heldout_v0.2,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,Recall@5,100,0.84,0.89,5.0,1.9750000000000087,9.0,5.9523809523809526,True
+local,heldout_v0.2,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,MRR,100,0.649,0.7623333333333333,11.333333333333334,3.8991666666666682,20.100416666666675,17.46276322547509,True
+local,heldout_v0.2,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,nDCG@5,100,0.643372887245038,0.7550399944879022,11.16671072428641,4.608720480648156,18.3795979645896,17.356514310236086,True
+local,heldout_v0.2,E2S vs E2,assistant evidence selection on top of E2 (no query rewriting),Recall@1,100,0.67,0.63,-4.0,-9.0,1.0,-5.970149253731343,False
+local,heldout_v0.2,E2S vs E2,assistant evidence selection on top of E2 (no query rewriting),Recall@5,100,0.89,0.87,-2.0,-5.0,0.0,-2.247191011235955,False
+local,heldout_v0.2,E2S vs E2,assistant evidence selection on top of E2 (no query rewriting),MRR,100,0.7623333333333333,0.7425,-1.9833333333333332,-4.533333333333333,0.7004166666666685,-2.6016615653694797,False
+local,heldout_v0.2,E2S vs E2,assistant evidence selection on top of E2 (no query rewriting),nDCG@5,100,0.7550399944879022,0.7356741796937125,-1.936581479418954,-3.7499820677276174,0.05534457014794269,-2.564872713441385,False
+local,pilot_v0.1,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,Recall@1,100,0.69,0.66,-3.0,-11.0,5.0,-4.347826086956522,False
+local,pilot_v0.1,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,Recall@5,100,0.93,0.86,-7.000000000000001,-12.0,-3.0,-7.526881720430108,True
+local,pilot_v0.1,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,MRR,100,0.7878333333333333,0.7466666666666667,-4.116666666666666,-10.034583333333332,1.0833333333333337,-5.225301459699598,False
+local,pilot_v0.1,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,nDCG@5,100,0.6980733414484797,0.6547639561414451,-4.33093853070345,-8.905875189627674,-0.03771904434322625,-6.204131104214483,True
+local,pilot_v0.1,E2 vs B0,improved hybrid vs vector-only,Recall@1,100,0.69,0.81,12.0,3.0,21.0,17.39130434782609,True
+local,pilot_v0.1,E2 vs B0,improved hybrid vs vector-only,Recall@5,100,0.93,0.95,2.0,-2.0,7.000000000000001,2.150537634408602,False
+local,pilot_v0.1,E2 vs B0,improved hybrid vs vector-only,MRR,100,0.7878333333333333,0.8739285714285714,8.60952380952381,1.6686904761904768,15.800000000000002,10.928102994953006,True
+local,pilot_v0.1,E2 vs B0,improved hybrid vs vector-only,nDCG@5,100,0.6980733414484797,0.7797489734975934,8.167563204911401,1.5513255778642367,15.27832929847638,11.700150571520137,True
+local,pilot_v0.1,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,Recall@1,100,0.66,0.81,15.0,7.000000000000001,24.0,22.727272727272727,True
+local,pilot_v0.1,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,Recall@5,100,0.86,0.95,9.0,4.0,15.0,10.465116279069768,True
+local,pilot_v0.1,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,MRR,100,0.7466666666666667,0.8739285714285714,12.726190476190476,6.666666666666667,19.66666666666667,17.044005102040817,True
+local,pilot_v0.1,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,nDCG@5,100,0.6547639561414451,0.7797489734975934,12.49850173561485,6.375524066569188,18.561211205441662,19.088561027807806,True
+local,pilot_v0.1,E2S vs E2,assistant evidence selection on top of E2 (no query rewriting),Recall@1,100,0.81,0.79,-2.0,-6.0,2.0,-2.4691358024691357,False
+local,pilot_v0.1,E2S vs E2,assistant evidence selection on top of E2 (no query rewriting),Recall@5,100,0.95,0.92,-3.0,-9.0,0.0,-3.1578947368421053,False
+local,pilot_v0.1,E2S vs E2,assistant evidence selection on top of E2 (no query rewriting),MRR,100,0.8739285714285714,0.85,-2.392857142857143,-6.678571428571428,1.0,-2.7380465876583573,False
+local,pilot_v0.1,E2S vs E2,assistant evidence selection on top of E2 (no query rewriting),nDCG@5,100,0.7797489734975934,0.7427672049868856,-3.698176851070804,-8.298395783040725,-0.4929391597366678,-4.742778736190562,True
+production,heldout_v0.2,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,Recall@1,100,0.59,0.41,-18.0,-31.0,-7.000000000000001,-30.508474576271187,True
+production,heldout_v0.2,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,Recall@5,100,0.78,0.77,-1.0,-5.0,3.0,-1.282051282051282,False
+production,heldout_v0.2,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,MRR,100,0.6694166666666667,0.5506666666666666,-11.875,-18.75,-5.599791666666666,-17.73932528320677,True
+production,heldout_v0.2,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,nDCG@5,100,0.6340945827310934,0.568769937337802,-6.5324645393291565,-12.359622437643992,-1.4605673941348791,-10.302034928595884,True
+production,heldout_v0.2,E2 vs B0,improved hybrid vs vector-only,Recall@1,100,0.59,0.6,1.0,-7.000000000000001,10.0,1.6949152542372883,False
+production,heldout_v0.2,E2 vs B0,improved hybrid vs vector-only,Recall@5,100,0.78,0.83,5.0,2.0,9.0,6.41025641025641,True
+production,heldout_v0.2,E2 vs B0,improved hybrid vs vector-only,MRR,100,0.6694166666666667,0.6926666666666667,2.325,-2.2666666666666666,7.366666666666667,3.473173160712063,False
+production,heldout_v0.2,E2 vs B0,improved hybrid vs vector-only,nDCG@5,100,0.6340945827310934,0.6930818768599023,5.898729412880889,2.317559671705412,9.917052752490932,9.302601809771996,True
+production,heldout_v0.2,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,Recall@1,100,0.41,0.6,19.0,7.000000000000001,32.0,46.34146341463415,True
+production,heldout_v0.2,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,Recall@5,100,0.77,0.83,6.0,2.0,11.0,7.792207792207792,True
+production,heldout_v0.2,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,MRR,100,0.5506666666666666,0.6926666666666667,14.200000000000001,6.999583333333334,21.733750000000004,25.786924939467315,True
+production,heldout_v0.2,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,nDCG@5,100,0.568769937337802,0.6930818768599023,12.431193952210045,7.211820717565244,18.133799443641887,21.85627814718159,True
+production,pilot_v0.1,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,Recall@1,100,0.58,0.54,-4.0,-11.0,2.0,-6.8965517241379315,False
+production,pilot_v0.1,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,Recall@5,100,0.78,0.74,-4.0,-8.0,-1.0,-5.128205128205128,True
+production,pilot_v0.1,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,MRR,100,0.665,0.6191666666666666,-4.583333333333333,-8.833333333333332,-0.5833333333333334,-6.892230576441102,True
+production,pilot_v0.1,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,nDCG@5,100,0.5692215602331515,0.549869201029026,-1.9352359204125456,-5.651379865624815,1.6600684038668327,-3.3997937808607928,False
+production,pilot_v0.1,E2 vs B0,improved hybrid vs vector-only,Recall@1,100,0.58,0.62,4.0,-4.0,11.0,6.8965517241379315,False
+production,pilot_v0.1,E2 vs B0,improved hybrid vs vector-only,Recall@5,100,0.78,0.79,1.0,0.0,3.0,1.282051282051282,False
+production,pilot_v0.1,E2 vs B0,improved hybrid vs vector-only,MRR,100,0.665,0.7003333333333334,3.5333333333333337,-1.0837499999999995,8.166666666666668,5.31328320802005,False
+production,pilot_v0.1,E2 vs B0,improved hybrid vs vector-only,nDCG@5,100,0.5692215602331515,0.625705772919135,5.6484212685983515,1.7403515736641597,9.869488822925819,9.923062763618395,True
+production,pilot_v0.1,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,Recall@1,100,0.54,0.62,8.0,-2.0,18.0,14.814814814814813,False
+production,pilot_v0.1,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,Recall@5,100,0.74,0.79,5.0,2.0,9.0,6.756756756756757,True
+production,pilot_v0.1,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,MRR,100,0.6191666666666666,0.7003333333333334,8.116666666666667,1.7833333333333332,14.833333333333334,13.109017496635264,True
+production,pilot_v0.1,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,nDCG@5,100,0.549869201029026,0.625705772919135,7.583657189010896,2.5237504223523626,13.041565305724209,13.79174751889873,True

@@ -1,0 +1,12 @@
+snapshot,method,rerank_device,n,first_stage_ms,rerank_ms,total_ms,total_p90_ms
+corpus_v1,E2,-,200,48.4,,48.4,71.22
+corpus_v1,E3_bge-m3,cpu,33,59.3,8965.8,9009.1,10441.939999999999
+corpus_v1,E3_bge-m3,mps,167,47.4,3737.4,3775.0,4270.0
+corpus_v1,E3_mminilm,cpu,35,58.4,1118.5,1172.7,1310.26
+corpus_v1,E3_mminilm,mps,165,47.4,354.5,398.7,444.71999999999997
+corpus_v2,E2,-,200,59.65,,59.65,85.0
+corpus_v2,E3_bge-m3,mps,200,59.65,3665.75,3714.7,4111.9
+corpus_v2,E3_mminilm,mps,200,59.65,335.7,394.9,440.48999999999995
+corpus_v2_p1,E2,-,200,70.05,,70.05,102.05
+corpus_v2_p1,E3_bge-m3,mps,200,70.05,3675.8,3747.5,4136.03
+corpus_v2_p1,E3_mminilm,mps,200,70.05,344.9,413.15,474.22

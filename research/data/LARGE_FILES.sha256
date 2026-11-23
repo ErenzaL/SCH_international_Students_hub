@@ -1,0 +1,9 @@
+# SHA-256 of the UNCOMPRESSED large intermediates (committed as <file>.gz). Verify: gunzip -k <file>.gz && shasum -a 256 -c LARGE_FILES.sha256
+8d161af480686646233d641ea1491db4b48382cf8e2fa6c4d40939679243a7fa  results/candidates_heldout_v0.2.jsonl
+ec885bd20002115659659bb40749b1a39a9a3853c3992c560020e6840c75e777  results/candidates_pilot_v0.1.jsonl
+52c054364d4585d72b187244fa23d76b8d3a762dbea96429da1995d75418c284  results/corpus_v2/candidates_heldout_v0.2.jsonl
+e96c16b7663f5e8a9460f23aa01f48e4d56198faf2c292a1c415e7d88a77660f  results/corpus_v2/candidates_pilot_v0.1.jsonl
+92f613a4e8354b27da6bcdb4aabd015ffd5919966f819a3e9962c61fad5d10ab  results/corpus_v2_p1/candidates_heldout_v0.2.jsonl
+861820dd3e3648f19f7bcf3d41df91e36c3d4446f447afb38a9172f58e0b5543  results/corpus_v2_p1/candidates_pilot_v0.1.jsonl
+b75e9b44e25a7ea078e82b50c9e58425c37cd857475723b7df14df53213837e5  experiments/reliability/corpus_v2/traces.jsonl
+e1455fd370ecb6d5e520a88aa9d703b9010d028e1fd36c1933a230cf21411944  experiments/reliability/corpus_v2_p1/traces.jsonl

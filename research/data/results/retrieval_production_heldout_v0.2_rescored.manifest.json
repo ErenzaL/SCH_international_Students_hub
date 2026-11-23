@@ -1,0 +1,23 @@
+{
+ "run_id": "production-retrieval-heldout-0.2-20261123T012551Z",
+ "target": "production",
+ "code_version": "7e647cd (deployed)",
+ "dataset": "retrieval_heldout_v0.2.json",
+ "dataset_version": "retrieval-heldout-0.2",
+ "dataset_sha256_16": "a273350180dc1167",
+ "methods": [
+  "B0",
+  "E1",
+  "E2"
+ ],
+ "top_k": 10,
+ "questions": 100,
+ "rows": 300,
+ "errors": 0,
+ "finished_at": "2026-11-23T01:42:02.005943+00:00",
+ "production_code_version": "7e647cd",
+ "production_code_version_evidence": "deploy watcher confirmed 7e647cd live on 2026-11-23 before these runs; M2.2 working-tree changes are NOT deployed",
+ "rescored_from": "retrieval_production_heldout_v0.2.csv",
+ "rescoring": "announcement ids mapped to label ids (data/id_aliases.json)",
+ "rows_with_changed_rank": 27
+}

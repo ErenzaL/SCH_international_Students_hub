@@ -1,0 +1,23 @@
+{
+ "model_key": "bge-m3",
+ "snapshot": "corpus_v2",
+ "process_attempt": 1,
+ "pools": [
+  "B0F",
+  "E2"
+ ],
+ "repo": "BAAI/bge-reranker-v2-m3",
+ "license": "apache-2.0",
+ "params": "568M (0.6B)",
+ "base": "bge-m3 / XLM-RoBERTa",
+ "load_seconds": 6.1,
+ "device": "mps",
+ "device_note": "local Apple GPU (MPS) or CPU; spot check: MPS and CPU scores agree to 4-5 decimals with identical order",
+ "torch": "2.15.0",
+ "torch_threads": 4,
+ "max_length": 512,
+ "machine": "arm64 macOS-15.7.9-arm64-arm-64bit",
+ "started_at": "2026-11-23T03:39:11.259590+00:00",
+ "peak_rss_mb": 930,
+ "finished_at": "2026-11-23T04:39:33.788990+00:00"
+}

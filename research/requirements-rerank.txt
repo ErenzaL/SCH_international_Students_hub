@@ -1,0 +1,4 @@
+# Local reranking experiments only (NOT installed in backend/ or on Render). CPU inference.
+torch>=2.4
+sentence-transformers>=3.0
+transformers>=4.44

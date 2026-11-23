@@ -1,0 +1,14 @@
+{
+ "variant": "P1_prod_fixed_body",
+ "reps": 3,
+ "B0": {
+  "n": 600,
+  "median_ms": 29.17,
+  "p90_ms": 30.15
+ },
+ "E2": {
+  "n": 600,
+  "median_ms": 54.54,
+  "p90_ms": 77.05
+ }
+}

@@ -1,0 +1,23 @@
+{
+ "model_key": "mminilm",
+ "snapshot": "corpus_v1",
+ "process_attempt": 1,
+ "pools": [
+  "B0F",
+  "E2"
+ ],
+ "repo": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1",
+ "license": "apache-2.0",
+ "params": "118M (0.1B)",
+ "base": "multilingual MiniLMv2 (distilled from XLM-R Large)",
+ "load_seconds": 3.1,
+ "device": "mps",
+ "device_note": "local Apple GPU (MPS) or CPU; spot check: MPS and CPU scores agree to 4-5 decimals with identical order",
+ "torch": "2.15.0",
+ "torch_threads": 4,
+ "max_length": 512,
+ "machine": "arm64 macOS-15.7.9-arm64-arm-64bit",
+ "started_at": "2026-11-23T03:14:28.616733+00:00",
+ "peak_rss_mb": 1083,
+ "finished_at": "2026-11-23T03:16:21.679258+00:00"
+}

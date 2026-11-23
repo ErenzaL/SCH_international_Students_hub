@@ -1,0 +1,100 @@
+question_id,language,question,answer_generation,model,answer,cited_titles,correctness,relevance,faithfulness,citation_accuracy,unsupported_claims,language_ok,appropriate_abstention,reviewer,judge_type,judge_model,rubric_version,notes
+H04-en,en,Can I travel abroad while my visa extension application is pending?,llm,gemini-3.5-flash-lite,"You should consult immigration before booking travel while your visa extension is pending.
+
+If you leave the country while your application is under review, the immigration officer may suspend or terminate the review. It is recommended to verify your status and travel restrictions, and you can contact immigration at 1345 before making any travel plans.",D2 visa extension | Travel and Re-entry Documents | Guide for International Student in Korea,,,,,,,,,,,answer_rubric_v1,
+H04-ko,ko,비자 연장 신청이 처리 중일 때 해외여행을 가도 되나요?,llm,gemini-3.5-flash-lite,제공된 문서에는 비자 연장 신청이 처리되는 동안 해외여행을 할 수 있는지 여부에 대한 내용이 포함되어 있지 않습니다. 관련 정보는 출입국·외국인관할 사무소(콜센터 1345) 또는 하이코리아(HiKorea)를 통해 직접 확인하시기 바랍니다.,,,,,,,,,,,,answer_rubric_v1,
+H04-id,id,Bolehkah saya bepergian ke luar negeri saat permohonan perpanjangan visa masih diproses?,llm,gemini-3.5-flash-lite,"Jika Anda meninggalkan Korea saat permohonan atau petisi sipil (seperti perpanjangan visa) sedang dalam proses peninjauan oleh kantor imigrasi, peninjauan tersebut akan ditangguhkan atau dapat dihentikan atas kebijakan petugas imigrasi.
+
+Hal ini dikarenakan proses peninjauan tidak dapat dibiarkan terlalu lama jika tidak pasti apakah pemohon akan kembali, serta sulit untuk memperoleh informasi tambahan jika diperlukan selama peninjauan. Oleh karena itu, Anda disarankan untuk mempertimbangkan jadwal keberangkatan Anda dengan cermat. Dalam keadaan yang tak terhindarkan, Anda harus mengajukan kembali permohonan tersebut setelah masuk kembali ke Korea.",Guide for International Student in Korea,,,,,,,,,,,answer_rubric_v1,
+H04-vi,vi,Tôi có thể đi nước ngoài khi hồ sơ gia hạn visa đang được xử lý không?,llm,gemini-3.5-flash-lite,"Nếu bạn rời khỏi Hàn Quốc trong khi hồ sơ xin gia hạn visa đang được xử lý, quá trình xét duyệt có thể bị tạm đình chỉ hoặc chấm dứt theo quyết định của cán bộ xuất nhập cảnh.
+
+Do đó, bạn nên cân nhắc kỹ lịch trình xuất cảnh trước khi nộp hồ sơ. Trong trường hợp bất khả kháng phải rời khỏi đất nước khi hồ sơ chưa được giải quyết, bạn có thể phải nộp lại hồ sơ sau khi nhập cảnh trở lại Hàn Quốc.",Guide for International Student in Korea,,,,,,,,,,,answer_rubric_v1,
+H04-zh-CN,zh-CN,签证延期申请还在审理中时可以出国旅行吗？,llm,gemini-3.5-flash-lite,"当签证延期申请还在审理中时，不建议盲目出国旅行。如果在申请审核期间离开韩国，出入境管理部门可能会暂停或终止您的申请审核。
+
+因此，在预订行程或离境之前，请务必先向出入境管理事务所（或拨打1345综合民원服务中心）进行咨询确认。",Travel and Re-entry Documents | Guide for International Student in Korea,,,,,,,,,,,answer_rubric_v1,
+H06-en,en,How do I change from a D-2 visa to the D-10 job-seeking visa after graduation?,llm,gemini-3.5-flash-lite,"To transition from a D-2 student visa to a General Job-Seeking (D-10-1) visa after graduation, you must apply through the immigration office. This visa allows you to stay in Korea to search for employment or complete internships in professional fields corresponding to E-1 through E-7 visas.
+
+**Key Requirements and Process**
+* **Application Timing:** You should apply for the visa status change as soon as possible after graduation. You must complete the application before engaging in any activities requiring the new status. Changing status is not automatic.
+* **Point-Based Review System Exemption:** If this is your first D-10 visa after graduation and you apply within one year of your graduation date, you are exempted from the point-based review system. Otherwise, applicants generally need a bachelor's or associate's degree from a Korean university and a score of at least 60 out of 190 points on the Job Search Score Sheet (with a minimum of 20 points in baseline items).
+* **Period of Stay:** The initial D-10-1 visa is granted for 1 year, and extensions are possible for up to 3 years depending on individual eligibility.
+* **Important Travel Note:** Do not leave Korea while your visa change application is under review. If you leave the country during the review process, the immigration officer may suspend or terminate your application.",Guide for International Student in Korea | Changing visa status | Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run by Korean Government,,,,,,,,,,,answer_rubric_v1,
+H06-ko,ko,졸업 후 D-2에서 D-10 구직비자로 변경하려면 어떻게 하나요?,llm,gemini-3.5-flash-lite,"졸업 후 D-2 비자에서 D-10(구직) 비자로 변경하려면 출입국관서에 체류자격 변경허가를 신청해야 합니다,. 가능한 한 졸업 후 빠른 시일 내에 신청하는 것이 좋습니다.
+
+D-10(일반구직) 비자 신청 시 주요 요건은 다음과 같습니다.
+
+* **자격요건**: 국내 대학에서 학사 학위 이상(전문학사 포함)을 취득하고 합법적으로 체류 중인 자가 신청할 수 있습니다.
+* **점수제 심사**: 
+  * 일반적인 경우 총 190점 중 기본항목 20점 이상을 포함하여 총점 60점 이상을 충족해야 합니다.
+  * **점수제 면제**: 졸업 후 1년 이내에 신청하는 첫 번째 D-10 비자의 경우 점수제 심사가 면제됩니다.
+
+**주의사항**
+비자 변경 심사 진행 중에 출국할 경우, 출입국관서의 판단에 따라 심사가 중단되거나 종결될 수 있으므로 출국 일정을 고려하여 신중하게 신청해야 합니다.",Changing visa status | Guide for International Student in Korea,,,,,,,,,,,answer_rubric_v1,
+H06-id,id,Bagaimana cara mengubah visa D-2 ke visa pencari kerja D-10 setelah lulus?,llm,gemini-3.5-flash-lite,"Untuk mengubah visa studi D-2 menjadi visa pencari kerja D-10 setelah lulus, Anda disarankan untuk mengajukan permohonan perubahan status tinggal sesegera mungkin setelah kelulusan. Perubahan status ini tidak otomatis dan harus diajukan sebelum masa berlaku visa Anda saat ini habis.
+
+Langkah-langkah umum dan hal yang perlu disiapkan:
+
+1. Periksa kelayakan Anda, terutama apakah Anda memenuhi syarat untuk sistem penilaian poin (point-based review system) untuk visa D-10-1.
+2. Siapkan dokumen-dokumen yang diperlukan untuk permohonan perubahan status tinggal, yang umumnya mencakup paspor, kartu registrasi orang asing (Residence Card), bukti kelulusan, dan dokumen pendukung lainnya sesuai panduan Kantor Imigrasi atau HiKorea.
+3. Ajukan permohonan melalui situs HiKorea atau kunjungi kantor imigrasi yang berwenang sebelum masa tinggal Anda berakhir.
+
+Perlu diingat untuk tidak meninggalkan Korea selama proses peninjauan berlangsung, karena hal tersebut dapat menyebabkan peninjauan ditangguhkan atau dihentikan oleh petugas imigrasi.",Changing visa status | Guide for International Student in Korea | D2 visa extension,,,,,,,,,,,answer_rubric_v1,
+H06-vi,vi,"Sau khi tốt nghiệp, làm thế nào để chuyển từ visa D-2 sang visa tìm việc D-10?",llm,gemini-3.5-flash-lite,"Việc chuyển từ visa du học (D-2) sang visa tìm việc (D-10-1) sau khi tốt nghiệp không diễn ra tự động, vì vậy bạn cần nộp đơn xin thay đổi tư cách lưu trú càng sớm càng tốt.
+
+Các điều kiện và diện xét duyệt chính bao gồm:
+
+- **Hệ thống xét duyệt dựa trên điểm số:** Bạn cần có ít nhất bằng cử nhân (bao gồm cả bằng cao đẳng tại trường đại học Hàn Quốc) với tư cách là cư dân hợp pháp tại Hàn Quốc, đồng thời đạt tổng điểm từ 60 điểm trở lên (với ít nhất 20 điểm ở các mục cơ bản) trên tổng số 190 điểm trong Bảng điểm tìm việc.
+- **Diện được miễn hệ thống tính điểm:** Nếu đây là visa D-10 đầu tiên của bạn sau khi tốt nghiệp và được thực hiện trong vòng 1 năm kể từ ngày tốt nghiệp, bạn sẽ được miễn hệ thống tính điểm này.
+
+**Lưu ý quan trọng:** Bạn nên xin phê duyệt chuyển đổi visa trước khi xuất cảnh nếu có kế hoạch tìm việc sau khi tốt nghiệp. Nếu bạn rời khỏi Hàn Quốc trong quá trình hồ sơ đang được xét duyệt, cơ quan quản lý xuất nhập cảnh có thể đình chỉ hoặc chấm dứt việc xem xét.",Changing visa status | Guide for International Student in Korea,,,,,,,,,,,answer_rubric_v1,
+H06-zh-CN,zh-CN,毕业后如何从D-2签证变更为D-10求职签证？,llm,gemini-3.5-flash-lite,"毕业后从D-2（留学）签证变更为D-10（求职）签证，建议在毕业后尽早向出入境管理所申请变更。
+
+主要注意事项和流程如下：
+
+1. **申请时机**：应在毕业后尽快申请变更D-10-1（一般求职）签证。如果在审核期间离境，可能会导致审查暂停或终止，因此请合理安排行程。
+2. **积分制审核与免除**：
+   - 申请D-10-1签证通常需要通过积分制审核，要求持有韩国大学学位（含专科），且总分达到60分以上（基础项须满20分）。
+   - 如果这是你毕业后的第一次D-10求职签证，且在毕业后一年内申请，可免于参加积分制审核。
+3. **后续发展**：持D-10签证期间可以进行求职和实习；一旦找到全职工作，通常需要转换为E系列（如E-7）工作签证。
+
+具体所需材料及在线预约可通过HiKorea官网或国际教育交流처（国际教育交流处）的相关指南进行确认。",Changing visa status | Guide for International Student in Korea | D2 visa extension,,,,,,,,,,,answer_rubric_v1,
+H09-en,en,Can I start working while my part-time work permit application is still pending?,llm,gemini-3.5-flash-lite,"No, you cannot start working while your part-time work permit application is still pending. You must wait until you receive official approval from the immigration office before beginning any employment.",Part-Time Employment for International Students in Korea — RAG Knowledge Base | Guide for International Student in Korea,,,,,,,,,,,answer_rubric_v1,
+H09-ko,ko,시간제 취업 허가 신청이 처리 중일 때 일을 시작해도 되나요?,llm,gemini-3.5-flash-lite,"시간제 취업 허가 신청이 처리 중이더라도 **허가(승인)를 받기 전에는 일을 시작할 수 없습니다.**
+
+외국인 유학생이 아르바이트를 하려면 사전에 학교 국제학생 담당자의 확인을 거쳐 하이코리아(HiKorea) 등을 통해 신청하고, **정식 승인을 받은 후에만** 근무를 시작할 수 있습니다. 허가 없이 근무하거나 처리 중에 미리 일을 시작하면 불법 취업으로 간주되어 범칙금 부과, 체류기간 연장 제한, 강제퇴거 등의 불이익을 받을 수 있으므로 반드시 승인 완료 여부를 확인해야 합니다.",Part-Time Employment for International Students in Korea — RAG Knowledge Base | [중요공지] 외국인 유학생 불법 취업(무단 아르바이트) 관련 주의 안내,,,,,,,,,,,answer_rubric_v1,
+H09-id,id,Bolehkah saya mulai bekerja saat permohonan izin kerja paruh waktu masih diproses?,llm,gemini-3.5-flash-lite,"Tidak, Anda tidak boleh mulai bekerja saat permohonan izin kerja paruh waktu masih diproses. Anda harus menunggu hingga persetujuan resmi dari kantor imigrasi atau izin cetak online telah diberikan sebelum mulai bekerja.
+
+Bekerja tanpa izin atau sebelum persetujuan keluar dianggap sebagai pekerjaan ilegal dan dapat dikenakan sanksi hukum, seperti denda, pembatasan visa, atau deportasi.",Part-Time Employment for International Students in Korea — RAG Knowledge Base | [중요공지] 외국인 유학생 불법 취업(무단 아르바이트) 관련 주의 안내 | Guide for International Student in Korea | Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run by Korean Government,,,,,,,,,,,answer_rubric_v1,
+H09-vi,vi,Tôi có được bắt đầu làm khi đơn xin phép làm thêm còn đang chờ xử lý không?,llm,gemini-3.5-flash-lite,"Không, bạn không được phép bắt đầu làm việc khi đơn xin phép làm thêm vẫn đang chờ xử lý.
+
+Sinh viên mang visa du học (D-2) phải xin phép và nhận được sự phê duyệt chính thức từ văn phòng xuất nhập cảnh có thẩm quyền trước khi bắt đầu bất kỳ công việc làm thêm nào. Bạn phải đợi cho đến khi có quyết định chấp thuận rồi mới được tiến hành công việc.",Part-Time Employment for International Students in Korea — RAG Knowledge Base | Guide for International Student in Korea,,,,,,,,,,,answer_rubric_v1,
+H09-zh-CN,zh-CN,兼职许可申请还在审批时可以开始工作吗？,llm,gemini-3.5-flash-lite,不可以。在需要留学生兼职许可的情况下，必须等待出入境管理 L 办公室正式批准后才能开始工作。如果在获得批准前擅自开始工作，可能会面临非法就业的处罚。,[중요공지] 외국인 유학생 불법 취업(무단 아르바이트) 관련 주의 안내 | Part-Time Employment for International Students in Korea — RAG Knowledge Base | Guide for International Student in Korea,,,,,,,,,,,answer_rubric_v1,
+H11-en,en,I received a new passport. Do I need to report it for my residence card?,llm,gemini-3.5-flash-lite,"Yes, you need to report changes to your passport or passport number.
+
+Passport reporting follows special rules rather than the standard address-change deadline. You should check the current HiKorea notice or contact immigration (1345) to verify the exact deadline, required proof, and reporting procedure for your new passport information.",Resident Card in South Korea,,,,,,,,,,,answer_rubric_v1,
+H11-ko,ko,여권을 새로 발급받았는데 외국인등록 사항을 변경 신고해야 하나요?,llm,gemini-3.5-flash-lite,"네, 여권을 새로 발급받은 경우 외국인등록 사항(여권 번호, 발급일, 만료일 등) 변경 신고를 해야 합니다.
+
+변경 사유가 발생한 날부터 **15일 이내**에 관할 출입국·외국인관서에 방문하거나 하이코리아(HiKorea) 홈페이지를 통해 온라인으로 신고해야 합니다.
+
+**필수 제출 서류**
+* 신청서
+* 여권
+* 외국인등록증",Resident Card in South Korea | Guide for International Student in Korea,,,,,,,,,,,answer_rubric_v1,
+H11-id,id,Saya mendapat paspor baru. Apakah saya harus melaporkannya untuk kartu registrasi orang asing?,llm,gemini-3.5-flash-lite,"Ya, Anda wajib melaporkan perubahan informasi paspor (seperti nomor paspor, tanggal penerbitan, atau tanggal kedaluwarsa) pada kartu registrasi Anda.
+
+Perubahan ini harus dilaporkan kepada Kantor Imigrasi yang berwenang atau secara online melalui situs HiKorea dalam waktu **15 hari** sejak tanggal perubahan.
+
+Dokumen yang biasanya diperlukan meliputi:
+- Formulir permohonan
+- Paspor baru
+- Kartu Registrasi Orang Asing (Residence Card)
+- Dokumen verifikasi perubahan",Resident Card in South Korea | Guide for International Student in Korea,,,,,,,,,,,answer_rubric_v1,
+H11-vi,vi,Tôi vừa được cấp hộ chiếu mới. Tôi có cần khai báo cho thẻ cư trú không?,,,,,,,,,,,,,,,answer_rubric_v1,
+H11-zh-CN,zh-CN,我换了新护照，需要为外国人登录证申报变更吗？,,,,,,,,,,,,,,,answer_rubric_v1,
+H12-en,en,What happens if I report my change of address after the 15-day deadline?,,,,,,,,,,,,,,,answer_rubric_v1,
+H12-ko,ko,15일이 지나서 체류지 변경 신고를 하면 어떻게 되나요?,llm,gemini-3.5-flash-lite,기한이 지났더라도 지체 없이 출입국관서에 문의하거나 1345 콜센터를 통해 안내를 받아 신속히 신고를 진행해야 합니다.,Change of Address in South Korea,,,,,,,,,,,answer_rubric_v1,
+H12-id,id,Apa yang terjadi jika saya melaporkan perubahan alamat setelah batas 15 hari?,llm,gemini-3.5-flash-lite,"Pelaporan perubahan alamat yang dilakukan setelah melewati batas waktu 15 hari merupakan pelanggaran Undang-Undang Imigrasi dan dapat mengakibatkan denda hingga 1.000.000 KRW. Jika Anda terlambat melapor, Anda disarankan untuk segera menghubungi kantor imigrasi atau layanan 1345 untuk mendapatkan panduan lebih lanjut.",Change of Address in South Korea | Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run by Korean Government,,,,,,,,,,,answer_rubric_v1,
+H12-vi,vi,Nếu tôi khai báo đổi địa chỉ sau thời hạn 15 ngày thì sao?,llm,gemini-3.5-flash-lite,"Nếu bạn khai báo thay đổi địa chỉ sau thời hạn 15 ngày, bạn có thể bị phạt tiền lên đến 1.000.000 KRW do vi phạm Điều 36 của Luật Quản lý Xuất Nhập Cảnh. Bạn nên nhanh chóng liên hệ với cơ quan quản lý xuất nhập cảnh hoặc gọi tổng đài 1345 để được hướng dẫn cụ thể cho trường hợp của mình.",Change of Address in South Korea | Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run by Korean Government,,,,,,,,,,,answer_rubric_v1,
+H12-zh-CN,zh-CN,如果超过15天才申报地址变更会怎样？,fallback,gemini-3.5-flash-lite,我现在暂时无法生成回答。您仍可以查看下方相关的官方指南，或稍后再试一次。,Resident Card in South Korea | Change of Address in South Korea | Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run by Korean Government,,,,,,,,,,,answer_rubric_v1,
+OOS-1-en,en,What will the weather be like in Seoul tomorrow?,llm,gemini-3.5-flash-lite,"I cannot provide weather forecasts, as I am designed to assist with university procedures, immigration, and student life information.",,,,,,,,,,,,answer_rubric_v1,
+OOS-2-en,en,Can you recommend a good kimchi stew recipe?,llm,gemini-3.5-flash-lite,I could not verify or find a kimchi stew recipe in the available documents.,,,,,,,,,,,,answer_rubric_v1,

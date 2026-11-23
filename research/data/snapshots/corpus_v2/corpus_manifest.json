@@ -1,0 +1,269 @@
+{
+ "snapshot_sha256_16": "da5caf39ff512c73",
+ "items": [
+  {
+   "id": "96b0fee4-18e9-4ea2-adb5-db654c9ac238",
+   "title": "외국인학생취업관련 정보",
+   "language": "ko",
+   "category": "part-time-employment",
+   "kind": "document",
+   "chars": 5763,
+   "has_source_url": false,
+   "page_markers": 6,
+   "content_sha256_16": "296b4066d9b956f8"
+  },
+  {
+   "id": "d60bc363-0aae-44e5-b0c3-df8c61ad6f66",
+   "title": "한국 유학생 생활 가이드북",
+   "language": "ko",
+   "category": "daily-living",
+   "kind": "document",
+   "chars": 85568,
+   "has_source_url": false,
+   "page_markers": 91,
+   "content_sha256_16": "82066899433e0008"
+  },
+  {
+   "id": "744fdb55-6239-47ca-ab92-18eafb77d677",
+   "title": "Medical and Hospital Guide",
+   "language": "en",
+   "category": "health-insurance",
+   "kind": "document",
+   "chars": 3213,
+   "has_source_url": false,
+   "page_markers": null,
+   "content_sha256_16": "b37502810be54d00"
+  },
+  {
+   "id": "d032674b-e938-43dd-a21f-f4b79dcab42f",
+   "title": "수강신청 안내",
+   "language": "ko",
+   "category": "academic-life",
+   "kind": "document",
+   "chars": 6232,
+   "has_source_url": false,
+   "page_markers": 5,
+   "content_sha256_16": "3f4882b1510008f8"
+  },
+  {
+   "id": "4650e940-a12f-464c-be4a-285c607e88ef",
+   "title": "D2 visa extension",
+   "language": "en",
+   "category": "visa-immigration",
+   "kind": "document",
+   "chars": 3274,
+   "has_source_url": false,
+   "page_markers": null,
+   "content_sha256_16": "08543a3e1b2788f2"
+  },
+  {
+   "id": "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+   "title": "Travel and Re-entry Documents",
+   "language": "en",
+   "category": "daily-living",
+   "kind": "document",
+   "chars": 3233,
+   "has_source_url": false,
+   "page_markers": null,
+   "content_sha256_16": "0404b93c7ff6ab1f"
+  },
+  {
+   "id": "ae1cbab7-4248-4536-b725-847c7a61cd64",
+   "title": "수강신청 주의사항",
+   "language": "ko",
+   "category": "academic-life",
+   "kind": "document",
+   "chars": 1864,
+   "has_source_url": false,
+   "page_markers": 2,
+   "content_sha256_16": "ad16b67c5863f4a7"
+  },
+  {
+   "id": "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+   "title": "Guide for International Student in Korea",
+   "language": "en",
+   "category": "daily-living",
+   "kind": "document",
+   "chars": 157061,
+   "has_source_url": false,
+   "page_markers": 104,
+   "content_sha256_16": "cc074e7726f19735"
+  },
+  {
+   "id": "26fbef6d-9eb0-4279-b8da-af0753c4512b",
+   "title": "Residence Eligibility and Stay Duration | Life in Korea | Study in Korea | Run by Korean Government",
+   "language": "en",
+   "category": "daily-living",
+   "kind": "document",
+   "chars": 11121,
+   "has_source_url": true,
+   "page_markers": null,
+   "content_sha256_16": "afea3df2bcc2432f"
+  },
+  {
+   "id": "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+   "title": "Employment in Korea | Work in Korea | Study in Korea | Run by Korean Government",
+   "language": "en",
+   "category": "employment-internships",
+   "kind": "document",
+   "chars": 20790,
+   "has_source_url": true,
+   "page_markers": null,
+   "content_sha256_16": "42a639eed480a46b"
+  },
+  {
+   "id": "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+   "title": "National Health Insurance",
+   "language": "en",
+   "category": "health-insurance",
+   "kind": "document",
+   "chars": 3921,
+   "has_source_url": false,
+   "page_markers": null,
+   "content_sha256_16": "f544b52afbd43373"
+  },
+  {
+   "id": "a37644b0-53e5-48ee-b861-9876e2c88195",
+   "title": "Changing visa status",
+   "language": "en",
+   "category": "visa-immigration",
+   "kind": "document",
+   "chars": 3930,
+   "has_source_url": false,
+   "page_markers": null,
+   "content_sha256_16": "a7a96f6c369130e7"
+  },
+  {
+   "id": "b3f79749-2756-4ae1-8bc0-31662164d333",
+   "title": "TOPIK GUIDE",
+   "language": "en",
+   "category": "academic-life",
+   "kind": "document",
+   "chars": 3796,
+   "has_source_url": false,
+   "page_markers": null,
+   "content_sha256_16": "aa10d4d8290f0f7c"
+  },
+  {
+   "id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+   "title": "Resident Card in South Korea",
+   "language": "en",
+   "category": "daily-living",
+   "kind": "document",
+   "chars": 12713,
+   "has_source_url": false,
+   "page_markers": null,
+   "content_sha256_16": "3b03956e17068153"
+  },
+  {
+   "id": "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+   "title": "Change of Address in South Korea",
+   "language": "en",
+   "category": "daily-living",
+   "kind": "document",
+   "chars": 8688,
+   "has_source_url": false,
+   "page_markers": null,
+   "content_sha256_16": "00697df0f36f7b7e"
+  },
+  {
+   "id": "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+   "title": "Part-Time Employment for International Students in Korea — RAG Knowledge Base",
+   "language": "en",
+   "category": "part-time-employment",
+   "kind": "document",
+   "chars": 9969,
+   "has_source_url": false,
+   "page_markers": null,
+   "content_sha256_16": "8207618d75809e90"
+  },
+  {
+   "id": "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+   "title": "Living Costs and Expenses | Life in Korea | Study in Korea | Run by Korean Government",
+   "language": "en",
+   "category": "daily-living",
+   "kind": "document",
+   "chars": 4607,
+   "has_source_url": true,
+   "page_markers": null,
+   "content_sha256_16": "b29eb1cd4098967a"
+  },
+  {
+   "id": "da416585-7ae2-40e9-b158-f252fab6be57",
+   "title": "모집요강",
+   "language": "ko",
+   "category": "academic-life",
+   "kind": "document",
+   "chars": 18092,
+   "has_source_url": false,
+   "page_markers": 14,
+   "content_sha256_16": "5d12636d6d67a57d"
+  },
+  {
+   "id": "7df6e287-15fa-499c-a181-1669bcb04cb0",
+   "title": "Korea's Education System | Plan your studies | Study in Korea | Run by Korean Government",
+   "language": "en",
+   "category": "academic-life",
+   "kind": "document",
+   "chars": 4981,
+   "has_source_url": true,
+   "page_markers": null,
+   "content_sha256_16": "09b0b4afb4655d5c"
+  },
+  {
+   "id": "c5cefc3c-092f-4032-86ba-3496973fbb3c",
+   "title": "Study in Korea | Run by Korean Government",
+   "language": "en",
+   "category": "visa-immigration",
+   "kind": "document",
+   "chars": 8172,
+   "has_source_url": true,
+   "page_markers": null,
+   "content_sha256_16": "3a6631671a24a010"
+  },
+  {
+   "id": "b8a53e42-8fd9-4ada-a357-95be2bb822bf",
+   "title": "[생활관] 방학 중 교내(글로벌빌리지) 짐 보관 중단 및 교외 짐 보관 서비스 안내",
+   "language": "ko",
+   "category": "university-announcements",
+   "kind": "announcement",
+   "chars": 370,
+   "has_source_url": false,
+   "page_markers": null,
+   "content_sha256_16": "7e2169841e9fabbe"
+  },
+  {
+   "id": "365a6c54-40af-4e3f-bf81-5f9c69a86449",
+   "title": "[생활관] 2026 동계방학 생활관 입사생 모집 안내",
+   "language": "ko",
+   "category": "university-announcements",
+   "kind": "announcement",
+   "chars": 454,
+   "has_source_url": false,
+   "page_markers": null,
+   "content_sha256_16": "6fbea559e8072037"
+  },
+  {
+   "id": "0c3a24ef-434e-4ce9-a78d-a747e19335c2",
+   "title": "[중요공지] 외국인 유학생 불법 취업(무단 아르바이트) 관련 주의 안내",
+   "language": "ko",
+   "category": "university-announcements",
+   "kind": "announcement",
+   "chars": 1056,
+   "has_source_url": false,
+   "page_markers": null,
+   "content_sha256_16": "7cff4fb0392221ca"
+  },
+  {
+   "id": "ea1e2b41-c0a3-42da-b981-ea457be05411",
+   "title": "“헬스케어 데이” 및 냉장고 점검 안내",
+   "language": "ko",
+   "category": "university-announcements",
+   "kind": "announcement",
+   "chars": 411,
+   "has_source_url": false,
+   "page_markers": null,
+   "content_sha256_16": "d9bc1d5615711bd8"
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+{
+ "index_seconds": 29.8,
+ "documents": 24,
+ "chunks": 643,
+ "embedded_chunks": 643,
+ "embedding_model": "intfloat/multilingual-e5-small#qint8",
+ "chunk_target_tokens": 320,
+ "chunk_max_tokens": 420,
+ "chunk_overlap_tokens": 48,
+ "build_seconds": 29.8,
+ "variant": "C1_merge_short",
+ "guidebook_chunks": 169
+}

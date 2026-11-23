@@ -1,0 +1,33 @@
+target,dataset,step,what,metric,n,baseline,variant,diff_pp,lo_pp,hi_pp,relative_pct,ci_excludes_zero
+local,heldout_v0.2,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,Recall@1,100,0.54,0.47,-7.000000000000001,-15.0,0.0,-12.962962962962964,False
+local,heldout_v0.2,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,Recall@5,100,0.81,0.78,-3.0,-8.0,2.0,-3.7037037037037033,False
+local,heldout_v0.2,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,MRR,100,0.6465,0.5998333333333333,-4.666666666666667,-9.117083333333333,-0.2991666666666636,-7.218355246197475,True
+local,heldout_v0.2,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,nDCG@5,100,0.6263365130341857,0.5935578652228392,-3.277864781134655,-7.307202632356407,0.8465794197531159,-5.233392454250464,False
+local,heldout_v0.2,E2 vs B0,improved hybrid vs vector-only,Recall@1,100,0.54,0.6,6.0,-4.0,16.0,11.11111111111111,False
+local,heldout_v0.2,E2 vs B0,improved hybrid vs vector-only,Recall@5,100,0.81,0.83,2.0,-2.0,6.0,2.4691358024691357,False
+local,heldout_v0.2,E2 vs B0,improved hybrid vs vector-only,MRR,100,0.6465,0.6998333333333332,5.333333333333333,-0.41874999999999934,11.833333333333332,8.249548852797112,False
+local,heldout_v0.2,E2 vs B0,improved hybrid vs vector-only,nDCG@5,100,0.6263365130341857,0.6880762762726582,6.173976323847255,1.3820132835719046,11.1630171798237,9.85728309840732,True
+local,heldout_v0.2,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,Recall@1,100,0.47,0.6,13.0,2.0,25.0,27.659574468085108,True
+local,heldout_v0.2,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,Recall@5,100,0.78,0.83,5.0,1.0,10.0,6.41025641025641,True
+local,heldout_v0.2,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,MRR,100,0.5998333333333333,0.6998333333333332,10.0,2.982916666666666,18.083333333333332,16.67129758266185,True
+local,heldout_v0.2,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,nDCG@5,100,0.5935578652228392,0.6880762762726582,9.45184110498191,4.23026219435987,15.690547449801242,15.924043229438816,True
+local,heldout_v0.2,E2S vs E2,assistant evidence selection on top of E2 (no query rewriting),Recall@1,100,0.6,0.59,-1.0,-6.0,3.0,-1.6666666666666667,False
+local,heldout_v0.2,E2S vs E2,assistant evidence selection on top of E2 (no query rewriting),Recall@5,100,0.83,0.81,-2.0,-5.0,0.0,-2.4096385542168677,False
+local,heldout_v0.2,E2S vs E2,assistant evidence selection on top of E2 (no query rewriting),MRR,100,0.6998333333333332,0.6816666666666668,-1.8166666666666669,-4.500416666666668,0.18333333333333324,-2.595856156227674,False
+local,heldout_v0.2,E2S vs E2,assistant evidence selection on top of E2 (no query rewriting),nDCG@5,100,0.6880762762726582,0.6628187758531249,-2.5257500419533336,-4.698268270304295,-0.7718010114325679,-3.6707413539025664,True
+local,pilot_v0.1,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,Recall@1,100,0.63,0.58,-5.0,-17.0,5.0,-7.936507936507937,False
+local,pilot_v0.1,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,Recall@5,100,0.87,0.81,-6.0,-11.0,-2.0,-6.8965517241379315,True
+local,pilot_v0.1,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,MRR,100,0.7206666666666667,0.6844999999999999,-3.616666666666666,-10.534166666666668,2.766666666666667,-5.018501387604069,False
+local,pilot_v0.1,E1 vs B0,hybrid fusion (equal-weight SQL RRF) vs vector-only,nDCG@5,100,0.6301420826286919,0.5912510556964882,-3.889102693220382,-10.276695861803924,1.2373098033190757,-6.171786967467171,False
+local,pilot_v0.1,E2 vs B0,improved hybrid vs vector-only,Recall@1,100,0.63,0.68,5.0,-7.000000000000001,17.0,7.936507936507937,False
+local,pilot_v0.1,E2 vs B0,improved hybrid vs vector-only,Recall@5,100,0.87,0.94,7.000000000000001,0.0,15.0,8.045977011494253,False
+local,pilot_v0.1,E2 vs B0,improved hybrid vs vector-only,MRR,100,0.7206666666666667,0.7925,7.183333333333334,-1.4500000000000002,15.984166666666669,9.967622571692877,False
+local,pilot_v0.1,E2 vs B0,improved hybrid vs vector-only,nDCG@5,100,0.6301420826286919,0.7064670295204859,7.632494689179388,0.7719732046742875,15.238718193074504,12.112339263773306,True
+local,pilot_v0.1,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,Recall@1,100,0.58,0.68,10.0,-5.0,24.0,17.24137931034483,False
+local,pilot_v0.1,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,Recall@5,100,0.81,0.94,13.0,6.0,21.0,16.049382716049383,True
+local,pilot_v0.1,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,MRR,100,0.6844999999999999,0.7925,10.799999999999999,1.7987500000000003,20.216666666666665,15.777940102264427,True
+local,pilot_v0.1,E2 vs E1,weighted fusion + query analysis vs equal-weight RRF,nDCG@5,100,0.5912510556964882,0.7064670295204859,11.52159738239977,5.311353310521652,18.216679098015533,19.486810672714043,True
+local,pilot_v0.1,E2S vs E2,assistant evidence selection on top of E2 (no query rewriting),Recall@1,100,0.68,0.67,-1.0,-7.000000000000001,4.0,-1.4705882352941175,False
+local,pilot_v0.1,E2S vs E2,assistant evidence selection on top of E2 (no query rewriting),Recall@5,100,0.94,0.89,-5.0,-12.0,0.0,-5.319148936170213,False
+local,pilot_v0.1,E2S vs E2,assistant evidence selection on top of E2 (no query rewriting),MRR,100,0.7925,0.7666666666666666,-2.5833333333333335,-8.252083333333333,1.3333333333333333,-3.259726603575184,False
+local,pilot_v0.1,E2S vs E2,assistant evidence selection on top of E2 (no query rewriting),nDCG@5,100,0.7064670295204859,0.6611778231244861,-4.528920639599976,-9.851985037196286,-1.0853593283812328,-6.410661008021815,True

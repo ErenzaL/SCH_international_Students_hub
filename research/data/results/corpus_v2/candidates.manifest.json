@@ -1,0 +1,9 @@
+{
+ "snapshot": "corpus_v2",
+ "pool": 20,
+ "b0": "dense top-20, threshold 0.80",
+ "b0f": "dense top-20, no threshold (equal-size control)",
+ "e2": "weighted hybrid top-20, <= 5 chunks per document",
+ "corpus_chunks": 765,
+ "embedding_model": "intfloat/multilingual-e5-small#qint8"
+}

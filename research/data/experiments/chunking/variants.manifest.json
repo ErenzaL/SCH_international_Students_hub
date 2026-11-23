@@ -1,0 +1,340 @@
+{
+ "document_id": "d60bc363-0aae-44e5-b0c3-df8c61ad6f66",
+ "pdf_sha256": "8f892bb8dcb08f13fbf32d17315a9fb54e0a1c1f52380b7f53c9dd13b5aaaf79",
+ "base_corpus": "public_corpus_v2.json",
+ "base_corpus_sha256_16": "da5caf39ff512c73",
+ "body_size_production_first20": 6.2,
+ "body_size_all_pages": 9.4,
+ "variants": {
+  "C0_existing": {
+   "chars": 85568,
+   "hangul_chars": 35925,
+   "hangul_retained_vs_existing": 1.0,
+   "paragraphs": 3080,
+   "heading_paragraphs": 2398,
+   "pages_marked": 91,
+   "control_chars": 194,
+   "sha256_16": "82066899433e0008"
+  },
+  "C1_merge_short": {
+   "chars": 74468,
+   "hangul_chars": 35263,
+   "hangul_retained_vs_existing": 0.9816,
+   "paragraphs": 440,
+   "heading_paragraphs": 142,
+   "pages_marked": 91,
+   "control_chars": 0,
+   "sha256_16": "492e0ca726e4c80c"
+  },
+  "C2_paragraph": {
+   "chars": 75109,
+   "hangul_chars": 35097,
+   "hangul_retained_vs_existing": 0.977,
+   "paragraphs": 1541,
+   "heading_paragraphs": 1,
+   "pages_marked": 92,
+   "control_chars": 0,
+   "sha256_16": "d2bdeddf15eb0898"
+  },
+  "C3_heading": {
+   "chars": 75317,
+   "hangul_chars": 35097,
+   "hangul_retained_vs_existing": 0.977,
+   "paragraphs": 1541,
+   "heading_paragraphs": 50,
+   "pages_marked": 92,
+   "control_chars": 0,
+   "sha256_16": "3969e1a9704b6de4"
+  },
+  "C4_table": {
+   "chars": 72746,
+   "hangul_chars": 35133,
+   "hangul_retained_vs_existing": 0.978,
+   "paragraphs": 1277,
+   "heading_paragraphs": 50,
+   "pages_marked": 92,
+   "control_chars": 0,
+   "sha256_16": "e260f78cb0d5d18c"
+  },
+  "P1_prod_fixed_body": {
+   "chars": 77402,
+   "hangul_chars": 35905,
+   "hangul_retained_vs_existing": 0.9994,
+   "paragraphs": 1760,
+   "heading_paragraphs": 121,
+   "pages_marked": 90,
+   "control_chars": 194,
+   "sha256_16": "05b1f3853c13015f"
+  }
+ },
+ "c4_tables": {
+  "kept": 24,
+  "rejected": 16,
+  "detail": [
+   {
+    "page": 8,
+    "kept": false,
+    "hangul_table": 48,
+    "hangul_area": 55
+   },
+   {
+    "page": 9,
+    "kept": false,
+    "hangul_table": 184,
+    "hangul_area": 240
+   },
+   {
+    "page": 14,
+    "kept": true,
+    "rows": 4,
+    "hangul_table": 78,
+    "hangul_area": 78
+   },
+   {
+    "page": 14,
+    "kept": true,
+    "rows": 7,
+    "hangul_table": 76,
+    "hangul_area": 73
+   },
+   {
+    "page": 18,
+    "kept": true,
+    "rows": 4,
+    "hangul_table": 56,
+    "hangul_area": 56
+   },
+   {
+    "page": 22,
+    "kept": false,
+    "hangul_table": 43,
+    "hangul_area": 100
+   },
+   {
+    "page": 22,
+    "kept": true,
+    "rows": 7,
+    "hangul_table": 79,
+    "hangul_area": 79
+   },
+   {
+    "page": 24,
+    "kept": true,
+    "rows": 6,
+    "hangul_table": 477,
+    "hangul_area": 477
+   },
+   {
+    "page": 25,
+    "kept": true,
+    "rows": 11,
+    "hangul_table": 108,
+    "hangul_area": 108
+   },
+   {
+    "page": 27,
+    "kept": true,
+    "rows": 10,
+    "hangul_table": 480,
+    "hangul_area": 480
+   },
+   {
+    "page": 30,
+    "kept": true,
+    "rows": 8,
+    "hangul_table": 385,
+    "hangul_area": 385
+   },
+   {
+    "page": 31,
+    "kept": true,
+    "rows": 17,
+    "hangul_table": 68,
+    "hangul_area": 68
+   },
+   {
+    "page": 32,
+    "kept": false,
+    "hangul_table": 15,
+    "hangul_area": 75
+   },
+   {
+    "page": 33,
+    "kept": true,
+    "rows": 5,
+    "hangul_table": 110,
+    "hangul_area": 101
+   },
+   {
+    "page": 33,
+    "kept": true,
+    "rows": 6,
+    "hangul_table": 98,
+    "hangul_area": 86
+   },
+   {
+    "page": 33,
+    "kept": true,
+    "rows": 6,
+    "hangul_table": 100,
+    "hangul_area": 88
+   },
+   {
+    "page": 33,
+    "kept": true,
+    "rows": 6,
+    "hangul_table": 93,
+    "hangul_area": 93
+   },
+   {
+    "page": 34,
+    "kept": false,
+    "hangul_table": 82,
+    "hangul_area": 140
+   },
+   {
+    "page": 34,
+    "kept": true,
+    "rows": 6,
+    "hangul_table": 97,
+    "hangul_area": 97
+   },
+   {
+    "page": 34,
+    "kept": true,
+    "rows": 6,
+    "hangul_table": 148,
+    "hangul_area": 148
+   },
+   {
+    "page": 45,
+    "kept": true,
+    "rows": 11,
+    "hangul_table": 120,
+    "hangul_area": 120
+   },
+   {
+    "page": 57,
+    "kept": false,
+    "hangul_table": 20,
+    "hangul_area": 32
+   },
+   {
+    "page": 58,
+    "kept": true,
+    "rows": 7,
+    "hangul_table": 52,
+    "hangul_area": 52
+   },
+   {
+    "page": 58,
+    "kept": true,
+    "rows": 3,
+    "hangul_table": 7,
+    "hangul_area": 4
+   },
+   {
+    "page": 59,
+    "kept": false,
+    "hangul_table": 52,
+    "hangul_area": 71
+   },
+   {
+    "page": 60,
+    "kept": false,
+    "hangul_table": 166,
+    "hangul_area": 381
+   },
+   {
+    "page": 69,
+    "kept": false,
+    "hangul_table": 32,
+    "hangul_area": 40
+   },
+   {
+    "page": 70,
+    "kept": true,
+    "rows": 7,
+    "hangul_table": 29,
+    "hangul_area": 26
+   },
+   {
+    "page": 72,
+    "kept": false,
+    "hangul_table": 31,
+    "hangul_area": 243
+   },
+   {
+    "page": 72,
+    "kept": false,
+    "hangul_table": 95,
+    "hangul_area": 191
+   },
+   {
+    "page": 74,
+    "kept": false,
+    "hangul_table": 175,
+    "hangul_area": 205
+   },
+   {
+    "page": 84,
+    "kept": false,
+    "hangul_table": 87,
+    "hangul_area": 144
+   },
+   {
+    "page": 85,
+    "kept": false,
+    "hangul_table": 3,
+    "hangul_area": 173
+   },
+   {
+    "page": 86,
+    "kept": false,
+    "hangul_table": 34,
+    "hangul_area": 75
+   },
+   {
+    "page": 86,
+    "kept": false,
+    "hangul_table": 138,
+    "hangul_area": 182
+   },
+   {
+    "page": 87,
+    "kept": true,
+    "rows": 31,
+    "hangul_table": 114,
+    "hangul_area": 114
+   },
+   {
+    "page": 88,
+    "kept": true,
+    "rows": 31,
+    "hangul_table": 138,
+    "hangul_area": 144
+   },
+   {
+    "page": 89,
+    "kept": true,
+    "rows": 34,
+    "hangul_table": 128,
+    "hangul_area": 128
+   },
+   {
+    "page": 90,
+    "kept": true,
+    "rows": 21,
+    "hangul_table": 79,
+    "hangul_area": 79
+   },
+   {
+    "page": 90,
+    "kept": true,
+    "rows": 5,
+    "hangul_table": 56,
+    "hangul_area": 56
+   }
+  ]
+ }
+}

@@ -1,0 +1,56 @@
+{
+ "description": "SENSITIVITY ANALYSIS ONLY - frozen v0.1/v0.2 labels plus AI-proposed (not human-reviewed) credits for the two corpus_v2 documents; 'partial' is not credited.",
+ "status": "ai_proposed_not_human_reviewed",
+ "source": "research/data/review/label_review_new_documents_corpus_v2.csv",
+ "add": {
+  "H03": [
+   "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+  ],
+  "H06": [
+   "d60bc363-0aae-44e5-b0c3-df8c61ad6f66",
+   "96b0fee4-18e9-4ea2-adb5-db654c9ac238"
+  ],
+  "H07": [
+   "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+  ],
+  "H09": [
+   "d60bc363-0aae-44e5-b0c3-df8c61ad6f66",
+   "96b0fee4-18e9-4ea2-adb5-db654c9ac238"
+  ],
+  "H11": [
+   "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+  ],
+  "H14": [
+   "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+  ],
+  "H18": [
+   "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+  ],
+  "S01": [
+   "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+  ],
+  "S04": [
+   "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+  ],
+  "S06": [
+   "d60bc363-0aae-44e5-b0c3-df8c61ad6f66",
+   "96b0fee4-18e9-4ea2-adb5-db654c9ac238"
+  ],
+  "S08": [
+   "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+  ],
+  "S09": [
+   "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+  ],
+  "S16": [
+   "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+  ],
+  "S18": [
+   "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+  ],
+  "S19": [
+   "d60bc363-0aae-44e5-b0c3-df8c61ad6f66",
+   "96b0fee4-18e9-4ea2-adb5-db654c9ac238"
+  ]
+ }
+}

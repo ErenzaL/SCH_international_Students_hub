@@ -1,0 +1,23 @@
+{
+ "run_id": "production-retrieval-pilot-0.1-20261123T014202Z",
+ "target": "production",
+ "code_version": "7e647cd (deployed)",
+ "dataset": "retrieval_pilot_v0.1.json",
+ "dataset_version": "retrieval-pilot-0.1",
+ "dataset_sha256_16": "910c442d12bb986e",
+ "methods": [
+  "B0",
+  "E1",
+  "E2"
+ ],
+ "top_k": 10,
+ "questions": 100,
+ "rows": 300,
+ "errors": 0,
+ "finished_at": "2026-11-23T01:59:12.394287+00:00",
+ "production_code_version": "7e647cd",
+ "production_code_version_evidence": "deploy watcher confirmed 7e647cd live on 2026-11-23 before these runs; M2.2 working-tree changes are NOT deployed",
+ "rescored_from": "retrieval_production_pilot_v0.1.csv",
+ "rescoring": "announcement ids mapped to label ids (data/id_aliases.json)",
+ "rows_with_changed_rank": 51
+}

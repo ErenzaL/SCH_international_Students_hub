@@ -1,0 +1,20 @@
+{
+ "run_id": "local-retrieval-heldout-0.2-20261123T011935Z",
+ "target": "local",
+ "code_version": "7e647cd+working-tree",
+ "dataset": "retrieval_heldout_v0.2.json",
+ "dataset_version": "retrieval-heldout-0.2",
+ "dataset_sha256_16": "a273350180dc1167",
+ "methods": [
+  "B0",
+  "E1",
+  "E2",
+  "E2S"
+ ],
+ "top_k": 10,
+ "questions": 100,
+ "rows": 400,
+ "errors": 0,
+ "finished_at": "2026-11-23T01:20:10.170708+00:00",
+ "corpus_sha256_16": "c64d186541928a2b"
+}

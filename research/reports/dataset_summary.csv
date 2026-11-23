@@ -1,0 +1,10 @@
+item,value
+Active documents,23
+Original languages,"en 15, ko 8"
+Pages (PDF metadata only),125
+Active chunks / embedded,457 / 457
+"Chunk size, characters: median (IQR)",456 (199-833)
+Embedding,"intfloat/multilingual-e5-small (ONNX int8 (qint8)), 384 dimensions"
+Vector index,"HNSW, vector_cosine_ops, default parameters (m=16, ef_construction=64); pgvector 0.8.2"
+Chunker,target 320 / max 420 / overlap 48 est. tokens
+Generation,Google Gemini via google-genai; prompt system_v2 (602ba59399c5)

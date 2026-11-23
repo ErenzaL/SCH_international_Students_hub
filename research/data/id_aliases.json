@@ -1,0 +1,13 @@
+{
+ "description": "public announcement id -> production source_document id (matched by exact title); used to re-score production retrieval runs whose labels use public announcement ids",
+ "created": "2026-11-23",
+ "aliases": {
+  "b8a53e42-8fd9-4ada-a357-95be2bb822bf": "b76361b8-c4b1-4a16-8802-d23fca2bb275",
+  "365a6c54-40af-4e3f-bf81-5f9c69a86449": "d14d2192-5d21-42ea-b69d-6fa7ae16a292",
+  "0c3a24ef-434e-4ce9-a78d-a747e19335c2": "c9be6492-bbde-4f28-8f75-146540661e96",
+  "ea1e2b41-c0a3-42da-b981-ea457be05411": "1ce185c2-8806-45f6-b84a-d63d429c8f86"
+ },
+ "production_only_documents": [
+  "기말평가 안내"
+ ]
+}

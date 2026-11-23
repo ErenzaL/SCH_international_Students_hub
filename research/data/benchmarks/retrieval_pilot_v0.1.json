@@ -1,0 +1,1863 @@
+{
+ "dataset": "SCH multilingual retrieval pilot",
+ "dataset_version": "retrieval-pilot-0.1",
+ "created": "2026-11-23",
+ "task": "document-level retrieval (no answer generation)",
+ "corpus": "approved public Knowledge Center documents + published announcements, fetched from the public API (22 items on 2026-11-23); document ids are production ids",
+ "provenance": "Questions, translations and relevance labels were drafted by an AI assistant (Claude) from the document titles and text; NOT reviewed by a human. Labels list every document judged to answer the question (any counts as a hit); primary_document_id is the most specific one. The retrieval glossary in query_analysis.py was written by the same assistant, so results may be optimistic for glossary terms; treat as a pilot until a human reviews the labels.",
+ "languages": [
+  "ko",
+  "en",
+  "id",
+  "vi",
+  "zh-CN"
+ ],
+ "scenarios": 20,
+ "records": [
+  {
+   "scenario_id": "S01",
+   "question_id": "S01-en",
+   "scenario": "d2_extension_documents",
+   "language": "en",
+   "question": "What documents do I need to extend my D-2 visa?",
+   "category": "visa-immigration",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "4650e940-a12f-464c-be4a-285c607e88ef",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+   ],
+   "primary_document_id": "4650e940-a12f-464c-be4a-285c607e88ef",
+   "asked_codes": [
+    "D-2"
+   ],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S01",
+   "question_id": "S01-ko",
+   "scenario": "d2_extension_documents",
+   "language": "ko",
+   "question": "D-2 비자 연장에 필요한 서류가 무엇인가요?",
+   "category": "visa-immigration",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "4650e940-a12f-464c-be4a-285c607e88ef",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+   ],
+   "primary_document_id": "4650e940-a12f-464c-be4a-285c607e88ef",
+   "asked_codes": [
+    "D-2"
+   ],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S01",
+   "question_id": "S01-id",
+   "scenario": "d2_extension_documents",
+   "language": "id",
+   "question": "Dokumen apa saja yang saya perlukan untuk memperpanjang visa D-2?",
+   "category": "visa-immigration",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "4650e940-a12f-464c-be4a-285c607e88ef",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+   ],
+   "primary_document_id": "4650e940-a12f-464c-be4a-285c607e88ef",
+   "asked_codes": [
+    "D-2"
+   ],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S01",
+   "question_id": "S01-vi",
+   "scenario": "d2_extension_documents",
+   "language": "vi",
+   "question": "Tôi cần những giấy tờ gì để gia hạn visa D-2?",
+   "category": "visa-immigration",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "4650e940-a12f-464c-be4a-285c607e88ef",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+   ],
+   "primary_document_id": "4650e940-a12f-464c-be4a-285c607e88ef",
+   "asked_codes": [
+    "D-2"
+   ],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S01",
+   "question_id": "S01-zh-CN",
+   "scenario": "d2_extension_documents",
+   "language": "zh-CN",
+   "question": "延长D-2签证需要准备哪些材料？",
+   "category": "visa-immigration",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "4650e940-a12f-464c-be4a-285c607e88ef",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+   ],
+   "primary_document_id": "4650e940-a12f-464c-be4a-285c607e88ef",
+   "asked_codes": [
+    "D-2"
+   ],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S02",
+   "question_id": "S02-en",
+   "scenario": "d2_extension_timing_d2_spelling",
+   "language": "en",
+   "question": "When should I apply to extend my D2 visa?",
+   "category": "visa-immigration",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "4650e940-a12f-464c-be4a-285c607e88ef",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+   ],
+   "primary_document_id": "4650e940-a12f-464c-be4a-285c607e88ef",
+   "asked_codes": [
+    "D-2"
+   ],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S02",
+   "question_id": "S02-ko",
+   "scenario": "d2_extension_timing_d2_spelling",
+   "language": "ko",
+   "question": "D2 비자 연장은 언제 신청해야 하나요?",
+   "category": "visa-immigration",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "4650e940-a12f-464c-be4a-285c607e88ef",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+   ],
+   "primary_document_id": "4650e940-a12f-464c-be4a-285c607e88ef",
+   "asked_codes": [
+    "D-2"
+   ],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S02",
+   "question_id": "S02-id",
+   "scenario": "d2_extension_timing_d2_spelling",
+   "language": "id",
+   "question": "Kapan saya harus mengajukan perpanjangan visa D2?",
+   "category": "visa-immigration",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "4650e940-a12f-464c-be4a-285c607e88ef",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+   ],
+   "primary_document_id": "4650e940-a12f-464c-be4a-285c607e88ef",
+   "asked_codes": [
+    "D-2"
+   ],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S02",
+   "question_id": "S02-vi",
+   "scenario": "d2_extension_timing_d2_spelling",
+   "language": "vi",
+   "question": "Khi nào tôi nên nộp đơn gia hạn visa D2?",
+   "category": "visa-immigration",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "4650e940-a12f-464c-be4a-285c607e88ef",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+   ],
+   "primary_document_id": "4650e940-a12f-464c-be4a-285c607e88ef",
+   "asked_codes": [
+    "D-2"
+   ],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S02",
+   "question_id": "S02-zh-CN",
+   "scenario": "d2_extension_timing_d2_spelling",
+   "language": "zh-CN",
+   "question": "D2签证应该什么时候申请延期？",
+   "category": "visa-immigration",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "4650e940-a12f-464c-be4a-285c607e88ef",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+   ],
+   "primary_document_id": "4650e940-a12f-464c-be4a-285c607e88ef",
+   "asked_codes": [
+    "D-2"
+   ],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S03",
+   "question_id": "S03-en",
+   "scenario": "residence_card_lost",
+   "language": "en",
+   "question": "I lost my residence card (ARC). What should I do?",
+   "category": "residence-card",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S03",
+   "question_id": "S03-ko",
+   "scenario": "residence_card_lost",
+   "language": "ko",
+   "question": "외국인등록증을 잃어버렸는데 어떻게 해야 하나요?",
+   "category": "residence-card",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S03",
+   "question_id": "S03-id",
+   "scenario": "residence_card_lost",
+   "language": "id",
+   "question": "Kartu registrasi orang asing (ARC) saya hilang. Apa yang harus saya lakukan?",
+   "category": "residence-card",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S03",
+   "question_id": "S03-vi",
+   "scenario": "residence_card_lost",
+   "language": "vi",
+   "question": "Tôi bị mất thẻ cư trú (ARC). Tôi phải làm gì?",
+   "category": "residence-card",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S03",
+   "question_id": "S03-zh-CN",
+   "scenario": "residence_card_lost",
+   "language": "zh-CN",
+   "question": "我的外国人登录证丢了，该怎么办？",
+   "category": "residence-card",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S04",
+   "question_id": "S04-en",
+   "scenario": "residence_card_apply",
+   "language": "en",
+   "question": "How do I apply for a residence card after arriving in Korea?",
+   "category": "residence-card",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "c5cefc3c-092f-4032-86ba-3496973fbb3c"
+   ],
+   "primary_document_id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S04",
+   "question_id": "S04-ko",
+   "scenario": "residence_card_apply",
+   "language": "ko",
+   "question": "한국에 입국한 후 외국인등록증은 어떻게 신청하나요?",
+   "category": "residence-card",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "c5cefc3c-092f-4032-86ba-3496973fbb3c"
+   ],
+   "primary_document_id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S04",
+   "question_id": "S04-id",
+   "scenario": "residence_card_apply",
+   "language": "id",
+   "question": "Bagaimana cara mengajukan kartu registrasi orang asing setelah tiba di Korea?",
+   "category": "residence-card",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "c5cefc3c-092f-4032-86ba-3496973fbb3c"
+   ],
+   "primary_document_id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S04",
+   "question_id": "S04-vi",
+   "scenario": "residence_card_apply",
+   "language": "vi",
+   "question": "Sau khi đến Hàn Quốc, tôi đăng ký thẻ cư trú như thế nào?",
+   "category": "residence-card",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "c5cefc3c-092f-4032-86ba-3496973fbb3c"
+   ],
+   "primary_document_id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S04",
+   "question_id": "S04-zh-CN",
+   "scenario": "residence_card_apply",
+   "language": "zh-CN",
+   "question": "到韩国后如何申请外国人登录证？",
+   "category": "residence-card",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "c5cefc3c-092f-4032-86ba-3496973fbb3c"
+   ],
+   "primary_document_id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S05",
+   "question_id": "S05-en",
+   "scenario": "address_change",
+   "language": "en",
+   "question": "How do I report a change of address?",
+   "category": "residence-card",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+   ],
+   "primary_document_id": "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S05",
+   "question_id": "S05-ko",
+   "scenario": "address_change",
+   "language": "ko",
+   "question": "이사하면 체류지 변경 신고는 어떻게 하나요?",
+   "category": "residence-card",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+   ],
+   "primary_document_id": "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S05",
+   "question_id": "S05-id",
+   "scenario": "address_change",
+   "language": "id",
+   "question": "Bagaimana cara melaporkan perubahan alamat tempat tinggal?",
+   "category": "residence-card",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+   ],
+   "primary_document_id": "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S05",
+   "question_id": "S05-vi",
+   "scenario": "address_change",
+   "language": "vi",
+   "question": "Tôi cần làm gì để đổi địa chỉ cư trú?",
+   "category": "residence-card",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+   ],
+   "primary_document_id": "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S05",
+   "question_id": "S05-zh-CN",
+   "scenario": "address_change",
+   "language": "zh-CN",
+   "question": "搬家后如何申报地址变更？",
+   "category": "residence-card",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+   ],
+   "primary_document_id": "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S06",
+   "question_id": "S06-en",
+   "scenario": "part_time_hours",
+   "language": "en",
+   "question": "Can international students work part-time in Korea? How many hours per week?",
+   "category": "part-time-employment",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "0c3a24ef-434e-4ce9-a78d-a747e19335c2"
+   ],
+   "primary_document_id": "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S06",
+   "question_id": "S06-ko",
+   "scenario": "part_time_hours",
+   "language": "ko",
+   "question": "유학생은 한국에서 아르바이트를 할 수 있나요? 주당 몇 시간까지 가능한가요?",
+   "category": "part-time-employment",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "0c3a24ef-434e-4ce9-a78d-a747e19335c2"
+   ],
+   "primary_document_id": "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S06",
+   "question_id": "S06-id",
+   "scenario": "part_time_hours",
+   "language": "id",
+   "question": "Apakah mahasiswa internasional boleh kerja paruh waktu di Korea? Berapa jam per minggu?",
+   "category": "part-time-employment",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "0c3a24ef-434e-4ce9-a78d-a747e19335c2"
+   ],
+   "primary_document_id": "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S06",
+   "question_id": "S06-vi",
+   "scenario": "part_time_hours",
+   "language": "vi",
+   "question": "Du học sinh có được làm thêm ở Hàn Quốc không? Mỗi tuần được bao nhiêu giờ?",
+   "category": "part-time-employment",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "0c3a24ef-434e-4ce9-a78d-a747e19335c2"
+   ],
+   "primary_document_id": "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S06",
+   "question_id": "S06-zh-CN",
+   "scenario": "part_time_hours",
+   "language": "zh-CN",
+   "question": "留学生可以在韩国打工吗？每周可以工作多少小时？",
+   "category": "part-time-employment",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "0c3a24ef-434e-4ce9-a78d-a747e19335c2"
+   ],
+   "primary_document_id": "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S07",
+   "question_id": "S07-en",
+   "scenario": "illegal_work_warning",
+   "language": "en",
+   "question": "Is it okay to take a one-day cash job I found in an open chat room?",
+   "category": "part-time-employment",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "0c3a24ef-434e-4ce9-a78d-a747e19335c2",
+    "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+   ],
+   "primary_document_id": "0c3a24ef-434e-4ce9-a78d-a747e19335c2",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S07",
+   "question_id": "S07-ko",
+   "scenario": "illegal_work_warning",
+   "language": "ko",
+   "question": "오픈채팅에서 찾은 하루짜리 현금 아르바이트를 해도 되나요?",
+   "category": "part-time-employment",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "0c3a24ef-434e-4ce9-a78d-a747e19335c2",
+    "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+   ],
+   "primary_document_id": "0c3a24ef-434e-4ce9-a78d-a747e19335c2",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S07",
+   "question_id": "S07-id",
+   "scenario": "illegal_work_warning",
+   "language": "id",
+   "question": "Bolehkah saya mengambil kerja harian dibayar tunai yang saya temukan di grup obrolan terbuka?",
+   "category": "part-time-employment",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "0c3a24ef-434e-4ce9-a78d-a747e19335c2",
+    "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+   ],
+   "primary_document_id": "0c3a24ef-434e-4ce9-a78d-a747e19335c2",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S07",
+   "question_id": "S07-vi",
+   "scenario": "illegal_work_warning",
+   "language": "vi",
+   "question": "Tôi có được nhận việc làm một ngày trả tiền mặt tìm thấy trong nhóm chat mở không?",
+   "category": "part-time-employment",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "0c3a24ef-434e-4ce9-a78d-a747e19335c2",
+    "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+   ],
+   "primary_document_id": "0c3a24ef-434e-4ce9-a78d-a747e19335c2",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S07",
+   "question_id": "S07-zh-CN",
+   "scenario": "illegal_work_warning",
+   "language": "zh-CN",
+   "question": "在开放聊天室里找到的日结现金兼职可以做吗？",
+   "category": "part-time-employment",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "0c3a24ef-434e-4ce9-a78d-a747e19335c2",
+    "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+   ],
+   "primary_document_id": "0c3a24ef-434e-4ce9-a78d-a747e19335c2",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S08",
+   "question_id": "S08-en",
+   "scenario": "nhi_enrollment",
+   "language": "en",
+   "question": "Do international students have to join the National Health Insurance?",
+   "category": "health-insurance",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "744fdb55-6239-47ca-ab92-18eafb77d677"
+   ],
+   "primary_document_id": "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S08",
+   "question_id": "S08-ko",
+   "scenario": "nhi_enrollment",
+   "language": "ko",
+   "question": "유학생도 국민건강보험에 의무적으로 가입해야 하나요?",
+   "category": "health-insurance",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "744fdb55-6239-47ca-ab92-18eafb77d677"
+   ],
+   "primary_document_id": "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S08",
+   "question_id": "S08-id",
+   "scenario": "nhi_enrollment",
+   "language": "id",
+   "question": "Apakah mahasiswa internasional wajib ikut Asuransi Kesehatan Nasional?",
+   "category": "health-insurance",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "744fdb55-6239-47ca-ab92-18eafb77d677"
+   ],
+   "primary_document_id": "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S08",
+   "question_id": "S08-vi",
+   "scenario": "nhi_enrollment",
+   "language": "vi",
+   "question": "Du học sinh có bắt buộc tham gia bảo hiểm y tế quốc gia không?",
+   "category": "health-insurance",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "744fdb55-6239-47ca-ab92-18eafb77d677"
+   ],
+   "primary_document_id": "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S08",
+   "question_id": "S08-zh-CN",
+   "scenario": "nhi_enrollment",
+   "language": "zh-CN",
+   "question": "留学生必须加入国民健康保险吗？",
+   "category": "health-insurance",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "744fdb55-6239-47ca-ab92-18eafb77d677"
+   ],
+   "primary_document_id": "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S09",
+   "question_id": "S09-en",
+   "scenario": "hospital_visit",
+   "language": "en",
+   "question": "How do I visit a hospital in Korea when I am sick?",
+   "category": "health-insurance",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "744fdb55-6239-47ca-ab92-18eafb77d677",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "744fdb55-6239-47ca-ab92-18eafb77d677",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S09",
+   "question_id": "S09-ko",
+   "scenario": "hospital_visit",
+   "language": "ko",
+   "question": "아플 때 한국에서 병원은 어떻게 이용하나요?",
+   "category": "health-insurance",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "744fdb55-6239-47ca-ab92-18eafb77d677",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "744fdb55-6239-47ca-ab92-18eafb77d677",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S09",
+   "question_id": "S09-id",
+   "scenario": "hospital_visit",
+   "language": "id",
+   "question": "Bagaimana cara berobat ke rumah sakit di Korea saat sakit?",
+   "category": "health-insurance",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "744fdb55-6239-47ca-ab92-18eafb77d677",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "744fdb55-6239-47ca-ab92-18eafb77d677",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S09",
+   "question_id": "S09-vi",
+   "scenario": "hospital_visit",
+   "language": "vi",
+   "question": "Khi bị ốm, tôi đi bệnh viện ở Hàn Quốc như thế nào?",
+   "category": "health-insurance",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "744fdb55-6239-47ca-ab92-18eafb77d677",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "744fdb55-6239-47ca-ab92-18eafb77d677",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S09",
+   "question_id": "S09-zh-CN",
+   "scenario": "hospital_visit",
+   "language": "zh-CN",
+   "question": "生病时在韩国怎么去医院看病？",
+   "category": "health-insurance",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "744fdb55-6239-47ca-ab92-18eafb77d677",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "744fdb55-6239-47ca-ab92-18eafb77d677",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S10",
+   "question_id": "S10-en",
+   "scenario": "topik_registration",
+   "language": "en",
+   "question": "How do I register for the TOPIK exam?",
+   "category": "topik",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "b3f79749-2756-4ae1-8bc0-31662164d333",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "b3f79749-2756-4ae1-8bc0-31662164d333",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S10",
+   "question_id": "S10-ko",
+   "scenario": "topik_registration",
+   "language": "ko",
+   "question": "TOPIK 시험은 어떻게 접수하나요?",
+   "category": "topik",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "b3f79749-2756-4ae1-8bc0-31662164d333",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "b3f79749-2756-4ae1-8bc0-31662164d333",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S10",
+   "question_id": "S10-id",
+   "scenario": "topik_registration",
+   "language": "id",
+   "question": "Bagaimana cara mendaftar ujian TOPIK?",
+   "category": "topik",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "b3f79749-2756-4ae1-8bc0-31662164d333",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "b3f79749-2756-4ae1-8bc0-31662164d333",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S10",
+   "question_id": "S10-vi",
+   "scenario": "topik_registration",
+   "language": "vi",
+   "question": "Làm thế nào để đăng ký thi TOPIK?",
+   "category": "topik",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "b3f79749-2756-4ae1-8bc0-31662164d333",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "b3f79749-2756-4ae1-8bc0-31662164d333",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S10",
+   "question_id": "S10-zh-CN",
+   "scenario": "topik_registration",
+   "language": "zh-CN",
+   "question": "怎么报名参加TOPIK考试？",
+   "category": "topik",
+   "difficulty": "procedure",
+   "expected_document_ids": [
+    "b3f79749-2756-4ae1-8bc0-31662164d333",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "b3f79749-2756-4ae1-8bc0-31662164d333",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S11",
+   "question_id": "S11-en",
+   "scenario": "course_registration",
+   "language": "en",
+   "question": "How and when do I register for courses?",
+   "category": "academic-procedures",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "d032674b-e938-43dd-a21f-f4b79dcab42f",
+    "ae1cbab7-4248-4536-b725-847c7a61cd64"
+   ],
+   "primary_document_id": "d032674b-e938-43dd-a21f-f4b79dcab42f",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S11",
+   "question_id": "S11-ko",
+   "scenario": "course_registration",
+   "language": "ko",
+   "question": "수강신청은 언제, 어떻게 하나요?",
+   "category": "academic-procedures",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "d032674b-e938-43dd-a21f-f4b79dcab42f",
+    "ae1cbab7-4248-4536-b725-847c7a61cd64"
+   ],
+   "primary_document_id": "d032674b-e938-43dd-a21f-f4b79dcab42f",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S11",
+   "question_id": "S11-id",
+   "scenario": "course_registration",
+   "language": "id",
+   "question": "Kapan dan bagaimana cara mendaftar mata kuliah?",
+   "category": "academic-procedures",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "d032674b-e938-43dd-a21f-f4b79dcab42f",
+    "ae1cbab7-4248-4536-b725-847c7a61cd64"
+   ],
+   "primary_document_id": "d032674b-e938-43dd-a21f-f4b79dcab42f",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S11",
+   "question_id": "S11-vi",
+   "scenario": "course_registration",
+   "language": "vi",
+   "question": "Đăng ký môn học khi nào và như thế nào?",
+   "category": "academic-procedures",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "d032674b-e938-43dd-a21f-f4b79dcab42f",
+    "ae1cbab7-4248-4536-b725-847c7a61cd64"
+   ],
+   "primary_document_id": "d032674b-e938-43dd-a21f-f4b79dcab42f",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S11",
+   "question_id": "S11-zh-CN",
+   "scenario": "course_registration",
+   "language": "zh-CN",
+   "question": "什么时候、怎么选课？",
+   "category": "academic-procedures",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "d032674b-e938-43dd-a21f-f4b79dcab42f",
+    "ae1cbab7-4248-4536-b725-847c7a61cd64"
+   ],
+   "primary_document_id": "d032674b-e938-43dd-a21f-f4b79dcab42f",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S12",
+   "question_id": "S12-en",
+   "scenario": "winter_dormitory",
+   "language": "en",
+   "question": "How do I apply to stay in the dormitory during winter vacation?",
+   "category": "dormitory",
+   "difficulty": "time-sensitive",
+   "expected_document_ids": [
+    "365a6c54-40af-4e3f-bf81-5f9c69a86449"
+   ],
+   "primary_document_id": "365a6c54-40af-4e3f-bf81-5f9c69a86449",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S12",
+   "question_id": "S12-ko",
+   "scenario": "winter_dormitory",
+   "language": "ko",
+   "question": "겨울방학 동안 생활관 입사 신청은 어떻게 하나요?",
+   "category": "dormitory",
+   "difficulty": "time-sensitive",
+   "expected_document_ids": [
+    "365a6c54-40af-4e3f-bf81-5f9c69a86449"
+   ],
+   "primary_document_id": "365a6c54-40af-4e3f-bf81-5f9c69a86449",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S12",
+   "question_id": "S12-id",
+   "scenario": "winter_dormitory",
+   "language": "id",
+   "question": "Bagaimana cara mendaftar tinggal di asrama selama liburan musim dingin?",
+   "category": "dormitory",
+   "difficulty": "time-sensitive",
+   "expected_document_ids": [
+    "365a6c54-40af-4e3f-bf81-5f9c69a86449"
+   ],
+   "primary_document_id": "365a6c54-40af-4e3f-bf81-5f9c69a86449",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S12",
+   "question_id": "S12-vi",
+   "scenario": "winter_dormitory",
+   "language": "vi",
+   "question": "Làm thế nào để đăng ký ở ký túc xá trong kỳ nghỉ đông?",
+   "category": "dormitory",
+   "difficulty": "time-sensitive",
+   "expected_document_ids": [
+    "365a6c54-40af-4e3f-bf81-5f9c69a86449"
+   ],
+   "primary_document_id": "365a6c54-40af-4e3f-bf81-5f9c69a86449",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S12",
+   "question_id": "S12-zh-CN",
+   "scenario": "winter_dormitory",
+   "language": "zh-CN",
+   "question": "寒假期间如何申请住宿舍？",
+   "category": "dormitory",
+   "difficulty": "time-sensitive",
+   "expected_document_ids": [
+    "365a6c54-40af-4e3f-bf81-5f9c69a86449"
+   ],
+   "primary_document_id": "365a6c54-40af-4e3f-bf81-5f9c69a86449",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S13",
+   "question_id": "S13-en",
+   "scenario": "vacation_luggage_storage",
+   "language": "en",
+   "question": "Can I store my luggage on campus during the vacation?",
+   "category": "university-announcements",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "b8a53e42-8fd9-4ada-a357-95be2bb822bf"
+   ],
+   "primary_document_id": "b8a53e42-8fd9-4ada-a357-95be2bb822bf",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S13",
+   "question_id": "S13-ko",
+   "scenario": "vacation_luggage_storage",
+   "language": "ko",
+   "question": "방학 중에 교내에 짐을 보관할 수 있나요?",
+   "category": "university-announcements",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "b8a53e42-8fd9-4ada-a357-95be2bb822bf"
+   ],
+   "primary_document_id": "b8a53e42-8fd9-4ada-a357-95be2bb822bf",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S13",
+   "question_id": "S13-id",
+   "scenario": "vacation_luggage_storage",
+   "language": "id",
+   "question": "Bisakah saya menitipkan barang di kampus selama liburan?",
+   "category": "university-announcements",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "b8a53e42-8fd9-4ada-a357-95be2bb822bf"
+   ],
+   "primary_document_id": "b8a53e42-8fd9-4ada-a357-95be2bb822bf",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S13",
+   "question_id": "S13-vi",
+   "scenario": "vacation_luggage_storage",
+   "language": "vi",
+   "question": "Tôi có thể gửi đồ đạc trong trường trong kỳ nghỉ không?",
+   "category": "university-announcements",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "b8a53e42-8fd9-4ada-a357-95be2bb822bf"
+   ],
+   "primary_document_id": "b8a53e42-8fd9-4ada-a357-95be2bb822bf",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S13",
+   "question_id": "S13-zh-CN",
+   "scenario": "vacation_luggage_storage",
+   "language": "zh-CN",
+   "question": "放假期间可以把行李存放在学校吗？",
+   "category": "university-announcements",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "b8a53e42-8fd9-4ada-a357-95be2bb822bf"
+   ],
+   "primary_document_id": "b8a53e42-8fd9-4ada-a357-95be2bb822bf",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S14",
+   "question_id": "S14-en",
+   "scenario": "travel_reentry",
+   "language": "en",
+   "question": "What do I need to travel abroad and re-enter Korea?",
+   "category": "visa-immigration",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+   ],
+   "primary_document_id": "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S14",
+   "question_id": "S14-ko",
+   "scenario": "travel_reentry",
+   "language": "ko",
+   "question": "해외여행 후 한국에 재입국하려면 무엇이 필요한가요?",
+   "category": "visa-immigration",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+   ],
+   "primary_document_id": "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S14",
+   "question_id": "S14-id",
+   "scenario": "travel_reentry",
+   "language": "id",
+   "question": "Apa yang saya perlukan untuk bepergian ke luar negeri lalu masuk kembali ke Korea?",
+   "category": "visa-immigration",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+   ],
+   "primary_document_id": "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S14",
+   "question_id": "S14-vi",
+   "scenario": "travel_reentry",
+   "language": "vi",
+   "question": "Tôi cần gì để đi nước ngoài rồi tái nhập cảnh Hàn Quốc?",
+   "category": "visa-immigration",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+   ],
+   "primary_document_id": "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S14",
+   "question_id": "S14-zh-CN",
+   "scenario": "travel_reentry",
+   "language": "zh-CN",
+   "question": "出国旅行后再入境韩国需要什么？",
+   "category": "visa-immigration",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+    "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+   ],
+   "primary_document_id": "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S15",
+   "question_id": "S15-en",
+   "scenario": "status_change_d4_to_d2",
+   "language": "en",
+   "question": "How do I change my visa status from D-4 to D-2?",
+   "category": "visa-immigration",
+   "difficulty": "multi-step",
+   "expected_document_ids": [
+    "a37644b0-53e5-48ee-b861-9876e2c88195",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "a37644b0-53e5-48ee-b861-9876e2c88195",
+   "asked_codes": [
+    "D-4",
+    "D-2"
+   ],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S15",
+   "question_id": "S15-ko",
+   "scenario": "status_change_d4_to_d2",
+   "language": "ko",
+   "question": "D-4에서 D-2로 체류자격 변경은 어떻게 하나요?",
+   "category": "visa-immigration",
+   "difficulty": "multi-step",
+   "expected_document_ids": [
+    "a37644b0-53e5-48ee-b861-9876e2c88195",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "a37644b0-53e5-48ee-b861-9876e2c88195",
+   "asked_codes": [
+    "D-4",
+    "D-2"
+   ],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S15",
+   "question_id": "S15-id",
+   "scenario": "status_change_d4_to_d2",
+   "language": "id",
+   "question": "Bagaimana cara mengubah status visa dari D-4 ke D-2?",
+   "category": "visa-immigration",
+   "difficulty": "multi-step",
+   "expected_document_ids": [
+    "a37644b0-53e5-48ee-b861-9876e2c88195",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "a37644b0-53e5-48ee-b861-9876e2c88195",
+   "asked_codes": [
+    "D-4",
+    "D-2"
+   ],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S15",
+   "question_id": "S15-vi",
+   "scenario": "status_change_d4_to_d2",
+   "language": "vi",
+   "question": "Làm thế nào để chuyển đổi visa từ D-4 sang D-2?",
+   "category": "visa-immigration",
+   "difficulty": "multi-step",
+   "expected_document_ids": [
+    "a37644b0-53e5-48ee-b861-9876e2c88195",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "a37644b0-53e5-48ee-b861-9876e2c88195",
+   "asked_codes": [
+    "D-4",
+    "D-2"
+   ],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S15",
+   "question_id": "S15-zh-CN",
+   "scenario": "status_change_d4_to_d2",
+   "language": "zh-CN",
+   "question": "如何把签证从D-4变更为D-2？",
+   "category": "visa-immigration",
+   "difficulty": "multi-step",
+   "expected_document_ids": [
+    "a37644b0-53e5-48ee-b861-9876e2c88195",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "a37644b0-53e5-48ee-b861-9876e2c88195",
+   "asked_codes": [
+    "D-4",
+    "D-2"
+   ],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S16",
+   "question_id": "S16-en",
+   "scenario": "living_costs",
+   "language": "en",
+   "question": "How much does it cost to live in Korea as a student?",
+   "category": "housing",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S16",
+   "question_id": "S16-ko",
+   "scenario": "living_costs",
+   "language": "ko",
+   "question": "유학생 생활비는 한 달에 얼마 정도 드나요?",
+   "category": "housing",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S16",
+   "question_id": "S16-id",
+   "scenario": "living_costs",
+   "language": "id",
+   "question": "Berapa biaya hidup mahasiswa di Korea?",
+   "category": "housing",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S16",
+   "question_id": "S16-vi",
+   "scenario": "living_costs",
+   "language": "vi",
+   "question": "Chi phí sinh hoạt của du học sinh ở Hàn Quốc là bao nhiêu?",
+   "category": "housing",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S16",
+   "question_id": "S16-zh-CN",
+   "scenario": "living_costs",
+   "language": "zh-CN",
+   "question": "留学生在韩国的生活费大概多少？",
+   "category": "housing",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S17",
+   "question_id": "S17-en",
+   "scenario": "sch_admission_requirements",
+   "language": "en",
+   "question": "What are the admission requirements for international students at SCH?",
+   "category": "academic-procedures",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "da416585-7ae2-40e9-b158-f252fab6be57"
+   ],
+   "primary_document_id": "da416585-7ae2-40e9-b158-f252fab6be57",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S17",
+   "question_id": "S17-ko",
+   "scenario": "sch_admission_requirements",
+   "language": "ko",
+   "question": "순천향대학교 외국인 유학생 입학 지원 자격은 무엇인가요?",
+   "category": "academic-procedures",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "da416585-7ae2-40e9-b158-f252fab6be57"
+   ],
+   "primary_document_id": "da416585-7ae2-40e9-b158-f252fab6be57",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S17",
+   "question_id": "S17-id",
+   "scenario": "sch_admission_requirements",
+   "language": "id",
+   "question": "Apa persyaratan penerimaan mahasiswa internasional di SCH?",
+   "category": "academic-procedures",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "da416585-7ae2-40e9-b158-f252fab6be57"
+   ],
+   "primary_document_id": "da416585-7ae2-40e9-b158-f252fab6be57",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S17",
+   "question_id": "S17-vi",
+   "scenario": "sch_admission_requirements",
+   "language": "vi",
+   "question": "Điều kiện tuyển sinh du học sinh quốc tế của SCH là gì?",
+   "category": "academic-procedures",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "da416585-7ae2-40e9-b158-f252fab6be57"
+   ],
+   "primary_document_id": "da416585-7ae2-40e9-b158-f252fab6be57",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S17",
+   "question_id": "S17-zh-CN",
+   "scenario": "sch_admission_requirements",
+   "language": "zh-CN",
+   "question": "顺天乡大学外国留学生的入学申请条件是什么？",
+   "category": "academic-procedures",
+   "difficulty": "cross-language",
+   "expected_document_ids": [
+    "da416585-7ae2-40e9-b158-f252fab6be57"
+   ],
+   "primary_document_id": "da416585-7ae2-40e9-b158-f252fab6be57",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S18",
+   "question_id": "S18-en",
+   "scenario": "education_system",
+   "language": "en",
+   "question": "How is the Korean higher education system structured?",
+   "category": "academic-procedures",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "7df6e287-15fa-499c-a181-1669bcb04cb0"
+   ],
+   "primary_document_id": "7df6e287-15fa-499c-a181-1669bcb04cb0",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S18",
+   "question_id": "S18-ko",
+   "scenario": "education_system",
+   "language": "ko",
+   "question": "한국의 고등교육 제도는 어떻게 구성되어 있나요?",
+   "category": "academic-procedures",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "7df6e287-15fa-499c-a181-1669bcb04cb0"
+   ],
+   "primary_document_id": "7df6e287-15fa-499c-a181-1669bcb04cb0",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S18",
+   "question_id": "S18-id",
+   "scenario": "education_system",
+   "language": "id",
+   "question": "Bagaimana struktur sistem pendidikan tinggi di Korea?",
+   "category": "academic-procedures",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "7df6e287-15fa-499c-a181-1669bcb04cb0"
+   ],
+   "primary_document_id": "7df6e287-15fa-499c-a181-1669bcb04cb0",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S18",
+   "question_id": "S18-vi",
+   "scenario": "education_system",
+   "language": "vi",
+   "question": "Hệ thống giáo dục đại học của Hàn Quốc được tổ chức như thế nào?",
+   "category": "academic-procedures",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "7df6e287-15fa-499c-a181-1669bcb04cb0"
+   ],
+   "primary_document_id": "7df6e287-15fa-499c-a181-1669bcb04cb0",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S18",
+   "question_id": "S18-zh-CN",
+   "scenario": "education_system",
+   "language": "zh-CN",
+   "question": "韩国的高等教育体系是怎样的？",
+   "category": "academic-procedures",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "7df6e287-15fa-499c-a181-1669bcb04cb0"
+   ],
+   "primary_document_id": "7df6e287-15fa-499c-a181-1669bcb04cb0",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S19",
+   "question_id": "S19-en",
+   "scenario": "job_after_graduation",
+   "language": "en",
+   "question": "How can I find a job in Korea after graduation?",
+   "category": "employment",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S19",
+   "question_id": "S19-ko",
+   "scenario": "job_after_graduation",
+   "language": "ko",
+   "question": "졸업 후 한국에서 취업하려면 어떻게 해야 하나요?",
+   "category": "employment",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S19",
+   "question_id": "S19-id",
+   "scenario": "job_after_graduation",
+   "language": "id",
+   "question": "Bagaimana cara mencari kerja di Korea setelah lulus?",
+   "category": "employment",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S19",
+   "question_id": "S19-vi",
+   "scenario": "job_after_graduation",
+   "language": "vi",
+   "question": "Làm thế nào để tìm việc ở Hàn Quốc sau khi tốt nghiệp?",
+   "category": "employment",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S19",
+   "question_id": "S19-zh-CN",
+   "scenario": "job_after_graduation",
+   "language": "zh-CN",
+   "question": "毕业后怎样在韩国找工作？",
+   "category": "employment",
+   "difficulty": "simple",
+   "expected_document_ids": [
+    "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+    "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+   ],
+   "primary_document_id": "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S20",
+   "question_id": "S20-en",
+   "scenario": "dorm_healthcare_day",
+   "language": "en",
+   "question": "When is the dormitory healthcare day and refrigerator inspection?",
+   "category": "university-announcements",
+   "difficulty": "time-sensitive",
+   "expected_document_ids": [
+    "ea1e2b41-c0a3-42da-b981-ea457be05411"
+   ],
+   "primary_document_id": "ea1e2b41-c0a3-42da-b981-ea457be05411",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S20",
+   "question_id": "S20-ko",
+   "scenario": "dorm_healthcare_day",
+   "language": "ko",
+   "question": "생활관 헬스케어 데이와 냉장고 점검은 언제인가요?",
+   "category": "university-announcements",
+   "difficulty": "time-sensitive",
+   "expected_document_ids": [
+    "ea1e2b41-c0a3-42da-b981-ea457be05411"
+   ],
+   "primary_document_id": "ea1e2b41-c0a3-42da-b981-ea457be05411",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S20",
+   "question_id": "S20-id",
+   "scenario": "dorm_healthcare_day",
+   "language": "id",
+   "question": "Kapan hari layanan kesehatan dan pemeriksaan kulkas di asrama?",
+   "category": "university-announcements",
+   "difficulty": "time-sensitive",
+   "expected_document_ids": [
+    "ea1e2b41-c0a3-42da-b981-ea457be05411"
+   ],
+   "primary_document_id": "ea1e2b41-c0a3-42da-b981-ea457be05411",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S20",
+   "question_id": "S20-vi",
+   "scenario": "dorm_healthcare_day",
+   "language": "vi",
+   "question": "Ngày chăm sóc sức khỏe và kiểm tra tủ lạnh ở ký túc xá là khi nào?",
+   "category": "university-announcements",
+   "difficulty": "time-sensitive",
+   "expected_document_ids": [
+    "ea1e2b41-c0a3-42da-b981-ea457be05411"
+   ],
+   "primary_document_id": "ea1e2b41-c0a3-42da-b981-ea457be05411",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  },
+  {
+   "scenario_id": "S20",
+   "question_id": "S20-zh-CN",
+   "scenario": "dorm_healthcare_day",
+   "language": "zh-CN",
+   "question": "宿舍的健康关怀日和冰箱检查是什么时候？",
+   "category": "university-announcements",
+   "difficulty": "time-sensitive",
+   "expected_document_ids": [
+    "ea1e2b41-c0a3-42da-b981-ea457be05411"
+   ],
+   "primary_document_id": "ea1e2b41-c0a3-42da-b981-ea457be05411",
+   "asked_codes": [],
+   "reference_answer": null,
+   "review_status": "draft_unreviewed",
+   "dataset_version": "retrieval-pilot-0.1"
+  }
+ ]
+}

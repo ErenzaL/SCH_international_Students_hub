@@ -1,0 +1,21 @@
+{
+ "run_id": "local-retrieval-pilot-0.1-20261123T023527Z",
+ "target": "local",
+ "code_version": "7e647cd+working-tree",
+ "dataset": "retrieval_pilot_v0.1.json",
+ "dataset_version": "retrieval-pilot-0.1",
+ "dataset_sha256_16": "910c442d12bb986e",
+ "methods": [
+  "B0",
+  "E1",
+  "E2",
+  "E2S"
+ ],
+ "top_k": 10,
+ "questions": 100,
+ "rows": 400,
+ "errors": 0,
+ "finished_at": "2026-11-23T02:36:09.873156+00:00",
+ "snapshot": "corpus_v2",
+ "corpus_sha256_16": "da5caf39ff512c73"
+}

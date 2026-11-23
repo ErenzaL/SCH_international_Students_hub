@@ -1,0 +1,33 @@
+{
+ "snapshot": "corpus_v1",
+ "snapshot_date": "2026-11-23T01:14:17.952359+00:00",
+ "note": "Milestone 4 snapshot; files copied unchanged from research/data/",
+ "active_documents": 23,
+ "document_ids": [
+  "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+  "da416585-7ae2-40e9-b158-f252fab6be57",
+  "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+  "26fbef6d-9eb0-4279-b8da-af0753c4512b",
+  "c5cefc3c-092f-4032-86ba-3496973fbb3c",
+  "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+  "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+  "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+  "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+  "d032674b-e938-43dd-a21f-f4b79dcab42f",
+  "744fdb55-6239-47ca-ab92-18eafb77d677",
+  "b3f79749-2756-4ae1-8bc0-31662164d333",
+  "a37644b0-53e5-48ee-b861-9876e2c88195",
+  "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+  "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+  "4650e940-a12f-464c-be4a-285c607e88ef",
+  "7df6e287-15fa-499c-a181-1669bcb04cb0",
+  "ae1cbab7-4248-4536-b725-847c7a61cd64",
+  "c9be6492-bbde-4f28-8f75-146540661e96",
+  "1ce185c2-8806-45f6-b84a-d63d429c8f86",
+  "838c1cca-f431-49c3-84d1-09062695eaed",
+  "d14d2192-5d21-42ea-b69d-6fa7ae16a292",
+  "b76361b8-c4b1-4a16-8802-d23fca2bb275"
+ ],
+ "public_corpus_sha256_16": "c64d186541928a2b",
+ "chunk_ids": "not exported at the time (statistics only)"
+}

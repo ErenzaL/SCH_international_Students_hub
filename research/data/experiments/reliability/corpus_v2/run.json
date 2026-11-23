@@ -1,0 +1,31 @@
+{
+ "snapshot": "corpus_v2",
+ "corpus": "research/data/experiments/chunking/C0_existing/corpus.json",
+ "rerankers": [
+  "bge-m3",
+  "mminilm"
+ ],
+ "index": {
+  "index_seconds": 25.9,
+  "documents": 24,
+  "chunks": 765,
+  "embedded_chunks": 765,
+  "embedding_model": "intfloat/multilingual-e5-small#qint8",
+  "chunk_target_tokens": 320,
+  "chunk_max_tokens": 420,
+  "chunk_overlap_tokens": 48
+ },
+ "unmatched_candidate_passages": 0,
+ "evidence_config": {
+  "adjacent": true,
+  "check_sources": 1,
+  "adjacent_sources": 2,
+  "second_search": true,
+  "second_search_top_k": 5,
+  "second_search_scope": "selected_documents",
+  "max_added_passages": 4,
+  "max_added_chars": 3000,
+  "relevance_margin": 0.0,
+  "relevance_floor": 0.8
+ }
+}

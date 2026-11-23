@@ -40,3 +40,15 @@ supabase/.temp/
 
 # local evaluation cache (downloaded public corpus, never committed)
 backend/.eval-cache/
+
+# research analysis environment (local)
+research/.venv/
+research/notebooks/_executed/
+research/fonts/*.ttf
+research/.venv-rerank/
+research/data/raw_private/
+research/data/experiments/chunking/*/corpus.json
+# large research intermediates are committed gzip-compressed (*.jsonl.gz, see research/data/LARGE_FILES.sha256);
+# the plain working copies stay local
+research/data/results/**/candidates_*.jsonl
+research/data/experiments/reliability/*/traces.jsonl

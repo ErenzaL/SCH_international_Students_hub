@@ -1,0 +1,133 @@
+{
+ "executed_at": "2026-11-23T08:24:31.508965+00:00",
+ "kernel": "sch-research",
+ "snapshot": "corpus_v2",
+ "results": [
+  {
+   "notebook": "01_dataset_exploration.ipynb",
+   "status": "ok",
+   "seconds": 2.4,
+   "code_cells": 10,
+   "inline_figures": 2,
+   "not_evaluated_notices": 0,
+   "error": null
+  },
+  {
+   "notebook": "02_chunk_analysis.ipynb",
+   "status": "ok",
+   "seconds": 2.6,
+   "code_cells": 7,
+   "inline_figures": 2,
+   "not_evaluated_notices": 0,
+   "error": null
+  },
+  {
+   "notebook": "03_retrieval_evaluation.ipynb",
+   "status": "ok",
+   "seconds": 2.3,
+   "code_cells": 8,
+   "inline_figures": 2,
+   "not_evaluated_notices": 0,
+   "error": null
+  },
+  {
+   "notebook": "04_multilingual_analysis.ipynb",
+   "status": "ok",
+   "seconds": 2.6,
+   "code_cells": 8,
+   "inline_figures": 1,
+   "not_evaluated_notices": 0,
+   "error": null
+  },
+  {
+   "notebook": "05_llm_answer_evaluation.ipynb",
+   "status": "ok",
+   "seconds": 1.7,
+   "code_cells": 6,
+   "inline_figures": 0,
+   "not_evaluated_notices": 2,
+   "error": null
+  },
+  {
+   "notebook": "06_model_comparison.ipynb",
+   "status": "ok",
+   "seconds": 1.6,
+   "code_cells": 3,
+   "inline_figures": 0,
+   "not_evaluated_notices": 1,
+   "error": null
+  },
+  {
+   "notebook": "07_ablation_study.ipynb",
+   "status": "ok",
+   "seconds": 2.0,
+   "code_cells": 5,
+   "inline_figures": 1,
+   "not_evaluated_notices": 0,
+   "error": null
+  },
+  {
+   "notebook": "08_final_research_report.ipynb",
+   "status": "ok",
+   "seconds": 2.1,
+   "code_cells": 8,
+   "inline_figures": 1,
+   "not_evaluated_notices": 0,
+   "error": null
+  },
+  {
+   "notebook": "09_retrieval_error_analysis.ipynb",
+   "status": "ok",
+   "seconds": 2.2,
+   "code_cells": 7,
+   "inline_figures": 1,
+   "not_evaluated_notices": 0,
+   "error": null
+  },
+  {
+   "notebook": "10_multilingual_reranking.ipynb",
+   "status": "ok",
+   "seconds": 3.1,
+   "code_cells": 8,
+   "inline_figures": 3,
+   "not_evaluated_notices": 0,
+   "error": null
+  },
+  {
+   "notebook": "11_context_selection_experiments.ipynb",
+   "status": "ok",
+   "seconds": 2.1,
+   "code_cells": 5,
+   "inline_figures": 1,
+   "not_evaluated_notices": 1,
+   "error": null
+  },
+  {
+   "notebook": "12_statistical_comparison.ipynb",
+   "status": "ok",
+   "seconds": 2.6,
+   "code_cells": 7,
+   "inline_figures": 1,
+   "not_evaluated_notices": 1,
+   "error": null
+  },
+  {
+   "notebook": "13_korean_pdf_chunk_quality.ipynb",
+   "status": "ok",
+   "seconds": 4.7,
+   "code_cells": 16,
+   "inline_figures": 3,
+   "not_evaluated_notices": 0,
+   "error": null
+  },
+  {
+   "notebook": "14_retrieval_reliability_analysis.ipynb",
+   "status": "ok",
+   "seconds": 7.6,
+   "code_cells": 14,
+   "inline_figures": 2,
+   "not_evaluated_notices": 1,
+   "error": null
+  }
+ ]
+}
