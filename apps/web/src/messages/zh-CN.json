@@ -18,7 +18,8 @@
     "language": "语言",
     "skipToContent": "跳到主要内容",
     "myRequests": "我的支持请求",
-    "account": "账户"
+    "account": "账户",
+    "aiOffice": "AI 办公室"
   },
   "common": {
     "loading": "加载中…",
@@ -1839,6 +1840,229 @@
       "rateLimited": "您发送消息的速度有点快。请稍等片刻后再试。",
       "network": "回答完成前连接中断了。请重试。",
       "generic": "助手暂时无法回答。请稍后再试。"
+    }
+  },
+  "office": {
+    "title": "SCH AI 支援办公室",
+    "subtitle": "温馨的虚拟支援办公室：点击工作人员，即可获得 Hub 助手的帮助。",
+    "backToHub": "返回 Hub",
+    "help": "使用说明",
+    "people": "人员与服务台",
+    "peopleTitle": "办公室里有谁",
+    "peopleIntro": "选择你想交谈的人。语言支援人员用他们的语言回答；服务台工作人员用你的网站语言回答。",
+    "close": "关闭",
+    "minimize": "最小化",
+    "restore": "与 {name} 交谈",
+    "answering": "{name} 正在回答…",
+    "newChat": "新对话",
+    "history": "对话记录",
+    "loading": "加载中…",
+    "loadError": "无法加载。",
+    "retry": "重试",
+    "clickToTalk": "点击交谈",
+    "talkTo": "与 {name}（{role}）交谈",
+    "answersIn": "用{language}回答",
+    "siteLanguage": "用网站语言（{language}）回答",
+    "sceneLabel": "插画风格的 AI 支援办公室。选择一位工作人员即可开始对话。",
+    "tabsLabel": "栏目",
+    "askMe": "询问 {name}",
+    "languages": {
+      "ko": "韩语",
+      "en": "英语",
+      "id": "印尼语",
+      "vi": "越南语",
+      "zh-CN": "中文"
+    },
+    "zones": {
+      "reception": "AI 支援中心",
+      "supporters": "全球支援团队",
+      "visa": "签证与出入境",
+      "academic": "学务与 TOPIK",
+      "opportunities": "奖学金与机会",
+      "events": "活动与校园生活",
+      "career": "职业与实习",
+      "meeting": "会议区",
+      "waiting": "等候区"
+    },
+    "roles": {
+      "reception": {
+        "title": "前台助理",
+        "description": "欢迎你、回答一般问题，并指引你到合适的服务台。"
+      },
+      "guide": {
+        "title": "办公室导览机器人",
+        "description": "介绍办公室的使用方法和每个人的位置。"
+      },
+      "supporter": {
+        "title": "{language}支援",
+        "description": "根据已审核的官方资料，用{language}回答你的问题。"
+      },
+      "supporterLead": {
+        "title": "全球支援团队",
+        "description": "需要真人帮助时，帮你联系全球支援人员（Global Supporter）。"
+      },
+      "visa": {
+        "title": "签证与出入境服务台",
+        "description": "D-2、D-4 签证，延期，外国人登录证，住址变更，打工许可，再入境。"
+      },
+      "academic": {
+        "title": "学务服务台",
+        "description": "学务流程、选课、学生服务和学校公告。"
+      },
+      "topik": {
+        "title": "TOPIK 与韩语",
+        "description": "TOPIK 考试和韩语学习。"
+      },
+      "opportunities": {
+        "title": "奖学金与机会服务台",
+        "description": "Hub 中发布的奖学金、竞赛和项目。"
+      },
+      "events": {
+        "title": "活动与校园生活服务台",
+        "description": "来自已发布公告的近期活动、宿舍通知和截止日期。"
+      },
+      "career": {
+        "title": "职业与实习服务台",
+        "description": "实习、就业指导、D-10 求职签证和打工规定。"
+      },
+      "visitor": {
+        "title": "来访学生",
+        "description": ""
+      }
+    },
+    "greetings": {
+      "reception": "欢迎来到 SCH AI 支援办公室！今天有什么可以帮你？",
+      "guide": "哔哔！想了解办公室怎么使用吗？",
+      "supporterLead": "想和真人交谈？我来告诉你如何联系全球支援人员。",
+      "visa": "有签证或居留方面的问题？我们一起查看官方指南。",
+      "academic": "你好！可以问我关于课程、选课和学生服务的问题。",
+      "topik": "在准备 TOPIK 吗？一起看看 Hub 里有什么资料。",
+      "opportunities": "我们来看看现在发布了哪些奖学金和机会。",
+      "events": "这是校园里即将举行的活动！",
+      "career": "在考虑实习或工作吗？一起找到合适的指南。"
+    },
+    "desk": {
+      "reception": {
+        "welcome": "你好，我是前台的 {name}。关于在 SCH 的学习生活，什么都可以问我，或打开“服务台”找到负责的同事。",
+        "example1": "到韩国后我应该先做什么？",
+        "example2": "在哪里可以获得签证方面的帮助？",
+        "example3": "怎样联系国际交流处？"
+      },
+      "supporterLead": {
+        "welcome": "你好，我是 {name}。我会根据 Hub 的资料回答；如果你需要真人帮助，我会帮你向全球支援人员提出请求。",
+        "example1": "全球支援人员可以帮我准备材料吗？",
+        "example2": "支援人员多久会回复？",
+        "example3": "全球支援人员可以帮哪些忙？"
+      },
+      "visa": {
+        "welcome": "你好，我是签证与出入境服务台的 {name}。我的回答来自已审核的官方指南并附有链接。日期和费用请务必在原文中确认。",
+        "example1": "如何延长 D-2 签证？",
+        "example2": "住址变更需要在什么时候之前申报？",
+        "example3": "打工需要许可吗？"
+      },
+      "academic": {
+        "welcome": "你好，我是学务服务台的 {name}。可以问我学务流程、选课或学生服务。",
+        "example1": "选课是怎么进行的？",
+        "example2": "在哪里可以查看学年日历？",
+        "example3": "毕业需要满足什么条件？"
+      },
+      "topik": {
+        "welcome": "你好，我是 {name}。我可以根据 Hub 的资料，帮助你了解 TOPIK 和韩语学习。",
+        "example1": "下一次 TOPIK 考试是什么时候？",
+        "example2": "毕业需要 TOPIK 几级？",
+        "example3": "校内哪里可以学习韩语？"
+      },
+      "opportunities": {
+        "welcome": "你好，我是 {name}。我会根据 Hub 的资料回答奖学金方面的问题。目前我还不会在互联网上搜索新的机会。",
+        "example1": "留学生可以申请哪些奖学金？",
+        "example2": "保持奖学金需要满足什么条件？",
+        "example3": "本学期有面向留学生的项目吗？"
+      },
+      "events": {
+        "welcome": "你好，我是 {name}。可以问我校园生活、宿舍或已发布的活动。",
+        "example1": "近期有哪些面向留学生的活动？",
+        "example2": "宿舍申请截止日期是什么时候？",
+        "example3": "宿舍规定有哪些需要注意的？"
+      },
+      "career": {
+        "welcome": "你好，我是职业服务台的 {name}。我会根据 Hub 的资料说明工作和求职规定。我没有实时招聘信息。",
+        "example1": "学习期间可以打工吗？",
+        "example2": "什么是 D-10 求职签证？",
+        "example3": "在哪里可以找到实习指南？"
+      }
+    },
+    "tabs": {
+      "chat": "对话",
+      "guides": "指南",
+      "notices": "公告",
+      "events": "活动",
+      "opportunities": "机会",
+      "desks": "服务台",
+      "help": "使用说明",
+      "support": "真人支援",
+      "about": "我能做什么"
+    },
+    "lists": {
+      "guidesTitle": "知识中心中已审核的指南",
+      "noGuides": "这个领域还没有已审核的指南。",
+      "allGuides": "打开知识中心",
+      "noticesTitle": "最新发布的公告",
+      "noNotices": "目前没有已发布的公告。",
+      "allNotices": "全部公告",
+      "eventsTitle": "正在进行和即将举行的活动",
+      "noEvents": "目前还没有发布即将举行的活动。",
+      "eventOn": "活动：{date}",
+      "deadlineOn": "截止：{date}",
+      "opportunitiesTitle": "Hub 中发布的奖学金和机会",
+      "noOpportunities": "目前 Hub 中没有发布奖学金或机会类公告。我不会猜测：你可以在对话中询问，或稍后查看公告。",
+      "fromAnnouncements": "公告",
+      "fromGuides": "指南"
+    },
+    "support": {
+      "title": "与全球支援人员（真人）交谈",
+      "body": "全球支援人员是用你的语言提供帮助的学生和教职员。登录后可以在对话中发送请求，也可以打开学生支援页面。",
+      "signedInBody": "请在对话中提问：如果回答不够，助手会在征得你同意后，把对话发送给全球支援人员。你也可以打开学生支援页面。",
+      "goToSupport": "打开学生支援",
+      "askInChat": "在对话中提问",
+      "signIn": "登录",
+      "draft": "我想和全球支援人员交谈。"
+    },
+    "about": {
+      "available": "现在可用",
+      "planned": "即将推出",
+      "confirm": "需要你确认",
+      "plannedNote": "计划中的功能尚未启用：不会自动为你搜索、发送或更改任何内容。",
+      "tools": {
+        "rag_chat": "根据 Hub 已审核的官方资料回答，并附有链接",
+        "knowledge_list": "显示该主题在知识中心中已审核的指南",
+        "announcement_list": "显示已发布的公告",
+        "event_list": "列出正在进行和即将举行的活动",
+        "office_directory": "告诉你哪个服务台可以帮忙",
+        "office_help": "介绍办公室的使用方法",
+        "human_handoff": "在你同意后，帮你联系全球支援人员",
+        "scholarship_search": "搜索新的奖学金",
+        "competition_discovery": "发现竞赛和黑客松",
+        "program_discovery": "寻找面向留学生的项目",
+        "event_monitor": "关注新的校园活动",
+        "deadline_tracker": "提醒即将到来的截止日期",
+        "notice_summary": "总结官方公告",
+        "notice_drafting": "为工作人员准备多语言公告",
+        "job_search": "查找实习和招聘信息",
+        "visa_procedure_guide": "分步骤的签证办理指南"
+      }
+    },
+    "helpDialog": {
+      "title": "AI 支援办公室使用说明",
+      "intro": "办公室里的每个人都连接着 Hub 助手及其已审核的官方资料。",
+      "step1": "点击或轻触一位工作人员，或打开“人员与服务台”。",
+      "step2": "语言支援人员用他们的语言回答；服务台工作人员用你的网站语言回答。你随时可以要求换一种语言。",
+      "step3": "回答来自已审核的官方资料并附有链接。重要的日期、费用和条件请在原文中确认。",
+      "step4": "需要真人帮助？请到全球支援团队区找 Sumin。",
+      "privacy": "未登录：对话只保存在当前浏览器标签页中。已登录：会像普通对话一样保存到你的账户。",
+      "motion": "如果你的设备开启了减少动态效果，角色将保持静止。"
+    },
+    "directory": {
+      "title": "该去哪里"
     }
   }
 }

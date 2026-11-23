@@ -18,7 +18,8 @@
     "language": "Bahasa",
     "skipToContent": "Lewati ke konten utama",
     "myRequests": "Permintaan saya",
-    "account": "Akun"
+    "account": "Akun",
+    "aiOffice": "Kantor AI"
   },
   "common": {
     "loading": "Memuat…",
@@ -1839,6 +1840,229 @@
       "rateLimited": "Anda mengirim pesan terlalu cepat. Mohon tunggu sebentar lalu coba lagi.",
       "network": "Koneksi terputus sebelum jawaban selesai. Silakan coba lagi.",
       "generic": "Asisten tidak dapat menjawab saat ini. Silakan coba lagi sebentar lagi."
+    }
+  },
+  "office": {
+    "title": "Kantor Layanan AI SCH",
+    "subtitle": "Kantor layanan virtual yang ramah: klik seorang staf untuk mendapat bantuan dari asisten Hub.",
+    "backToHub": "Kembali ke Hub",
+    "help": "Cara kerja",
+    "people": "Staf & meja layanan",
+    "peopleTitle": "Siapa saja di kantor",
+    "peopleIntro": "Pilih seseorang untuk diajak bicara. Pendamping bahasa menjawab dalam bahasanya; staf meja layanan menjawab dalam bahasa situs Anda.",
+    "close": "Tutup",
+    "minimize": "Perkecil",
+    "restore": "Bicara dengan {name}",
+    "answering": "{name} sedang menjawab…",
+    "newChat": "Percakapan baru",
+    "history": "Riwayat percakapan",
+    "loading": "Memuat…",
+    "loadError": "Gagal memuat.",
+    "retry": "Coba lagi",
+    "clickToTalk": "Klik untuk bicara",
+    "talkTo": "Bicara dengan {name}, {role}",
+    "answersIn": "Menjawab dalam {language}",
+    "siteLanguage": "Menjawab dalam bahasa situs Anda ({language})",
+    "sceneLabel": "Ilustrasi kantor layanan AI. Pilih seorang staf untuk memulai percakapan.",
+    "tabsLabel": "Bagian",
+    "askMe": "Tanya {name}",
+    "languages": {
+      "ko": "bahasa Korea",
+      "en": "bahasa Inggris",
+      "id": "bahasa Indonesia",
+      "vi": "bahasa Vietnam",
+      "zh-CN": "bahasa Mandarin"
+    },
+    "zones": {
+      "reception": "PUSAT LAYANAN AI",
+      "supporters": "GLOBAL SUPPORTERS",
+      "visa": "VISA & IMIGRASI",
+      "academic": "AKADEMIK & TOPIK",
+      "opportunities": "BEASISWA & PELUANG",
+      "events": "ACARA & KEHIDUPAN KAMPUS",
+      "career": "KARIER & MAGANG",
+      "meeting": "AREA RAPAT",
+      "waiting": "RUANG TUNGGU"
+    },
+    "roles": {
+      "reception": {
+        "title": "Asisten resepsionis",
+        "description": "Menyambut Anda, menjawab pertanyaan umum, dan menunjukkan meja yang tepat."
+      },
+      "guide": {
+        "title": "Robot pemandu kantor",
+        "description": "Menjelaskan cara kerja kantor dan lokasi setiap staf."
+      },
+      "supporter": {
+        "title": "Pendamping {language}",
+        "description": "Menjawab pertanyaan Anda dalam {language}, dari sumber resmi yang disetujui."
+      },
+      "supporterLead": {
+        "title": "Tim Global Supporter",
+        "description": "Membantu Anda menghubungi Global Supporter (manusia) saat dibutuhkan."
+      },
+      "visa": {
+        "title": "Meja visa & imigrasi",
+        "description": "Visa D-2 dan D-4, perpanjangan, kartu izin tinggal, pindah alamat, izin kerja paruh waktu, masuk kembali."
+      },
+      "academic": {
+        "title": "Meja akademik",
+        "description": "Prosedur akademik, pendaftaran mata kuliah, layanan mahasiswa, dan pengumuman universitas."
+      },
+      "topik": {
+        "title": "TOPIK & bahasa Korea",
+        "description": "Ujian TOPIK dan belajar bahasa Korea."
+      },
+      "opportunities": {
+        "title": "Meja beasiswa & peluang",
+        "description": "Beasiswa, kompetisi, dan program yang dipublikasikan di Hub."
+      },
+      "events": {
+        "title": "Meja acara & kehidupan kampus",
+        "description": "Acara mendatang, pengumuman asrama, dan tenggat dari pengumuman yang dipublikasikan."
+      },
+      "career": {
+        "title": "Meja karier & magang",
+        "description": "Magang, panduan kerja, visa pencari kerja D-10, dan aturan kerja paruh waktu."
+      },
+      "visitor": {
+        "title": "Mahasiswa pengunjung",
+        "description": ""
+      }
+    },
+    "greetings": {
+      "reception": "Selamat datang di Kantor Layanan AI SCH! Ada yang bisa saya bantu?",
+      "guide": "Bip! Mau tahu cara kerja kantor ini?",
+      "supporterLead": "Ingin bicara dengan orang? Saya tunjukkan cara menghubungi Global Supporter.",
+      "visa": "Pertanyaan soal visa atau izin tinggal? Mari cek panduan resminya.",
+      "academic": "Halo! Tanyakan tentang mata kuliah, pendaftaran, dan layanan mahasiswa.",
+      "topik": "Sedang persiapan TOPIK? Mari lihat apa yang ada di Hub.",
+      "opportunities": "Mari lihat beasiswa dan peluang yang sedang dipublikasikan.",
+      "events": "Ini acara yang akan datang di kampus!",
+      "career": "Memikirkan magang atau kerja? Mari cari panduan yang tepat."
+    },
+    "desk": {
+      "reception": {
+        "welcome": "Halo, saya {name} di resepsionis. Tanyakan apa saja tentang kehidupan mahasiswa di SCH, atau buka \"Meja\" untuk menemukan petugas yang tepat.",
+        "example1": "Apa yang harus saya lakukan pertama kali setelah tiba di Korea?",
+        "example2": "Di mana saya bisa mendapat bantuan soal visa?",
+        "example3": "Bagaimana cara menghubungi kantor internasional?"
+      },
+      "supporterLead": {
+        "welcome": "Halo, saya {name}. Saya menjawab dari sumber Hub, dan jika Anda butuh orang, saya bantu meminta Global Supporter.",
+        "example1": "Bisakah Global Supporter membantu dokumen saya?",
+        "example2": "Berapa lama balasan dari supporter?",
+        "example3": "Apa saja yang bisa dibantu Global Supporter?"
+      },
+      "visa": {
+        "welcome": "Halo, saya {name} di meja visa & imigrasi. Jawaban saya berasal dari panduan resmi yang disetujui, dengan tautan. Selalu cek tanggal dan biaya di sumbernya.",
+        "example1": "Bagaimana cara memperpanjang visa D-2?",
+        "example2": "Kapan saya harus melaporkan pindah alamat?",
+        "example3": "Apakah saya perlu izin untuk kerja paruh waktu?"
+      },
+      "academic": {
+        "welcome": "Halo, saya {name} di meja akademik. Tanyakan tentang prosedur akademik, pendaftaran mata kuliah, atau layanan mahasiswa.",
+        "example1": "Bagaimana cara pendaftaran mata kuliah?",
+        "example2": "Di mana saya bisa melihat kalender akademik?",
+        "example3": "Apa syarat kelulusan?"
+      },
+      "topik": {
+        "welcome": "Halo, saya {name}. Saya bisa membantu soal TOPIK dan belajar bahasa Korea, berdasarkan sumber Hub.",
+        "example1": "Kapan ujian TOPIK berikutnya?",
+        "example2": "Level TOPIK berapa yang dibutuhkan untuk lulus?",
+        "example3": "Di mana saya bisa belajar bahasa Korea di kampus?"
+      },
+      "opportunities": {
+        "welcome": "Halo, saya {name}. Saya menjawab pertanyaan tentang beasiswa dari sumber Hub. Saya belum mencari peluang baru di internet.",
+        "example1": "Beasiswa apa yang bisa dilamar mahasiswa internasional?",
+        "example2": "Apa syarat untuk mempertahankan beasiswa?",
+        "example3": "Apakah ada program untuk mahasiswa internasional semester ini?"
+      },
+      "events": {
+        "welcome": "Halo, saya {name}. Tanyakan tentang kehidupan kampus, asrama, atau acara yang dipublikasikan.",
+        "example1": "Acara apa saja yang akan datang untuk mahasiswa internasional?",
+        "example2": "Kapan batas pendaftaran asrama?",
+        "example3": "Apa yang perlu saya ketahui tentang aturan asrama?"
+      },
+      "career": {
+        "welcome": "Halo, saya {name} di meja karier. Saya menjelaskan aturan kerja dan mencari kerja dari sumber Hub. Saya tidak punya lowongan kerja langsung.",
+        "example1": "Bolehkah saya kerja paruh waktu sambil kuliah?",
+        "example2": "Apa itu visa pencari kerja D-10?",
+        "example3": "Di mana saya bisa menemukan panduan magang?"
+      }
+    },
+    "tabs": {
+      "chat": "Obrolan",
+      "guides": "Panduan",
+      "notices": "Pengumuman",
+      "events": "Acara",
+      "opportunities": "Peluang",
+      "desks": "Meja",
+      "help": "Cara kerja",
+      "support": "Bantuan manusia",
+      "about": "Yang bisa saya lakukan"
+    },
+    "lists": {
+      "guidesTitle": "Panduan yang disetujui di Pusat Pengetahuan",
+      "noGuides": "Belum ada panduan yang disetujui untuk bidang ini.",
+      "allGuides": "Buka Pusat Pengetahuan",
+      "noticesTitle": "Pengumuman terbaru",
+      "noNotices": "Belum ada pengumuman yang dipublikasikan.",
+      "allNotices": "Semua pengumuman",
+      "eventsTitle": "Acara yang sedang dan akan berlangsung",
+      "noEvents": "Belum ada acara mendatang yang dipublikasikan.",
+      "eventOn": "Acara: {date}",
+      "deadlineOn": "Tenggat: {date}",
+      "opportunitiesTitle": "Beasiswa dan peluang yang dipublikasikan di Hub",
+      "noOpportunities": "Saat ini belum ada pengumuman beasiswa atau peluang di Hub. Saya tidak akan menebak: tanyakan di obrolan atau cek pengumuman nanti.",
+      "fromAnnouncements": "Pengumuman",
+      "fromGuides": "Panduan"
+    },
+    "support": {
+      "title": "Bicara dengan Global Supporter (manusia)",
+      "body": "Global Supporter adalah mahasiswa dan staf yang membantu dalam bahasa Anda. Masuk untuk mengirim permintaan dari obrolan, atau buka halaman Dukungan Mahasiswa.",
+      "signedInBody": "Ajukan pertanyaan di obrolan: jika jawabannya belum cukup, asisten menawarkan untuk mengirim percakapan ke Global Supporter (hanya dengan persetujuan Anda). Anda juga bisa membuka Dukungan Mahasiswa.",
+      "goToSupport": "Buka Dukungan Mahasiswa",
+      "askInChat": "Tanya di obrolan",
+      "signIn": "Masuk",
+      "draft": "Saya ingin berbicara dengan Global Supporter."
+    },
+    "about": {
+      "available": "Tersedia sekarang",
+      "planned": "Segera hadir",
+      "confirm": "perlu konfirmasi Anda",
+      "plannedNote": "Fitur yang direncanakan belum aktif: tidak ada yang dicari, dikirim, atau diubah secara otomatis.",
+      "tools": {
+        "rag_chat": "Jawaban dari sumber resmi Hub yang disetujui, dengan tautan",
+        "knowledge_list": "Menampilkan panduan Pusat Pengetahuan yang disetujui",
+        "announcement_list": "Menampilkan pengumuman yang dipublikasikan",
+        "event_list": "Daftar acara yang sedang dan akan berlangsung",
+        "office_directory": "Menunjukkan meja yang bisa membantu",
+        "office_help": "Menjelaskan cara kerja kantor",
+        "human_handoff": "Menghubungkan Anda dengan Global Supporter (dengan persetujuan Anda)",
+        "scholarship_search": "Mencari beasiswa baru",
+        "competition_discovery": "Menemukan kompetisi dan hackathon",
+        "program_discovery": "Mencari program untuk mahasiswa internasional",
+        "event_monitor": "Memantau acara kampus baru",
+        "deadline_tracker": "Mengingatkan tenggat yang mendekat",
+        "notice_summary": "Meringkas pengumuman resmi",
+        "notice_drafting": "Menyiapkan pengumuman multibahasa untuk staf",
+        "job_search": "Mencari lowongan magang dan kerja",
+        "visa_procedure_guide": "Panduan prosedur visa langkah demi langkah"
+      }
+    },
+    "helpDialog": {
+      "title": "Cara kerja Kantor Layanan AI",
+      "intro": "Semua orang di kantor ini terhubung ke asisten Hub dan sumber resminya yang disetujui.",
+      "step1": "Klik atau ketuk seorang staf, atau buka “Staf & meja layanan”.",
+      "step2": "Pendamping bahasa menjawab dalam bahasanya; staf meja menjawab dalam bahasa situs Anda. Anda bisa meminta bahasa lain kapan saja.",
+      "step3": "Jawaban berasal dari sumber resmi yang disetujui dan menyertakan tautannya. Cek tanggal, biaya, dan syarat penting di sumbernya.",
+      "step4": "Butuh orang? Temui Sumin di area Global Supporters.",
+      "privacy": "Belum masuk: percakapan hanya tersimpan di tab browser ini. Sudah masuk: tersimpan di akun Anda, seperti obrolan biasa.",
+      "motion": "Jika perangkat Anda diatur untuk mengurangi gerakan, karakter tidak bergerak."
+    },
+    "directory": {
+      "title": "Ke mana harus pergi"
     }
   }
 }

@@ -18,7 +18,8 @@
     "language": "언어",
     "skipToContent": "본문으로 건너뛰기",
     "myRequests": "내 지원 요청",
-    "account": "계정"
+    "account": "계정",
+    "aiOffice": "AI 오피스"
   },
   "common": {
     "loading": "불러오는 중…",
@@ -1839,6 +1840,229 @@
       "rateLimited": "메시지를 너무 빠르게 보내고 있습니다. 잠시 후 다시 시도해 주세요.",
       "network": "답변이 끝나기 전에 연결이 끊어졌습니다. 다시 시도해 주세요.",
       "generic": "지금은 답변할 수 없습니다. 잠시 후 다시 시도해 주세요."
+    }
+  },
+  "office": {
+    "title": "SCH AI 지원 오피스",
+    "subtitle": "친근한 가상 지원 오피스: 직원을 클릭하면 허브 도우미가 도와드려요.",
+    "backToHub": "허브로 돌아가기",
+    "help": "이용 방법",
+    "people": "직원 및 데스크",
+    "peopleTitle": "오피스에 있는 사람들",
+    "peopleIntro": "대화할 사람을 고르세요. 언어 서포터는 자신의 언어로, 데스크 직원은 사이트 언어로 답해요.",
+    "close": "닫기",
+    "minimize": "최소화",
+    "restore": "{name}와(과) 대화하기",
+    "answering": "{name}이(가) 답하는 중…",
+    "newChat": "새 대화",
+    "history": "대화 기록",
+    "loading": "불러오는 중…",
+    "loadError": "불러오지 못했어요.",
+    "retry": "다시 시도",
+    "clickToTalk": "클릭해서 대화하기",
+    "talkTo": "{name}({role})와(과) 대화하기",
+    "answersIn": "{language}로 답해요",
+    "siteLanguage": "사이트 언어({language})로 답해요",
+    "sceneLabel": "일러스트로 된 AI 지원 오피스입니다. 직원을 선택하면 대화가 시작돼요.",
+    "tabsLabel": "구역",
+    "askMe": "{name}에게 묻기",
+    "languages": {
+      "ko": "한국어",
+      "en": "영어",
+      "id": "인도네시아어",
+      "vi": "베트남어",
+      "zh-CN": "중국어"
+    },
+    "zones": {
+      "reception": "AI 지원 센터",
+      "supporters": "글로벌 서포터즈",
+      "visa": "비자·출입국",
+      "academic": "학사·TOPIK",
+      "opportunities": "장학금·기회",
+      "events": "행사·캠퍼스 생활",
+      "career": "진로·인턴십",
+      "meeting": "회의 공간",
+      "waiting": "대기 공간"
+    },
+    "roles": {
+      "reception": {
+        "title": "안내 데스크 도우미",
+        "description": "환영 인사, 일반 질문 답변, 알맞은 데스크 안내를 맡고 있어요."
+      },
+      "guide": {
+        "title": "오피스 안내 로봇",
+        "description": "오피스 이용 방법과 직원 위치를 알려 줘요."
+      },
+      "supporter": {
+        "title": "{language} 서포터",
+        "description": "승인된 공식 자료를 바탕으로 {language}로 답해요."
+      },
+      "supporterLead": {
+        "title": "글로벌 서포터 팀",
+        "description": "사람의 도움이 필요할 때 글로벌 서포터와 연결해 드려요."
+      },
+      "visa": {
+        "title": "비자·출입국 데스크",
+        "description": "D-2·D-4 비자, 연장, 외국인등록증, 체류지 변경, 시간제 취업 허가, 재입국."
+      },
+      "academic": {
+        "title": "학사 데스크",
+        "description": "학사 절차, 수강 신청, 학생 서비스, 대학 공지."
+      },
+      "topik": {
+        "title": "TOPIK·한국어",
+        "description": "TOPIK 시험과 한국어 학습."
+      },
+      "opportunities": {
+        "title": "장학금·기회 데스크",
+        "description": "허브에 게시된 장학금, 공모전, 프로그램."
+      },
+      "events": {
+        "title": "행사·캠퍼스 생활 데스크",
+        "description": "게시된 공지 속 다가오는 행사, 기숙사 공지, 마감일."
+      },
+      "career": {
+        "title": "진로·인턴십 데스크",
+        "description": "인턴십, 취업 안내, D-10 구직 비자, 시간제 취업 규정."
+      },
+      "visitor": {
+        "title": "방문 학생",
+        "description": ""
+      }
+    },
+    "greetings": {
+      "reception": "SCH AI 지원 오피스에 오신 걸 환영해요! 무엇을 도와드릴까요?",
+      "guide": "삐빅! 오피스 이용 방법이 궁금하세요?",
+      "supporterLead": "사람과 이야기하고 싶나요? 글로벌 서포터에게 연락하는 방법을 알려 드릴게요.",
+      "visa": "비자나 체류 관련 질문인가요? 공식 안내를 함께 확인해요.",
+      "academic": "안녕하세요! 수업, 수강 신청, 학생 서비스에 대해 물어보세요.",
+      "topik": "TOPIK 준비 중인가요? 허브 자료를 함께 볼까요?",
+      "opportunities": "지금 게시된 장학금과 기회를 살펴볼게요.",
+      "events": "캠퍼스에서 곧 열리는 일정이에요!",
+      "career": "인턴십이나 취업을 생각 중인가요? 알맞은 안내를 찾아볼게요."
+    },
+    "desk": {
+      "reception": {
+        "welcome": "안녕하세요, 안내 데스크의 {name}예요. SCH 학교생활에 대해 무엇이든 물어보시거나 '데스크'에서 담당자를 찾아보세요.",
+        "example1": "한국에 도착하면 가장 먼저 무엇을 해야 하나요?",
+        "example2": "비자 관련 도움은 어디서 받을 수 있나요?",
+        "example3": "국제교류처에 어떻게 연락하나요?"
+      },
+      "supporterLead": {
+        "welcome": "안녕하세요, {name}예요. 허브 자료로 답해 드리고, 사람이 필요하면 글로벌 서포터 요청을 도와드려요.",
+        "example1": "글로벌 서포터가 서류 준비를 도와줄 수 있나요?",
+        "example2": "서포터 답변은 얼마나 걸리나요?",
+        "example3": "글로벌 서포터는 어떤 도움을 주나요?"
+      },
+      "visa": {
+        "welcome": "안녕하세요, 비자·출입국 데스크의 {name}예요. 승인된 공식 안내를 바탕으로 링크와 함께 답해요. 날짜와 수수료는 꼭 원문에서 확인하세요.",
+        "example1": "D-2 비자는 어떻게 연장하나요?",
+        "example2": "체류지 변경 신고는 언제까지 해야 하나요?",
+        "example3": "아르바이트를 하려면 허가가 필요한가요?"
+      },
+      "academic": {
+        "welcome": "안녕하세요, 학사 데스크의 {name}예요. 학사 절차, 수강 신청, 학생 서비스에 대해 물어보세요.",
+        "example1": "수강 신청은 어떻게 하나요?",
+        "example2": "학사 일정은 어디서 볼 수 있나요?",
+        "example3": "졸업하려면 무엇이 필요한가요?"
+      },
+      "topik": {
+        "welcome": "안녕하세요, {name}예요. 허브 자료를 바탕으로 TOPIK과 한국어 학습을 도와드려요.",
+        "example1": "다음 TOPIK 시험은 언제인가요?",
+        "example2": "졸업하려면 TOPIK 몇 급이 필요한가요?",
+        "example3": "교내에서 한국어를 배울 수 있는 곳이 있나요?"
+      },
+      "opportunities": {
+        "welcome": "안녕하세요, {name}예요. 허브 자료로 장학금 질문에 답해 드려요. 아직 인터넷에서 새로운 기회를 찾아 주지는 않아요.",
+        "example1": "외국인 유학생이 신청할 수 있는 장학금은 무엇인가요?",
+        "example2": "장학금을 유지하려면 어떤 조건이 필요한가요?",
+        "example3": "이번 학기 유학생 대상 프로그램이 있나요?"
+      },
+      "events": {
+        "welcome": "안녕하세요, {name}예요. 캠퍼스 생활, 기숙사, 게시된 행사에 대해 물어보세요.",
+        "example1": "유학생을 위한 다가오는 행사가 있나요?",
+        "example2": "기숙사 신청 마감은 언제인가요?",
+        "example3": "기숙사 규칙에서 알아야 할 점은 무엇인가요?"
+      },
+      "career": {
+        "welcome": "안녕하세요, 진로 데스크의 {name}예요. 허브 자료로 취업과 구직 규정을 설명해 드려요. 실시간 채용 공고는 없어요.",
+        "example1": "학업 중에 아르바이트를 할 수 있나요?",
+        "example2": "D-10 구직 비자는 무엇인가요?",
+        "example3": "인턴십 안내는 어디서 찾을 수 있나요?"
+      }
+    },
+    "tabs": {
+      "chat": "대화",
+      "guides": "안내 자료",
+      "notices": "공지",
+      "events": "행사",
+      "opportunities": "기회",
+      "desks": "데스크",
+      "help": "이용 방법",
+      "support": "사람 상담",
+      "about": "할 수 있는 일"
+    },
+    "lists": {
+      "guidesTitle": "지식 센터의 승인된 안내 자료",
+      "noGuides": "이 분야에는 아직 승인된 안내 자료가 없어요.",
+      "allGuides": "지식 센터 열기",
+      "noticesTitle": "최근 게시된 공지",
+      "noNotices": "지금은 게시된 공지가 없어요.",
+      "allNotices": "전체 공지",
+      "eventsTitle": "진행 중이거나 다가오는 행사",
+      "noEvents": "아직 게시된 예정 행사가 없어요.",
+      "eventOn": "행사일: {date}",
+      "deadlineOn": "마감: {date}",
+      "opportunitiesTitle": "허브에 게시된 장학금과 기회",
+      "noOpportunities": "지금은 허브에 게시된 장학금이나 기회 공지가 없어요. 추측하지 않을게요. 대화에서 물어보시거나 나중에 공지를 확인해 주세요.",
+      "fromAnnouncements": "공지",
+      "fromGuides": "안내 자료"
+    },
+    "support": {
+      "title": "글로벌 서포터(사람)와 상담하기",
+      "body": "글로벌 서포터는 여러분의 언어로 돕는 학생과 직원이에요. 로그인하면 대화에서 요청을 보낼 수 있고, 학생 지원 페이지도 이용할 수 있어요.",
+      "signedInBody": "대화에서 질문해 보세요. 답변이 충분하지 않으면 도우미가 동의를 받은 뒤 대화를 글로벌 서포터에게 보내 드려요. 학생 지원 페이지도 열 수 있어요.",
+      "goToSupport": "학생 지원 열기",
+      "askInChat": "대화에서 묻기",
+      "signIn": "로그인",
+      "draft": "글로벌 서포터와 이야기하고 싶어요."
+    },
+    "about": {
+      "available": "지금 가능",
+      "planned": "추후 제공",
+      "confirm": "본인 확인 후 실행",
+      "plannedNote": "추후 제공 기능은 아직 동작하지 않아요. 자동으로 검색하거나 보내거나 바꾸는 것은 없어요.",
+      "tools": {
+        "rag_chat": "허브의 승인된 공식 자료를 바탕으로 출처 링크와 함께 답변",
+        "knowledge_list": "이 주제의 승인된 지식 센터 안내 자료 보기",
+        "announcement_list": "게시된 공지 보기",
+        "event_list": "게시된 진행 중·예정 행사 목록",
+        "office_directory": "도움 줄 수 있는 데스크 안내",
+        "office_help": "오피스 이용 방법 설명",
+        "human_handoff": "동의 후 글로벌 서포터(사람)와 연결",
+        "scholarship_search": "새 장학금 찾기",
+        "competition_discovery": "공모전·해커톤 찾기",
+        "program_discovery": "유학생 프로그램 찾기",
+        "event_monitor": "새 캠퍼스 행사 알림",
+        "deadline_tracker": "다가오는 마감일 알림",
+        "notice_summary": "공식 공지 요약",
+        "notice_drafting": "직원용 다국어 공지 초안 작성",
+        "job_search": "인턴십·채용 공고 찾기",
+        "visa_procedure_guide": "단계별 비자 절차 안내"
+      }
+    },
+    "helpDialog": {
+      "title": "AI 지원 오피스 이용 방법",
+      "intro": "오피스의 모든 직원은 허브 도우미와 승인된 공식 자료에 연결되어 있어요.",
+      "step1": "직원을 클릭하거나 탭하세요. '직원 및 데스크'에서 골라도 돼요.",
+      "step2": "언어 서포터는 자신의 언어로, 데스크 직원은 사이트 언어로 답해요. 언제든 다른 언어로 답해 달라고 할 수 있어요.",
+      "step3": "답변은 승인된 공식 자료를 바탕으로 하고 출처 링크가 있어요. 중요한 날짜, 비용, 요건은 원문에서 확인하세요.",
+      "step4": "사람이 필요하면 글로벌 서포터즈 구역의 Sumin을 찾아가세요.",
+      "privacy": "로그인하지 않으면 대화는 이 브라우저 탭에만 남아요. 로그인하면 일반 채팅처럼 계정에 저장돼요.",
+      "motion": "기기에서 움직임 줄이기를 설정하면 캐릭터가 움직이지 않아요."
+    },
+    "directory": {
+      "title": "어디로 가면 될까요"
     }
   }
 }

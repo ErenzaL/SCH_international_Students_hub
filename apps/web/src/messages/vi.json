@@ -18,7 +18,8 @@
     "language": "Ngôn ngữ",
     "skipToContent": "Chuyển đến nội dung chính",
     "myRequests": "Yêu cầu của tôi",
-    "account": "Tài khoản"
+    "account": "Tài khoản",
+    "aiOffice": "Văn phòng AI"
   },
   "common": {
     "loading": "Đang tải…",
@@ -1839,6 +1840,229 @@
       "rateLimited": "Bạn đang gửi tin nhắn hơi nhanh. Vui lòng đợi một chút rồi thử lại.",
       "network": "Kết nối bị gián đoạn trước khi câu trả lời hoàn tất. Vui lòng thử lại.",
       "generic": "Trợ lý hiện không thể trả lời. Vui lòng thử lại sau ít phút."
+    }
+  },
+  "office": {
+    "title": "Văn phòng hỗ trợ AI SCH",
+    "subtitle": "Văn phòng hỗ trợ ảo thân thiện: nhấn vào một nhân viên để được trợ lý của Hub giúp đỡ.",
+    "backToHub": "Quay lại Hub",
+    "help": "Cách sử dụng",
+    "people": "Nhân viên & quầy",
+    "peopleTitle": "Ai đang ở văn phòng",
+    "peopleIntro": "Chọn người bạn muốn trò chuyện. Nhân viên hỗ trợ ngôn ngữ trả lời bằng ngôn ngữ của họ; nhân viên quầy trả lời bằng ngôn ngữ trang web của bạn.",
+    "close": "Đóng",
+    "minimize": "Thu nhỏ",
+    "restore": "Trò chuyện với {name}",
+    "answering": "{name} đang trả lời…",
+    "newChat": "Cuộc trò chuyện mới",
+    "history": "Lịch sử trò chuyện",
+    "loading": "Đang tải…",
+    "loadError": "Không thể tải.",
+    "retry": "Thử lại",
+    "clickToTalk": "Nhấn để trò chuyện",
+    "talkTo": "Trò chuyện với {name}, {role}",
+    "answersIn": "Trả lời bằng {language}",
+    "siteLanguage": "Trả lời bằng ngôn ngữ trang web ({language})",
+    "sceneLabel": "Văn phòng hỗ trợ AI dạng minh họa. Chọn một nhân viên để bắt đầu trò chuyện.",
+    "tabsLabel": "Mục",
+    "askMe": "Hỏi {name}",
+    "languages": {
+      "ko": "tiếng Hàn",
+      "en": "tiếng Anh",
+      "id": "tiếng Indonesia",
+      "vi": "tiếng Việt",
+      "zh-CN": "tiếng Trung"
+    },
+    "zones": {
+      "reception": "TRUNG TÂM HỖ TRỢ AI",
+      "supporters": "GLOBAL SUPPORTERS",
+      "visa": "VISA & XUẤT NHẬP CẢNH",
+      "academic": "HỌC VỤ & TOPIK",
+      "opportunities": "HỌC BỔNG & CƠ HỘI",
+      "events": "SỰ KIỆN & ĐỜI SỐNG",
+      "career": "NGHỀ NGHIỆP & THỰC TẬP",
+      "meeting": "KHU HỌP",
+      "waiting": "KHU CHỜ"
+    },
+    "roles": {
+      "reception": {
+        "title": "Trợ lý lễ tân",
+        "description": "Chào đón bạn, trả lời câu hỏi chung và chỉ bạn đến đúng quầy."
+      },
+      "guide": {
+        "title": "Robot hướng dẫn",
+        "description": "Giải thích cách dùng văn phòng và vị trí của mọi người."
+      },
+      "supporter": {
+        "title": "Hỗ trợ {language}",
+        "description": "Trả lời câu hỏi của bạn bằng {language}, dựa trên nguồn chính thức đã được duyệt."
+      },
+      "supporterLead": {
+        "title": "Nhóm Global Supporter",
+        "description": "Giúp bạn liên hệ với Global Supporter (người thật) khi cần."
+      },
+      "visa": {
+        "title": "Quầy visa & xuất nhập cảnh",
+        "description": "Visa D-2, D-4, gia hạn, thẻ cư trú, đổi địa chỉ, giấy phép làm thêm, tái nhập cảnh."
+      },
+      "academic": {
+        "title": "Quầy học vụ",
+        "description": "Thủ tục học vụ, đăng ký môn học, dịch vụ sinh viên và thông báo của trường."
+      },
+      "topik": {
+        "title": "TOPIK & tiếng Hàn",
+        "description": "Kỳ thi TOPIK và học tiếng Hàn."
+      },
+      "opportunities": {
+        "title": "Quầy học bổng & cơ hội",
+        "description": "Học bổng, cuộc thi và chương trình được đăng trên Hub."
+      },
+      "events": {
+        "title": "Quầy sự kiện & đời sống",
+        "description": "Sự kiện sắp tới, thông báo ký túc xá và hạn chót từ các thông báo đã đăng."
+      },
+      "career": {
+        "title": "Quầy nghề nghiệp & thực tập",
+        "description": "Thực tập, hướng dẫn việc làm, visa tìm việc D-10 và quy định làm thêm."
+      },
+      "visitor": {
+        "title": "Sinh viên ghé thăm",
+        "description": ""
+      }
+    },
+    "greetings": {
+      "reception": "Chào mừng bạn đến Văn phòng hỗ trợ AI SCH! Mình có thể giúp gì cho bạn?",
+      "guide": "Bíp! Bạn muốn biết cách dùng văn phòng không?",
+      "supporterLead": "Muốn nói chuyện với người thật? Mình sẽ chỉ cách liên hệ Global Supporter.",
+      "visa": "Câu hỏi về visa hay cư trú? Cùng xem hướng dẫn chính thức nhé.",
+      "academic": "Xin chào! Hãy hỏi về môn học, đăng ký và dịch vụ sinh viên.",
+      "topik": "Đang ôn TOPIK? Cùng xem Hub có gì nhé.",
+      "opportunities": "Cùng xem những học bổng và cơ hội đang được đăng nhé.",
+      "events": "Đây là những sự kiện sắp diễn ra ở trường!",
+      "career": "Đang nghĩ đến thực tập hay việc làm? Cùng tìm hướng dẫn phù hợp nhé."
+    },
+    "desk": {
+      "reception": {
+        "welcome": "Xin chào, mình là {name} ở quầy lễ tân. Hãy hỏi bất cứ điều gì về đời sống sinh viên tại SCH, hoặc mở \"Quầy\" để tìm người phụ trách.",
+        "example1": "Sau khi đến Hàn Quốc, tôi nên làm gì trước tiên?",
+        "example2": "Tôi có thể nhận hỗ trợ về visa ở đâu?",
+        "example3": "Làm sao để liên hệ phòng quốc tế?"
+      },
+      "supporterLead": {
+        "welcome": "Xin chào, mình là {name}. Mình trả lời dựa trên nguồn của Hub, và nếu bạn cần người thật, mình sẽ giúp bạn gửi yêu cầu đến Global Supporter.",
+        "example1": "Global Supporter có thể giúp tôi chuẩn bị giấy tờ không?",
+        "example2": "Bao lâu thì supporter trả lời?",
+        "example3": "Global Supporter có thể giúp những gì?"
+      },
+      "visa": {
+        "welcome": "Xin chào, mình là {name} ở quầy visa & xuất nhập cảnh. Câu trả lời của mình dựa trên hướng dẫn chính thức đã được duyệt, kèm liên kết. Hãy luôn kiểm tra ngày và lệ phí trong nguồn.",
+        "example1": "Làm thế nào để gia hạn visa D-2?",
+        "example2": "Khi nào tôi phải khai báo đổi địa chỉ?",
+        "example3": "Tôi có cần giấy phép để làm thêm không?"
+      },
+      "academic": {
+        "welcome": "Xin chào, mình là {name} ở quầy học vụ. Hãy hỏi về thủ tục học vụ, đăng ký môn học hoặc dịch vụ sinh viên.",
+        "example1": "Đăng ký môn học như thế nào?",
+        "example2": "Tôi xem lịch học vụ ở đâu?",
+        "example3": "Tôi cần gì để tốt nghiệp?"
+      },
+      "topik": {
+        "welcome": "Xin chào, mình là {name}. Mình có thể giúp về TOPIK và học tiếng Hàn, dựa trên nguồn của Hub.",
+        "example1": "Kỳ thi TOPIK tiếp theo là khi nào?",
+        "example2": "Tốt nghiệp cần TOPIK cấp mấy?",
+        "example3": "Có thể học tiếng Hàn ở đâu trong trường?"
+      },
+      "opportunities": {
+        "welcome": "Xin chào, mình là {name}. Mình trả lời câu hỏi về học bổng dựa trên nguồn của Hub. Mình chưa tìm cơ hội mới trên internet.",
+        "example1": "Sinh viên quốc tế có thể nộp những học bổng nào?",
+        "example2": "Cần điều kiện gì để duy trì học bổng?",
+        "example3": "Học kỳ này có chương trình nào cho sinh viên quốc tế không?"
+      },
+      "events": {
+        "welcome": "Xin chào, mình là {name}. Hãy hỏi về đời sống trong trường, ký túc xá hoặc sự kiện đã đăng.",
+        "example1": "Sắp tới có sự kiện nào cho sinh viên quốc tế?",
+        "example2": "Hạn đăng ký ký túc xá là khi nào?",
+        "example3": "Tôi cần biết gì về nội quy ký túc xá?"
+      },
+      "career": {
+        "welcome": "Xin chào, mình là {name} ở quầy nghề nghiệp. Mình giải thích quy định làm việc và tìm việc dựa trên nguồn của Hub. Mình không có tin tuyển dụng trực tiếp.",
+        "example1": "Tôi có thể làm thêm khi đang học không?",
+        "example2": "Visa tìm việc D-10 là gì?",
+        "example3": "Tôi tìm hướng dẫn thực tập ở đâu?"
+      }
+    },
+    "tabs": {
+      "chat": "Trò chuyện",
+      "guides": "Hướng dẫn",
+      "notices": "Thông báo",
+      "events": "Sự kiện",
+      "opportunities": "Cơ hội",
+      "desks": "Quầy",
+      "help": "Cách sử dụng",
+      "support": "Hỗ trợ từ người thật",
+      "about": "Mình có thể làm gì"
+    },
+    "lists": {
+      "guidesTitle": "Hướng dẫn đã được duyệt trong Trung tâm kiến thức",
+      "noGuides": "Chưa có hướng dẫn được duyệt cho lĩnh vực này.",
+      "allGuides": "Mở Trung tâm kiến thức",
+      "noticesTitle": "Thông báo mới nhất",
+      "noNotices": "Hiện chưa có thông báo nào được đăng.",
+      "allNotices": "Tất cả thông báo",
+      "eventsTitle": "Sự kiện đang và sắp diễn ra",
+      "noEvents": "Chưa có sự kiện sắp tới nào được đăng.",
+      "eventOn": "Sự kiện: {date}",
+      "deadlineOn": "Hạn chót: {date}",
+      "opportunitiesTitle": "Học bổng và cơ hội được đăng trên Hub",
+      "noOpportunities": "Hiện chưa có thông báo học bổng hay cơ hội nào trên Hub. Mình sẽ không đoán: bạn có thể hỏi trong trò chuyện hoặc xem thông báo sau.",
+      "fromAnnouncements": "Thông báo",
+      "fromGuides": "Hướng dẫn"
+    },
+    "support": {
+      "title": "Trò chuyện với Global Supporter (người thật)",
+      "body": "Global Supporter là sinh viên và nhân viên hỗ trợ bằng ngôn ngữ của bạn. Hãy đăng nhập để gửi yêu cầu từ cuộc trò chuyện, hoặc mở trang Hỗ trợ sinh viên.",
+      "signedInBody": "Hãy đặt câu hỏi trong cuộc trò chuyện: nếu câu trả lời chưa đủ, trợ lý sẽ đề nghị gửi cuộc trò chuyện đến Global Supporter (chỉ khi bạn đồng ý). Bạn cũng có thể mở trang Hỗ trợ sinh viên.",
+      "goToSupport": "Mở Hỗ trợ sinh viên",
+      "askInChat": "Hỏi trong trò chuyện",
+      "signIn": "Đăng nhập",
+      "draft": "Tôi muốn nói chuyện với Global Supporter."
+    },
+    "about": {
+      "available": "Có sẵn",
+      "planned": "Sắp có",
+      "confirm": "cần bạn xác nhận",
+      "plannedNote": "Các tính năng dự kiến chưa hoạt động: không có gì được tự động tìm kiếm, gửi đi hay thay đổi.",
+      "tools": {
+        "rag_chat": "Trả lời từ nguồn chính thức đã được duyệt của Hub, kèm liên kết",
+        "knowledge_list": "Hiển thị hướng dẫn đã được duyệt trong Trung tâm kiến thức",
+        "announcement_list": "Hiển thị các thông báo đã đăng",
+        "event_list": "Danh sách sự kiện đang và sắp diễn ra",
+        "office_directory": "Chỉ cho bạn quầy có thể giúp",
+        "office_help": "Giải thích cách dùng văn phòng",
+        "human_handoff": "Kết nối bạn với Global Supporter (khi bạn đồng ý)",
+        "scholarship_search": "Tìm học bổng mới",
+        "competition_discovery": "Tìm cuộc thi và hackathon",
+        "program_discovery": "Tìm chương trình cho sinh viên quốc tế",
+        "event_monitor": "Theo dõi sự kiện mới trong trường",
+        "deadline_tracker": "Nhắc hạn chót sắp đến",
+        "notice_summary": "Tóm tắt thông báo chính thức",
+        "notice_drafting": "Soạn thông báo đa ngôn ngữ cho nhân viên",
+        "job_search": "Tìm tin tuyển dụng và thực tập",
+        "visa_procedure_guide": "Hướng dẫn thủ tục visa từng bước"
+      }
+    },
+    "helpDialog": {
+      "title": "Cách dùng Văn phòng hỗ trợ AI",
+      "intro": "Mọi người trong văn phòng đều được kết nối với trợ lý của Hub và các nguồn chính thức đã được duyệt.",
+      "step1": "Nhấn hoặc chạm vào một nhân viên, hoặc mở “Nhân viên & quầy”.",
+      "step2": "Nhân viên hỗ trợ ngôn ngữ trả lời bằng ngôn ngữ của họ; nhân viên quầy trả lời bằng ngôn ngữ trang web của bạn. Bạn có thể yêu cầu ngôn ngữ khác bất cứ lúc nào.",
+      "step3": "Câu trả lời dựa trên nguồn chính thức đã được duyệt và có liên kết. Hãy kiểm tra ngày, chi phí và yêu cầu quan trọng trong nguồn.",
+      "step4": "Cần người thật? Hãy đến gặp Sumin ở khu Global Supporters.",
+      "privacy": "Chưa đăng nhập: cuộc trò chuyện chỉ lưu trong tab trình duyệt này. Đã đăng nhập: được lưu vào tài khoản của bạn, như trò chuyện thông thường.",
+      "motion": "Nếu thiết bị của bạn bật giảm chuyển động, các nhân vật sẽ đứng yên."
+    },
+    "directory": {
+      "title": "Nên đến đâu"
     }
   }
 }

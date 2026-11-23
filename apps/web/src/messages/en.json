@@ -18,7 +18,8 @@
     "language": "Language",
     "skipToContent": "Skip to main content",
     "myRequests": "My requests",
-    "account": "Account"
+    "account": "Account",
+    "aiOffice": "AI Office"
   },
   "common": {
     "loading": "Loading…",
@@ -1839,6 +1840,229 @@
       "rateLimited": "You're sending messages a little too quickly. Please wait a moment and try again.",
       "network": "The connection was interrupted before the answer finished. Please try again.",
       "generic": "The assistant couldn't answer right now. Please try again in a moment."
+    }
+  },
+  "office": {
+    "title": "SCH AI Support Office",
+    "subtitle": "A friendly virtual support office: click a staff member to get help from the Hub's assistant.",
+    "backToHub": "Back to Hub",
+    "help": "How it works",
+    "people": "People & desks",
+    "peopleTitle": "Who's in the office",
+    "peopleIntro": "Choose someone to talk to. Language supporters answer in their language; desk staff answer in your site language.",
+    "close": "Close",
+    "minimize": "Minimize",
+    "restore": "Talk to {name}",
+    "answering": "{name} is answering…",
+    "newChat": "New conversation",
+    "history": "Conversation history",
+    "loading": "Loading…",
+    "loadError": "This could not be loaded.",
+    "retry": "Try again",
+    "clickToTalk": "Click to talk",
+    "talkTo": "Talk to {name}, {role}",
+    "answersIn": "Answers in {language}",
+    "siteLanguage": "Answers in your site language ({language})",
+    "sceneLabel": "Illustrated AI support office. Choose a staff member to start a conversation.",
+    "tabsLabel": "Sections",
+    "askMe": "Ask {name}",
+    "languages": {
+      "ko": "Korean",
+      "en": "English",
+      "id": "Indonesian",
+      "vi": "Vietnamese",
+      "zh-CN": "Chinese"
+    },
+    "zones": {
+      "reception": "AI SUPPORT CENTER",
+      "supporters": "GLOBAL SUPPORTERS",
+      "visa": "VISA & IMMIGRATION",
+      "academic": "ACADEMIC & TOPIK",
+      "opportunities": "SCHOLARSHIPS & OPPORTUNITIES",
+      "events": "EVENTS & CAMPUS LIFE",
+      "career": "CAREER & INTERNSHIPS",
+      "meeting": "MEETING AREA",
+      "waiting": "WAITING AREA"
+    },
+    "roles": {
+      "reception": {
+        "title": "Reception assistant",
+        "description": "Welcomes you, answers general questions and shows you the right desk."
+      },
+      "guide": {
+        "title": "Office guide robot",
+        "description": "Explains how the office works and where everyone is."
+      },
+      "supporter": {
+        "title": "{language} supporter",
+        "description": "Answers your questions in {language}, from approved official sources."
+      },
+      "supporterLead": {
+        "title": "Global Supporter team",
+        "description": "Helps you reach a human Global Supporter when you need a person."
+      },
+      "visa": {
+        "title": "Visa & immigration desk",
+        "description": "D-2 and D-4 visas, extensions, residence card, address changes, part-time work permission, re-entry."
+      },
+      "academic": {
+        "title": "Academic desk",
+        "description": "Academic procedures, course registration, student services and university notices."
+      },
+      "topik": {
+        "title": "TOPIK & Korean language",
+        "description": "TOPIK exams and Korean language learning."
+      },
+      "opportunities": {
+        "title": "Scholarships & opportunities desk",
+        "description": "Scholarships, competitions and programs published in the Hub."
+      },
+      "events": {
+        "title": "Events & campus life desk",
+        "description": "Upcoming events, dormitory notices and deadlines from published announcements."
+      },
+      "career": {
+        "title": "Career & internships desk",
+        "description": "Internships, employment guidance, D-10 job-seeking visa and part-time work rules."
+      },
+      "visitor": {
+        "title": "Visiting student",
+        "description": ""
+      }
+    },
+    "greetings": {
+      "reception": "Welcome to the SCH AI Support Office! How can I help you today?",
+      "guide": "Beep! Want to know how the office works?",
+      "supporterLead": "Need to talk to a person? I'll show you how to reach a Global Supporter.",
+      "visa": "Visa or residence question? Let's check the official guidance.",
+      "academic": "Hi! Ask me about courses, registration and student services.",
+      "topik": "Preparing for TOPIK? Let's look at what the Hub has.",
+      "opportunities": "Let's see which scholarships and opportunities are published right now.",
+      "events": "Here's what's coming up on campus!",
+      "career": "Thinking about internships or work? Let's find the right guidance."
+    },
+    "desk": {
+      "reception": {
+        "welcome": "Hello, I'm {name} at reception. Ask me anything about student life at SCH, or open \"Desks\" to find a specialist.",
+        "example1": "What should I do first after arriving in Korea?",
+        "example2": "Where can I get help with my visa?",
+        "example3": "How do I contact the international office?"
+      },
+      "supporterLead": {
+        "welcome": "Hi, I'm {name}. I can answer from the Hub's sources, and if you need a person I'll help you request a Global Supporter.",
+        "example1": "Can a Global Supporter help me with my documents?",
+        "example2": "How long does it take to get a reply from a supporter?",
+        "example3": "What can the Global Supporters help with?"
+      },
+      "visa": {
+        "welcome": "Hello, I'm {name} at the visa & immigration desk. My answers come from approved official guides, with links. Always check dates and fees in the source.",
+        "example1": "How do I extend my D-2 visa?",
+        "example2": "When do I have to report a change of address?",
+        "example3": "Do I need permission for part-time work?"
+      },
+      "academic": {
+        "welcome": "Hello, I'm {name} at the academic desk. Ask me about academic procedures, course registration or student services.",
+        "example1": "How does course registration work?",
+        "example2": "Where can I find the academic calendar?",
+        "example3": "What do I need to graduate?"
+      },
+      "topik": {
+        "welcome": "Hi, I'm {name}. I can help with TOPIK and Korean language study, based on the Hub's sources.",
+        "example1": "When is the next TOPIK test?",
+        "example2": "Which TOPIK level do I need for graduation?",
+        "example3": "Where can I study Korean on campus?"
+      },
+      "opportunities": {
+        "welcome": "Hi, I'm {name}. I can answer questions about scholarships from the Hub's sources. I don't search the internet for new opportunities yet.",
+        "example1": "Which scholarships can international students apply for?",
+        "example2": "What are the conditions to keep a scholarship?",
+        "example3": "Are there programs for international students this semester?"
+      },
+      "events": {
+        "welcome": "Hi, I'm {name}. Ask me about campus life, the dormitory or a published event.",
+        "example1": "What events are coming up for international students?",
+        "example2": "When is the dormitory application deadline?",
+        "example3": "What should I know about dormitory rules?"
+      },
+      "career": {
+        "welcome": "Hello, I'm {name} at the career desk. I can explain work and job-seeking rules from the Hub's sources. I don't have live job listings.",
+        "example1": "Can I work part-time while studying?",
+        "example2": "What is the D-10 job-seeking visa?",
+        "example3": "Where can I find internship guidance?"
+      }
+    },
+    "tabs": {
+      "chat": "Chat",
+      "guides": "Guides",
+      "notices": "Notices",
+      "events": "Events",
+      "opportunities": "Opportunities",
+      "desks": "Desks",
+      "help": "How it works",
+      "support": "Human support",
+      "about": "What I can do"
+    },
+    "lists": {
+      "guidesTitle": "Approved guides in the Knowledge Center",
+      "noGuides": "There are no approved guides in this area yet.",
+      "allGuides": "Open the Knowledge Center",
+      "noticesTitle": "Latest published notices",
+      "noNotices": "There are no published notices right now.",
+      "allNotices": "All announcements",
+      "eventsTitle": "Current and upcoming events",
+      "noEvents": "No upcoming events have been published yet.",
+      "eventOn": "Event: {date}",
+      "deadlineOn": "Deadline: {date}",
+      "opportunitiesTitle": "Scholarships and opportunities published in the Hub",
+      "noOpportunities": "No scholarship or opportunity notices are published in the Hub right now. I won't guess: you can ask me in the chat or check the announcements later.",
+      "fromAnnouncements": "Announcement",
+      "fromGuides": "Guide"
+    },
+    "support": {
+      "title": "Talk to a human Global Supporter",
+      "body": "Global Supporters are students and staff who help in your language. Sign in to send them a request from the chat, or see the Student Support page.",
+      "signedInBody": "Ask your question in the chat: if the answer isn't enough, the assistant offers to send your conversation to a Global Supporter (only with your consent). You can also open Student Support.",
+      "goToSupport": "Open Student Support",
+      "askInChat": "Ask in the chat",
+      "signIn": "Sign in",
+      "draft": "I'd like to talk to a Global Supporter."
+    },
+    "about": {
+      "available": "Available now",
+      "planned": "Coming later",
+      "confirm": "will need your confirmation",
+      "plannedNote": "Planned features are not active yet: nothing is searched, sent or changed for you automatically.",
+      "tools": {
+        "rag_chat": "Answers from the Hub's approved official sources, with links to them",
+        "knowledge_list": "Shows approved Knowledge Center guides for this topic",
+        "announcement_list": "Shows published announcements",
+        "event_list": "Lists published current and upcoming events",
+        "office_directory": "Shows you which desk can help",
+        "office_help": "Explains how the office works",
+        "human_handoff": "Helps you reach a human Global Supporter (with your consent)",
+        "scholarship_search": "Search for new scholarships",
+        "competition_discovery": "Discover competitions and hackathons",
+        "program_discovery": "Find programs for international students",
+        "event_monitor": "Watch for new campus events",
+        "deadline_tracker": "Remind you of approaching deadlines",
+        "notice_summary": "Summarize official announcements",
+        "notice_drafting": "Prepare multilingual notices for staff",
+        "job_search": "Find internship and job postings",
+        "visa_procedure_guide": "Step-by-step visa procedure guidance"
+      }
+    },
+    "helpDialog": {
+      "title": "How the AI Support Office works",
+      "intro": "Everyone in this office is connected to the Hub's assistant and its approved official sources.",
+      "step1": "Click or tap a staff member, or open “People & desks”.",
+      "step2": "Language supporters answer in their own language; desk staff answer in your site language. Ask for another language any time.",
+      "step3": "Answers come from approved official sources and link to them. Check important dates, fees and requirements in the source.",
+      "step4": "Need a person? Visit Sumin in the Global Supporters area.",
+      "privacy": "Not signed in: your conversation stays in this browser tab. Signed in: it is saved to your account, like the regular chat.",
+      "motion": "If your device is set to reduce motion, the characters stay still."
+    },
+    "directory": {
+      "title": "Where to go"
     }
   }
 }

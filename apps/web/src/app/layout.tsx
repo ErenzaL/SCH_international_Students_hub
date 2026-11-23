@@ -4,6 +4,7 @@ import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ChatWidget } from "@/features/chatbot/chat-widget";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { HideOnFullscreen } from "@/components/layout/fullscreen-route";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -27,11 +28,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           >
             {nav("skipToContent")}
           </a>
-          <SiteHeader />
+          <HideOnFullscreen><SiteHeader /></HideOnFullscreen>
           <main id="main" className="flex-1">
             {children}
           </main>
-          <SiteFooter />
+          <HideOnFullscreen><SiteFooter /></HideOnFullscreen>
           <ChatWidget />
         </NextIntlClientProvider>
       </body>

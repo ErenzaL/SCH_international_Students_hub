@@ -52,7 +52,8 @@ describe("original PDF", () => {
     const loader = fakePdf(3);
     renderWithIntl(<KnowledgeArticle id="g1" pdfLoader={loader} />);
     const viewer = await screen.findByTestId("pdf-viewer");
-    expect(loader).toHaveBeenCalledWith(`${API}/api/v1/knowledge/documents/g1/original`);  // the original file, not chunks
+    // the original file, not chunks (the loader runs in an effect right after the viewer mounts)
+    await waitFor(() => expect(loader).toHaveBeenCalledWith(`${API}/api/v1/knowledge/documents/g1/original`));
     await waitFor(() => expect(within(viewer).getByTestId("pdf-page-count")).toHaveTextContent("/ 3"));
     expect(viewer.querySelectorAll("[data-page]")).toHaveLength(3);
     await waitFor(() => expect(rendered).toContain(1));
