@@ -1,0 +1,76 @@
+{
+ "date": "2026-11-23",
+ "command": "app.cli reextract 612108fb-e5fa-4d52-be8c-0d6cf440f426 (dry run, no --apply)",
+ "code_commit": "671824c",
+ "inputs": "read-only snapshot: version/document/source rows (supabase db query --read-only) and the stored original (supabase storage cp), sha256 8f892bb8... = original_file.sha256; executed on an in-memory store, nothing written",
+ "result": {
+  "version_id": "612108fb-e5fa-4d52-be8c-0d6cf440f426",
+  "version_number": 1,
+  "status": "approved",
+  "document": "한국 유학생 생활 가이드북",
+  "file": "guideBook_ko.pdf",
+  "dry_run": true,
+  "unchanged": false,
+  "can_apply": true,
+  "blocked_reason": null,
+  "stored_chars": 85568,
+  "new_chars": 77210,
+  "new_heading_char_share": 0.0346,
+  "pdf": {
+   "pages": 94,
+   "pages_with_text": 90,
+   "needs_ocr_pages": 4,
+   "table_mode": "off"
+  },
+  "source_published_at": "2021-03-05T00:00:00+00:00",
+  "stored": {
+   "chunks": 291,
+   "median_chars": 37,
+   "under_100_chars": 258,
+   "content_chars": 20715,
+   "word_coverage": 0.2655,
+   "word_coverage_with_headings": 0.412,
+   "pages_with_chunks": 77,
+   "pages_without_chunks": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    37,
+    69,
+    79,
+    81,
+    83,
+    87,
+    88,
+    89,
+    91,
+    93,
+    94
+   ]
+  },
+  "new": {
+   "chunks": 178,
+   "median_chars": 454,
+   "under_100_chars": 21,
+   "content_chars": 76301,
+   "word_coverage": 0.9727,
+   "word_coverage_with_headings": 0.9896,
+   "pages_with_chunks": 88,
+   "pages_without_chunks": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    91
+   ]
+  },
+  "warnings": [
+   "4 page(s) had no selectable text (scanned images; pages 3, 4, 5, 91); they were not extracted - OCR or manual text is needed for them.",
+   "Older source: published 2021-03-05 and declares a 2021 edition. Verify time-sensitive guidance (fees, amounts, deadlines, visa, work and insurance rules, contacts) against current official sources before approving, and set a validity date if parts are outdated."
+  ]
+ }
+}

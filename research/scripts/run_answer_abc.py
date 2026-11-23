@@ -56,6 +56,8 @@ def main() -> None:
     ap.add_argument("--limit", type=int, default=None, help="number of questions (rounded to whole scenarios)")
     ap.add_argument("--pause", type=float, default=0.0, help="seconds between questions (provider rate limits)")
     ap.add_argument("--annotation", action="store_true", help="write the blinded human-review worksheet and exit")
+    ap.add_argument("--max-consecutive-failures", type=int, default=3,
+                    help="stop the run after this many answers in a row without an LLM answer (quota / outage guard)")
     a = ap.parse_args()
     if a.annotation:
         return write_annotation()
@@ -97,6 +99,7 @@ def main() -> None:
             from app.services.retrieval.rerank import NoReranker
 
             eng.reranker = NoReranker()
+        failures = 0
         with (OUT / f"{tag}{name}.jsonl").open("w", encoding="utf-8") as f:
             for r in records(a.limit):
                 t0 = time.perf_counter()
@@ -131,7 +134,11 @@ def main() -> None:
                            evidence_completeness=(sum(t in answer.lower() for t in terms) / len(terms)) if (llm_ok and terms) else None)
                 f.write(json.dumps(row, ensure_ascii=False) + "\n")
                 f.flush()
-                print(name, r["question_id"], row["answer_generation"], row["wall_latency_ms"], "ms", flush=True)
+                print(name, r["question_id"], row["answer_generation"], row["model"], row["wall_latency_ms"], "ms", flush=True)
+                failures = 0 if (llm_ok or a.dry_run) else failures + 1
+                if failures >= a.max_consecutive_failures:
+                    raise SystemExit(f"stopped: {failures} answers in a row without an LLM answer "
+                                     f"(last: {row['fallback_reason'] or row['error']}); results so far are kept")
                 if a.pause:
                     time.sleep(a.pause)
     (OUT / f"{tag}run_{'_'.join(a.pipelines)}.json").write_text(json.dumps(dict(
