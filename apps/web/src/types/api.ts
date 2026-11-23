@@ -47,6 +47,7 @@ export type AnnouncementStatus = "active" | "upcoming" | "expired";
 export type TranslationStatus =
   | "todo"
   | "machine_draft"
+  | "needs_review"
   | "in_review"
   | "changes_requested"
   | "human_approved"
@@ -91,6 +92,9 @@ export interface AnnouncementSummary {
   excerpt: string;
   is_test_data: boolean;
   source: SourceRef;
+  /** title in the requested display language when a translation students may see exists */
+  display_title?: string | null;
+  display_title_status?: "verified" | "machine" | null;
 }
 
 export interface PublicTranslation {
@@ -107,6 +111,20 @@ export interface AnnouncementDetail extends AnnouncementSummary {
   verified_at: string | null;
   version_id: string;
   translations: PublicTranslation[];
+  /** what a reader in `requested_language` sees: an approved translation, or (when enabled) a labelled machine
+   * translation of exactly this text. null = show the original. */
+  translation?: AnnouncementTranslationView | null;
+  requested_language?: LanguageCode | null;
+}
+
+export interface AnnouncementTranslationView {
+  status: "verified" | "machine";
+  language: LanguageCode;
+  title: string;
+  body: string;
+  high_risk: boolean;
+  reviewed_at: string | null;
+  generated_at: string | null;
 }
 
 export interface AssistantStatus {
@@ -177,6 +195,7 @@ export interface KnowledgeDocumentSummary {
   verified_languages?: LanguageCode[];
   /** Verified translated title for the requested language (list endpoint with ?lang=). */
   translated_title?: string | null;
+  translated_title_status?: "verified" | "machine" | null;
   display_language?: LanguageCode;
 }
 
@@ -197,6 +216,22 @@ export interface KnowledgeDocumentDetail extends KnowledgeDocumentSummary {
    * when the site enables it). null = show the original. */
   translation?: PublicDocTranslation | null;
   requested_language?: LanguageCode | null;
+  /** How the original is shown: the stored file (PDF viewer / Word preview), the source web page, or (pasted text)
+   * the approved text itself. Never reconstructed from search chunks. */
+  original?: DocumentOriginal;
+}
+
+export interface DocumentOriginal {
+  kind: "pdf" | "docx" | "text" | "web";
+  has_file: boolean;
+  filename?: string | null;
+  size?: number | null;
+  mime_type?: string | null;
+  /** API paths (relative to the API base URL) */
+  file_url?: string;
+  download_url?: string;
+  preview_url?: string | null;
+  source_url?: string | null;
 }
 
 export interface PublicDocTranslation {
@@ -208,11 +243,17 @@ export interface PublicDocTranslation {
   reviewed_at: string | null;
   generated_at: string | null;
   source_version_number: number;
+  /** "summary": a long document - only the title and an AI summary were translated, not the whole text */
+  scope?: "full" | "summary";
+  /** immigration / employment / insurance / fee / legal content: an unreviewed machine translation is labelled as
+   * unverified more prominently */
+  high_risk?: boolean;
 }
 
 export type DocTranslationStatus =
   | "todo"
   | "machine_draft"
+  | "needs_review"
   | "draft"
   | "in_review"
   | "changes_requested"
@@ -220,7 +261,8 @@ export type DocTranslationStatus =
   | "rejected";
 
 export interface TranslationWarning {
-  type: "url" | "email" | "phone" | "code" | "number" | "headings" | "table_rows";
+  type: "url" | "email" | "phone" | "code" | "number" | "headings" | "table_rows" | "language" | "truncated"
+    | "missing_sections" | "placeholder" | "number_added" | "url_added" | "email_added" | "code_added";
   value: string;
 }
 
@@ -1085,6 +1127,15 @@ export interface ConversationCitation {
   language?: string | null;
   /** the answer actually cites this source (generated answers) */
   cited?: boolean;
+  source_type?: string | null;
+  /** where the citation opens (announcement page, Knowledge Center document at the cited PDF page, or the verified
+   * original URL of a web source); absent on messages stored before it existed */
+  link?: CitationLink | null;
+}
+export interface CitationLink {
+  kind: "document" | "announcement" | "external";
+  href: string;
+  page?: number | null;
 }
 export interface ConversationMessage {
   id: string;
@@ -1304,4 +1355,21 @@ export interface TranslationDetail {
   revisions: TranslationRevision[];
   permissions: { can_edit: boolean; can_review: boolean };
   language: LanguageCode;
+  /** automatic machine translation of this language (state, model, automated checks, last job) */
+  machine?: MachineTranslationInfo | null;
+}
+
+export type AutomationState = "pending" | "processing" | "completed" | "needs_review" | "failed" | "outdated" | "approved"
+  | "human_draft" | "missing";
+
+export interface MachineTranslationInfo {
+  state: AutomationState;
+  machine_made: boolean;
+  provider: string | null;
+  model: string | null;
+  generated_at: string | null;
+  warnings: TranslationWarning[];
+  job: { id: string; status: string; error_code: string | null; error_message: string | null; created_at: string;
+    run_after: string | null } | null;
+  llm_enabled: boolean;
 }

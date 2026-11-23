@@ -218,6 +218,12 @@ function ChatWidgetInner() {
     setView("chat");
   }
 
+  // a source opened from the chat on a phone: the full-screen widget closes so the page is visible (the conversation
+  // stays in memory and comes back with the chat button); on wider screens the widget stays open beside the page
+  function closeOnPhone() {
+    if (isPhoneLayout()) setOpen(false);
+  }
+
   async function openHistory() {
     setView("history");
     try {
@@ -325,7 +331,8 @@ function ChatWidgetInner() {
               </div>
             )}
             {messages.map((m) => (
-              <ChatMessageView key={m.id} m={m} onRetry={m.failed ? () => void send(draft || "") : undefined} />
+              <ChatMessageView key={m.id} m={m} onRetry={m.failed ? () => void send(draft || "") : undefined}
+                onNavigate={closeOnPhone} />
             ))}
             {showOffer && lastAssistant && (
               <div className="rounded-xl border border-border bg-background p-3 text-sm" data-testid="handoff-offer">
@@ -387,6 +394,12 @@ function ChatWidgetInner() {
       )}
     </section>
   );
+}
+
+/** The widget is full-screen below Tailwind's `sm` breakpoint (640px). */
+export function isPhoneLayout(): boolean {
+  return typeof window !== "undefined" && typeof window.matchMedia === "function"
+    && window.matchMedia("(max-width: 639.98px)").matches;
 }
 
 function pathname(): string {

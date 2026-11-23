@@ -6,16 +6,19 @@ from typing import Any
 
 from app.core.constants import CATEGORIES
 from app.core.errors import NotFound
-from app.repositories.base import Query, Store, get_many, get_one
+from app.repositories.base import FileStorage, Query, Store, get_many, get_one
 from app.services.announcements import AnnouncementService, compute_status, excerpt, today_kst
+from app.services.originals import DOCX_MIME, PDF_MIME, docx_preview_html, file_kind, original_info
 
 PRIVATE_SOURCE_FILTER = {"authority_type": "supporter_submitted"}
 
 
 class PublicService:
-    def __init__(self, store: Store, announcements: AnnouncementService):
+    def __init__(self, store: Store, announcements: AnnouncementService, storage: FileStorage | None = None):
         self.store = store
         self.ann = announcements
+        self.storage = storage
+        self.announcement_translator: Any = None   # machine / verified translations shown to students
 
     # ---------------------------------------------------------- categories
     def categories(self, with_counts: bool) -> list[dict[str, Any]]:
@@ -77,7 +80,8 @@ class PublicService:
         return out
 
     def list_announcements(self, *, q: str | None, category: str | None, language: str | None, status: str | None,
-                           page: int, size: int) -> tuple[list[dict[str, Any]], int]:
+                           page: int, size: int, display_language: str | None = None
+                           ) -> tuple[list[dict[str, Any]], int]:
         today = today_kst().isoformat()
         eq: dict[str, Any] = {"publication_status": "published"}
         if category:
@@ -103,7 +107,20 @@ class PublicService:
             else:
                 in_["id"] = list(ids) or ["00000000-0000-0000-0000-000000000000"]
         rows, total = self._query_announcements(eq, gt, lt, gte, in_, is_null, or_eq, q, status, page, size)
-        return [{k: v for k, v in s.items() if not k.startswith("_")} for s in self._summaries(rows)], total
+        out = []
+        for s, a in zip(self._summaries(rows), rows, strict=True):
+            tr = self._ann_translation(a, (s["_ver"] or {}).get("extracted_text") or "", display_language)
+            s.update(display_title=tr["title"] if tr else None, display_title_status=tr["status"] if tr else None)
+            out.append({k: v for k, v in s.items() if not k.startswith("_")})
+        return out, total
+
+    def _ann_translation(self, a: dict[str, Any], body: str, language: str | None) -> dict[str, Any] | None:
+        if not language or self.announcement_translator is None:
+            return None
+        from app.services.ingestion.normalize import content_hash
+
+        return self.announcement_translator.public_translation(a, body, content_hash(f"{a['title']}\n\n{body}"),
+                                                               language)
 
     def _query_announcements(self, eq, gt, lt, gte, in_, is_null, or_eq, q, status, page, size):  # type: ignore[no-untyped-def]
         # "active" must also admit announcements without a deadline, which a single AND filter cannot express,
@@ -120,7 +137,7 @@ class PublicService:
         start = (page - 1) * size
         return rows[start : start + size], total
 
-    def get_announcement(self, announcement_id: str) -> dict[str, Any]:
+    def get_announcement(self, announcement_id: str, language: str | None = None) -> dict[str, Any]:
         a = get_one(self.store, "announcements", id=announcement_id)
         if a is None or a["publication_status"] != "published":
             raise NotFound("Announcement not found.")
@@ -133,7 +150,8 @@ class PublicService:
                  verified_at=ver.get("approved_at"), version_id=ver["id"],
                  translations=[dict(language=t["language_code"], title=t["title"], body=t["body"],
                                     translation_status="human_approved", reviewed_at=t["reviewed_at"])
-                               for t in self.ann._translations(a["id"], public=True)])
+                               for t in self.ann._translations(a["id"], public=True)],
+                 translation=self._ann_translation(a, ver["extracted_text"], language), requested_language=language)
         return s
 
     # ------------------------------------------------------------ knowledge
@@ -186,7 +204,8 @@ class PublicService:
                     version_id=v.get("id"),
                     **stale_info(v.get("approved_at"), s["category"], s.get("stale_after_days")))
 
-    def get_document(self, document_id: str) -> dict[str, Any]:
+    def _public_doc(self, document_id: str) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+        """(document, source, current approved version) of a PUBLIC Knowledge Center document, else NotFound."""
         d = get_one(self.store, "source_documents", id=document_id)
         if d is None or d["is_canceled"] or d.get("archived_at") or not d["current_version_id"] \
                 or d["document_type"] == "announcement":
@@ -198,6 +217,37 @@ class PublicService:
         v = get_one(self.store, "document_versions", id=d["current_version_id"])
         if v is None or v["verification_status"] != "approved":
             raise NotFound("Document not found.")
+        return d, s, v
+
+    def original_file(self, document_id: str) -> tuple[bytes, str, str]:
+        """(bytes, filename, media type) of the CURRENT approved version's original file of a public document.
+        Older versions, drafts and private documents are never served."""
+        d, _s, v = self._public_doc(document_id)
+        f = v.get("original_file") or {}
+        kind = file_kind(f) if f.get("storage_path") else None
+        if kind is None or self.storage is None:
+            raise NotFound("The original file of this document is not available.", code="original_unavailable")
+        try:
+            data = self.storage.download(f["storage_path"])
+        except Exception as exc:  # noqa: BLE001 - missing object / storage outage: a clear 404, never a 500
+            raise NotFound("The original file could not be loaded from storage.", code="original_unavailable") from exc
+        mime = PDF_MIME if kind == "pdf" else DOCX_MIME if kind == "docx" else "text/plain; charset=utf-8"
+        return data, f.get("filename") or f"{d['title'][:80]}.{kind}", mime
+
+    def original_preview(self, document_id: str) -> dict[str, Any]:
+        """Formatted preview of a Word original (see app.services.originals)."""
+        d, _s, v = self._public_doc(document_id)
+        if file_kind(v.get("original_file") or {}) != "docx":
+            raise NotFound("A formatted preview exists only for Word documents.", code="preview_unavailable")
+        data, _name, _mime = self.original_file(document_id)
+        try:
+            return docx_preview_html(data, d["title"])
+        except Exception as exc:  # noqa: BLE001 - a damaged file: the page offers the download instead
+            raise NotFound("This Word file cannot be previewed; download the original instead.",
+                           code="preview_unavailable") from exc
+
+    def get_document(self, document_id: str) -> dict[str, Any]:
+        d, s, v = self._public_doc(document_id)
         out = self._doc_summary(d, s, v)
         sd = v.get("structured_data") or {}
         # only reviewer/submitter-confirmed facts are shown publicly (never raw detections or OCR guesses)
@@ -206,7 +256,7 @@ class PublicService:
         meta = d.get("metadata") or {}
         out.update(content=v["extracted_text"], version_id=v["id"], version_number=v["version_number"],
                    key_facts=facts, attachments=meta.get("attachments") or [],
-                   notice_no=meta.get("notice_no"))
+                   notice_no=meta.get("notice_no"), original=original_info(d, s, v))
         return out
 
 

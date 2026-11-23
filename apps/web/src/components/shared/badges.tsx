@@ -81,6 +81,7 @@ const trVariant: Record<TranslationStatus, Variant> = {
   todo: "muted",
   changes_requested: "warning",
   machine_draft: "warning",
+  needs_review: "danger",
   in_review: "info",
   human_approved: "success",
   rejected: "danger",

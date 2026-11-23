@@ -18,7 +18,7 @@ import { formatDateTime } from "@/lib/utils";
 import { DOC_TR_VARIANT, docTranslationState } from "@/lib/doc-translation";
 import type { DocTranslationStatus, DocTranslationTask, Page, TranslationStatus, TranslationTask } from "@/types/api";
 
-const STATUSES: TranslationStatus[] = ["todo", "machine_draft", "in_review", "changes_requested", "human_approved", "rejected"];
+const STATUSES: TranslationStatus[] = ["todo", "machine_draft", "needs_review", "in_review", "changes_requested", "human_approved", "rejected"];
 
 type Kind = "announcements" | "documents";
 
@@ -159,7 +159,7 @@ function AnnouncementTranslations() {
                   <TableCell>
                     <Button asChild size="sm" variant="outline">
                       <Link href={`/admin/translations/${tr.announcement_id}/${tr.language_code}`}>
-                        {tr.can_review && ["in_review", "machine_draft"].includes(tr.translation_status) ? t("review") : t("open")}
+                        {tr.can_review && ["in_review", "machine_draft", "needs_review"].includes(tr.translation_status) ? t("review") : t("open")}
                       </Link>
                     </Button>
                   </TableCell>
@@ -175,7 +175,7 @@ function AnnouncementTranslations() {
 }
 
 
-const DOC_STATUSES: DocTranslationStatus[] = ["todo", "machine_draft", "draft", "in_review", "changes_requested", "human_approved", "rejected"];
+const DOC_STATUSES: DocTranslationStatus[] = ["todo", "machine_draft", "needs_review", "draft", "in_review", "changes_requested", "human_approved", "rejected"];
 
 /** Knowledge-document translation tasks (current original versions by default; outdated rows are audit history). */
 function DocumentTranslationTasks() {
@@ -258,7 +258,7 @@ function DocumentTranslationTasks() {
                     </TableCell>
                     <TableCell>
                       <Button asChild size="sm" variant="outline">
-                        <Link href={href}>{tr.can_review && ["in_review", "machine_draft", "draft"].includes(tr.translation_status) ? tt("review") : tt("open")}</Link>
+                        <Link href={href}>{tr.can_review && ["in_review", "machine_draft", "needs_review", "draft"].includes(tr.translation_status) ? tt("review") : tt("open")}</Link>
                       </Button>
                     </TableCell>
                   </TableRow>

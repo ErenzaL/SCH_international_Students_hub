@@ -11,6 +11,8 @@
     python -m app.cli check-rag --notify # ... and alert admins about documents that are not (also part of run-due)
     python -m app.cli reextract <version_id>          # DRY RUN: re-extract the stored original, compare, write nothing
     python -m app.cli reextract <version_id> --apply  # ... and create a new 'pending_review' version (live one unchanged)
+    python -m app.cli translate-backfill              # DRY RUN: what needs machine translation + estimated usage
+    python -m app.cli translate-backfill --apply --limit 10   # queue at most 10 jobs (the API worker runs them)
 
 Free web services sleep, so scheduled syncs are NOT run by the API process; trigger this from an external
 scheduler instead. New content still lands in 'pending_review' (never auto-published).
@@ -34,12 +36,15 @@ log = logging.getLogger("app.cli")
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="app.cli")
     parser.add_argument("command", choices=["run-due", "recover", "prefetch-model", "reindex-approved", "purge-expired",
-                                            "check-llm", "check-rag", "reextract"])
+                                            "check-llm", "check-rag", "reextract", "translate-backfill"])
     parser.add_argument("version_id", nargs="?", help="reextract: the version whose stored original is re-extracted")
     parser.add_argument("--apply", action="store_true", help="reextract: create the new pending version (default: dry run)")
     parser.add_argument("--generate", action="store_true", help="check-llm: also run one tiny generation per model")
     parser.add_argument("--list", action="store_true", help="check-llm: list every Gemini model this key can use")
     parser.add_argument("--notify", action="store_true", help="check-rag: store admin alerts for unsearchable documents")
+    parser.add_argument("--limit", type=int, default=10, help="translate-backfill --apply: jobs to queue (default 10)")
+    parser.add_argument("--languages", default="", help="translate-backfill: e.g. ko,en (default AUTO_TRANSLATE_LANGUAGES)")
+    parser.add_argument("--json", action="store_true", help="translate-backfill: print the full plan as JSON")
     args = parser.parse_args(argv)
     settings = get_settings()
     configure_logging(settings.log_level)
@@ -80,6 +85,9 @@ def main(argv: list[str] | None = None) -> int:
         if not args.version_id:
             parser.error("reextract needs a version_id")
         return reextract(svc, args.version_id, apply=args.apply)
+    if args.command == "translate-backfill":
+        langs = [x.strip() for x in args.languages.split(",") if x.strip()] or None
+        return translate_backfill(svc, apply=args.apply, limit=args.limit, languages=langs, as_json=args.json)
     if args.command == "recover":
         print(f"recovered {svc.ingestion.recover_interrupted_jobs()} interrupted job(s)")
         return 0
@@ -130,6 +138,38 @@ def reextract(svc, version_id: str, *, apply: bool) -> int:  # type: ignore[no-u
     print(f"job {done['id']}: {done['status']} {done.get('outcome') or done.get('error_code') or ''} "
           f"{(done.get('statistics') or {}).get('chunk_count', '')}")
     return 0 if done["status"] == "succeeded" else 1
+
+
+def translate_backfill(svc, *, apply: bool, limit: int, languages: list[str] | None,  # type: ignore[no-untyped-def]
+                       as_json: bool = False) -> int:
+    """Dry run by default: what needs a machine translation and the estimated model usage. --apply queues jobs."""
+    import json
+
+    from app.services.translation import backfill
+
+    p = backfill.plan(svc, languages)
+    if as_json:
+        print(json.dumps(p, ensure_ascii=False, indent=1, default=str))
+    else:
+        print(f"languages={','.join(p['languages'])} pairs={p['pairs']} (announcements={p['announcements']} "
+              f"documents={p['documents']}) already_queued={p['already_queued']}")
+        print(f"estimated: requests={p['requests']} input_tokens~{p['input_tokens']} output_tokens~{p['output_tokens']} "
+              f"days_at_daily_job_limit={p['days_at_daily_job_limit']}")
+        for doc_id, title, chars in p["long_documents_summary_only"]:
+            print(f"  long (title + summary only): {title} ({chars} chars) {doc_id}")
+        for it in p["too_long_for_automatic"]:
+            print(f"  too long for automatic translation: {it['kind']} {it['title']} -> {it['language']}")
+    if not apply:
+        print("DRY RUN: nothing was queued. Re-run with --apply --limit N to queue N jobs for the API worker.")
+        return 0
+    if not svc.llm.enabled:
+        print("No LLM provider is configured; nothing was queued.", file=sys.stderr)
+        return 2
+    queued = backfill.apply(svc, limit, languages)
+    for q in queued:
+        print(f"queued {q['kind']} {q['id']} -> {q['language']} ({q['mode']}) job {q['job_id']}")
+    print(f"{len(queued)} job(s) queued; the API worker runs them within the daily translation budget.")
+    return 0
 
 
 def check_rag(svc, *, notify: bool) -> int:  # type: ignore[no-untyped-def]

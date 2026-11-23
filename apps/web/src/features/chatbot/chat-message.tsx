@@ -17,9 +17,35 @@ export interface ChatMsg extends Pick<ConversationMessage, "role" | "content" | 
   failed?: boolean;
 }
 
-function citeHref(c: ConversationCitation | undefined): string | null {
+/** Where a citation opens. The server decides (announcement / document page / verified web URL); messages stored
+ * before that fall back to the Knowledge Center page or the source URL. Only same-site paths and http(s) URLs. */
+export function citationTarget(c: ConversationCitation | undefined): { href: string; external: boolean } | null {
   if (!c) return null;
-  return c.document_id ? `/knowledge/${c.document_id}` : c.source_url;
+  const href = c.link?.href ?? (c.document_id ? `/knowledge/${c.document_id}` : c.source_url);
+  if (!href) return null;
+  if (href.startsWith("/") && !href.startsWith("//")) return { href, external: false };
+  if (/^https?:\/\//i.test(href)) return { href, external: true };
+  return null;
+}
+
+function CitationAnchor({ c, className, children, label, title, onNavigate }: {
+  c: ConversationCitation | undefined; className: string; children: React.ReactNode; label?: string; title?: string;
+  onNavigate?: () => void;
+}) {
+  const target = citationTarget(c);
+  if (!target) return null;
+  return target.external ? (
+    <a href={target.href} target="_blank" rel="noopener noreferrer" className={className} aria-label={label} title={title}
+       data-link-kind="external">
+      {children}
+    </a>
+  ) : (
+    // client-side navigation keeps the conversation; on phones the widget closes so the opened page is visible
+    <Link href={target.href} className={className} aria-label={label} title={title} onClick={onNavigate}
+          data-link-kind={c?.link?.kind ?? "document"}>
+      {children}
+    </Link>
+  );
 }
 
 /** Sources to list under an answer: the ones the answer cites (or all, for evidence-only replies), each document
@@ -36,7 +62,7 @@ export function visibleCitations(m: Pick<ChatMsg, "citations" | "metadata">): Co
   });
 }
 
-export function ChatMessageView({ m, onRetry }: { m: ChatMsg; onRetry?: () => void }) {
+export function ChatMessageView({ m, onRetry, onNavigate }: { m: ChatMsg; onRetry?: () => void; onNavigate?: () => void }) {
   const t = useTranslations("chatbot");
   const isUser = m.role === "user";
   if (m.metadata?.kind === "handoff_created") return <TicketCard m={m} />;
@@ -63,16 +89,13 @@ export function ChatMessageView({ m, onRetry }: { m: ChatMsg; onRetry?: () => vo
         ) : (
           <div className="space-y-2 break-words" data-testid="assistant-answer">
             {renderMarkdown(m.content, {
-              renderCitation: (n, key) => {
-                const href = citeHref(byN.get(n));
-                return href ? (
-                  <a key={key} href={href}
-                     className="ml-0.5 inline-flex min-w-[1.1rem] -translate-y-1 items-center justify-center rounded-full bg-primary/10 px-1 text-[0.65em] font-semibold leading-4 text-primary no-underline hover:bg-primary/20"
-                     aria-label={t("sourceN", { n })} title={byN.get(n)?.document_title ?? undefined}>
-                    {n}
-                  </a>
-                ) : null;
-              },
+              renderCitation: (n, key) => (
+                <CitationAnchor key={key} c={byN.get(n)} onNavigate={onNavigate}
+                  className="ml-0.5 inline-flex min-w-[1.1rem] -translate-y-1 items-center justify-center rounded-full bg-primary/10 px-1 text-[0.65em] font-semibold leading-4 text-primary no-underline hover:bg-primary/20"
+                  label={t("sourceN", { n })} title={byN.get(n)?.document_title ?? undefined}>
+                  {n}
+                </CitationAnchor>
+              ),
             })}
           </div>
         )}
@@ -94,17 +117,17 @@ export function ChatMessageView({ m, onRetry }: { m: ChatMsg; onRetry?: () => vo
               <li key={c.n} className="flex items-start gap-1.5">
                 <span aria-hidden className="mt-1.5 size-1 shrink-0 rounded-full bg-muted-foreground/60" />
                 <span className="min-w-0 flex-1">
-                  {c.document_id ? (
-                    <Link href={`/knowledge/${c.document_id}`} className="font-medium text-primary hover:underline">
+                  {citationTarget(c) ? (
+                    <CitationAnchor c={c} onNavigate={onNavigate} className="font-medium text-primary hover:underline">
                       {c.document_title}
-                    </Link>
+                    </CitationAnchor>
                   ) : (
                     <span className="font-medium">{c.document_title}</span>
                   )}
                   {c.organization && <span className="text-muted-foreground"> · {c.organization}</span>}
                   {c.is_stale && <span className="ml-1 text-amber-700 dark:text-amber-300">({t("maybeOutdated")})</span>}
                 </span>
-                {c.source_url && (
+                {c.source_url && c.link?.kind !== "external" && /^https?:\/\//i.test(c.source_url) && (
                   <a href={c.source_url} target="_blank" rel="noopener noreferrer" aria-label={t("officialSource")}
                      className="shrink-0 text-muted-foreground hover:text-primary">
                     <ExternalLink className="size-3.5" />

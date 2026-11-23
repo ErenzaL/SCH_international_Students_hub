@@ -31,10 +31,17 @@ export function AnnouncementCard({
           {a.is_test_data && <TestDataBadge />}
         </div>
         <CardTitle className="mt-1 text-lg">
-          <Link href={`/announcements/${a.id}`} className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            {a.title}
+          <Link href={`/announcements/${a.id}`} lang={a.display_title ? locale : a.original_language}
+            className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            {a.display_title ?? a.title}
           </Link>
         </CardTitle>
+        {a.display_title && (
+          <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <span lang={a.original_language}>{a.title}</span>
+            {a.display_title_status === "machine" && <Badge variant="warning">{t("machineTranslated")}</Badge>}
+          </p>
+        )}
       </CardHeader>
       <CardContent className="space-y-3">
         {a.excerpt && <p className="line-clamp-2 text-sm text-muted-foreground">{a.excerpt}</p>}

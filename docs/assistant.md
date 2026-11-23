@@ -149,6 +149,15 @@ generation=… offer=… reasons=… latency_ms=…`) — never message content.
         GEMINI_PRIMARY_MODEL=gemini-3.8-flash GEMINI_FALLBACK_MODEL=gemini-3.5-flash-lite \
         .venv/bin/python -m app.cli check-llm --list --generate; unset GEMINI_KEY
 
+## Citation links
+
+Each citation carries `link = {kind, href, page?}`:
+- `announcement`: `/announcements/{id}`;
+- `document`: `/knowledge/{id}`, with `?page=N` for PDF passages, which opens the original PDF at that page;
+- `external`: the verified original URL of a web source (`website` / `sch_board`).
+
+The chat widget closes on phones when a source is opened, so the page is visible. The conversation is kept. Messages stored before this change fall back to `/knowledge/{id}`.
+
 ## Evidence for quantity questions
 
 Questions asking for an amount, limit, duration or date ("how many hours", "bao nhiêu", "얼마", "berapa", "多少")

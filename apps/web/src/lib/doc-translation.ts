@@ -38,6 +38,7 @@ type Variant = "default" | "secondary" | "outline" | "success" | "warning" | "da
 export const DOC_TR_VARIANT: Record<DocTranslationStatus, Variant> = {
   todo: "muted",
   machine_draft: "info",
+  needs_review: "warning",
   draft: "secondary",
   in_review: "warning",
   changes_requested: "warning",

@@ -214,3 +214,36 @@ def test_cli_preview_is_read_only(env, changed_extractor):
     assert p["unchanged"] is False and p["new_chars"] > p["stored_chars"] and p["new"]["chunks"] >= 1
     assert reextract(services, v1, apply=False) == 0
     assert len(versions(env, doc_id)) == 1 and len(env.store.select("ingestion_jobs", Query())[0]) == jobs_before
+
+
+def test_a_large_bullet_glyph_does_not_turn_a_list_item_into_a_heading():
+    """The guidebook sets its "*" bullets at 12 pt in front of 9.4 pt text: the line's size is the text's size."""
+    import pymupdf
+
+    doc = pymupdf.open()
+    page = doc.new_page(width=595, height=842)
+    page.insert_text((40, 60), "가. 외국인 등록", fontname="korea", fontsize=16)
+    for i in range(30):
+        page.insert_text((40, 100 + i * 14), BODY, fontname="korea", fontsize=10)
+    for j, item in enumerate(("여권 사본", "재학증명서")):
+        y = 540 + j * 16
+        page.insert_text((40, y), "*", fontsize=13)
+        page.insert_text((52, y), item, fontname="korea", fontsize=10)
+    text = ef.extract_pdf(doc.tobytes(), "list.pdf").text
+    assert "## 가. 외국인 등록" in text or "# 가. 외국인 등록" in text      # the real heading stays a heading
+    assert "## *" not in text and "여권 사본" in text and "재학증명서" in text
+
+
+def test_older_sources_get_a_page_checklist_of_time_sensitive_guidance():
+    from app.services.source_quality import review_checklist, time_sensitive_pages
+
+    text = ("[Page 3]\n\n외국인등록은 입국 후 90일 이내에 해야 합니다.\n\n[Page 4]\n\n체류기간 연장 신청\n\n"
+            "[Page 7]\n\n시간제 취업 허가를 받아야 합니다.\n\n[Page 8]\n\n국민건강보험 보험료는 매월 납부합니다.\n\n"
+            "[Page 9]\n\n수수료 30,000원\n\n[Page 10]\n\n도서관 이용 안내")
+    pages = time_sensitive_pages(text)
+    assert pages["immigration / visa"] == [3, 4] and pages["employment / part-time work"] == [7]
+    assert pages["insurance"] == [8] and pages["fees / amounts"] == [8, 9]
+    assert review_checklist(text) == ("Re-verify against current official sources: immigration / visa (pages 3–4); "
+                                      "employment / part-time work (pages 7); insurance (pages 8); "
+                                      "fees / amounts (pages 8–9).")
+    assert review_checklist("no page markers: 비자") is None

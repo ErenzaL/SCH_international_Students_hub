@@ -54,7 +54,7 @@ from app.services.ingestion.sch_board import (
 from app.services.ingestion.structured import extract_structured_fields, merge_manual_fields
 from app.services.language_detect import detect_language
 from app.services.ocr.providers import NoOCR, OCRProvider, OCRUnavailable
-from app.services.source_quality import age_review_warning
+from app.services.source_quality import age_review_warning, review_checklist
 from app.services.source_status import derive_source_status
 
 log = logging.getLogger("app.ingest")
@@ -92,6 +92,7 @@ class IngestionService:
         self.ocr: OCRProvider = ocr or NoOCR()
         self.translations: Any = None   # DocumentTranslationService (wired by the container)
         self.rag_health: Any = None     # RagHealthService (wired by the container): post-activation verification
+        self.announcement_translator: Any = None   # AnnouncementAutoTranslator (translate_announcement jobs)
         self._sleep = sleep
 
     # ---------------------------------------------------------------- jobs
@@ -197,6 +198,10 @@ class IngestionService:
                 if self.translations is None:
                     raise IngestionError("translation_unavailable", "Document translation is not configured.")
                 result = self.translations.run_job(job, self._heartbeat, self.event)
+            elif job.get("job_type") == "translate_announcement":
+                if self.announcement_translator is None:
+                    raise IngestionError("translation_unavailable", "Announcement translation is not configured.")
+                result = self.announcement_translator.run_job(job, self._heartbeat, self.event)
             elif source["source_type"] == "sch_board":
                 result = self._run_board(source, job, stats)
             else:
@@ -541,6 +546,7 @@ class IngestionService:
         heading_chars = sum(len(line) for line in new_text.splitlines() if line.startswith("#"))
         warnings = list(ex.metadata.get("warnings", []))
         aged = age_review_warning(ex.source_published_at, ex.title, new_text, st.source_review_age_days)
+        checklist = review_checklist(new_text) if aged else None
         return dict(version_id=version_id, version_number=v["version_number"], status=v["verification_status"],
                     document=doc.get("title"), file=name, dry_run=True,
                     unchanged=content_hash(new_text) == v["content_hash"], can_apply=blocked is None,
@@ -548,7 +554,8 @@ class IngestionService:
                     new_heading_char_share=round(heading_chars / len(new_text), 4) if new_text else 0.0,
                     pdf={k: ex.metadata.get(k) for k in ("pages", "pages_with_text", "needs_ocr_pages", "table_mode")},
                     source_published_at=_iso(ex.source_published_at),
-                    stored=stats(old_chunks), new=stats(new_chunks), warnings=warnings + ([aged] if aged else []))
+                    stored=stats(old_chunks), new=stats(new_chunks),
+                    warnings=warnings + [w for w in (aged, checklist) if w])
 
     def _run_index(self, source: dict[str, Any], job: dict[str, Any], stats: dict[str, Any]) -> dict[str, Any]:
         jid = job["id"]
@@ -771,6 +778,9 @@ class IngestionService:
                                   self.settings.source_review_age_days)
         if aged:
             warnings.append(aged)
+            checklist = review_checklist(text)     # where the immigration / work / insurance / fee guidance is
+            if checklist:
+                warnings.append(checklist)
         meta = {k: v for k, v in extracted.metadata.items() if k != "warnings"}
         meta.update(warnings=warnings, links=(extracted.links or [])[:60],
                     requires_field_confirmation=bool(requires_field_confirmation or
@@ -881,6 +891,9 @@ class IngestionService:
         else:
             assert error is not None
             attempts = int(job.get("attempts") or 1)
+            deferred = self._defer_translation(job, error, stats)
+            if deferred is not None:
+                return deferred
             if is_transient(error.code) and attempts < int(job.get("max_attempts") or 3):
                 delay = self.settings.job_retry_base_seconds * (2 ** (attempts - 1))
                 run_after = (datetime.now(UTC) + timedelta(seconds=delay)).isoformat()
@@ -909,7 +922,7 @@ class IngestionService:
             self.notifications.notify("review_needed", f"Changes to review: {source['title'][:150]}",
                                       f"{via}: {result['message']}", entity_type="knowledge_source",
                                       entity_id=source["id"], link="/admin/review")
-        if job.get("job_type") == "translate_document":
+        if job.get("job_type") in ("translate_document", "translate_announcement"):
             pass   # a translation draft says nothing about the source's freshness
         elif source is not None and job.get("job_type") == "index_version":
             # indexing is not a source check: only refresh the derived status (pending_review -> approved)
@@ -923,6 +936,27 @@ class IngestionService:
             self.store.update("knowledge_sources", src_patch, {"id": source["id"]})
         log.info("job %s finished: %s %s", job["id"], patch["status"], patch.get("error_code") or patch.get("outcome"))
         return done
+
+    def _defer_translation(self, job: dict[str, Any], error: IngestionError, stats: dict[str, Any]
+                           ) -> dict[str, Any] | None:
+        """Translation jobs that hit the provider's quota or today's translation budget wait (re-queued for later,
+        the attempt is not counted) instead of failing - up to TRANSLATION_MAX_DEFERRALS times."""
+        if job.get("job_type") not in ("translate_document", "translate_announcement") \
+                or error.code not in ("llm_quota", "translation_daily_limit"):
+            return None
+        from app.services.translation.auto import seconds_until_tomorrow
+
+        deferrals = int((job.get("statistics") or {}).get("deferrals") or 0) + 1
+        if deferrals > self.settings.translation_max_deferrals:
+            return None
+        delay = self.settings.translation_quota_retry_seconds if error.code == "llm_quota" else seconds_until_tomorrow()
+        run_after = (datetime.now(UTC) + timedelta(seconds=delay)).isoformat()
+        self.event(job["id"], "deferred", f"{error.message} Trying again in {delay // 60} min "
+                                          f"(deferral {deferrals} of {self.settings.translation_max_deferrals}).",
+                   level="warning")
+        return self._update_owned(job, dict(
+            status="queued", run_after=run_after, locked_by=None, error_code=error.code, error_message=error.message,
+            attempts=max(0, int(job.get("attempts") or 1) - 1), statistics=stats | {"deferrals": deferrals}))
 
     def _update_owned(self, job: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
         """Write the job's outcome only if this attempt still owns it. If the job went stale (e.g. this process

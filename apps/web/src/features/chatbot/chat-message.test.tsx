@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi as vitest } from "vitest";
+import userEvent from "@testing-library/user-event";
 import { screen } from "@testing-library/react";
 import { renderWithIntl } from "@/test/utils";
 import { ApiError } from "@/lib/api";
@@ -61,5 +62,57 @@ describe("chatError", () => {
     expect(chatError(new ApiError({ status: 500, code: "internal_error", message: "x" }), tr(zh))).toBe(zh.chatbot.errors.generic);
     expect(chatError(new ApiError({ status: 422, code: "validation_error", message: "Message too long" }), tr(en)))
       .toBe("Message too long");
+  });
+});
+
+describe("citation navigation", () => {
+  const withLink = (n: number, link: { kind: "document" | "announcement" | "external"; href: string; page?: number | null },
+    extra: Record<string, unknown> = {}) => ({ ...source(n), document_title: `Doc ${n}`, link, ...extra });
+
+  it("opens each source type at the right place", () => {
+    renderWithIntl(<ChatMessageView m={{ id: "a3", role: "assistant",
+      content: "See [1], [2] and [3].", metadata: { answer_generation: "llm" },
+      citations: [
+        withLink(1, { kind: "document", href: "/knowledge/d1?page=40", page: 40 }, { source_type: "pdf" }),
+        withLink(2, { kind: "announcement", href: "/announcements/a9" }),
+        withLink(3, { kind: "external", href: "https://www.hikorea.go.kr/3" }, { source_type: "website" }),
+      ] }} />);
+    expect(screen.getByRole("link", { name: "Source 1" })).toHaveAttribute("href", "/knowledge/d1?page=40");
+    expect(screen.getByRole("link", { name: "Doc 1" })).toHaveAttribute("href", "/knowledge/d1?page=40");
+    const ann = screen.getByRole("link", { name: "Doc 2" });
+    expect(ann).toHaveAttribute("href", "/announcements/a9");
+    expect(ann).not.toHaveAttribute("target");
+    const ext = screen.getByRole("link", { name: "Doc 3" });
+    expect(ext).toHaveAttribute("href", "https://www.hikorea.go.kr/3");
+    expect(ext).toHaveAttribute("target", "_blank");
+    expect(ext).toHaveAttribute("rel", "noopener noreferrer");
+    // the official-source icon is not repeated for a source whose title already opens that URL
+    expect(screen.getAllByRole("link", { name: "Open the official source" })).toHaveLength(2);
+  });
+
+  it("keeps the old behaviour for messages stored before links existed and ignores unsafe URLs", () => {
+    renderWithIntl(<ChatMessageView m={{ id: "a4", role: "assistant", content: "Old [1] and [2].",
+      metadata: { answer_generation: "llm" },
+      citations: [source(1), { ...source(2), document_id: null, source_url: "javascript:alert(1)", document_title: "Bad" }] }} />);
+    expect(screen.getByRole("link", { name: "Source 1" })).toHaveAttribute("href", "/knowledge/d1");
+    expect(screen.queryByRole("link", { name: "Source 2" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Bad" })).toBeNull();
+  });
+
+  it("reports internal navigation (so the phone layout can close the chat) but not external links", async () => {
+    const onNavigate = vitest.fn();
+    renderWithIntl(<ChatMessageView onNavigate={onNavigate} m={{ id: "a5", role: "assistant", content: "A [1] B [2].",
+      metadata: { answer_generation: "llm" },
+      citations: [withLink(1, { kind: "announcement", href: "/announcements/a1" }),
+        withLink(2, { kind: "external", href: "https://www.hikorea.go.kr/2" })] }} />);
+    const user = userEvent.setup();
+    const ext = screen.getByRole("link", { name: "Source 2" });
+    ext.addEventListener("click", (e) => e.preventDefault());
+    await user.click(ext);
+    expect(onNavigate).not.toHaveBeenCalled();
+    const internal = screen.getByRole("link", { name: "Source 1" });
+    internal.addEventListener("click", (e) => e.preventDefault());
+    await user.click(internal);
+    expect(onNavigate).toHaveBeenCalledTimes(1);
   });
 });

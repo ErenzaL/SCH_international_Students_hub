@@ -33,6 +33,7 @@ from datetime import UTC, datetime, timedelta, timezone
 from typing import Any
 
 from app.core.config import Settings
+from app.repositories.base import Query
 from app.services.assistant.evidence import EvidenceChecker, EvidenceConfig
 from app.services.assistant.prompts import META_MARKER, load_system_prompt
 from app.services.assistant.texts import NATIVE_NAMES, t
@@ -325,7 +326,22 @@ class AssistantEngine:
                     source_url=first.get("source_url"), organization=first.get("organization"),
                     authority_type=first.get("authority_type"), verified_at=first.get("verified_at"),
                     language=first.get("language"), is_stale=any(p.get("is_stale") for p in src["passages"]),
-                    page=first.get("page"))
+                    page=first.get("page"), source_type=first.get("source_type"))
+
+    def _link_citations(self, citations: list[dict[str, Any]]) -> None:
+        """Where each citation opens: announcement page, Knowledge Center document (PDF page), or the verified
+        original URL of a web source. One lookup per answer; a failed lookup keeps the document links."""
+        ids = [c["document_id"] for c in citations if c.get("document_id")]
+        announcements: dict[str, str] = {}
+        if ids:
+            try:
+                rows, _ = self.retrieval.store.select("announcements", Query(
+                    in_={"document_id": ids}, eq={"publication_status": "published"}, cols="id,document_id"))
+                announcements = {r["document_id"]: r["id"] for r in rows}
+            except Exception:  # noqa: BLE001 - links degrade to document pages, the answer is unaffected
+                log.warning("announcement lookup for citations failed")
+        for c in citations:
+            c["link"] = citation_link(c, announcements.get(c.get("document_id") or ""))
 
     @staticmethod
     def _source_block(n: int, src: dict[str, Any]) -> str:
@@ -390,6 +406,7 @@ class AssistantEngine:
         if rerank_info:
             out["retrieval"]["rerank"] = rerank_info
         out["citations"] = [self._citation(i, src) for i, src in enumerate(sources, 1)]
+        self._link_citations(out["citations"])
         wants_human = bool(_HUMAN.search(question))
         asks_action = bool(_ACTION_REQUEST.search(question))
         needs_human, in_scope = "none", None
@@ -644,6 +661,24 @@ def _fix_script_mixing(text: str, lang: str) -> tuple[str, int]:
     text = _GLUED_AFTER.sub(after, text)
     text = _GLUED_BEFORE.sub(before, text)
     return text, n
+
+
+# sources fetched from the web: their verified original URL is the place to read them
+_WEB_SOURCE_TYPES = ("website", "sch_board")
+
+
+def citation_link(c: dict[str, Any], announcement_id: str | None = None) -> dict[str, Any] | None:
+    """{kind: announcement | document | external, href, page?} for a citation (None: nothing to open)."""
+    url = c.get("source_url") if str(c.get("source_url") or "").startswith(("https://", "http://")) else None
+    if announcement_id:
+        return dict(kind="announcement", href=f"/announcements/{announcement_id}")
+    if url and c.get("source_type") in _WEB_SOURCE_TYPES:
+        return dict(kind="external", href=url)
+    if c.get("document_id"):
+        page = c.get("page") if c.get("source_type") == "pdf" and isinstance(c.get("page"), int) else None
+        return dict(kind="document", href=f"/knowledge/{c['document_id']}" + (f"?page={page}" if page else ""),
+                    page=page)
+    return dict(kind="external", href=url) if url else None
 
 
 def _strip_markers(text: str) -> str:

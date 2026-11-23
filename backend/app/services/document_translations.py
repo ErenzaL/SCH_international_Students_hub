@@ -16,18 +16,30 @@ from datetime import UTC, datetime
 from typing import Any
 
 from app.core.config import Settings
-from app.core.errors import Forbidden, InvalidState, NotFound, ValidationFailed
+from app.core.errors import DuplicateError, Forbidden, InvalidState, NotFound, ValidationFailed
 from app.repositories.base import Query, Store, get_many, get_one
 from app.security.auth import AuthUser
 from app.security.permissions import has_perm, languages_with
 from app.services.ingestion.errors import IngestionError
 from app.services.llm.base import LLMError, LLMProvider
 from app.services.notifications import UserNotificationService
-from app.services.translation_drafts import extract_headings, preservation_warnings, translate_document
+from app.services.translation.auto import (
+    auto_languages,
+    automation_state,
+    daily_budget_exceeded,
+    public_machine_allowed,
+)
+from app.services.translation.quality import is_high_risk, validate_summary, validate_translation
+from app.services.translation_drafts import (
+    extract_headings,
+    preservation_warnings,
+    summarize_document,
+    translate_document,
+)
 from app.services.translations import LANG_NAMES, TARGETS, language_people
 
 HUMAN_STATES = ("draft", "in_review", "human_approved")   # never overwritten by an AI draft without force
-REVIEWABLE = ("machine_draft", "draft", "in_review", "changes_requested", "rejected", "human_approved")
+REVIEWABLE = ("machine_draft", "needs_review", "draft", "in_review", "changes_requested", "rejected", "human_approved")
 
 
 def now() -> str:
@@ -155,7 +167,7 @@ class DocumentTranslationService:
             self._audit("document_translation.sync", d["id"], actor_id, version_number=v["version_number"],
                         created=created_langs, outdated=outdated)
         if created_langs and self.settings.auto_translate_documents and self.llm.enabled and self.ingestion:
-            for lang in created_langs:
+            for lang in [x for x in created_langs if x in auto_languages(self.settings)]:
                 try:
                     self._queue(d, s, v, lang, actor_id, force=False)  # type: ignore[arg-type]
                 except Exception:  # noqa: BLE001 - drafts are optional; the original stays searchable
@@ -186,7 +198,8 @@ class DocumentTranslationService:
                     body=t.get("body") or "", translation_status=status, is_outdated=bool(t.get("is_outdated")),
                     outdated_at=t.get("outdated_at"), provider=t.get("provider"), model=t.get("model"),
                     generated_at=t.get("generated_at"), human_edited=bool(t.get("human_edited")),
-                    is_machine_translated=status == "machine_draft", warnings=t.get("warnings") or [],
+                    is_machine_translated=status in ("machine_draft", "needs_review"), warnings=t.get("warnings") or [],
+                    scope=t.get("scope") or "full",
                     review_note=t.get("review_note"), reviewed_by=t.get("reviewed_by"),
                     reviewed_by_name=names.get(t.get("reviewed_by") or ""), reviewed_at=t.get("reviewed_at"),
                     last_edited_by=t.get("last_edited_by"), last_edited_by_name=names.get(t.get("last_edited_by") or ""),
@@ -229,7 +242,9 @@ class DocumentTranslationService:
             item = self.view(cur, names) if cur else None
             if item:
                 item.pop("body", None)
-            langs.append(dict(language=lang, translation=item, job=self._job_brief(self._last_job(cur["id"])) if cur else None,
+            job = self._last_job(cur["id"]) if cur else None
+            langs.append(dict(language=lang, translation=item, job=self._job_brief(job), state=automation_state(cur, job),
+                              automatic=lang in auto_languages(self.settings),
                               has_outdated_previous=any(r["translation_status"] != "todo" for r in older),
                               previous_verified=any(r["translation_status"] == "human_approved" for r in older),
                               **self.permissions(user, lang)))
@@ -354,9 +369,15 @@ class DocumentTranslationService:
         open_job = self._open_job(t["id"])
         if open_job:
             return open_job
-        job = self.ingestion.create_job(s, "manual", actor_id, payload=dict(
-            document_id=d["id"], version_id=v["id"], translation_id=t["id"], language=lang, force=force),
-            job_type="translate_document")
+        try:
+            job = self.ingestion.create_job(s, "manual", actor_id, payload=dict(
+                document_id=d["id"], version_id=v["id"], translation_id=t["id"], language=lang, force=force),
+                job_type="translate_document")
+        except DuplicateError:          # queued concurrently (unique index): use that job
+            existing = self._open_job(t["id"])
+            if existing is None:
+                raise
+            return existing
         self._audit("document_translation.draft_requested", d["id"], actor_id, language=lang, job_id=job["id"])
         self.ingestion.event(job["id"], "queued", f"{LANG_NAMES[lang]} AI draft queued for v{v['version_number']}.")
         return {**job, "_new": True}
@@ -377,17 +398,39 @@ class DocumentTranslationService:
                                                        "was not written.")
         lang = t["language_code"]
         src = d.get("language") or "ko"
-        event(job["id"], "translate", f"Translating v{v['version_number']} from {LANG_NAMES.get(src, src)} into "
-                                      f"{LANG_NAMES[lang]} with {self.llm.name}:{self.llm.model}.")
+        body = v["extracted_text"] or ""
+        if t["translation_status"] in ("machine_draft", "needs_review") and t.get("provider") \
+                and t["source_content_hash"] == v["content_hash"] and not p.get("force"):
+            return dict(outcome="translated", document_id=d["id"], version_id=v["id"], changed=False, warning=None,
+                        message="Already translated from exactly this version; nothing to do.")
+        if daily_budget_exceeded(self.store, self.settings, job["id"]):
+            raise IngestionError("translation_daily_limit", "Today's machine-translation budget is used up; the job "
+                                                            "continues tomorrow.")
+        summary = len(body) > self.settings.translation_full_max_chars
+        if not summary:
+            from app.services.translation_drafts import chunk_text as parts_of
+
+            if len(parts_of(body, self.settings.translation_chunk_chars)) + 1 > self.settings.translation_max_requests_per_job:
+                summary = True
+        event(job["id"], "translate", f"{'Summarizing' if summary else 'Translating'} v{v['version_number']} from "
+                                      f"{LANG_NAMES.get(src, src)} into {LANG_NAMES[lang]} with "
+                                      f"{self.llm.name}:{self.llm.model}.")
 
         def progress(i: int, n: int) -> None:
             heartbeat(job["id"])
             event(job["id"], "translate", f"Translated part {i}/{n}.")
 
         try:
-            out = translate_document(self.llm, title=d["title"], body=v["extracted_text"], source_lang=src,
-                                     target_lang=lang, chunk_chars=self.settings.translation_chunk_chars,
-                                     on_progress=progress)
+            if summary:   # long document: title + labelled AI summary; the original file stays the full document
+                out = summarize_document(self.llm, title=d["title"], body=body, source_lang=src, target_lang=lang,
+                                         max_source_chars=self.settings.translation_summary_source_chars)
+                heartbeat(job["id"])
+                checks = validate_summary(f"{d['title']}\n{body}", out["body"], lang)
+            else:
+                out = translate_document(self.llm, title=d["title"], body=body, source_lang=src,
+                                         target_lang=lang, chunk_chars=self.settings.translation_chunk_chars,
+                                         on_progress=progress)
+                checks = validate_translation(f"{d['title']}\n{body}", f"{out['title']}\n{out['body']}", src, lang)
         except LLMError as exc:
             raise IngestionError(exc.code, exc.message) from exc
         # re-check: the original or the human state may have changed while the model was working
@@ -397,20 +440,25 @@ class DocumentTranslationService:
             raise IngestionError("source_changed", "The original changed while the draft was generated; discarded.")
         if t["translation_status"] in HUMAN_STATES and not p.get("force"):
             raise IngestionError("human_draft_exists", "A person edited this translation meanwhile; draft discarded.")
+        out["warnings"] = checks
+        status = "needs_review" if checks else "machine_draft"
         t = self.store.update("document_translations", dict(
-            title=out["title"], body=out["body"], headings=out["headings"], translation_status="machine_draft",
+            title=out["title"], body=out["body"], headings=out["headings"], translation_status=status,
+            scope="summary" if summary else "full",
             provider=out["provider"], model=out["model"], generated_at=now(), warnings=out["warnings"],
             human_edited=False, reviewed_by=None, reviewed_at=None, original_verified=False, review_note=None,
             submitted_at=None), {"id": t["id"]})[0]
-        self._revision(t, "generate", job.get("requested_by"), f"{out['chunks']} part(s); {len(out['warnings'])} warning(s)")
+        self._revision(t, "generate", job.get("requested_by"), f"{'summary' if summary else str(out['chunks']) + ' part(s)'}"
+                       f"{' of the first ' + str(self.settings.translation_summary_source_chars) + ' characters' if out.get('partial') else ''}; "
+                       f"{len(out['warnings'])} warning(s)")
         self._audit("document_translation.generated", d["id"], job.get("requested_by"), language=lang,
                     provider=out["provider"], model=out["model"], warnings=len(out["warnings"]))
         self.notes.notify_many(language_people(self.store, lang, "any"), "translation_task",
                                f"AI draft ready for {LANG_NAMES[lang]} review: {d['title'][:110]}",
                                entity_type="source_document", entity_id=d["id"], link=self._link(d["id"], lang))
         return dict(outcome="translated", document_id=d["id"], version_id=v["id"], changed=False, warning=None,
-                    message=f"{LANG_NAMES[lang]} AI draft generated ({out['chunks']} part(s), "
-                            f"{len(out['warnings'])} check warning(s)). Needs human review.")
+                    message=f"{LANG_NAMES[lang]} machine {'summary' if summary else 'translation'}: {status} "
+                            f"({len(out['warnings'])} check warning(s)).")
 
     # ----------------------------------------------------------------- writes
     def _editable(self, document_id: str, language: str, user: AuthUser) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -515,14 +563,19 @@ class DocumentTranslationService:
             return None
         if t["translation_status"] == "human_approved":
             kind = "verified"
-        elif t["translation_status"] == "machine_draft" and self.settings.public_machine_translations:
+        elif t["translation_status"] == "machine_draft" and t.get("provider") and not t.get("human_edited"):
             kind = "machine"
         else:
+            return None
+        v = get_one(self.store, "document_versions", id=version_id) or {}
+        high_risk = is_high_risk(doc.get("title"), v.get("extracted_text"))
+        if kind == "machine" and not public_machine_allowed(self.settings, high_risk):
             return None
         return dict(status=kind, language=language, title=t["title"], content=t["body"], headings=t.get("headings") or [],
                     reviewed_at=t.get("reviewed_at") if kind == "verified" else None,
                     generated_at=t.get("generated_at") if kind == "machine" else None,
-                    source_version_number=t["source_version_number"])
+                    source_version_number=t["source_version_number"], scope=t.get("scope") or "full",
+                    high_risk=high_risk)
 
     def verified_languages(self, version_ids: list[str]) -> dict[str, list[str]]:
         if not version_ids:
@@ -533,6 +586,22 @@ class DocumentTranslationService:
         out: dict[str, list[str]] = {}
         for r in rows:
             out.setdefault(r["version_id"], []).append(r["language_code"])
+        return out
+
+    def display_titles(self, version_ids: list[str], language: str) -> dict[str, tuple[str, str]]:
+        """{version_id: (title, 'verified' | 'machine')} for list pages: approved translations, plus clean machine
+        translations when they are public (lists show titles only; the risk label is on the document page)."""
+        out = {k: (v, "verified") for k, v in self.verified_titles(version_ids, language).items()}
+        if not version_ids or language not in TARGETS or not self.settings.public_machine_translations \
+                or self.settings.machine_translation_high_risk == "review":
+            return out
+        rows, _ = self.store.select("document_translations", Query(
+            in_={"version_id": version_ids}, eq={"translation_status": "machine_draft", "is_outdated": False,
+                                                 "language_code": language, "human_edited": False},
+            cols="version_id,title,provider"))
+        for r in rows:
+            if r.get("provider") and r["version_id"] not in out:
+                out[r["version_id"]] = (r["title"], "machine")
         return out
 
     def verified_titles(self, version_ids: list[str], language: str) -> dict[str, str]:

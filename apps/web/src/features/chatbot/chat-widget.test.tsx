@@ -164,3 +164,42 @@ describe("opening the assistant from other places", () => {
     window.history.replaceState(null, "", "/");
   });
 });
+
+describe("ChatWidget on phones", () => {
+  const setPhone = (phone: boolean) => {
+    window.matchMedia = vi.fn().mockImplementation((q: string) => ({ matches: phone && q.includes("max-width"), media: q,
+      addEventListener: vi.fn(), removeEventListener: vi.fn(), addListener: vi.fn(), removeListener: vi.fn(),
+      onchange: null, dispatchEvent: vi.fn() })) as unknown as typeof window.matchMedia;
+  };
+  const announcementCitation = { ...citation, document_title: "Illegal work notice", source_url: null,
+    link: { kind: "announcement", href: "/announcements/a1" } };
+
+  async function answerWithSource() {
+    postStream.mockResolvedValue({ answer: "Do not work without a permit [1].", language: "en",
+      citations: [announcementCitation], metadata: { answer_generation: "llm", offer_handoff: false } });
+    renderWithIntl(<ChatWidget />);
+    const user = userEvent.setup();
+    await user.click(screen.getByTestId("chat-launcher"));
+    await user.type(screen.getByLabelText("Your message"), "Can I work?{Enter}");
+    const link = await screen.findByRole("link", { name: "Illegal work notice" });
+    expect(link).toHaveAttribute("href", "/announcements/a1");
+    link.addEventListener("click", (e) => e.preventDefault());        // jsdom: no real navigation
+    await user.click(link);
+    return user;
+  }
+
+  it("closes the full-screen chat when a source is opened, and keeps the conversation", async () => {
+    setPhone(true);
+    const user = await answerWithSource();
+    expect(screen.queryByRole("dialog", { name: "SCH Assistant" })).toBeNull();
+    await user.click(screen.getByTestId("chat-launcher"));
+    expect(screen.getAllByText(/Do not work without a permit/).length).toBeGreaterThan(0);
+  });
+
+  it("keeps the chat open beside the page on wider screens", async () => {
+    setPhone(false);
+    await answerWithSource();
+    expect(screen.getByRole("dialog", { name: "SCH Assistant" })).toBeInTheDocument();
+  });
+});
+

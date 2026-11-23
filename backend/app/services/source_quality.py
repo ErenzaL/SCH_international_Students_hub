@@ -74,6 +74,51 @@ def age_review_warning(published: datetime | None, title: str | None, text: str 
             "validity date if parts are outdated.")
 
 
+# time-sensitive topics a reviewer must re-check in an older source (Korean + English terms, no policy values)
+TIME_SENSITIVE_TOPICS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("immigration / visa", re.compile(r"비자|사증|체류|출입국|외국인\s*등록|입국|visa|immigration|residence|sojourn|"
+                                      r"alien registration|(?<![A-Za-z])[DEF]-\d", re.I)),
+    ("employment / part-time work", re.compile(r"시간제\s*취업|아르바이트|취업|구직|고용|employment|part[- ]time|work permit|job",
+                                               re.I)),
+    ("insurance", re.compile(r"보험|insurance", re.I)),
+    ("fees / amounts", re.compile(r"\d[\d,.]*\s*(?:원|만\s*원|달러|USD|KRW|won)\b|수수료|등록금|비용|요금|보험료|이용료|사용료|납부|벌금|과태료|"
+                                  r"\bfees?\b|tuition|\bfines?\b", re.I)),
+)
+_PAGE_MARK = re.compile(r"^\[Page (\d+)\]\s*$", re.M)
+
+
+def time_sensitive_pages(text: str | None) -> dict[str, list[int]]:
+    """Pages (from ``[Page N]`` markers) that mention each time-sensitive topic; {} for text without page markers."""
+    text = text or ""
+    marks = list(_PAGE_MARK.finditer(text))
+    out: dict[str, list[int]] = {}
+    for i, m in enumerate(marks):
+        page_text = text[m.end(): marks[i + 1].start() if i + 1 < len(marks) else len(text)]
+        for topic, rx in TIME_SENSITIVE_TOPICS:
+            if rx.search(page_text):
+                out.setdefault(topic, []).append(int(m.group(1)))
+    return out
+
+
+def _ranges(pages: list[int]) -> str:
+    runs: list[str] = []
+    for p in sorted(set(pages)):
+        if runs and runs[-1].split("–")[-1].isdigit() and int(runs[-1].split("–")[-1]) == p - 1:
+            runs[-1] = f"{runs[-1].split('–')[0]}–{p}"
+        else:
+            runs.append(str(p))
+    return ", ".join(runs)
+
+
+def review_checklist(text: str | None) -> str | None:
+    """Reviewer checklist for an older source: where its time-sensitive guidance is (pages per topic)."""
+    pages = time_sensitive_pages(text)
+    if not pages:
+        return None
+    return "Re-verify against current official sources: " + "; ".join(
+        f"{topic} (pages {_ranges(p)})" for topic, p in pages.items()) + "."
+
+
 def assess_document(doc: dict[str, Any], cfg: SourceQualityConfig, now: datetime | None = None) -> dict[str, Any]:
     now = now or datetime.now(UTC)
     out: dict[str, Any] = dict(id=doc.get("id"), title=doc.get("title"), flags=[])

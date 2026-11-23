@@ -97,7 +97,8 @@
       "human_approved": "사람이 검수함",
       "rejected": "반려됨",
       "todo": "시작 전",
-      "changes_requested": "수정 요청됨"
+      "changes_requested": "수정 요청됨",
+      "needs_review": "기계 번역 – 검토 필요"
     },
     "scope": {
       "university": "SCH 전용",
@@ -253,7 +254,8 @@
     "organization": "기관",
     "sourcePublished": "출처 게시일",
     "verifiedAt": "승인일",
-    "officialSource": "원본 출처 열기"
+    "officialSource": "원본 출처 열기",
+    "machineTranslated": "기계 번역"
   },
   "knowledge": {
     "title": "지식 센터",
@@ -327,10 +329,46 @@
       "statusVerified": "글로벌 서포터가 검수함",
       "statusMachine": "기계 번역 (검수되지 않음)",
       "statusOriginal": "원문을 보고 있습니다",
-      "statusNone": "아직 번역 없음 – 원문을 표시합니다"
+      "statusNone": "아직 번역 없음 – 원문을 표시합니다",
+      "machineUnverifiedTitle": "검토되지 않은 기계 번역",
+      "machineHighRiskNote": "아직 아무도 확인하지 않은 자동 번역입니다. 비자, 취업, 보험, 비용, 기한처럼 세부 사항이 중요한 내용이 포함되어 있습니다. 행동하기 전에 날짜, 금액, 요건을 반드시 {original} 원문에서 확인하세요.",
+      "summaryTitle": "전체 번역이 아닌 요약입니다",
+      "summaryNote": "긴 문서라서 제목과 자동 요약만 번역했습니다. 전체 내용은 {original} 원문에 있습니다.",
+      "summaryHeading": "자동 요약 ({language})",
+      "translatedTextHeading": "번역문 ({language})"
     },
     "askAssistant": "이 문서에 대해 도우미에게 묻기",
-    "askAssistantPrefill": "“{title}” 관련 질문: "
+    "askAssistantPrefill": "“{title}” 관련 질문: ",
+    "original": {
+      "heading": "원문 문서",
+      "pdfNote": "게시된 원본 파일({file})입니다. 도구 막대로 페이지 이동, 확대·축소, 전체 화면 보기를 할 수 있습니다.",
+      "viewerLabel": "원문 문서: {title}",
+      "loading": "원문 문서를 불러오는 중…",
+      "loadFailed": "원문 문서를 여기에 표시할 수 없습니다.",
+      "loadFailedHint": "새 탭에서 열거나 내려받아 확인할 수 있습니다.",
+      "previousPage": "이전 페이지",
+      "nextPage": "다음 페이지",
+      "pageNumber": "페이지 번호",
+      "pageN": "{n}페이지",
+      "zoomIn": "확대",
+      "zoomOut": "축소",
+      "fitWidth": "너비에 맞춤",
+      "fullScreen": "전체 화면",
+      "exitFullScreen": "전체 화면 종료",
+      "openOriginal": "원본 열기",
+      "downloadOriginal": "원본 내려받기",
+      "webTitle": "공식 웹페이지의 정보입니다",
+      "webBody": "원래 웹사이트에서 확인하세요. 그곳의 내용이 공식 기준이며, 여기에 추가된 뒤 변경되었을 수 있습니다.",
+      "openWebPage": "공식 페이지 열기",
+      "wordNoPreview": "이 Word 문서는 미리 보기를 제공할 수 없습니다.",
+      "wordNoPreviewHint": "원본 파일을 내려받아 서식 그대로 확인하세요.",
+      "wordPreviewNote": "원본 Word 파일의 서식 미리 보기입니다. 페이지 배치가 조금 다를 수 있으니 정확한 문서는 원본을 내려받아 확인하세요.",
+      "wordImagesOmitted": "이미지 {n}개는 미리 보기에 표시되지 않습니다. 원본 파일에 포함되어 있습니다.",
+      "downloadWord": "원본 Word 파일 내려받기",
+      "textVersion": "텍스트 버전 (검색·번역용으로 추출)",
+      "textVersionNote": "원본 파일에서 추출한 텍스트입니다. 배치, 표, 이미지가 빠질 수 있으며 위의 원문 문서가 기준입니다.",
+      "webTextNote": "추가 당시 공식 페이지에서 가져온 텍스트입니다. 공식 페이지가 기준이며 내용이 바뀌었을 수 있습니다."
+    }
   },
   "assistant": {
     "title": "AI 도우미",
@@ -1205,7 +1243,8 @@
         "human_approved": "승인됨",
         "rejected": "반려됨",
         "outdated": "구버전",
-        "published": "승인 및 게시됨"
+        "published": "승인 및 게시됨",
+        "needs_review": "기계 번역 – 검토 필요"
       },
       "language": "언어",
       "myLanguages": "내 언어",
@@ -1270,7 +1309,28 @@
       "reason": "사유",
       "cancel": "취소",
       "panelTitle": "번역",
-      "panelNote": "각 언어는 배정된 검수자가 개별적으로 검수하고 게시합니다."
+      "panelNote": "각 언어는 배정된 검수자가 개별적으로 검수하고 게시합니다.",
+      "machine": {
+        "title": "기계 번역",
+        "generated": "{date}에 {model}(으)로 생성됨. 아래에서 승인하기 전까지는 검토되지 않은 번역입니다.",
+        "failed": "마지막 시도 실패: {error}",
+        "waiting": "재시도 대기 중: {error}",
+        "disabled": "기계 번역을 사용할 수 없습니다(AI 제공자가 설정되지 않음).",
+        "run": "기계 번역하기",
+        "retry": "다시 번역",
+        "queued": "기계 번역을 대기열에 넣었습니다. 준비되면 여기에 표시됩니다.",
+        "state": {
+          "pending": "대기 중",
+          "processing": "번역 중…",
+          "completed": "기계 번역 완료 – 미검토",
+          "needs_review": "자동 점검 실패 – 검토 필요",
+          "failed": "실패",
+          "outdated": "오래됨 – 원문이 변경됨",
+          "approved": "검토자 승인됨",
+          "human_draft": "사람이 편집 중",
+          "missing": "아직 번역되지 않음"
+        }
+      }
     },
     "teams": {
       "title": "언어 팀",
@@ -1474,7 +1534,8 @@
         "changes_requested": "수정 요청됨",
         "human_approved": "검수됨",
         "rejected": "반려됨",
-        "outdated": "구버전"
+        "outdated": "구버전",
+        "needs_review": "기계 번역 – 자동 점검 실패, 검토 필요"
       },
       "previousOutdated": "이전 번역이 구버전이 됨",
       "generating": "AI 초안 생성 중…",
@@ -1518,7 +1579,15 @@
         "code": "비자 또는 공식 코드 누락: {value}",
         "number": "숫자 누락 또는 변경: {value}",
         "headings": "제목 개수가 다릅니다 ({value})",
-        "table_rows": "표의 행 개수가 다릅니다 ({value})"
+        "table_rows": "표의 행 개수가 다릅니다 ({value})",
+        "language": "번역문이 대상 언어로 보이지 않습니다 ({value}).",
+        "truncated": "번역문이 잘린 것 같습니다 ({value}).",
+        "missing_sections": "일부 단락이 빠진 것 같습니다 ({value}).",
+        "placeholder": "남아 있는 자리표시자 또는 감싸기 텍스트: {value}",
+        "number_added": "원문에 없는 숫자: {value}",
+        "url_added": "원문에 없는 링크: {value}",
+        "email_added": "원문에 없는 이메일 주소: {value}",
+        "code_added": "원문에 없는 비자·체류 자격 코드: {value}"
       },
       "saveDraft": "초안 저장",
       "submit": "검수 요청",

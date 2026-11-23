@@ -12,6 +12,8 @@ import { Label, Select } from "@/components/ui/input";
 import { AuthorityBadge, ScopeBadge, StaleBadge } from "@/components/shared/badges";
 import { ErrorState, LoadingState } from "@/components/shared/states";
 import { openChat } from "@/features/chatbot/open-chat";
+import { DocumentOriginalView } from "@/features/knowledge/document-original";
+import type { PdfLoader } from "@/features/knowledge/pdf-viewer";
 import { api } from "@/lib/api";
 import { LOCALE_LABELS, LOCALES } from "@/lib/constants";
 import { articleView, contentLanguage, textBlocks } from "@/lib/doc-translation";
@@ -21,7 +23,7 @@ import { formatDate } from "@/lib/utils";
 import { formatFieldValue } from "@/lib/format-field";
 import type { KnowledgeDocumentDetail, LanguageCode } from "@/types/api";
 
-export function KnowledgeArticle({ id }: { id: string }) {
+export function KnowledgeArticle({ id, initialPage, pdfLoader }: { id: string; initialPage?: number; pdfLoader?: PdfLoader }) {
   const t = useTranslations("knowledge");
   const tr = useTranslations("knowledge.tr");
   const c = useTranslations("common");
@@ -100,10 +102,19 @@ export function KnowledgeArticle({ id }: { id: string }) {
             </Alert>
           )}
           {view.mode === "machine" && (
-            <Alert variant="warning">
+            <Alert variant="warning" data-testid="machine-notice">
               <Bot className="size-4" aria-hidden />
-              <AlertTitle>{tr("machineBadge")}</AlertTitle>
-              <AlertDescription>{tr("machineNote", { original: originalLabel })}</AlertDescription>
+              <AlertTitle>{d.translation?.high_risk ? tr("machineUnverifiedTitle") : tr("machineBadge")}</AlertTitle>
+              <AlertDescription>
+                {d.translation?.high_risk ? tr("machineHighRiskNote", { original: originalLabel }) : tr("machineNote", { original: originalLabel })}
+              </AlertDescription>
+            </Alert>
+          )}
+          {view.mode !== "original" && view.mode !== "fallback" && d.translation?.scope === "summary" && (
+            <Alert variant="info" data-testid="summary-notice">
+              <Languages className="size-4" aria-hidden />
+              <AlertTitle>{tr("summaryTitle")}</AlertTitle>
+              <AlertDescription>{tr("summaryNote", { original: originalLabel })}</AlertDescription>
             </Alert>
           )}
           {view.mode === "fallback" && !d.translation && (
@@ -183,21 +194,54 @@ export function KnowledgeArticle({ id }: { id: string }) {
             </CardContent>
           </Card>
 
-          <div lang={view.language} data-testid="article-body" className="space-y-3 rounded-lg border border-border bg-card p-5 leading-relaxed">
-            {textBlocks(view.content).map((b, i) =>
-              b.kind === "p" ? (
-                <p key={i} className="whitespace-pre-wrap">{b.text}</p>
-              ) : b.kind === "h1" ? (
-                <h2 key={i} className="pt-2 text-xl font-semibold">{b.text}</h2>
-              ) : b.kind === "h2" ? (
-                <h3 key={i} className="pt-2 text-lg font-semibold">{b.text}</h3>
-              ) : (
-                <h4 key={i} className="pt-1 font-semibold">{b.text}</h4>
-              ),
-            )}
-          </div>
+          {d.original && d.original.kind !== "text" && (
+            <DocumentOriginalView original={d.original} title={d.title} initialPage={initialPage} pdfLoader={pdfLoader} />
+          )}
+
+          {d.original && d.original.kind !== "text" ? (
+            view.mode === "verified" || view.mode === "machine" ? (
+              <section aria-labelledby="tr-text-h" className="space-y-2">
+                <h2 id="tr-text-h" className="text-lg font-semibold">
+                  {d.translation?.scope === "summary" ? tr("summaryHeading", { language: LOCALE_LABELS[view.language] })
+                    : tr("translatedTextHeading", { language: LOCALE_LABELS[view.language] })}
+                </h2>
+                <ArticleBody content={view.content} language={view.language} />
+              </section>
+            ) : (
+              <details className="rounded-lg border border-border bg-card" data-testid="text-version">
+                <summary className="cursor-pointer px-5 py-3 text-sm font-medium">{t("original.textVersion")}</summary>
+                <div className="space-y-2 px-5 pb-5">
+                  <p className="text-xs text-muted-foreground">
+                    {d.original.kind === "web" ? t("original.webTextNote") : t("original.textVersionNote")}
+                  </p>
+                  <ArticleBody content={view.content} language={view.language} bare />
+                </div>
+              </details>
+            )
+          ) : (
+            <ArticleBody content={view.content} language={view.language} />
+          )}
           <p className="text-xs text-muted-foreground">{t("articleDisclaimer")}</p>
         </article>
+      )}
+    </div>
+  );
+}
+
+function ArticleBody({ content, language, bare = false }: { content: string; language: string; bare?: boolean }) {
+  return (
+    <div lang={language} data-testid="article-body"
+         className={bare ? "space-y-3 leading-relaxed" : "space-y-3 rounded-lg border border-border bg-card p-5 leading-relaxed"}>
+      {textBlocks(content).map((b, i) =>
+        b.kind === "p" ? (
+          <p key={i} className="whitespace-pre-wrap">{b.text}</p>
+        ) : b.kind === "h1" ? (
+          <h2 key={i} className="pt-2 text-xl font-semibold">{b.text}</h2>
+        ) : b.kind === "h2" ? (
+          <h3 key={i} className="pt-2 text-lg font-semibold">{b.text}</h3>
+        ) : (
+          <h4 key={i} className="pt-1 font-semibold">{b.text}</h4>
+        ),
       )}
     </div>
   );
