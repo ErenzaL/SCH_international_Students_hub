@@ -18,6 +18,11 @@ class AgentAction:
     kind: str                     # "tool" | "task"
     target: str                   # tool name or task type
     params: dict[str, object] = field(default_factory=dict)
+    #: shown only to these roles (e.g. admin-only monitoring); the backend enforces the same rule on the tool
+    roles: tuple[str, ...] | None = None
+
+
+ADMIN = ("super_admin", "admin")
 
 
 @dataclass(frozen=True)
@@ -121,10 +126,15 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
                     "items. Can check allowlisted official pages when sources are configured.",
         scope="Scholarships, competitions and programs. Never claims a student is eligible.", languages=LANGS,
         allowed_tools=READ_COMMON | {"scholarship_search", "deadline_extraction", "source_verification",
-                                     "official_page_fetch", "official_web_search"},
-        task_types=("scholarship_scan",), restricted_actions=NO_DECISIONS + ("scholarship_eligibility",),
+                                     "official_page_fetch", "official_web_search", "opportunity_search",
+                                     "official_source_check", "review_candidates"},
+        task_types=("scholarship_scan", "opportunity_discovery"),
+        restricted_actions=NO_DECISIONS + ("scholarship_eligibility", "claim_open_without_source"),
         actions=(AgentAction("find_scholarships", "tool", "scholarship_search", {}),
-                 AgentAction("scan_sources", "task", "scholarship_scan", {})),
+                 AgentAction("official_opportunities", "tool", "opportunity_search", {}),
+                 AgentAction("scan_sources", "task", "scholarship_scan", {}),
+                 AgentAction("check_official_sources", "task", "opportunity_discovery", {}, roles=ADMIN),
+                 AgentAction("review_queue", "tool", "review_candidates", {}, roles=ADMIN)),
     ),
     AgentDefinition(
         id="events", character_id="events", name="Mia", title="Event agent", department="Events & Campus Life",
@@ -144,10 +154,11 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
         scope="Careers, internships and work permission guidance. Never promises a student may legally work.",
         languages=LANGS,
         allowed_tools=READ_COMMON | {"career_opportunity_search", "deadline_extraction", "source_verification",
-                                     "official_page_fetch", "official_web_search"},
+                                     "official_page_fetch", "official_web_search", "opportunity_search"},
         task_types=("career_scan",),
         restricted_actions=NO_DECISIONS + ("work_legality",),
-        actions=(AgentAction("find_opportunities", "tool", "career_opportunity_search", {}),),
+        actions=(AgentAction("find_opportunities", "tool", "career_opportunity_search", {}),
+                 AgentAction("official_jobs", "tool", "opportunity_search", {"kind": "job"})),
     ),
     AgentDefinition(
         id="announcement", character_id="guide-bot", name="Robo", title="Announcement agent",
@@ -157,11 +168,14 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
         scope="Published announcements and configured official sources. Never publishes anything.",
         languages=LANGS,
         allowed_tools=READ_COMMON | {"deadline_extraction", "summarize_document", "translate_text",
-                                     "official_page_fetch", "source_verification"},
-        task_types=("announcement_digest", "summarize_announcement"),
+                                     "official_page_fetch", "source_verification", "official_source_check",
+                                     "review_candidates"},
+        task_types=("announcement_digest", "summarize_announcement", "announcement_discovery"),
         restricted_actions=NO_DECISIONS + ("publish_announcements",),
         actions=(AgentAction("latest_notices", "tool", "announcement_search", {"limit": 8}),
-                 AgentAction("digest", "task", "announcement_digest", {})),
+                 AgentAction("digest", "task", "announcement_digest", {}),
+                 AgentAction("check_official_sources", "task", "announcement_discovery", {}, roles=ADMIN),
+                 AgentAction("review_queue", "tool", "review_candidates", {}, roles=ADMIN)),
     ),
     AgentDefinition(
         id="support-coordinator", character_id="supporter-lead", name="Sumin", title="Support coordinator",

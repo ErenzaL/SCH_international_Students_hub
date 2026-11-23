@@ -58,13 +58,40 @@ class ScheduleUpdate(Body):
     enabled: bool | None = None
     interval_minutes: int | None = Field(default=None, ge=60, le=10080)
     urls: list[Annotated[str, StringConstraints(max_length=1000)]] | None = Field(default=None, max_length=5)
+    #: monitoring settings: source_ids, max_items_per_source, max_sources, notify_admins, summarize_new, review
+    params: dict[str, Any] | None = None
+
+
+class DiscoverySourceCreate(Body):
+    agent_id: Literal["announcement", "scholarship", "career", "events"]
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=2, max_length=200)]
+    kind: Literal["sch_board", "listing", "page"]
+    url: Annotated[str, StringConstraints(strip_whitespace=True, min_length=8, max_length=1000)]
+    config: dict[str, Any] = Field(default_factory=dict)
+    category: Annotated[str, StringConstraints(max_length=60)] | None = None
+    language: Lang = "ko"
+    enabled: bool = True
+
+
+class DiscoverySourcePatch(Body):
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=2, max_length=200)] | None = None
+    config: dict[str, Any] | None = None
+    category: Annotated[str, StringConstraints(max_length=60)] | None = None
+    language: Lang | None = None
+    enabled: bool | None = None
+    reset_failures: bool = False
+
+
+class ReviewNote(Body):
+    note: Annotated[str, StringConstraints(strip_whitespace=True, max_length=1000)] | None = None
 
 
 @router.get("/agents", dependencies=[Depends(rate_limit("public"))])
 def list_agents(svc: Services = Depends(get_services), user: AuthUser | None = Depends(optional_user)) -> dict:  # type: ignore[type-arg]
     """Every agent with its job description, tools (and whether each is available), allowed actions, and its
     current state for this viewer (working / waiting / completed / error / idle - from the viewer's own tasks)."""
-    return dict(items=svc.agents.directory(user), signed_in=user is not None)
+    return dict(items=svc.agents.directory(user), signed_in=user is not None,
+                is_admin=bool(user is not None and user.is_admin))
 
 
 @router.post("/agents/{agent_id}/requests", dependencies=[Depends(rate_limit("search"))])
@@ -124,4 +151,57 @@ def list_schedules(svc: Services = Depends(get_services), _: AuthUser = Depends(
 def update_schedule(schedule_id: str, body: ScheduleUpdate, svc: Services = Depends(get_services),
                     admin: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
     return svc.agents.update_schedule(admin, schedule_id, enabled=body.enabled,
-                                      interval_minutes=body.interval_minutes, urls=body.urls)
+                                      interval_minutes=body.interval_minutes, urls=body.urls, params=body.params)
+
+
+# ------------------------------------------------------------------ admin: official-source discovery
+@router.get("/admin/discovery/sources")
+def discovery_sources(agent_id: str | None = None, svc: Services = Depends(get_services),
+                      _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    return dict(items=svc.discovery.list_sources(agent_id), allowed_domains=svc.domains.domains())
+
+
+@router.post("/admin/discovery/sources", status_code=201)
+def create_discovery_source(body: DiscoverySourceCreate, svc: Services = Depends(get_services),
+                            admin: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    if body.category is not None:
+        from app.core.constants import CATEGORY_SLUGS
+        from app.core.errors import ValidationFailed
+
+        if body.category not in CATEGORY_SLUGS:
+            raise ValidationFailed("Unknown category.")
+    return svc.discovery.create_source(admin.id, body.model_dump())
+
+
+@router.patch("/admin/discovery/sources/{source_id}")
+def update_discovery_source(source_id: str, body: DiscoverySourcePatch, svc: Services = Depends(get_services),
+                            admin: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    return svc.discovery.update_source(admin.id, source_id, body.model_dump())
+
+
+@router.delete("/admin/discovery/sources/{source_id}", status_code=204)
+def delete_discovery_source(source_id: str, svc: Services = Depends(get_services),
+                            admin: AuthUser = Depends(require_admin)) -> None:
+    svc.discovery.delete_source(admin.id, source_id)
+
+
+@router.get("/admin/discovery/items")
+def discovery_items(agent_id: str | None = None,
+                    status: Literal["candidate", "dismissed", "imported", "all"] = "candidate",
+                    svc: Services = Depends(get_services), _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    return dict(items=svc.discovery.candidates(agent_id=agent_id, status=status, limit=100))
+
+
+@router.post("/admin/discovery/items/{item_id}/dismiss")
+def dismiss_item(item_id: str, body: ReviewNote, svc: Services = Depends(get_services),
+                 admin: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    return svc.discovery.dismiss(admin.id, item_id, body.note)
+
+
+@router.post("/admin/discovery/items/{item_id}/send-to-review", status_code=202,
+             dependencies=[Depends(rate_limit("ingest"))])
+def send_item_to_review(item_id: str, background: BackgroundTasks, svc: Services = Depends(get_services),
+                        admin: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """Register the official page as a knowledge source and queue its ingestion: it becomes a pending_review version
+    in the normal review screen. Nothing is approved or published here."""
+    return svc.discovery.send_to_review(admin.id, item_id, background)

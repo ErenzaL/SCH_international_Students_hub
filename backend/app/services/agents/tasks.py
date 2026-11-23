@@ -30,6 +30,7 @@ from app.services.agents.router import plan_request
 from app.services.agents.tools import (
     TOOLS,
     P,
+    SourceCheckParams,
     SupportRequestParams,
     ToolContext,
     ToolRegistry,
@@ -90,7 +91,10 @@ TASK_PARAMS: dict[str, type[P]] = {
     "announcement_digest": ScanParams, "visa_checklist": TopicParams, "academic_checklist": TopicParams,
     "topik_dates": ScanParams, "summarize_announcement": RefParams, "explain_document": RefParams,
     "support_request": SupportRequestParams, "lookup": LookupParams, "delegated_search": DelegateParams,
+    "announcement_discovery": SourceCheckParams, "opportunity_discovery": SourceCheckParams,
 }
+#: tasks that crawl official websites: administrators (or an admin-enabled schedule) only
+ADMIN_TASKS = {"announcement_discovery", "opportunity_discovery"}
 LLM_TASKS = {"summarize_announcement", "explain_document"}
 APPROVAL_TASKS = {"support_request"}
 
@@ -119,7 +123,8 @@ class AgentTaskService:
                 description=a.description, scope=a.scope, languages=list(a.languages), fixed_language=a.fixed_language,
                 tools=self.tools.describe(self.svc, a), task_types=list(a.task_types),
                 can_delegate_to=list(a.can_delegate_to), restricted_actions=list(a.restricted_actions),
-                actions=[dict(id=x.id, kind=x.kind, target=x.target, params=x.params) for x in a.actions],
+                actions=[dict(id=x.id, kind=x.kind, target=x.target, params=x.params, admin_only=x.roles is not None)
+                         for x in a.actions if x.roles is None or (user is not None and user.role in x.roles)],
                 monitoring=a.id in schedules, **states.get(a.id, dict(state="idle", active=0, awaiting=0))))
         return out
 
@@ -229,6 +234,8 @@ class AgentTaskService:
         agent = self._agent(agent_id)
         if task_type not in task_types_of(agent):
             raise Forbidden(f"{agent.name} does not handle '{task_type}' tasks.", code="task_not_allowed")
+        if task_type in ADMIN_TASKS and not (schedule_id or (user is not None and user.is_admin)):
+            raise Forbidden("Checking official websites is limited to administrators.", code="admin_only")
         clean = self._validate(task_type, params)
         if task_type == "lookup":       # a lookup may only use one of this agent's own, instant, read-only tools
             self._lookup_tool(agent, clean["tool"])
@@ -293,7 +300,7 @@ class AgentTaskService:
         out = {k: t.get(k) for k in ("id", "agent_id", "task_type", "status", "stage", "language", "params", "output",
                                        "citations", "error_code", "error_message", "attempts", "max_attempts",
                                        "parent_task_id", "depth", "created_at", "updated_at", "started_at",
-                                       "completed_at", "cancel_requested")}
+                                       "completed_at", "cancel_requested", "progress", "schedule_id")}
         out["agent_name"] = a.name if a else t["agent_id"]
         out["scheduled"] = t.get("requested_by") is None
         if events is not None:
@@ -431,6 +438,8 @@ class AgentTaskService:
                         approved=bool((task.get("params") or {}).get("approved_by")))
         ctx.log = lambda agent_id, step, tool, message, data=None: self._event(task, agent_id, step, tool, message, data)
         ctx.checkpoint = lambda stage: self._checkpoint(task, started, stage)
+        ctx.progress = lambda p: self.store.update("agent_tasks", {"progress": p}, {"id": task["id"]})
+        ctx.system = task.get("requested_by") is None and bool(task.get("schedule_id"))
         try:
             from app.services.agents.handlers import HANDLERS
 
@@ -533,7 +542,8 @@ class AgentTaskService:
             agent_name=a.name if a else s["agent_id"], params=s.get("params") or {})
 
     def update_schedule(self, admin: AuthUser, schedule_id: str, *, enabled: bool | None,
-                        interval_minutes: int | None, urls: list[str] | None) -> dict[str, Any]:
+                        interval_minutes: int | None, urls: list[str] | None,
+                        params: dict[str, Any] | None = None) -> dict[str, Any]:
         s = get_one(self.store, "agent_schedules", id=schedule_id)
         if s is None:
             raise NotFound("Schedule not found.")
@@ -549,11 +559,43 @@ class AgentTaskService:
         if urls is not None:
             self._check_urls(urls)
             patch["params"] = dict(s.get("params") or {}) | {"urls": urls}
+        if params:
+            patch["params"] = dict(patch.get("params") or s.get("params") or {}) | self._check_schedule_params(s, params)
         rows = self.store.update("agent_schedules", patch, {"id": schedule_id})
         self.store.insert("audit_log", dict(action="agent_schedule.update", entity_type="agent_schedule",
                                             entity_id=schedule_id, actor_id=admin.id,
                                             details={k: v for k, v in patch.items() if k != "updated_by"}))
         return self._schedule_view(rows[0])
+
+    def _check_schedule_params(self, s: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:
+        """Monitoring settings an admin may change: which sources, limits, notifications. Review cannot be turned
+        off: discovered content always waits for an admin."""
+        allowed = {"source_ids", "max_items_per_source", "max_sources", "notify_admins", "summarize_new", "review"}
+        unknown = set(params) - allowed
+        if unknown:
+            raise ValidationFailed(f"Unknown schedule settings: {', '.join(sorted(unknown))}.")
+        out: dict[str, Any] = {}
+        if "source_ids" in params:
+            ids = list(params["source_ids"] or [])
+            own = {x["id"] for x in self.svc.discovery.list_sources(s["agent_id"])}
+            if len(ids) > 10 or not set(ids) <= own:
+                raise ValidationFailed("source_ids must be up to 10 sources of this agent.")
+            out["source_ids"] = ids
+        for k, lo, hi in (("max_items_per_source", 1, 30), ("max_sources", 1, 10)):
+            if k in params:
+                v = int(params[k])
+                if not lo <= v <= hi:
+                    raise ValidationFailed(f"{k} must be between {lo} and {hi}.")
+                out[k] = v
+        for k in ("notify_admins", "summarize_new"):
+            if k in params:
+                out[k] = bool(params[k])
+        if "review" in params:
+            if params["review"] != "admin":
+                raise ValidationFailed("Discovered content always needs an admin's review; it cannot be published "
+                                       "automatically.")
+            out["review"] = "admin"
+        return out
 
     def _check_urls(self, urls: list[str]) -> None:
         from app.security.url_guard import validate_url_syntax

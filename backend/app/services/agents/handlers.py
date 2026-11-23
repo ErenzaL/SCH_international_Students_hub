@@ -90,8 +90,46 @@ def scan(tool: str) -> Handler:
         out = svc.tools.run(ctx, tool, _clean(task["params"]))
         out = _with_dates(svc, ctx, out)
         out = _official_pages(svc, ctx, task, out)
+        if tool == "scholarship_search":
+            out = _with_discoveries(svc, ctx, task, out)
         return _mark_changes(svc, task, out)
     return run
+
+
+def _with_discoveries(svc: AgentTaskService, ctx: ToolContext, task: dict[str, Any], out: dict[str, Any]
+                      ) -> dict[str, Any]:
+    """Verified (published in the Hub) first, then what monitoring found on official sites (unverified). No live
+    crawling for students: this reads what admin-run or scheduled checks found, with each source's last check."""
+    ctx.checkpoint("reading official-source results")
+    ctx.progress(dict(stage="official_sources"))
+    p = _clean(task["params"])
+    found = svc.tools.run(ctx, "opportunity_search", {"q": p["q"]} if p.get("q") else {})
+    seen = {i.get("title", "").strip().lower() for i in out["items"]}
+    extra = [i for i in found["items"] if i["title"].strip().lower() not in seen]
+    out["verified_count"] = len(out["items"])
+    out["unverified_count"] = len(extra)
+    out["items"] = out["items"] + extra
+    out["count"] = len(out["items"])
+    out["notes"] = list(dict.fromkeys(out["notes"] + found["notes"]))
+    out["sources"] = [dict(name=s["name"], url=s["url"], last_checked_at=s.get("last_checked_at"),
+                           status=s.get("last_status"))
+                      for s in svc.svc.discovery.list_sources("scholarship") if s["enabled"]]
+    return out
+
+
+def discovery(svc: AgentTaskService, ctx: ToolContext, task: dict[str, Any]) -> dict[str, Any]:
+    """Admin-run or scheduled check of this agent's official sources -> review candidates (never published)."""
+    p = _clean(task["params"])
+    sched = get_one(svc.store, "agent_schedules", id=task["schedule_id"]) if task.get("schedule_id") else None
+    sp = (sched or {}).get("params") or {}
+    params = dict(source_ids=p.get("source_ids") or sp.get("source_ids") or None,
+                  max_items=p.get("max_items") or sp.get("max_items_per_source"),
+                  max_sources=p.get("max_sources") or sp.get("max_sources") or 5,
+                  summarize=bool(p.get("summarize", sp.get("summarize_new", False))))
+    out = svc.tools.run(ctx, "official_source_check", {k: v for k, v in params.items() if v is not None})
+    if sched is not None and sp.get("notify_admins", True):
+        svc.svc.discovery.notify_new(ctx.agent.id, out.get("new_count", 0), out.get("updated_count", 0))
+    return out
 
 
 def digest(tool: str, params: dict[str, Any]) -> Handler:
@@ -155,4 +193,6 @@ HANDLERS: dict[str, Handler] = {
     "support_request": support_request,
     "lookup": lookup,
     "delegated_search": delegated,
+    "announcement_discovery": discovery,
+    "opportunity_discovery": discovery,
 }

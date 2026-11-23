@@ -40,7 +40,7 @@ MY_REQUESTS = _re(r"내 (?:요청|문의)", r"my (?:support )?(?:request|ticket)
 SUMMARIZE = _re(r"요약", r"summar", r"ringkas", r"tóm tắt", r"总结|摘要")
 TRANSLATE = _re(r"번역", r"translat", r"terjemah", r"dịch", r"翻译")
 SCHOLARSHIP = _re(r"장학", r"scholarship", r"beasiswa", r"học bổng", r"奖学金")
-CAREER = _re(r"채용|인턴|취업|일자리|아르바이트|알바", r"\bjob", r"intern", r"career", r"part[- ]time job",
+CAREER = _re(r"채용|인턴|취업|일자리|아르바이트|알바", r"\bjob", r"\bintern(?:ship)?s?\b", r"career", r"part[- ]time job",
              r"lowongan|magang|pekerjaan", r"việc làm|thực tập", r"招聘|实习|工作")
 EVENT = _re(r"행사|이벤트|축제|설명회", r"\bevents?\b", r"festival", r"what'?s on", r"acara", r"sự kiện", r"活动")
 TOPIK = _re(r"topik", r"한국어능력시험")

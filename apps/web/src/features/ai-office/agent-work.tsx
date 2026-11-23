@@ -5,14 +5,14 @@
  * request, and the student's tasks with their steps, sources and reliability labels. Nothing here decides
  * anything: permissions, routing, task state and results all come from the backend.
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { AlertTriangle, ArrowRight, Check, CircleDashed, ExternalLink, Loader2, ShieldCheck, Sparkles, X } from "lucide-react";
+import { AlertTriangle, ArrowRight, Check, CircleDashed, ExternalLink, Globe, Loader2, ShieldCheck, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   ACTIVE, agentApi, type AgentInfo, type AgentState, type AgentTask, type RequestOutcome, type ResultItem,
-  type ToolResult,
+  type SourceRun, type TaskProgress, type ToolResult,
 } from "@/features/ai-office/agent-api";
 import type { OfficeCharacter } from "@/features/ai-office/characters";
 import { ApiError } from "@/lib/api";
@@ -27,11 +27,13 @@ type Shown =
   | { kind: "clarify"; options: string[] }
   | { kind: "error"; code: string };
 
-export function AgentWork({ c, agent, agents, signedIn, onAnswerInChat, onSelect, onChanged }: {
+export function AgentWork({ c, agent, agents, signedIn, isAdmin = false, onAnswerInChat, onSelect, onChanged }: {
   c: OfficeCharacter;
   agent: AgentInfo | undefined;
   agents: AgentInfo[] | null;
   signedIn: boolean;
+  /** an administrator: monitoring buttons and review actions (the backend checks the role again) */
+  isAdmin?: boolean;
   /** a question: the grounded chat answers it */
   onAnswerInChat: (message: string) => void;
   onSelect: (characterId: string) => void;
@@ -128,6 +130,7 @@ export function AgentWork({ c, agent, agents, signedIn, onAnswerInChat, onSelect
   const ownTasks = tasks?.filter((x) => x.agent_id === agent.id) ?? [];
 
   return (
+    <ReviewContext.Provider value={{ isAdmin, onChanged }}>
     <div className="space-y-4" data-testid="agent-work" data-agent={agent.id}>
       <section className="space-y-1.5">
         <div className="flex flex-wrap items-center gap-2">
@@ -245,6 +248,7 @@ export function AgentWork({ c, agent, agents, signedIn, onAnswerInChat, onSelect
               {tool.uses_ai && <Flag>{t("flags.ai")}</Flag>}
               {tool.needs_approval && <Flag>{t("flags.approval")}</Flag>}
               {tool.requires_sign_in && <Flag>{t("flags.signIn")}</Flag>}
+              {tool.admin_only && <Flag>{t("flags.admin")}</Flag>}
             </li>
           ))}
         </ul>
@@ -258,6 +262,7 @@ export function AgentWork({ c, agent, agents, signedIn, onAnswerInChat, onSelect
         )}
       </details>
     </div>
+    </ReviewContext.Provider>
   );
 }
 
@@ -303,8 +308,19 @@ export function StateDot({ state }: { state: Exclude<AgentState, "idle"> }) {
   );
 }
 
+/** Admin-only review actions inside results (dismiss / send to the normal review queue). */
+const ReviewContext = createContext<{ isAdmin: boolean; onChanged: () => void }>({ isAdmin: false, onChanged: () => {} });
+
 function ResultView({ result }: { result: ToolResult }) {
   const t = useTranslations("office.agent");
+  const verified = result.items.filter((i) => i.reliability !== "external_unverified");
+  const unverified = result.items.filter((i) => i.reliability === "external_unverified");
+  const split = verified.length > 0 && unverified.length > 0;
+  const list = (items: ResultItem[]) => (
+    <ul className="space-y-1.5">
+      {items.map((item, i) => <li key={`${item.id ?? item.href ?? ""}-${i}`}><Item item={item} /></li>)}
+    </ul>
+  );
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold text-muted-foreground">
@@ -312,22 +328,91 @@ function ResultView({ result }: { result: ToolResult }) {
         {result.new_count ? ` · ${t("newCount", { count: result.new_count })}` : ""}
         {result.updated_count ? ` · ${t("updatedCount", { count: result.updated_count })}` : ""}
       </p>
-      {result.items.length > 0 && (
-        <ul className="space-y-1.5">
-          {result.items.map((item, i) => <li key={`${item.id ?? item.href ?? ""}-${i}`}><Item item={item} /></li>)}
-        </ul>
-      )}
+      {split ? (
+        <>
+          <section data-testid="verified-results" className="space-y-1.5">
+            <h4 className="flex items-center gap-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+              <ShieldCheck className="size-3.5" aria-hidden /> {t("sections.verified", { count: verified.length })}
+            </h4>
+            {list(verified)}
+          </section>
+          <section data-testid="unverified-results" className="space-y-1.5">
+            <h4 className="flex items-center gap-1.5 text-xs font-bold text-violet-800 dark:text-violet-300">
+              <Globe className="size-3.5" aria-hidden /> {t("sections.unverified", { count: unverified.length })}
+            </h4>
+            {list(unverified)}
+          </section>
+        </>
+      ) : result.items.length > 0 && list(result.items)}
       {result.notes.filter((n) => t.has(`notes.${n}`)).map((n) => (
         <p key={n} className="flex items-start gap-1.5 text-xs text-muted-foreground" data-note={n}>
           <ShieldCheck className="mt-0.5 size-3.5 shrink-0" aria-hidden /> {t(`notes.${n}`)}
         </p>
       ))}
+      {result.sources && result.sources.length > 0 && <SourceList sources={result.sources} />}
     </div>
+  );
+}
+
+function SourceList({ sources }: { sources: SourceRun[] }) {
+  const t = useTranslations("office.agent");
+  return (
+    <details className="rounded-lg border border-border px-2.5 py-1.5 text-xs" data-testid="sources-checked">
+      <summary className="cursor-pointer font-semibold">{t("sourcesChecked", { count: sources.length })}</summary>
+      <ul className="mt-1 space-y-1">
+        {sources.map((s, i) => {
+          const when = s.checked_at ?? s.last_checked_at;
+          return (
+            <li key={`${s.url}-${i}`} className="flex flex-wrap items-center gap-1.5" data-source-status={s.status ?? "none"}>
+              <a href={s.url} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">{s.name}</a>
+              {s.status && <SourceStatus status={s.status} />}
+              {typeof s.found === "number" && <span className="text-muted-foreground">{t("sourceCounts", { found: s.found, new: s.new ?? 0, updated: s.updated ?? 0 })}</span>}
+              <span className="text-muted-foreground">{when ? t("lastChecked", { when: fmt(when) }) : t("neverChecked")}</span>
+              {s.error && <span className="text-red-700 dark:text-red-300">{t.has(`errors.${s.error}`) ? t(`errors.${s.error}`) : s.error}</span>}
+            </li>
+          );
+        })}
+      </ul>
+    </details>
+  );
+}
+
+function SourceStatus({ status }: { status: NonNullable<SourceRun["status"]> }) {
+  const t = useTranslations("office.agent.sourceStatus");
+  const tone = status === "ok" ? "bg-emerald-100 text-emerald-900" : status === "failed" || status === "blocked"
+    ? "bg-red-100 text-red-900" : status === "checking" ? "bg-sky-100 text-sky-900" : "bg-muted text-muted-foreground";
+  return (
+    <span className={cn("inline-flex items-center gap-1 rounded-full px-1.5 text-[10px] font-bold", tone)}>
+      {status === "checking" && <Loader2 className="size-2.5 animate-spin" aria-hidden />}
+      {t(status)}
+    </span>
+  );
+}
+
+function fmt(iso: string): string {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? iso : d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+}
+
+function OpenStatus({ item }: { item: ResultItem }) {
+  const t = useTranslations("office.agent.open");
+  const s = item.open_status ?? "unknown";
+  const uncertain = item.flags?.includes("open_status_uncertain");
+  const tone = s === "open" ? "bg-emerald-100 text-emerald-900" : s === "closed" ? "bg-slate-200 text-slate-800"
+    : "bg-amber-100 text-amber-900";
+  const label = s === "open" && item.next_deadline ? t("openUntil", { date: item.next_deadline })
+    : s === "open" ? t("open") : s === "closed" ? t("closed") : t("unknown");
+  return (
+    <span className={cn("rounded-full px-1.5 text-[10px] font-bold", tone)} data-testid="open-status" data-open={s}>
+      {label}{uncertain ? ` (${t("uncertain")})` : ""}
+    </span>
   );
 }
 
 function Item({ item }: { item: ResultItem }) {
   const t = useTranslations("office.agent");
+  const review = useContext(ReviewContext);
+  const [state, setState] = useState<"idle" | "busy" | "dismissed" | "sent" | "error">("idle");
   const title = item.title || (item.ticket_number ? `#${item.ticket_number}` : item.kind);
   const external = Boolean(item.href && /^https?:\/\//.test(item.href));
   const link = item.href ? (
@@ -339,24 +424,61 @@ function Item({ item }: { item: ResultItem }) {
       <Link href={item.href} className="font-medium text-primary hover:underline">{title}</Link>
     )
   ) : <span className="font-medium">{title}</span>;
+  const discovered = item.kind === "discovered";
+  const isOpportunity = discovered && Boolean(item.opportunity_kind);
+  const act = async (fn: () => Promise<unknown>, done: "dismissed" | "sent") => {
+    setState("busy");
+    try {
+      await fn();
+      setState(done);
+      review.onChanged();
+    } catch {
+      setState("error");
+    }
+  };
   return (
-    <div className="rounded-xl bg-muted/60 px-3 py-2" data-testid="agent-item" data-reliability={item.reliability ?? "none"}>
+    <div className="rounded-xl bg-muted/60 px-3 py-2" data-testid="agent-item" data-reliability={item.reliability ?? "none"}
+      data-kind={item.kind}>
       <div className="flex flex-wrap items-center gap-1.5">
         {link}
-        {item.change && <span className="rounded-full bg-sky-100 px-1.5 text-[10px] font-bold text-sky-900">{t(`change.${item.change}`)}</span>}
+        {(item.change === "new" || item.change === "updated") && <span className="rounded-full bg-sky-100 px-1.5 text-[10px] font-bold text-sky-900">{t(`change.${item.change}`)}</span>}
+        {isOpportunity && <span className="rounded-full bg-white px-1.5 text-[10px] font-bold text-[#3D6A8C] ring-1 ring-[#3D6A8C]/30">{t(`kinds.${item.opportunity_kind}`)}</span>}
+        {isOpportunity && <OpenStatus item={item} />}
         {item.reliability && <Reliability r={item.reliability} />}
         {item.error && <span className="text-xs text-red-700">{t.has(`errors.${item.error}`) ? t(`errors.${item.error}`) : t("errors.fetch_failed")}</span>}
       </div>
       <p className="mt-0.5 text-xs text-muted-foreground">
         {[item.heading, item.page ? t("page", { page: item.page }) : null,
+          item.published_on ? t("published", { date: item.published_on }) : null,
           item.deadline ? `${t("dateKinds.deadline")} ${item.deadline}` : null,
           item.event_date ? `${t("dateKinds.event")} ${item.event_date}` : null,
           item.status && item.kind === "ticket" ? t(`ticketStatus.${item.status}`) : null,
-          item.date ? `${t.has(`dateKinds.${item.kind}`) ? t(`dateKinds.${item.kind}`) : ""} ${item.date}`.trim() : null]
+          item.date ? `${t.has(`dateKinds.${item.kind}`) ? t(`dateKinds.${item.kind}`) : ""} ${item.date}`.trim() : null,
+          discovered && item.source_name ? item.source_name : null,
+          discovered && item.last_checked_at ? t("lastChecked", { when: fmt(item.last_checked_at) }) : null]
           .filter(Boolean).join(" · ")}
       </p>
       {(item.quote || item.excerpt) && <p className="mt-1 line-clamp-3 text-xs">{item.quote || item.excerpt}</p>}
+      {item.summary && (
+        <p className="mt-1 whitespace-pre-line text-xs"><Reliability r="ai_generated" /> {item.summary}</p>
+      )}
       {item.body && <p className="mt-1 whitespace-pre-line text-xs">{item.body}</p>}
+      {item.eligibility && item.eligibility.length > 0 && (
+        <div className="mt-1 text-xs" data-testid="eligibility">
+          <span className="font-semibold">{t("eligibility")}</span>
+          <ul className="list-disc pl-4">{item.eligibility.slice(0, 3).map((e, i) => <li key={i}>“{e}”</li>)}</ul>
+        </div>
+      )}
+      {item.application_links && item.application_links.length > 0 && (
+        <div className="mt-1 flex flex-wrap gap-1.5" data-testid="application-links">
+          {item.application_links.slice(0, 3).map((l) => (
+            <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-primary ring-1 ring-primary/30 hover:bg-primary/5">
+              {l.text || t("applyLink")} <ExternalLink className="size-3" aria-hidden />
+            </a>
+          ))}
+        </div>
+      )}
       {item.dates && item.dates.length > 0 && (
         <ul className="mt-1 space-y-0.5 text-xs">
           {item.dates.slice(0, 4).map((d, i) => (
@@ -365,6 +487,56 @@ function Item({ item }: { item: ResultItem }) {
           ))}
         </ul>
       )}
+      {discovered && item.flags && item.flags.filter((f) => t.has(`itemFlags.${f}`)).length > 0 && (
+        <ul className="mt-1 flex flex-wrap gap-1" data-testid="item-flags">
+          {item.flags.filter((f) => t.has(`itemFlags.${f}`)).map((f) => (
+            <li key={f} className="inline-flex items-center gap-0.5 rounded-full bg-amber-50 px-1.5 text-[10px] font-semibold text-amber-900 dark:bg-amber-950/40 dark:text-amber-200" data-flag={f}>
+              <AlertTriangle className="size-2.5" aria-hidden /> {t(`itemFlags.${f}`)}
+            </li>
+          ))}
+        </ul>
+      )}
+      {discovered && review.isAdmin && item.review_status && (
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5" data-testid="review-actions">
+          <span className="text-[11px] text-muted-foreground">
+            {t(`reviewStatus.${state === "dismissed" ? "dismissed" : state === "sent" ? "imported" : item.review_status}`)}
+          </span>
+          {item.review_status === "candidate" && state === "idle" && (
+            <>
+              <Button size="sm" variant="outline" className="h-7 px-2 text-xs" data-testid="send-to-review"
+                disabled={item.flags?.includes("no_detail_page")}
+                title={item.flags?.includes("no_detail_page") ? t("itemFlags.no_detail_page") : undefined}
+                onClick={() => void act(() => agentApi.sendToReview(item.id!), "sent")}>{t("sendToReview")}</Button>
+              <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" data-testid="dismiss"
+                onClick={() => void act(() => agentApi.dismiss(item.id!), "dismissed")}>{t("dismiss")}</Button>
+            </>
+          )}
+          {state === "busy" && <Loader2 className="size-3.5 animate-spin" aria-hidden />}
+          {state === "error" && <span className="text-[11px] text-red-700">{t("errors.generic")}</span>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TaskProgressView({ progress }: { progress: TaskProgress }) {
+  const t = useTranslations("office.agent");
+  const total = progress.sources_total ?? 0;
+  const done = progress.sources_done ?? 0;
+  if (!total) return null;
+  const pct = Math.round((done / total) * 100);
+  return (
+    <div className="space-y-1.5" data-testid="task-progress">
+      <div className="flex items-center justify-between text-xs">
+        <span className="font-semibold">{t("progress", { done, total })}</span>
+        <span className="text-muted-foreground">{t("itemsFound", { count: progress.items_found ?? 0 })}</span>
+      </div>
+      <div className="h-1.5 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={total}
+        aria-valuenow={done} aria-label={t("progress", { done, total })}>
+        <div className="h-full rounded-full bg-sky-500 transition-[width]" style={{ width: `${pct}%` }} />
+      </div>
+      {progress.current && <p className="text-xs text-muted-foreground">{t("checking", { name: progress.current })}</p>}
+      {progress.sources && progress.sources.length > 0 && <SourceList sources={progress.sources} />}
     </div>
   );
 }
@@ -446,7 +618,10 @@ function TaskCard({ task, nameOf, onChanged }: { task: AgentTask; nameOf: (id: s
       {view.status === "failed" && view.error_code && (
         <p className="text-xs text-red-700 dark:text-red-300">{t.has(`errors.${view.error_code}`) ? t(`errors.${view.error_code}`) : t("errors.generic")}</p>
       )}
+      {/* the list is re-polled while a task runs, so its summary carries the freshest progress */}
+      {(view.status === "queued" || view.status === "running") && task.progress && <TaskProgressView progress={task.progress} />}
       {view.status === "completed" && view.output && <ResultView result={view.output} />}
+      {view.completed_at && <p className="text-[11px] text-muted-foreground">{t("finishedAt", { when: fmt(view.completed_at) })}</p>}
       {view.output?.provenance && (
         <p className="text-[11px] text-muted-foreground">
           {view.output.provenance.generated_by === "deterministic" ? t("provenance.deterministic") : t("provenance.model", { model: view.output.provenance.generated_by })}

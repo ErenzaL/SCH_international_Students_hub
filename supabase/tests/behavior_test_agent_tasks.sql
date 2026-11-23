@@ -12,7 +12,8 @@ do $$
 declare n int; t uuid; r record;
 begin
   -- schedules exist and are all disabled
-  select count(*) into n from agent_schedules;
+  select count(*) into n from agent_schedules
+   where task_type in ('announcement_digest', 'scholarship_scan', 'event_digest', 'career_scan');
   if n <> 4 then raise exception 'FAIL: expected 4 seeded schedules, got %', n; end if;
   select count(*) into n from agent_schedules where enabled;
   if n <> 0 then raise exception 'FAIL: a schedule is enabled by default'; end if;
@@ -138,7 +139,8 @@ reset role;
 do $$
 declare n int;
 begin
-  select count(*) into n from agent_schedules;
+  select count(*) into n from agent_schedules
+   where task_type in ('announcement_digest', 'scholarship_scan', 'event_digest', 'career_scan');
   if n <> 4 then raise exception 'FAIL: re-running 0014 changed schedules'; end if;
   select count(*) into n from agent_tasks;
   if n <> 3 then raise exception 'FAIL: re-running 0014 changed tasks (%)', n; end if;

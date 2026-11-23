@@ -23,14 +23,14 @@ TABLES = (
     "notification_reads", "support_agent_status", "ai_conversations", "ai_messages", "support_tickets",
     "support_ticket_messages", "support_ticket_assignments", "user_notifications", "translation_revisions",
     "document_suppressions", "document_translations", "document_translation_revisions",
-    "agent_tasks", "agent_task_events", "agent_schedules",
+    "agent_tasks", "agent_task_events", "agent_schedules", "discovery_sources", "discovered_items",
 )
 NO_ID = {"agent_task_events", "categories", "profiles", "supporter_languages", "audit_log", "ingestion_events", "allowed_source_domains",
          "admin_notifications", "notification_reads", "support_agent_status", "support_ticket_assignments",
          "user_notifications", "translation_revisions", "document_suppressions", "document_translation_revisions"}
 SEQ_ID = {"agent_task_events", "audit_log", "ingestion_events", "admin_notifications", "support_ticket_assignments", "user_notifications",
           "translation_revisions", "document_suppressions", "document_translation_revisions"}
-HAS_UPDATED_AT = {"agent_tasks", "agent_schedules", "knowledge_sources", "source_documents", "announcements", "announcement_translations",
+HAS_UPDATED_AT = {"agent_tasks", "agent_schedules", "discovery_sources", "discovered_items", "knowledge_sources", "source_documents", "announcements", "announcement_translations",
                   "ai_conversations", "support_tickets", "profiles", "document_translations"}
 
 
@@ -125,7 +125,15 @@ class MemoryStore:
                                 status="queued", stage=None, cancel_requested=False, idempotency_key=None, output=None,
                                 citations=[], error_code=None, error_message=None, attempts=0, max_attempts=3,
                                 run_after=now_iso(), heartbeat_at=None, locked_by=None, schedule_id=None,
-                                started_at=None, completed_at=None),
+                                started_at=None, completed_at=None, progress={}),
+            "discovery_sources": dict(config={}, category=None, language="ko", enabled=True, last_checked_at=None,
+                                      last_success_at=None, last_status=None, last_error=None, consecutive_failures=0,
+                                      last_listing_hash=None, created_by=None, updated_by=None),
+            "discovered_items": dict(published_on=None, language=None, previous_hash=None, text_excerpt=None, extracted={},
+                                     category=None, opportunity_kind=None, open_status="unknown", change="new",
+                                     status="candidate", duplicate_of=None, first_seen_at=now_iso(), last_seen_at=now_iso(),
+                                     last_changed_at=now_iso(), reviewed_by=None, reviewed_at=None, review_note=None,
+                                     imported_source_id=None),
             "agent_task_events": dict(tool=None, data={}),
             "agent_schedules": dict(params={}, enabled=False, interval_minutes=1440, state={}, last_run_at=None,
                                     last_success_at=None, next_run_at=None, last_error=None, updated_by=None),
@@ -192,6 +200,10 @@ class MemoryStore:
                 and x["status"] in ("queued", "running", "awaiting_approval"))
         elif table == "agent_schedules":
             dup(lambda x: x["agent_id"] == row["agent_id"] and x["task_type"] == row["task_type"])
+        elif table == "discovery_sources":
+            dup(lambda x: x["agent_id"] == row["agent_id"] and x["url"] == row["url"])
+        elif table == "discovered_items":
+            dup(lambda x: x["item_key"] == row["item_key"])
         elif table == "source_documents":
             if row.get("canonical_url"):
                 dup(lambda x: x["source_id"] == row["source_id"] and x.get("canonical_url") == row["canonical_url"])
@@ -1186,6 +1198,11 @@ def seed_categories(store: MemoryStore) -> None:
     for agent_id, task_type, minutes in (("announcement", "announcement_digest", 720), ("scholarship", "scholarship_scan", 1440),
                                          ("events", "event_digest", 720), ("career", "career_scan", 1440)):
         store.insert("agent_schedules", dict(agent_id=agent_id, task_type=task_type, interval_minutes=minutes))
+    # migration 0015: official-source monitoring, disabled
+    for agent_id, task_type, minutes in (("announcement", "announcement_discovery", 720),
+                                         ("scholarship", "opportunity_discovery", 1440)):
+        store.insert("agent_schedules", dict(agent_id=agent_id, task_type=task_type, interval_minutes=minutes, params=dict(
+            max_items_per_source=10, max_sources=5, notify_admins=True, summarize_new=False, review="admin")))
 
 
 _ = timedelta

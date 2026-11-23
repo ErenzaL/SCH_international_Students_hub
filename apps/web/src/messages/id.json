@@ -2140,7 +2140,11 @@
         "what_changed": "Apa yang baru sejak terakhir? (latar belakang)",
         "find_opportunities": "Cari kerja & magang",
         "digest": "Ringkasan pengumuman (latar belakang)",
-        "my_requests": "Permintaan bantuan saya"
+        "my_requests": "Permintaan bantuan saya",
+        "official_opportunities": "Dari situs resmi",
+        "check_official_sources": "Periksa situs resmi (admin)",
+        "review_queue": "Antrean tinjauan (admin)",
+        "official_jobs": "Lowongan di situs resmi"
       },
       "notes": {
         "no_match": "Tidak ada sumber yang disetujui di Hub yang cocok.",
@@ -2159,7 +2163,17 @@
         "ai_summary": "Ringkasan AI dari sumber yang ditautkan, belum ditinjau. Sumber asli yang berlaku.",
         "machine_translation": "Terjemahan mesin, belum ditinjau.",
         "no_tickets": "Anda belum memiliki permintaan bantuan.",
-        "first_check": "Pemeriksaan pertama: lain kali saya tunjukkan yang baru atau berubah."
+        "first_check": "Pemeriksaan pertama: lain kali saya tunjukkan yang baru atau berubah.",
+        "candidates_need_review": "Item baru dan yang berubah menunggu tinjauan admin. Tidak ada yang dipublikasikan otomatis.",
+        "no_sources": "Belum ada situs resmi yang diatur untuk agen ini.",
+        "nothing_found": "Situs resmi tidak menampilkan hal baru.",
+        "some_sources_failed": "Beberapa situs tidak dapat dibaca. Lihat sumber di bawah.",
+        "recently_checked": "Baru diperiksa beberapa menit lalu, jadi hasil terakhir ditampilkan (situs tidak ditanya lagi secepat itu).",
+        "official_unreviewed": "Ditemukan di situs resmi; belum ditinjau staf. Selalu periksa halaman aslinya.",
+        "open_only_when_stated": "Ditandai dibuka hanya jika sumber menyebut tenggat di masa depan atau menyatakan pendaftaran dibuka.",
+        "no_discoveries": "Belum ada yang ditemukan di situs resmi yang diatur.",
+        "some_missing_info": "Beberapa item tidak memiliki tenggat atau persyaratan; sudah ditandai.",
+        "no_candidates": "Tidak ada pengumuman yang menunggu tinjauan."
       },
       "reliability": {
         "verified": "Sumber disetujui",
@@ -2198,7 +2212,9 @@
         "explain_document": "Penjelasan dokumen",
         "support_request": "Permintaan ke Global Supporter",
         "lookup": "Pencarian",
-        "delegated_search": "Pencarian oleh spesialis"
+        "delegated_search": "Pencarian oleh spesialis",
+        "announcement_discovery": "Pemeriksaan pengumuman resmi",
+        "opportunity_discovery": "Pemeriksaan peluang resmi"
       },
       "status": {
         "queued": "Dalam antrean",
@@ -2243,7 +2259,14 @@
         "no_owner": "Akun untuk tugas ini sudah tidak ada.",
         "internal_error": "Terjadi kesalahan saat mengerjakan tugas.",
         "delegation_failed": "Spesialis tidak dapat menyelesaikannya.",
-        "not_found": "Tidak ditemukan."
+        "not_found": "Tidak ditemukan.",
+        "admin_only": "Hanya administrator yang dapat melakukannya.",
+        "robots_disallowed": "Situs ini tidak mengizinkan akses otomatis.",
+        "board_structure_changed": "Tata letak halaman berubah; sumber perlu diperbarui.",
+        "listing_structure_changed": "Tata letak halaman berubah; sumber perlu diperbarui.",
+        "http_404": "Halaman tidak ditemukan.",
+        "http_403": "Situs menolak akses.",
+        "http_503": "Situs sedang tidak tersedia."
       },
       "tools": {
         "rag_search": "Cari panduan yang disetujui",
@@ -2265,13 +2288,17 @@
         "get_support_request_status": "Status permintaan saya",
         "create_agent_task": "Serahkan tugas ke spesialis",
         "get_agent_task_status": "Status tugas",
-        "official_web_search": "Pencarian web"
+        "official_web_search": "Pencarian web",
+        "official_source_check": "Periksa situs resmi sekarang",
+        "opportunity_search": "Peluang dari situs resmi",
+        "review_candidates": "Pengumuman menunggu tinjauan"
       },
       "flags": {
         "unavailable": "tidak tersedia",
         "ai": "memakai AI",
         "approval": "minta konfirmasi",
-        "signIn": "perlu masuk"
+        "signIn": "perlu masuk",
+        "admin": "admin"
       },
       "never": {
         "eligibility_decisions": "memutuskan kelayakan atau masalah hukum",
@@ -2283,7 +2310,66 @@
         "scholarship_eligibility": "memutuskan apakah Anda layak mendapat beasiswa",
         "work_legality": "memutuskan apakah Anda boleh bekerja secara legal",
         "publish_announcements": "memublikasikan pengumuman",
-        "show_others_requests": "menampilkan permintaan mahasiswa lain"
+        "show_others_requests": "menampilkan permintaan mahasiswa lain",
+        "claim_open_without_source": "menyatakan peluang dibuka tanpa dasar dari sumber"
+      },
+      "sections": {
+        "verified": "Terverifikasi di Hub ({count})",
+        "unverified": "Dari situs resmi, belum ditinjau ({count})"
+      },
+      "sourcesChecked": "{count, plural, other {# sumber}}",
+      "sourceCounts": "{found} ditemukan, {new} baru, {updated} berubah",
+      "lastChecked": "diperiksa {when}",
+      "neverChecked": "belum diperiksa",
+      "published": "diposting {date}",
+      "eligibility": "Persyaratan (kutipan)",
+      "applyLink": "Daftar di situs resmi",
+      "progress": "{done} dari {total} sumber diperiksa",
+      "itemsFound": "{count, plural, other {# item ditemukan}}",
+      "checking": "Memeriksa: {name}",
+      "finishedAt": "Selesai {when}",
+      "sendToReview": "Kirim ke tinjauan",
+      "dismiss": "Abaikan",
+      "sourceStatus": {
+        "pending": "menunggu",
+        "checking": "memeriksa",
+        "ok": "ok",
+        "partial": "sebagian terbaca",
+        "failed": "gagal",
+        "blocked": "diblokir situs",
+        "recently_checked": "baru diperiksa"
+      },
+      "open": {
+        "open": "Dibuka",
+        "openUntil": "Dibuka sampai {date}",
+        "closed": "Ditutup",
+        "unknown": "Status tidak diketahui",
+        "uncertain": "tahun diperkirakan"
+      },
+      "kinds": {
+        "scholarship": "Beasiswa",
+        "competition": "Kompetisi",
+        "program": "Program",
+        "job": "Lowongan"
+      },
+      "itemFlags": {
+        "missing_deadline": "tenggat tidak ditemukan",
+        "missing_eligibility": "persyaratan tidak ditemukan",
+        "missing_application_link": "tidak ada tautan pendaftaran",
+        "no_detail_page": "tidak ada halaman sendiri (hanya daftar)",
+        "year_assumed": "tahun tidak disebut",
+        "open_status_uncertain": "status pendaftaran tidak pasti",
+        "deadline_before_published": "tenggat sebelum tanggal posting",
+        "published_in_future": "tanggal posting di masa depan",
+        "missing_published_date": "tanpa tanggal posting",
+        "little_text": "sedikit teks (gambar atau lampiran)",
+        "several_deadlines": "beberapa tenggat",
+        "detail_failed": "halaman tidak dapat dibaca"
+      },
+      "reviewStatus": {
+        "candidate": "Menunggu tinjauan",
+        "dismissed": "Diabaikan",
+        "imported": "Dikirim ke tinjauan"
       }
     }
   }

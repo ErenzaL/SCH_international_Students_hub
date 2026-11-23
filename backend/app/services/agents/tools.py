@@ -68,6 +68,10 @@ class ToolContext:
     depth: int = 0
     #: called between steps of a task: heartbeat, cancellation and timeout checks
     checkpoint: Callable[[str], None] = lambda stage: None
+    #: live progress of a running task (sources checked, current source ...), stored on the task row
+    progress: Callable[[dict[str, Any]], None] = lambda p: None
+    #: a scheduled (system) task: no user, started by an admin-enabled schedule
+    system: bool = False
 
 
 class P(BaseModel):
@@ -86,6 +90,8 @@ class Tool:
     writes: bool = False
     needs_approval: bool = False
     availability: Callable[[Services], str | None] = field(default=lambda svc: None)  # None = available
+    #: only these roles may use the tool (scheduled system tasks too); None = everyone
+    roles: tuple[str, ...] | None = None
 
     def unavailable_reason(self, svc: Services) -> str | None:
         return self.availability(svc)
@@ -358,7 +364,7 @@ def deadline_extraction(ctx: ToolContext, p: DeadlineParams) -> dict[str, Any]:
 
 
 SCHOLARSHIP_RE = re.compile(r"장학|scholarship|beasiswa|học bổng|奖学金|tuition support|등록금\s*지원", re.IGNORECASE)
-CAREER_RE = re.compile(r"채용|인턴|취업|일자리|구인|아르바이트|job|intern|career|recruit|employment|part-time|"
+CAREER_RE = re.compile(r"채용|인턴|취업|일자리|구인|아르바이트|job|\bintern(?:ship)?s?\b|career|recruit|employment|part-time|"
                        r"lowongan|magang|việc làm|thực tập|招聘|实习", re.IGNORECASE)
 TOPIK_RE = re.compile(r"topik|한국어능력시험|한국어\s*능력", re.IGNORECASE)
 
@@ -589,6 +595,65 @@ def web_search(ctx: ToolContext, p: WebSearchParams) -> dict[str, Any]:  # pragm
     raise ToolUnavailable("No web search provider is configured.")
 
 
+# =========================================================================== official-source discovery (Phase 3)
+ADMIN = ("super_admin", "admin")
+
+
+class SourceCheckParams(P):
+    source_ids: list[Annotated[str, StringConstraints(max_length=64)]] | None = Field(default=None, max_length=10)
+    max_items: int | None = Field(default=None, ge=1, le=30)
+    max_sources: int = Field(5, ge=1, le=10)
+    summarize: bool = False
+
+
+class OpportunityParams(P):
+    q: Text | None = None
+    kind: Literal["scholarship", "competition", "program", "job"] | None = None
+    include_closed: bool = False
+    limit: int = Field(12, ge=1, le=30)
+
+
+class CandidateParams(P):
+    status: Literal["candidate", "dismissed", "imported", "all"] = "candidate"
+    changed_only: bool = False
+    limit: int = Field(20, ge=1, le=50)
+
+
+def official_source_check(ctx: ToolContext, p: SourceCheckParams) -> dict[str, Any]:
+    """Check this agent's configured official sources now (admin or an enabled schedule). New and changed items
+    become review candidates; nothing is published."""
+    disc = ctx.svc.discovery
+    sched = (ctx.task or {}).get("schedule_id")
+    run = disc.check_sources(ctx.agent.id, source_ids=p.source_ids, max_sources=p.max_sources, max_items=p.max_items,
+                             scheduled=bool(sched), summarize=p.summarize, progress=ctx.progress,
+                             checkpoint=ctx.checkpoint, log_step=ctx.log)
+    changed = [i for r in run["sources"] for i in r["item_ids"]]
+    items = disc.items_by_id(list(dict.fromkeys(changed)), admin=True)
+    items.sort(key=lambda i: {"new": 0, "updated": 1, "unchanged": 2}[i["change"]])
+    notes = ["candidates_need_review"] if items else ["no_sources" if not run["sources_total"] else "nothing_found"]
+    if any(r["status"] in ("failed", "blocked") for r in run["sources"]):
+        notes.append("some_sources_failed")
+    if any(r["status"] == "recently_checked" for r in run["sources"]):
+        notes.append("recently_checked")
+    return result("official_source_check", items, notes=notes, sources=run["sources"], new_count=run["new"],
+                  updated_count=run["updated"])
+
+
+def opportunity_search(ctx: ToolContext, p: OpportunityParams) -> dict[str, Any]:
+    kinds = [p.kind] if p.kind else (["job"] if ctx.agent.id == "career" else ["scholarship", "competition", "program"])
+    items = ctx.svc.discovery.opportunities(q=p.q, kinds=kinds, include_closed=p.include_closed, limit=p.limit)
+    notes = ["official_unreviewed", "open_only_when_stated"] if items else ["no_discoveries"]
+    if any("missing_deadline" in i["flags"] or "missing_eligibility" in i["flags"] for i in items):
+        notes.append("some_missing_info")
+    return result("opportunity_search", items, notes=notes)
+
+
+def review_candidates(ctx: ToolContext, p: CandidateParams) -> dict[str, Any]:
+    items = ctx.svc.discovery.candidates(agent_id=ctx.agent.id, status=p.status, changed_only=p.changed_only,
+                                         limit=p.limit)
+    return result("review_candidates", items, notes=[] if items else ["no_candidates"])
+
+
 def _llm_available(svc: Services) -> str | None:
     llm = svc.doc_translations.llm
     return None if getattr(llm, "enabled", False) else "No AI model is configured on this server."
@@ -626,6 +691,12 @@ TOOLS: dict[str, Tool] = {t.name: t for t in [
     Tool("create_agent_task", "Hand a task to another agent.", CreateTaskParams, create_agent_task, requires_auth=True),
     Tool("get_agent_task_status", "Status of one of your tasks.", TaskStatusParams, agent_task_status,
          requires_auth=True),
+    Tool("official_source_check", "Check the configured official websites now; new or changed notices become "
+         "review candidates.", SourceCheckParams, official_source_check, background=True, roles=ADMIN),
+    Tool("opportunity_search", "Opportunities found on configured official websites (not reviewed by staff).",
+         OpportunityParams, opportunity_search),
+    Tool("review_candidates", "Discovered official notices waiting for an admin's review.", CandidateParams,
+         review_candidates, roles=ADMIN),
     Tool("official_web_search", "Search the open web for official pages.", WebSearchParams, web_search,
          availability=lambda svc: "No web search provider is configured. Agents use the Hub's approved content and "
                                   "allowlisted official pages only."),
@@ -647,7 +718,7 @@ class ToolRegistry:
             reason = t.unavailable_reason(svc)
             out.append(dict(name=name, description=t.description, available=reason is None, unavailable_reason=reason,
                             requires_sign_in=t.requires_auth, background=t.background, uses_ai=t.uses_llm,
-                            needs_approval=t.needs_approval))
+                            needs_approval=t.needs_approval, admin_only=t.roles is not None))
         return out
 
     def check(self, ctx: ToolContext, name: str) -> Tool:
@@ -657,7 +728,12 @@ class ToolRegistry:
         reason = t.unavailable_reason(ctx.svc)
         if reason:
             raise ToolUnavailable(reason)
-        if t.requires_auth and ctx.user is None:
+        if t.roles is not None and not ctx.system:
+            if ctx.user is None:
+                raise NotAuthenticated("Sign in to use this.")
+            if ctx.user.role not in t.roles:
+                raise ToolDenied(f"'{name}' is only available to administrators.", code="admin_only")
+        if t.requires_auth and ctx.user is None and not ctx.system:
             raise NotAuthenticated("Sign in to use this.")
         if t.background and not ctx.in_task:
             raise ToolDenied(f"'{name}' runs only as a background task.", code="background_only")

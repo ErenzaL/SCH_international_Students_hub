@@ -2140,7 +2140,11 @@
         "what_changed": "What's new since last time? (background)",
         "find_opportunities": "Find jobs & internships",
         "digest": "Announcement digest (background)",
-        "my_requests": "My support requests"
+        "my_requests": "My support requests",
+        "official_opportunities": "From official websites",
+        "check_official_sources": "Check official websites (admin)",
+        "review_queue": "Review queue (admin)",
+        "official_jobs": "Jobs on official websites"
       },
       "notes": {
         "no_match": "No approved source in the Hub matches this.",
@@ -2159,7 +2163,17 @@
         "ai_summary": "AI summary of the linked source, not reviewed. The original is authoritative.",
         "machine_translation": "Machine translation, not reviewed.",
         "no_tickets": "You have no support requests yet.",
-        "first_check": "First check: next time I'll show what is new or changed."
+        "first_check": "First check: next time I'll show what is new or changed.",
+        "candidates_need_review": "New and changed items wait for an admin's review. Nothing is published automatically.",
+        "no_sources": "No official website is configured for this agent yet.",
+        "nothing_found": "The official websites showed nothing new.",
+        "some_sources_failed": "Some websites could not be read. See the sources below.",
+        "recently_checked": "Checked a few minutes ago, so the last results are shown (the sites are not asked again so soon).",
+        "official_unreviewed": "Found on official websites; not yet reviewed by staff. Always check the original page.",
+        "open_only_when_stated": "Shown as open only when the source gives a future deadline or says applications are open.",
+        "no_discoveries": "Nothing has been found on the configured official websites yet.",
+        "some_missing_info": "Some items are missing a deadline or eligibility; they are marked.",
+        "no_candidates": "No notices are waiting for review."
       },
       "reliability": {
         "verified": "Approved source",
@@ -2198,7 +2212,9 @@
         "explain_document": "Document explanation",
         "support_request": "Request to a Global Supporter",
         "lookup": "Lookup",
-        "delegated_search": "Search by a specialist"
+        "delegated_search": "Search by a specialist",
+        "announcement_discovery": "Official notice check",
+        "opportunity_discovery": "Official opportunity check"
       },
       "status": {
         "queued": "Queued",
@@ -2243,7 +2259,14 @@
         "no_owner": "The account for this task no longer exists.",
         "internal_error": "Something went wrong while working on this task.",
         "delegation_failed": "The specialist could not finish this.",
-        "not_found": "Not found."
+        "not_found": "Not found.",
+        "admin_only": "Only administrators can do this.",
+        "robots_disallowed": "The site does not allow automated access.",
+        "board_structure_changed": "The page layout changed; the source needs to be updated.",
+        "listing_structure_changed": "The page layout changed; the source needs to be updated.",
+        "http_404": "Page not found.",
+        "http_403": "The site refused access.",
+        "http_503": "The site is temporarily unavailable."
       },
       "tools": {
         "rag_search": "Search approved guides",
@@ -2265,13 +2288,17 @@
         "get_support_request_status": "Status of my requests",
         "create_agent_task": "Hand work to a specialist",
         "get_agent_task_status": "Task status",
-        "official_web_search": "Web search"
+        "official_web_search": "Web search",
+        "official_source_check": "Check official websites now",
+        "opportunity_search": "Opportunities from official websites",
+        "review_candidates": "Notices waiting for review"
       },
       "flags": {
         "unavailable": "not available",
         "ai": "uses AI",
         "approval": "asks you first",
-        "signIn": "sign-in"
+        "signIn": "sign-in",
+        "admin": "admins"
       },
       "never": {
         "eligibility_decisions": "decide eligibility or legal questions",
@@ -2283,7 +2310,66 @@
         "scholarship_eligibility": "decide whether you qualify for a scholarship",
         "work_legality": "decide whether you may legally work",
         "publish_announcements": "publish announcements",
-        "show_others_requests": "show other students' requests"
+        "show_others_requests": "show other students' requests",
+        "claim_open_without_source": "say an opportunity is open unless the source says so"
+      },
+      "sections": {
+        "verified": "Verified in the Hub ({count})",
+        "unverified": "From official websites, not reviewed ({count})"
+      },
+      "sourcesChecked": "{count, plural, one {# source} other {# sources}}",
+      "sourceCounts": "{found} found, {new} new, {updated} changed",
+      "lastChecked": "checked {when}",
+      "neverChecked": "not checked yet",
+      "published": "posted {date}",
+      "eligibility": "Eligibility (quoted)",
+      "applyLink": "Apply on the official site",
+      "progress": "{done} of {total} sources checked",
+      "itemsFound": "{count, plural, one {# item} other {# items}} found",
+      "checking": "Checking: {name}",
+      "finishedAt": "Finished {when}",
+      "sendToReview": "Send to review",
+      "dismiss": "Dismiss",
+      "sourceStatus": {
+        "pending": "waiting",
+        "checking": "checking",
+        "ok": "ok",
+        "partial": "partly read",
+        "failed": "failed",
+        "blocked": "blocked by the site",
+        "recently_checked": "recently checked"
+      },
+      "open": {
+        "open": "Open",
+        "openUntil": "Open until {date}",
+        "closed": "Closed",
+        "unknown": "Status unknown",
+        "uncertain": "year assumed"
+      },
+      "kinds": {
+        "scholarship": "Scholarship",
+        "competition": "Competition",
+        "program": "Program",
+        "job": "Job"
+      },
+      "itemFlags": {
+        "missing_deadline": "no deadline found",
+        "missing_eligibility": "no eligibility found",
+        "missing_application_link": "no application link",
+        "no_detail_page": "no page of its own (list only)",
+        "year_assumed": "year not stated",
+        "open_status_uncertain": "open status uncertain",
+        "deadline_before_published": "deadline before posting date",
+        "published_in_future": "posting date in the future",
+        "missing_published_date": "no posting date",
+        "little_text": "little text (image or attachment)",
+        "several_deadlines": "several deadlines",
+        "detail_failed": "page could not be read"
+      },
+      "reviewStatus": {
+        "candidate": "Waiting for review",
+        "dismissed": "Dismissed",
+        "imported": "Sent to review"
       }
     }
   }

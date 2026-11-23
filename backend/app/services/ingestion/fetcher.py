@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 import ssl
+import time
 from collections.abc import Callable, Sequence
 from urllib.parse import urljoin, urlsplit
 from urllib.robotparser import RobotFileParser
@@ -17,6 +18,7 @@ from app.services.ingestion.errors import FetchError
 
 log = logging.getLogger("app.fetch")
 REDIRECT_CODES = {301, 302, 303, 307, 308}
+ROBOTS_TTL_SECONDS = 6 * 3600   # long-running monitoring re-reads robots.txt, so a new "Disallow" is respected
 HTML_TYPES = ("text/html", "application/xhtml+xml", "text/plain")
 PDF_TYPES = ("application/pdf",)
 OCTET_TYPES = ("application/octet-stream", "binary/octet-stream", "application/force-download", "application/x-download")
@@ -41,7 +43,7 @@ class GuardedFetcher:
         # allowlist provider: environment defaults + admin-managed domains (see services/domains.py)
         self.domains: Callable[[], Sequence[str]] = domains or (lambda: settings.allowed_domains)
         self._transport = transport
-        self._robots: dict[str, RobotFileParser | None] = {}
+        self._robots: dict[str, tuple[float, RobotFileParser | None]] = {}
 
     # -- internals ---------------------------------------------------------
     def _client(self, accept_language: str = "ko,en;q=0.5") -> httpx.Client:
@@ -108,8 +110,9 @@ class GuardedFetcher:
     def _robots_for(self, client: httpx.Client, url: str) -> RobotFileParser | None:
         parts = urlsplit(url)
         origin = f"{parts.scheme}://{parts.netloc}"
-        if origin in self._robots:
-            return self._robots[origin]
+        cached = self._robots.get(origin)
+        if cached is not None and time.monotonic() - cached[0] < ROBOTS_TTL_SECONDS:
+            return cached[1]
         robots_url = origin + "/robots.txt"
         rp: RobotFileParser | None
         try:
@@ -127,7 +130,7 @@ class GuardedFetcher:
             rp = None  # no robots.txt => everything allowed
         else:
             raise FetchError("robots_unavailable", f"robots.txt returned HTTP {res.status_code}.")
-        self._robots[origin] = rp
+        self._robots[origin] = (time.monotonic(), rp)
         return rp
 
     # -- public ------------------------------------------------------------

@@ -121,6 +121,7 @@ export function AiOffice() {
         <OfficePanel key={current.id} c={current} minimized={minimized} onClose={close}
           onMinimize={() => setMinimized(true)} onRestore={() => setMinimized(false)} onSelect={(id) => select(id)}
           agent={directory.byCharacter(current.id)} agents={directory.agents} agentsSignedIn={directory.signedIn}
+          agentsAdmin={directory.isAdmin}
           onAgentsChanged={() => void directory.refresh()} />
       )}
 

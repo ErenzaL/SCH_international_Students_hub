@@ -8,6 +8,7 @@ from app.repositories.base import FileStorage, Store
 from app.services.agents.tasks import AgentTaskService
 from app.services.announcements import AnnouncementService
 from app.services.conversations import ConversationService
+from app.services.discovery.service import DiscoveryService
 from app.services.document_translations import DocumentTranslationService
 from app.services.domains import DomainPolicy
 from app.services.embeddings.base import EmbeddingProvider
@@ -58,6 +59,7 @@ class Services:
     doc_translations: DocumentTranslationService
     rag_health: RagHealthService
     announcement_translator: AnnouncementAutoTranslator
+    discovery: DiscoveryService = None  # type: ignore[assignment]
     agents: AgentTaskService = None  # type: ignore[assignment]  # set right after construction (needs Services)
 
 
@@ -101,6 +103,9 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
         source_lifecycle=SourceLifecycleService(store, storage),
         doc_translations=doc_translations, rag_health=rag_health, announcement_translator=ann_auto,
     )
+    discovery = DiscoveryService(store, settings, fetcher, domains, notifications)
+    discovery.sources_service, discovery.ingestion, discovery.jobs, discovery.llm = services.sources, ingestion, jobs, tr_llm
+    services.discovery = discovery
     services.agents = jobs.agents = AgentTaskService(services)
     services.agents.worker_id = jobs.worker_id
     return services

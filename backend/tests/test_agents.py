@@ -188,6 +188,7 @@ def test_visa_checklist_quotes_approved_guides_only(env):
     ("upcoming events", "tool", "events", "event_search"),
     ("When is TOPIK?", "tool", "topik", "topik_dates"),
     ("Can I find an internship?", "tool", "career", "career_opportunity_search"),
+    ("Any events for international students?", "tool", "events", "event_search"),   # "intern" inside a word
     ("수강신청 방법", "tool", "academic", "academic_checklist"),
     ("How does the dormitory laundry work?", "answer", "reception", None),
     ("hi", "clarify", "reception", None),
@@ -414,7 +415,7 @@ def cron(env):  # type: ignore[no-untyped-def]
 def test_schedules_are_disabled_by_default_and_need_both_switches(env):
     env.settings.cron_secret = "s3cret-value"
     s = env.client.get("/api/v1/admin/agent-schedules", headers=env.auth("admin")).json()
-    assert s["globally_enabled"] is False and len(s["items"]) == 4 and not any(x["enabled"] for x in s["items"])
+    assert s["globally_enabled"] is False and len(s["items"]) == 6 and not any(x["enabled"] for x in s["items"])
     assert env.client.get("/api/v1/admin/agent-schedules", headers=env.auth("student")).status_code == 403
     assert cron(env).json()["agent_schedules"] == dict(enabled=False, queued=0)
     events = next(x for x in s["items"] if x["agent_id"] == "events")

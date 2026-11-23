@@ -2140,7 +2140,11 @@
         "what_changed": "Có gì mới từ lần trước? (chạy nền)",
         "find_opportunities": "Tìm việc làm & thực tập",
         "digest": "Tổng hợp thông báo (chạy nền)",
-        "my_requests": "Yêu cầu hỗ trợ của tôi"
+        "my_requests": "Yêu cầu hỗ trợ của tôi",
+        "official_opportunities": "Từ trang chính thức",
+        "check_official_sources": "Kiểm tra trang chính thức (admin)",
+        "review_queue": "Hàng chờ duyệt (admin)",
+        "official_jobs": "Việc làm trên trang chính thức"
       },
       "notes": {
         "no_match": "Không có nguồn đã duyệt nào trong Hub phù hợp.",
@@ -2159,7 +2163,17 @@
         "ai_summary": "Bản tóm tắt bằng AI từ nguồn liên kết, chưa được duyệt. Bản gốc là căn cứ.",
         "machine_translation": "Bản dịch máy, chưa được duyệt.",
         "no_tickets": "Bạn chưa có yêu cầu hỗ trợ nào.",
-        "first_check": "Lần kiểm tra đầu: lần sau tôi sẽ cho biết mục mới hoặc thay đổi."
+        "first_check": "Lần kiểm tra đầu: lần sau tôi sẽ cho biết mục mới hoặc thay đổi.",
+        "candidates_need_review": "Mục mới và mục thay đổi đang chờ admin duyệt. Không có gì được đăng tự động.",
+        "no_sources": "Chưa có trang chính thức nào được cấu hình cho trợ lý này.",
+        "nothing_found": "Các trang chính thức không có gì mới.",
+        "some_sources_failed": "Không đọc được một số trang. Xem các nguồn bên dưới.",
+        "recently_checked": "Vừa kiểm tra vài phút trước nên hiển thị kết quả lần trước (không hỏi lại trang quá sớm).",
+        "official_unreviewed": "Tìm thấy trên trang chính thức; nhân viên chưa duyệt. Luôn kiểm tra trang gốc.",
+        "open_only_when_stated": "Chỉ ghi là đang mở khi nguồn nêu hạn chót trong tương lai hoặc nói đang nhận hồ sơ.",
+        "no_discoveries": "Chưa tìm thấy gì trên các trang chính thức đã cấu hình.",
+        "some_missing_info": "Một số mục thiếu hạn chót hoặc điều kiện; đã được đánh dấu.",
+        "no_candidates": "Không có thông báo nào chờ duyệt."
       },
       "reliability": {
         "verified": "Nguồn đã duyệt",
@@ -2198,7 +2212,9 @@
         "explain_document": "Giải thích tài liệu",
         "support_request": "Yêu cầu đến Global Supporter",
         "lookup": "Tra cứu",
-        "delegated_search": "Tìm kiếm bởi chuyên viên"
+        "delegated_search": "Tìm kiếm bởi chuyên viên",
+        "announcement_discovery": "Kiểm tra thông báo chính thức",
+        "opportunity_discovery": "Kiểm tra cơ hội chính thức"
       },
       "status": {
         "queued": "Đang chờ",
@@ -2243,7 +2259,14 @@
         "no_owner": "Tài khoản của việc này không còn tồn tại.",
         "internal_error": "Đã xảy ra lỗi khi xử lý việc này.",
         "delegation_failed": "Chuyên viên không thể hoàn tất việc này.",
-        "not_found": "Không tìm thấy."
+        "not_found": "Không tìm thấy.",
+        "admin_only": "Chỉ quản trị viên mới làm được việc này.",
+        "robots_disallowed": "Trang này không cho phép truy cập tự động.",
+        "board_structure_changed": "Bố cục trang đã thay đổi; cần cập nhật nguồn.",
+        "listing_structure_changed": "Bố cục trang đã thay đổi; cần cập nhật nguồn.",
+        "http_404": "Không tìm thấy trang.",
+        "http_403": "Trang từ chối truy cập.",
+        "http_503": "Trang tạm thời không khả dụng."
       },
       "tools": {
         "rag_search": "Tìm hướng dẫn đã duyệt",
@@ -2265,13 +2288,17 @@
         "get_support_request_status": "Trạng thái yêu cầu của tôi",
         "create_agent_task": "Giao việc cho chuyên viên",
         "get_agent_task_status": "Trạng thái việc",
-        "official_web_search": "Tìm kiếm web"
+        "official_web_search": "Tìm kiếm web",
+        "official_source_check": "Kiểm tra trang chính thức ngay",
+        "opportunity_search": "Cơ hội từ trang chính thức",
+        "review_candidates": "Thông báo chờ duyệt"
       },
       "flags": {
         "unavailable": "không khả dụng",
         "ai": "dùng AI",
         "approval": "hỏi bạn trước",
-        "signIn": "cần đăng nhập"
+        "signIn": "cần đăng nhập",
+        "admin": "admin"
       },
       "never": {
         "eligibility_decisions": "quyết định về điều kiện hoặc vấn đề pháp lý",
@@ -2283,7 +2310,66 @@
         "scholarship_eligibility": "quyết định bạn có đủ điều kiện nhận học bổng không",
         "work_legality": "quyết định bạn có được phép làm việc hợp pháp không",
         "publish_announcements": "đăng thông báo",
-        "show_others_requests": "hiển thị yêu cầu của sinh viên khác"
+        "show_others_requests": "hiển thị yêu cầu của sinh viên khác",
+        "claim_open_without_source": "nói một cơ hội đang mở khi nguồn không nói vậy"
+      },
+      "sections": {
+        "verified": "Đã xác minh trong Hub ({count})",
+        "unverified": "Từ trang chính thức, chưa duyệt ({count})"
+      },
+      "sourcesChecked": "{count, plural, other {# nguồn}}",
+      "sourceCounts": "{found} tìm thấy, {new} mới, {updated} thay đổi",
+      "lastChecked": "kiểm tra {when}",
+      "neverChecked": "chưa kiểm tra",
+      "published": "đăng {date}",
+      "eligibility": "Điều kiện (trích dẫn)",
+      "applyLink": "Nộp đơn trên trang chính thức",
+      "progress": "Đã kiểm tra {done}/{total} nguồn",
+      "itemsFound": "{count, plural, other {Tìm thấy # mục}}",
+      "checking": "Đang kiểm tra: {name}",
+      "finishedAt": "Xong lúc {when}",
+      "sendToReview": "Gửi đi duyệt",
+      "dismiss": "Bỏ qua",
+      "sourceStatus": {
+        "pending": "đang chờ",
+        "checking": "đang kiểm tra",
+        "ok": "ổn",
+        "partial": "đọc được một phần",
+        "failed": "thất bại",
+        "blocked": "bị trang chặn",
+        "recently_checked": "vừa kiểm tra"
+      },
+      "open": {
+        "open": "Đang mở",
+        "openUntil": "Mở đến {date}",
+        "closed": "Đã đóng",
+        "unknown": "Chưa rõ trạng thái",
+        "uncertain": "năm được giả định"
+      },
+      "kinds": {
+        "scholarship": "Học bổng",
+        "competition": "Cuộc thi",
+        "program": "Chương trình",
+        "job": "Việc làm"
+      },
+      "itemFlags": {
+        "missing_deadline": "không thấy hạn chót",
+        "missing_eligibility": "không thấy điều kiện",
+        "missing_application_link": "không có liên kết nộp đơn",
+        "no_detail_page": "không có trang riêng (chỉ danh sách)",
+        "year_assumed": "không ghi năm",
+        "open_status_uncertain": "trạng thái mở chưa chắc chắn",
+        "deadline_before_published": "hạn chót trước ngày đăng",
+        "published_in_future": "ngày đăng ở tương lai",
+        "missing_published_date": "không có ngày đăng",
+        "little_text": "ít nội dung (ảnh hoặc tệp đính kèm)",
+        "several_deadlines": "nhiều hạn chót",
+        "detail_failed": "không đọc được trang"
+      },
+      "reviewStatus": {
+        "candidate": "Chờ duyệt",
+        "dismissed": "Đã bỏ qua",
+        "imported": "Đã gửi đi duyệt"
       }
     }
   }

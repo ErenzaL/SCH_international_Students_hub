@@ -208,6 +208,10 @@ class Settings(BaseSettings):
     agent_task_retention_days: int = 30            # finished tasks (and their step log) are deleted afterwards
     # master switch for scheduled agents. Even when true, each schedule runs only after an admin enables it.
     agent_schedules_enabled: bool = False
+    # official-source discovery (Phase 3): polite, bounded checks of admin-configured official pages
+    discovery_max_items: int = 10                   # items read per source per check (hard cap 30)
+    discovery_max_sources: int = 10                 # sources per task
+    discovery_min_check_interval_seconds: int = 600 # a manual re-check sooner than this reuses the last results
 
     # --- Rate limits (per client IP, per minute; in-process) -----------------
     rate_limit_search_per_minute: int = 30

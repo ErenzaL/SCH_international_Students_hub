@@ -22,6 +22,7 @@ export interface AgentTool {
   background: boolean;
   uses_ai: boolean;
   needs_approval: boolean;
+  admin_only?: boolean;
 }
 
 export interface AgentAction {
@@ -29,6 +30,7 @@ export interface AgentAction {
   kind: "tool" | "task";
   target: string;
   params: Record<string, unknown>;
+  admin_only?: boolean;
 }
 
 export interface AgentInfo {
@@ -58,7 +60,8 @@ export interface FoundDate {
 }
 
 export interface ResultItem {
-  kind: "announcement" | "document" | "passage" | "external_page" | "summary" | "translation" | "ticket" | "url";
+  kind: "announcement" | "document" | "passage" | "external_page" | "summary" | "translation" | "ticket" | "url"
+    | "discovered";
   id?: string;
   title?: string;
   href?: string | null;
@@ -73,11 +76,49 @@ export interface ResultItem {
   status?: string;
   ticket_number?: number;
   verdict?: string;
-  change?: "new" | "updated" | null;
+  change?: "new" | "updated" | "unchanged" | null;
   dates?: FoundDate[];
   date?: string;
   error?: string;
   reliability?: Reliability | null;
+  // official-source discovery (Phase 3)
+  published_on?: string | null;
+  opportunity_kind?: "scholarship" | "competition" | "program" | "job" | null;
+  open_status?: "open" | "closed" | "unknown";
+  open_reason?: string | null;
+  next_deadline?: string | null;
+  eligibility?: string[];
+  application_links?: { url: string; text: string; kind: string }[];
+  flags?: string[];
+  last_checked_at?: string | null;
+  source_name?: string | null;
+  review_status?: "candidate" | "dismissed" | "imported";
+  summary?: string | null;
+}
+
+export interface SourceRun {
+  id?: string;
+  source_id?: string;
+  name: string;
+  url: string;
+  status: "pending" | "checking" | "ok" | "partial" | "failed" | "blocked" | "recently_checked" | null;
+  new?: number;
+  updated?: number;
+  found?: number;
+  error?: string | null;
+  checked_at?: string | null;
+  last_checked_at?: string | null;
+}
+
+export interface TaskProgress {
+  sources_total?: number;
+  sources_done?: number;
+  items_found?: number;
+  new?: number;
+  updated?: number;
+  current?: string;
+  stage?: string;
+  sources?: SourceRun[];
 }
 
 export interface ToolResult {
@@ -90,6 +131,9 @@ export interface ToolResult {
   new_count?: number;
   updated_count?: number;
   first_run?: boolean;
+  verified_count?: number;
+  unverified_count?: number;
+  sources?: SourceRun[];
 }
 
 export interface TaskEvent {
@@ -112,6 +156,7 @@ export interface AgentTask {
   output: (ToolResult & { provenance?: { generated_by: string } }) | null;
   error_code: string | null;
   attempts: number;
+  progress?: TaskProgress;
   created_at: string;
   completed_at: string | null;
   events?: TaskEvent[];
@@ -134,7 +179,7 @@ async function call<T>(method: string, path: string, body?: unknown): Promise<T>
 }
 
 export const agentApi = {
-  list: () => call<{ items: AgentInfo[]; signed_in: boolean }>("GET", "/api/v1/agents"),
+  list: () => call<{ items: AgentInfo[]; signed_in: boolean; is_admin?: boolean }>("GET", "/api/v1/agents"),
   request: (agentId: string, message: string, language?: LanguageCode) =>
     call<RequestOutcome>("POST", `/api/v1/agents/${agentId}/requests`, { message, language }),
   tool: (agentId: string, tool: string, params: Record<string, unknown>, language?: LanguageCode) =>
@@ -147,6 +192,10 @@ export const agentApi = {
   cancel: (id: string) => api.post<AgentTask>(`/api/v1/agent-tasks/${id}/cancel`, {}, { auth: true }),
   decide: (id: string, approve: boolean) =>
     api.post<AgentTask>(`/api/v1/agent-tasks/${id}/decision`, { approve }, { auth: true }),
+  // admin review of discovered official notices (Phase 3)
+  dismiss: (itemId: string) => api.post<ResultItem>(`/api/v1/admin/discovery/items/${itemId}/dismiss`, {}, { auth: true }),
+  sendToReview: (itemId: string) =>
+    api.post<{ knowledge_source_id: string }>(`/api/v1/admin/discovery/items/${itemId}/send-to-review`, {}, { auth: true }),
 };
 
 const FAST_MS = 3000;
@@ -159,6 +208,7 @@ const SLOW_MS = 30000;
 export function useAgentDirectory() {
   const [agents, setAgents] = useState<AgentInfo[] | null>(null);
   const [signedIn, setSignedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState(false);
   const loadNow = useRef<() => void>(() => {});
 
@@ -179,6 +229,7 @@ export function useAgentDirectory() {
         if (!alive) return;
         setAgents(r.items);
         setSignedIn(r.signed_in);
+        setIsAdmin(Boolean(r.is_admin));
         setError(false);
         if (r.items.some((a) => a.state === "working")) next = FAST_MS;
       } catch {
@@ -199,5 +250,5 @@ export function useAgentDirectory() {
   const refresh = useCallback(() => loadNow.current(), []);
   const byCharacter = useCallback((characterId: string) => agents?.find((a) => a.character_id === characterId),
     [agents]);
-  return { agents, signedIn, error, refresh, byCharacter };
+  return { agents, signedIn, isAdmin, error, refresh, byCharacter };
 }

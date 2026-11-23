@@ -2140,7 +2140,11 @@
         "what_changed": "지난번 이후 새 소식 (백그라운드)",
         "find_opportunities": "채용·인턴 찾기",
         "digest": "공지 요약 정리 (백그라운드)",
-        "my_requests": "내 지원 요청"
+        "my_requests": "내 지원 요청",
+        "official_opportunities": "공식 웹사이트에서 찾기",
+        "check_official_sources": "공식 웹사이트 확인 (관리자)",
+        "review_queue": "검토 대기열 (관리자)",
+        "official_jobs": "공식 웹사이트의 채용"
       },
       "notes": {
         "no_match": "허브의 승인된 자료 중 일치하는 것이 없어요.",
@@ -2159,7 +2163,17 @@
         "ai_summary": "연결된 원문을 AI가 요약했으며 검토되지 않았어요. 원문이 기준이에요.",
         "machine_translation": "기계 번역이며 검토되지 않았어요.",
         "no_tickets": "아직 지원 요청이 없어요.",
-        "first_check": "첫 확인이에요. 다음부터는 새로 생기거나 바뀐 것을 보여 드려요."
+        "first_check": "첫 확인이에요. 다음부터는 새로 생기거나 바뀐 것을 보여 드려요.",
+        "candidates_need_review": "새로 생기거나 바뀐 항목은 관리자 검토를 기다려요. 자동으로 게시되지 않아요.",
+        "no_sources": "이 에이전트에 설정된 공식 웹사이트가 아직 없어요.",
+        "nothing_found": "공식 웹사이트에 새로운 내용이 없어요.",
+        "some_sources_failed": "일부 웹사이트를 읽지 못했어요. 아래 출처를 확인하세요.",
+        "recently_checked": "몇 분 전에 확인했기 때문에 마지막 결과를 보여 드려요 (사이트에 너무 자주 요청하지 않아요).",
+        "official_unreviewed": "공식 웹사이트에서 찾았으며 아직 직원이 검토하지 않았어요. 항상 원문을 확인하세요.",
+        "open_only_when_stated": "출처에 앞으로의 마감일이 있거나 접수 중이라고 적혀 있을 때만 '접수 중'으로 표시해요.",
+        "no_discoveries": "설정된 공식 웹사이트에서 아직 찾은 항목이 없어요.",
+        "some_missing_info": "일부 항목은 마감일이나 자격 정보가 없어 표시해 두었어요.",
+        "no_candidates": "검토를 기다리는 공지가 없어요."
       },
       "reliability": {
         "verified": "승인된 자료",
@@ -2198,7 +2212,9 @@
         "explain_document": "문서 설명",
         "support_request": "글로벌 서포터 요청",
         "lookup": "조회",
-        "delegated_search": "담당자 검색"
+        "delegated_search": "담당자 검색",
+        "announcement_discovery": "공식 공지 확인",
+        "opportunity_discovery": "공식 기회 확인"
       },
       "status": {
         "queued": "대기 중",
@@ -2243,7 +2259,14 @@
         "no_owner": "이 작업을 요청한 계정이 더 이상 없어요.",
         "internal_error": "작업 중 문제가 발생했어요.",
         "delegation_failed": "담당자가 이 일을 끝내지 못했어요.",
-        "not_found": "찾을 수 없어요."
+        "not_found": "찾을 수 없어요.",
+        "admin_only": "관리자만 할 수 있어요.",
+        "robots_disallowed": "이 사이트는 자동 접근을 허용하지 않아요.",
+        "board_structure_changed": "페이지 구조가 바뀌었어요. 출처 설정을 고쳐야 해요.",
+        "listing_structure_changed": "페이지 구조가 바뀌었어요. 출처 설정을 고쳐야 해요.",
+        "http_404": "페이지를 찾을 수 없어요.",
+        "http_403": "사이트가 접근을 거부했어요.",
+        "http_503": "사이트를 일시적으로 사용할 수 없어요."
       },
       "tools": {
         "rag_search": "승인된 안내 검색",
@@ -2265,13 +2288,17 @@
         "get_support_request_status": "내 요청 상태",
         "create_agent_task": "담당자에게 일 맡기기",
         "get_agent_task_status": "작업 상태",
-        "official_web_search": "웹 검색"
+        "official_web_search": "웹 검색",
+        "official_source_check": "공식 웹사이트 지금 확인",
+        "opportunity_search": "공식 웹사이트의 기회",
+        "review_candidates": "검토 대기 공지"
       },
       "flags": {
         "unavailable": "사용 불가",
         "ai": "AI 사용",
         "approval": "먼저 확인 요청",
-        "signIn": "로그인 필요"
+        "signIn": "로그인 필요",
+        "admin": "관리자"
       },
       "never": {
         "eligibility_decisions": "자격이나 법적 문제를 결정하기",
@@ -2283,7 +2310,66 @@
         "scholarship_eligibility": "장학금 자격 여부 결정하기",
         "work_legality": "합법적으로 일할 수 있는지 결정하기",
         "publish_announcements": "공지 게시하기",
-        "show_others_requests": "다른 학생의 요청 보여 주기"
+        "show_others_requests": "다른 학생의 요청 보여 주기",
+        "claim_open_without_source": "출처에 근거 없이 접수 중이라고 말하기"
+      },
+      "sections": {
+        "verified": "허브에서 검증됨 ({count})",
+        "unverified": "공식 웹사이트, 미검토 ({count})"
+      },
+      "sourcesChecked": "{count, plural, other {출처 #곳}}",
+      "sourceCounts": "{found}개 발견, 새 항목 {new}개, 변경 {updated}개",
+      "lastChecked": "{when} 확인",
+      "neverChecked": "아직 확인 안 함",
+      "published": "{date} 게시",
+      "eligibility": "자격 (원문 인용)",
+      "applyLink": "공식 사이트에서 신청",
+      "progress": "출처 {total}곳 중 {done}곳 확인",
+      "itemsFound": "{count, plural, other {#개 발견}}",
+      "checking": "확인 중: {name}",
+      "finishedAt": "{when} 완료",
+      "sendToReview": "검토로 보내기",
+      "dismiss": "제외",
+      "sourceStatus": {
+        "pending": "대기",
+        "checking": "확인 중",
+        "ok": "정상",
+        "partial": "일부만 읽음",
+        "failed": "실패",
+        "blocked": "사이트가 차단함",
+        "recently_checked": "최근 확인됨"
+      },
+      "open": {
+        "open": "접수 중",
+        "openUntil": "{date}까지 접수",
+        "closed": "마감",
+        "unknown": "접수 여부 알 수 없음",
+        "uncertain": "연도 추정"
+      },
+      "kinds": {
+        "scholarship": "장학금",
+        "competition": "공모전·대회",
+        "program": "프로그램",
+        "job": "채용"
+      },
+      "itemFlags": {
+        "missing_deadline": "마감일 없음",
+        "missing_eligibility": "자격 정보 없음",
+        "missing_application_link": "신청 링크 없음",
+        "no_detail_page": "개별 페이지 없음 (목록만)",
+        "year_assumed": "연도 미기재",
+        "open_status_uncertain": "접수 여부 불확실",
+        "deadline_before_published": "마감일이 게시일보다 빠름",
+        "published_in_future": "게시일이 미래",
+        "missing_published_date": "게시일 없음",
+        "little_text": "본문이 거의 없음 (이미지·첨부)",
+        "several_deadlines": "마감일 여러 개",
+        "detail_failed": "페이지를 읽지 못함"
+      },
+      "reviewStatus": {
+        "candidate": "검토 대기",
+        "dismissed": "제외됨",
+        "imported": "검토로 보냄"
       }
     }
   }

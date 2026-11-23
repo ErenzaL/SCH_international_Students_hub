@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import type { LanguageCode } from "@/types/api";
 
 export function OfficePanel({ c, minimized, onClose, onMinimize, onRestore, onSelect, agent, agents, agentsSignedIn = false,
-  onAgentsChanged }: {
+  agentsAdmin = false, onAgentsChanged }: {
   c: OfficeCharacter;
   minimized: boolean;
   onClose: () => void;
@@ -34,6 +34,7 @@ export function OfficePanel({ c, minimized, onClose, onMinimize, onRestore, onSe
   agent?: AgentInfo;
   agents?: AgentInfo[] | null;
   agentsSignedIn?: boolean;
+  agentsAdmin?: boolean;
   onAgentsChanged?: () => void;
 }) {
   const t = useTranslations("office");
@@ -129,7 +130,7 @@ export function OfficePanel({ c, minimized, onClose, onMinimize, onRestore, onSe
           }} />}
           {tab === "about" && <Capabilities c={c} />}
           {tab === "work" && (
-            <AgentWork c={c} agent={agent} agents={agents ?? null} signedIn={agentsSignedIn || chat.signedIn}
+            <AgentWork c={c} agent={agent} agents={agents ?? null} signedIn={agentsSignedIn || chat.signedIn} isAdmin={agentsAdmin}
               onSelect={onSelect} onChanged={() => onAgentsChanged?.()}
               onAnswerInChat={(message) => {
                 setTab("chat");

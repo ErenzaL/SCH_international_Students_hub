@@ -2140,7 +2140,11 @@
         "what_changed": "上次之后有什么新内容？（后台）",
         "find_opportunities": "查找工作和实习",
         "digest": "公告汇总（后台）",
-        "my_requests": "我的支持请求"
+        "my_requests": "我的支持请求",
+        "official_opportunities": "来自官方网站",
+        "check_official_sources": "检查官方网站（管理员）",
+        "review_queue": "审核队列（管理员）",
+        "official_jobs": "官方网站上的招聘"
       },
       "notes": {
         "no_match": "Hub中没有匹配的已审核资料。",
@@ -2159,7 +2163,17 @@
         "ai_summary": "根据链接原文生成的AI摘要，未经审核。以原文为准。",
         "machine_translation": "机器翻译，未经审核。",
         "no_tickets": "你还没有支持请求。",
-        "first_check": "首次检查：下次我会显示新增或变更的内容。"
+        "first_check": "首次检查：下次我会显示新增或变更的内容。",
+        "candidates_need_review": "新增和变更的内容等待管理员审核，不会自动发布。",
+        "no_sources": "该助手尚未配置官方网站。",
+        "nothing_found": "官方网站没有新内容。",
+        "some_sources_failed": "部分网站无法读取，请查看下方来源。",
+        "recently_checked": "几分钟前刚检查过，因此显示上次结果（不会过于频繁地访问网站）。",
+        "official_unreviewed": "来自官方网站，尚未经工作人员审核。请务必查看原始页面。",
+        "open_only_when_stated": "只有当来源给出未来的截止日期或说明正在接受申请时，才显示为开放。",
+        "no_discoveries": "在已配置的官方网站上尚未发现内容。",
+        "some_missing_info": "部分条目缺少截止日期或资格信息，已作标记。",
+        "no_candidates": "没有等待审核的通知。"
       },
       "reliability": {
         "verified": "已审核来源",
@@ -2198,7 +2212,9 @@
         "explain_document": "文件说明",
         "support_request": "发给全球支持者的请求",
         "lookup": "查询",
-        "delegated_search": "专员搜索"
+        "delegated_search": "专员搜索",
+        "announcement_discovery": "官方通知检查",
+        "opportunity_discovery": "官方机会检查"
       },
       "status": {
         "queued": "排队中",
@@ -2243,7 +2259,14 @@
         "no_owner": "该任务的账户已不存在。",
         "internal_error": "处理任务时出现问题。",
         "delegation_failed": "专员无法完成此任务。",
-        "not_found": "未找到。"
+        "not_found": "未找到。",
+        "admin_only": "只有管理员可以执行此操作。",
+        "robots_disallowed": "该网站不允许自动访问。",
+        "board_structure_changed": "页面结构已变化，需要更新来源设置。",
+        "listing_structure_changed": "页面结构已变化，需要更新来源设置。",
+        "http_404": "页面不存在。",
+        "http_403": "网站拒绝访问。",
+        "http_503": "网站暂时不可用。"
       },
       "tools": {
         "rag_search": "搜索已审核指南",
@@ -2265,13 +2288,17 @@
         "get_support_request_status": "我的请求状态",
         "create_agent_task": "把工作交给专员",
         "get_agent_task_status": "任务状态",
-        "official_web_search": "网页搜索"
+        "official_web_search": "网页搜索",
+        "official_source_check": "立即检查官方网站",
+        "opportunity_search": "官方网站上的机会",
+        "review_candidates": "待审核的通知"
       },
       "flags": {
         "unavailable": "不可用",
         "ai": "使用AI",
         "approval": "先征求你的确认",
-        "signIn": "需登录"
+        "signIn": "需登录",
+        "admin": "管理员"
       },
       "never": {
         "eligibility_decisions": "决定资格或法律问题",
@@ -2283,7 +2310,66 @@
         "scholarship_eligibility": "决定你是否有资格获得奖学金",
         "work_legality": "决定你是否可以合法工作",
         "publish_announcements": "发布公告",
-        "show_others_requests": "显示其他学生的请求"
+        "show_others_requests": "显示其他学生的请求",
+        "claim_open_without_source": "在来源未说明时声称机会正在开放"
+      },
+      "sections": {
+        "verified": "Hub 已核实（{count}）",
+        "unverified": "来自官方网站，未审核（{count}）"
+      },
+      "sourcesChecked": "{count, plural, other {#个来源}}",
+      "sourceCounts": "发现{found}条，新增{new}条，变更{updated}条",
+      "lastChecked": "{when}检查",
+      "neverChecked": "尚未检查",
+      "published": "{date}发布",
+      "eligibility": "资格（原文引用）",
+      "applyLink": "在官方网站申请",
+      "progress": "已检查 {done}/{total} 个来源",
+      "itemsFound": "{count, plural, other {发现#条}}",
+      "checking": "正在检查：{name}",
+      "finishedAt": "{when}完成",
+      "sendToReview": "提交审核",
+      "dismiss": "忽略",
+      "sourceStatus": {
+        "pending": "等待",
+        "checking": "检查中",
+        "ok": "正常",
+        "partial": "部分读取",
+        "failed": "失败",
+        "blocked": "被网站阻止",
+        "recently_checked": "刚检查过"
+      },
+      "open": {
+        "open": "开放中",
+        "openUntil": "开放至{date}",
+        "closed": "已截止",
+        "unknown": "状态未知",
+        "uncertain": "年份为推测"
+      },
+      "kinds": {
+        "scholarship": "奖学金",
+        "competition": "比赛",
+        "program": "项目",
+        "job": "招聘"
+      },
+      "itemFlags": {
+        "missing_deadline": "未找到截止日期",
+        "missing_eligibility": "未找到资格信息",
+        "missing_application_link": "没有申请链接",
+        "no_detail_page": "无独立页面（仅列表）",
+        "year_assumed": "未注明年份",
+        "open_status_uncertain": "开放状态不确定",
+        "deadline_before_published": "截止日期早于发布日期",
+        "published_in_future": "发布日期在未来",
+        "missing_published_date": "没有发布日期",
+        "little_text": "文字很少（图片或附件）",
+        "several_deadlines": "多个截止日期",
+        "detail_failed": "无法读取页面"
+      },
+      "reviewStatus": {
+        "candidate": "等待审核",
+        "dismissed": "已忽略",
+        "imported": "已提交审核"
       }
     }
   }

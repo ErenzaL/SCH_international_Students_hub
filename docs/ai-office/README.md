@@ -101,3 +101,7 @@ The browser checks covered desktop at 1440 × 900, phone at 390 × 844 with touc
 ## Phase 2 (implemented): agents, tools and tasks
 
 Each character now has a backend agent with permitted tools, durable tasks, approval for actions with side effects, and a status icon in the office. See [agents.md](agents.md).
+
+## Phase 3 (implemented): official-source discovery
+
+Robo and Leo check admin-configured official websites (SCH boards, Study in Korea lists and pages) for new and changed notices and opportunities. Results are review candidates, and students see them labelled as unverified. See [discovery.md](discovery.md).
