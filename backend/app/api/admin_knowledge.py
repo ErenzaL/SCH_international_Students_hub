@@ -32,6 +32,13 @@ def _count(svc: Services, table: str, **kw) -> int:  # type: ignore[no-untyped-d
     return total or 0
 
 
+@router.get("/rag/health")
+def rag_health(svc: Services = Depends(get_services), _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """Searchability audit of every published document + lightweight statistics, computed on demand (read-only:
+    no alerts are written, nothing is re-indexed; scheduled checks alert via ``python -m app.cli check-rag``)."""
+    return svc.rag_health.audit(notify=False)
+
+
 @router.get("/rag/status")
 def rag_status(svc: Services = Depends(get_services), _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
     """RAG synchronization dashboard: real database counts + the indexing queue."""

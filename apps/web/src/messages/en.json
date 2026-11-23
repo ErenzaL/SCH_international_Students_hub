@@ -482,7 +482,20 @@
       "domain": "Domain",
       "note": "Note",
       "addDomain": "Add domain",
-      "superAdminOnly": "Only a super admin can change the allowlist."
+      "superAdminOnly": "Only a super admin can change the allowlist.",
+      "llmCheck": {
+        "title": "AI model check",
+        "description": "Tests the configured Gemini models with the server's key (two tiny synthetic requests per model).",
+        "run": "Check AI models",
+        "model": "Model",
+        "call": "Call",
+        "result": "Result",
+        "latency": "Latency",
+        "details": "Details",
+        "ok": "OK",
+        "primary": "primary",
+        "fallback": "fallback"
+      }
     },
     "users": {
       "title": "Users & Roles",

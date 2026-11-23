@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from typing import Literal
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, Query
 from fastapi.responses import Response
 
 from app.api.deps import Pagination, get_services
 from app.core.errors import NotFound
+from app.core.rate_limit import rate_limit
 from app.repositories.base import Query as DbQuery
 from app.repositories.base import get_many, get_one
 from app.schemas.api import DocumentDelete, NoteBody, NoteRequired, ReasonBody, RollbackBody, VersionPatch
@@ -204,6 +205,22 @@ def approve(version_id: str, body: NoteBody | None = None,
 def reject(version_id: str, body: ReasonBody, svc: Services = Depends(get_services),
            user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
     return svc.review.reject(version_id, user, body.reason)
+
+
+@router.post("/versions/{version_id}/re-extract", dependencies=[Depends(rate_limit("ingest"))])
+def re_extract(version_id: str, background: BackgroundTasks, response: Response, apply: bool = Query(False),
+               svc: Services = Depends(get_services), user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """Re-extract this version's stored original file with the current extractor.
+
+    DRY RUN by default: returns the comparison (coverage, chunks, pages, warnings) and writes nothing.
+    ``?apply=true``: queues the ingest job (202); a changed result becomes a new 'pending_review' version, the live
+    version stays active until a reviewer approves the new one."""
+    if not apply:
+        return svc.ingestion.reextraction_preview(version_id)
+    job = svc.ingestion.request_reextraction(version_id, user.id)
+    svc.jobs.enqueue(job, background)
+    response.status_code = 202
+    return dict(job_id=job["id"], status="queued")
 
 
 @router.post("/versions/{version_id}/reprocess")

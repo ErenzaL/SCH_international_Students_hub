@@ -482,7 +482,20 @@
       "domain": "Domain",
       "note": "Catatan",
       "addDomain": "Tambah domain",
-      "superAdminOnly": "Hanya super admin yang dapat mengubah daftar izin."
+      "superAdminOnly": "Hanya super admin yang dapat mengubah daftar izin.",
+      "llmCheck": {
+        "title": "Pemeriksaan model AI",
+        "description": "Menguji model Gemini yang dikonfigurasi dengan kunci server (dua permintaan uji singkat per model).",
+        "run": "Periksa model AI",
+        "model": "Model",
+        "call": "Panggilan",
+        "result": "Hasil",
+        "latency": "Latensi",
+        "details": "Detail",
+        "ok": "OK",
+        "primary": "utama",
+        "fallback": "cadangan"
+      }
     },
     "users": {
       "title": "Pengguna & Peran",

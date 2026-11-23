@@ -61,6 +61,11 @@ CONCEPTS: list[tuple[str, tuple[str, ...]]] = [
     ("visa_status_change", ("change of status", "change visa status", "change my visa", "체류자격 변경",
                             "체류자격변경", "perubahan status visa", "đổi loại visa", "chuyển đổi visa", "变更签证",
                             "签证变更")),
+    ("per_week", ("per week", "a week", "each week", "weekly", "주당", "일주일에", "일주일 동안", "mỗi tuần", "một tuần",
+                  "hàng tuần", "per minggu", "seminggu", "setiap minggu", "每周", "每星期", "一周")),
+    ("working_hours", ("working hours", "work hours", "hours of work", "hours can i work", "근무 시간", "근무시간",
+                       "근로 시간", "근로시간", "취업 시간", "giờ làm", "số giờ làm", "giờ làm việc", "jam kerja",
+                       "工作时间", "打工时间", "工作时长")),
     ("illegal_work", ("illegal employment", "unauthorized work", "불법 취업", "불법취업", "무단 아르바이트",
                       "kerja ilegal", "làm việc bất hợp pháp", "非法就业", "非法打工")),
 ]

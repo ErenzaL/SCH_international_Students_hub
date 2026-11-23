@@ -13,8 +13,10 @@ from __future__ import annotations
 
 import copy
 import logging
+import re
 import threading
 import time
+from collections import Counter
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
@@ -52,9 +54,11 @@ from app.services.ingestion.sch_board import (
 from app.services.ingestion.structured import extract_structured_fields, merge_manual_fields
 from app.services.language_detect import detect_language
 from app.services.ocr.providers import NoOCR, OCRProvider, OCRUnavailable
+from app.services.source_quality import age_review_warning
 from app.services.source_status import derive_source_status
 
 log = logging.getLogger("app.ingest")
+_WORD_RE = re.compile(r"\w+")   # re-extraction preview: word coverage of chunk text
 DOC_TYPES = {"website": "webpage", "sch_board": "notice", "pdf": "pdf", "docx": "docx", "text_file": "text",
              "screenshot": "screenshot", "manual_text": "manual_text", "kakao_message": "manual_text"}
 PREVIEW_CHARS = 20000
@@ -87,6 +91,7 @@ class IngestionService:
         self.fetcher = fetcher or GuardedFetcher(settings)
         self.ocr: OCRProvider = ocr or NoOCR()
         self.translations: Any = None   # DocumentTranslationService (wired by the container)
+        self.rag_health: Any = None     # RagHealthService (wired by the container): post-activation verification
         self._sleep = sleep
 
     # ---------------------------------------------------------------- jobs
@@ -437,6 +442,114 @@ class IngestionService:
         self.event(job["id"], "queued", f"Approved by reviewer; indexing queued for v{version['version_number']}.")
         return job
 
+    def request_reextraction(self, version_id: str, actor_id: str | None) -> dict[str, Any]:
+        """Queue an ingest job that re-extracts a version's STORED original file with the current extractor.
+
+        This is the normal upload path with the file that is already in private storage (re-uploading the same bytes
+        is refused as a duplicate). If the new text differs, the job creates a new 'pending_review' version; the
+        approved version stays live until a reviewer approves the new one. Identical text creates nothing.
+        """
+        v, original, _doc, source, blocked = self._reextraction_target(version_id)
+        if blocked:
+            raise InvalidState(blocked)
+        payload = {k: original.get(k) for k in ("storage_path", "filename", "mime_type", "size", "sha256")}
+        payload["reextract_of"] = version_id
+        job = self.create_job(source, "manual", actor_id, payload=payload, job_type="ingest")
+        self.store.insert("audit_log", dict(action="version.reextract_requested", entity_type="document_version",
+                                            entity_id=version_id, actor_id=actor_id,
+                                            details={"document_id": v["document_id"], "job_id": job["id"],
+                                                     "version_number": v["version_number"]}))
+        self.event(job["id"], "queued", f"Re-extracting the stored original of v{v['version_number']} with the current "
+                                        "extractor. A changed result becomes a new version waiting for review; the "
+                                        "live version is not changed.")
+        return job
+
+    def _reextraction_target(self, version_id: str) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any],
+                                                              dict[str, Any], str | None]:
+        """(version, original_file, document, source, reason re-extraction is blocked or None)."""
+        v = get_one(self.store, "document_versions", id=version_id)
+        if v is None:
+            raise NotFound("Version not found.")
+        original = v.get("original_file") or {}
+        if not original.get("storage_path"):
+            raise InvalidState("This version has no stored original file to re-extract.")
+        doc = get_one(self.store, "source_documents", id=v["document_id"]) or {}
+        source = get_one(self.store, "knowledge_sources", id=doc["source_id"]) if doc.get("source_id") else None
+        if source is None:
+            raise NotFound("Source not found for this version.")
+        blocked = None
+        if doc.get("is_canceled") or doc.get("archived_at"):
+            blocked = "This document is withdrawn or archived; restore it before re-extracting."
+        elif source["source_type"] not in ("pdf", "docx", "text_file"):
+            blocked = "Only uploaded files (pdf, docx, text) can be re-extracted."
+        elif not source["is_active"]:
+            blocked = "The source is disabled; enable it before re-extracting."
+        elif self.has_open_job(source["id"]):
+            blocked = "A job for this source is already queued or running."
+        return v, original, doc, source, blocked
+
+    def reextraction_preview(self, version_id: str) -> dict[str, Any]:
+        """DRY RUN of :meth:`request_reextraction`: re-extract the stored original with the CURRENT extractor and
+        compare it with the stored version. Read-only: downloads the original from private storage, extracts (in the
+        isolated child process for PDFs, like ingestion jobs) and chunks in memory; writes nothing."""
+        from app.services.chunking import chunk_text
+
+        v, original, doc, source, blocked = self._reextraction_target(version_id)
+        if self.storage is None:
+            raise InvalidState("No file storage is configured.")
+        data = self.storage.download(original["storage_path"])
+        name = original.get("filename") or "document"
+        st = self.settings
+        if name.lower().endswith(".pdf"):
+            if st.pdf_extraction_isolation == "subprocess":
+                ex = extract_pdf_isolated(data, name, timeout_seconds=st.pdf_extract_timeout_seconds,
+                                          table_mode=st.pdf_table_detection, max_table_items=st.pdf_max_table_items,
+                                          max_pages=st.pdf_max_pages, memory_limit_mb=st.pdf_extract_memory_mb)
+            else:
+                ex = extract_pdf(data, name, table_mode=st.pdf_table_detection, max_table_items=st.pdf_max_table_items,
+                                 max_pages=st.pdf_max_pages)
+        elif name.lower().endswith(".docx"):
+            ex = extract_docx(data, name)
+        else:
+            ex = extract_text_file(data, name)
+        stem = name.rsplit(".", 1)[0]
+        if ex.title == stem and source.get("title"):     # same title handling as the ingestion job
+            ex.text = ex.text.replace(f"# {stem}", f"# {source['title']}", 1)
+        new_text = normalize_text(ex.text)
+        stored_text = v.get("extracted_text") or ""
+        old_chunks, new_chunks = chunk_text(stored_text, self.indexer.cfg), chunk_text(new_text, self.indexer.cfg)
+        # reference vocabulary: every word of the new extraction (it contains the whole text layer, including the
+        # lines an older extractor tagged as headings)
+        reference = Counter(_WORD_RE.findall(re.sub(r"(?m)^#+\s|\[Page \d+\]", " ", new_text).lower()))
+        total_pages = ex.metadata.get("pages")
+
+        def coverage(words: Counter[str]) -> float:
+            total = sum(reference.values())
+            return round(sum(min(n, words[w]) for w, n in reference.items()) / total, 4) if total else 0.0
+
+        def stats(chunks: list[Any]) -> dict[str, Any]:
+            lens = sorted(len(c.content) for c in chunks)
+            pages = {p for c in chunks if c.page_start for p in range(c.page_start, (c.page_end or c.page_start) + 1)}
+            body = Counter(w for c in chunks for w in _WORD_RE.findall(c.content.lower()))
+            with_headings = body + Counter(w for c in chunks for w in _WORD_RE.findall((c.heading or "").lower()))
+            return dict(chunks=len(chunks), median_chars=lens[len(lens) // 2] if lens else 0,
+                        under_100_chars=sum(n < 100 for n in lens), content_chars=sum(lens),
+                        word_coverage=coverage(body), word_coverage_with_headings=coverage(with_headings),
+                        pages_with_chunks=len(pages),
+                        pages_without_chunks=sorted(set(range(1, total_pages + 1)) - pages) if total_pages else None)
+
+        heading_chars = sum(len(line) for line in new_text.splitlines() if line.startswith("#"))
+        warnings = list(ex.metadata.get("warnings", []))
+        aged = age_review_warning(ex.source_published_at, ex.title, new_text, st.source_review_age_days)
+        return dict(version_id=version_id, version_number=v["version_number"], status=v["verification_status"],
+                    document=doc.get("title"), file=name, dry_run=True,
+                    unchanged=content_hash(new_text) == v["content_hash"], can_apply=blocked is None,
+                    blocked_reason=blocked, stored_chars=len(stored_text), new_chars=len(new_text),
+                    new_heading_char_share=round(heading_chars / len(new_text), 4) if new_text else 0.0,
+                    pdf={k: ex.metadata.get(k) for k in ("pages", "pages_with_text", "needs_ocr_pages", "table_mode")},
+                    source_published_at=_iso(ex.source_published_at),
+                    stored=stats(old_chunks), new=stats(new_chunks), warnings=warnings + ([aged] if aged else []))
+
     def _run_index(self, source: dict[str, Any], job: dict[str, Any], stats: dict[str, Any]) -> dict[str, Any]:
         jid = job["id"]
         vid = (job.get("payload") or {}).get("version_id")
@@ -464,8 +577,8 @@ class IngestionService:
             st = self.indexer.index_version(vid, raise_on_embedding_error=True, embed=True, progress=progress)
         except AppError as exc:  # EmbeddingUnavailable
             raise IngestionError("embedding_unavailable", exc.message) from exc
-        stats.update({k: st[k] for k in ("chunk_count", "embedded_chunks", "reused_embeddings", "embedding_model",
-                                         "embedding_ms")})
+        stats.update({k: st[k] for k in ("chunk_count", "embedded_chunks", "reused_embeddings",
+                                         "reused_from_other_versions", "embedding_model", "embedding_ms")})
         total, ok = self.indexer.chunk_counts(vid)
         self.event(jid, "validate", f"Validated {ok}/{total} chunk embeddings with {st['embedding_model']} "
                                     f"({st['reused_embeddings']} reused, {st['embedding_ms']} ms).")
@@ -479,7 +592,8 @@ class IngestionService:
         except AppError as exc:
             code = "not_indexed" if "not_indexed" in exc.message else exc.code
             raise IngestionError(code, exc.message) from exc
-        self.event(jid, "activate", f"v{v['version_number']} is now the active version and searchable.")
+        self.event(jid, "activate", f"v{v['version_number']} is now the active version.")
+        health = self._verify_searchable(jid, vid, stats)
         if self.translations is not None:
             try:   # outdate translations of the previous version, create tasks for this one (never blocks activation)
                 sync = self.translations.sync(v["document_id"], v.get("activation_requested_by"))
@@ -488,13 +602,42 @@ class IngestionService:
                                                     f"{sync['created']} new review task(s).")
             except Exception:  # noqa: BLE001
                 log.exception("translation sync failed for document %s", v["document_id"])
-        if self.notifications:
-            self.notifications.notify("version_activated", f"Now searchable: {doc.get('title', '')[:150]}",
+        if self.notifications and (health is None or health["ok"]):
+            hidden = (health or {}).get("hidden_reason")
+            self.notifications.notify("version_activated",
+                                      (f"Activated (not yet visible: {hidden}): " if hidden else "Now searchable: ")
+                                      + doc.get("title", "")[:150],
                                       f"v{v['version_number']} indexed ({total} chunks) and activated.",
                                       entity_type="source_document", entity_id=v["document_id"],
                                       link=f"/admin/documents/{v['document_id']}")
         return dict(outcome="activated", document_id=v["document_id"], version_id=vid, changed=True,
                     message=f"v{v['version_number']} indexed ({total} chunks) and activated.")
+
+    def _verify_searchable(self, jid: str, vid: str, stats: dict[str, Any]) -> dict[str, Any] | None:
+        """After activation: confirm students can actually find the version (searchable_chunks view + current
+        embedding model). A failure does not undo the activation (the switch itself was validated); it is recorded on
+        the job and admins are alerted so the document can be re-indexed."""
+        health_svc = getattr(self, "rag_health", None)
+        if health_svc is None:
+            return None
+        try:
+            health = health_svc.check_version(vid)
+        except Exception:  # noqa: BLE001 - verification must never break a completed activation
+            log.exception("searchability check failed for version %s", vid)
+            return None
+        stats.update(searchable_chunks=health.get("searchable_chunks"), searchability_ok=health["ok"],
+                     searchability_problems=health.get("problems"), hidden_reason=health.get("hidden_reason"))
+        if health["ok"]:
+            msg = (f"Verified: {health['searchable_chunks']}/{health['chunks']} chunks are searchable."
+                   if not health.get("hidden_reason") else
+                   f"Verified index; not visible to students yet ({health['hidden_reason']}).")
+            self.event(jid, "verify", msg)
+        else:
+            self.event(jid, "verify", f"Activated but NOT searchable: {', '.join(health['problems'])} "
+                                      f"({health.get('searchable_chunks')}/{health.get('chunks')} chunks searchable).",
+                       level="error")
+            health_svc.alert(health)
+        return health
 
     # ------------------------------------------------------------- previews
     def preview_url(self, url: str, source_type: str, language: str | None) -> dict[str, Any]:
@@ -624,6 +767,10 @@ class IngestionService:
         if manual_fields:
             structured = merge_manual_fields(structured, manual_fields)
         warnings = list(dict.fromkeys(list(extracted.metadata.get("warnings", [])) + structured.get("warnings", [])))
+        aged = age_review_warning(extracted.source_published_at, extracted.title, text,
+                                  self.settings.source_review_age_days)
+        if aged:
+            warnings.append(aged)
         meta = {k: v for k, v in extracted.metadata.items() if k != "warnings"}
         meta.update(warnings=warnings, links=(extracted.links or [])[:60],
                     requires_field_confirmation=bool(requires_field_confirmation or

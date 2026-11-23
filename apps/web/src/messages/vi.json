@@ -482,7 +482,20 @@
       "domain": "Tên miền",
       "note": "Ghi chú",
       "addDomain": "Thêm tên miền",
-      "superAdminOnly": "Chỉ super admin mới có thể thay đổi danh sách cho phép."
+      "superAdminOnly": "Chỉ super admin mới có thể thay đổi danh sách cho phép.",
+      "llmCheck": {
+        "title": "Kiểm tra mô hình AI",
+        "description": "Kiểm tra các mô hình Gemini đã cấu hình bằng khóa của máy chủ (hai yêu cầu thử ngắn cho mỗi mô hình).",
+        "run": "Kiểm tra mô hình AI",
+        "model": "Mô hình",
+        "call": "Lệnh gọi",
+        "result": "Kết quả",
+        "latency": "Độ trễ",
+        "details": "Chi tiết",
+        "ok": "OK",
+        "primary": "chính",
+        "fallback": "dự phòng"
+      }
     },
     "users": {
       "title": "Người dùng & Vai trò",

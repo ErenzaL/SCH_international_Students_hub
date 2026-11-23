@@ -19,6 +19,7 @@ from app.services.llm.base import LLMProvider
 from app.services.notifications import NotificationService, UserNotificationService
 from app.services.ocr.providers import OCRProvider, build_ocr_provider
 from app.services.public import PublicService
+from app.services.rag_health import RagHealthService
 from app.services.retrieval.service import RetrievalService
 from app.services.review import DocumentLifecycleService, ReviewService
 from app.services.source_lifecycle import SourceLifecycleService
@@ -53,6 +54,7 @@ class Services:
     lifecycle: DocumentLifecycleService
     source_lifecycle: SourceLifecycleService
     doc_translations: DocumentTranslationService
+    rag_health: RagHealthService
 
 
 def build_services(settings: Settings, store: Store, storage: FileStorage | None, embedder: EmbeddingProvider,
@@ -74,6 +76,8 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     jobs = JobRunner(store, ingestion, settings)
     doc_translations.ingestion, doc_translations.jobs = ingestion, jobs
     ingestion.translations = doc_translations
+    rag_health = RagHealthService(store, embedder.model_id, notifications)
+    ingestion.rag_health = announcements.rag_health = rag_health
     return Services(
         settings=settings, store=store, storage=storage, embedder=embedder, llm=llm, indexer=indexer,
         ingestion=ingestion, review=ReviewService(store, indexer, storage), announcements=announcements,
@@ -84,5 +88,5 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
         translations=TranslationReviewService(store, announcements, user_notes),
         lifecycle=DocumentLifecycleService(store, storage),
         source_lifecycle=SourceLifecycleService(store, storage),
-        doc_translations=doc_translations,
+        doc_translations=doc_translations, rag_health=rag_health,
     )

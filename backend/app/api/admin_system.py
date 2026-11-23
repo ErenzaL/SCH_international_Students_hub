@@ -82,6 +82,28 @@ def client_ip_diagnostics(request: Request, svc: Services = Depends(get_services
                 socket_peer=request.client.host if request.client else None)
 
 
+@router.post("/system/llm-check")
+def llm_check(svc: Services = Depends(get_services), user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """Probe the configured Gemini models with the server's own key: one tiny non-streaming and one tiny streaming
+    call per model (synthetic prompt, no retries/fallback). Returns only non-secret results: ok / error category /
+    HTTP status / Google's message (key-like text redacted) / latency / tokens. Rate limited."""
+    from app.core.rate_limit import limiter
+    from app.services.llm.usage import usage
+
+    limiter.check(f"user:{user.id}", "llm-check", 3)
+    llm = svc.llm
+    if not llm.enabled or not hasattr(llm, "probe"):
+        return dict(provider=llm.name if llm.enabled else "none", probes=[], health={},
+                    note="LLM_PROVIDER is not gemini; nothing to check.")
+    probes = []
+    for role, model in (("primary", getattr(llm, "primary", "")), ("fallback", getattr(llm, "fallback", ""))):
+        if model:
+            probes += [dict(row, role=role) for row in llm.probe(model)]
+    return dict(provider=llm.name, primary=getattr(llm, "primary", None), fallback=getattr(llm, "fallback", None) or None,
+                probes=probes, health=llm.health() if hasattr(llm, "health") else {},
+                last_error_by_model=usage.snapshot().get("last_error_by_model", {}))
+
+
 @router.get("/system/llm-usage")
 def llm_usage(svc: Services = Depends(get_services), _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
     """Operational LLM metrics since the last restart (no prompts, answers or personal data)."""
@@ -89,6 +111,7 @@ def llm_usage(svc: Services = Depends(get_services), _: AuthUser = Depends(requi
     from app.services.llm.usage import usage
 
     return dict(provider=svc.llm.name if svc.llm.enabled else "none", usage=usage.snapshot(),
+                health=svc.llm.health() if hasattr(svc.llm, "health") else {},
                 daily_budget=ai_budget.snapshot() | {"global_limit": svc.settings.ai_daily_limit_global})
 
 

@@ -24,6 +24,7 @@ from __future__ import annotations
 import logging
 import random
 import re
+import threading
 import time
 from collections.abc import Callable
 from typing import Any
@@ -46,12 +47,22 @@ INTERACTIVE_MAX_TOKENS = 4096   # calls at or below this size are interactive (s
 class _Failure(Exception):
     """Internal: a classified failure of one attempt."""
 
-    def __init__(self, error: LLMError, *, retry_same: bool, fallback_ok: bool, retry_after: float | None = None):
+    def __init__(self, error: LLMError, *, retry_same: bool, fallback_ok: bool, retry_after: float | None = None,
+                 status: str | None = None, http: int | None = None, detail: str | None = None,
+                 quota_id: str | None = None):
         super().__init__(error.message)
         self.error = error
         self.retry_same = retry_same
         self.fallback_ok = fallback_ok
         self.retry_after = retry_after
+        self.status, self.http, self.detail, self.quota_id = status, http, detail, quota_id
+
+
+# Circuit breaker: a model that fails PERSISTENTLY (not found, no permission, quota exhausted or zero, project
+# precondition) is skipped for a cooldown instead of costing every student request a failed call; three consecutive
+# transient failures (5xx, timeouts, rate limits) pause it briefly. A success closes the circuit.
+_COOLDOWN_S = {"llm_model": 900, "llm_permission": 900, "llm_precondition": 900, "llm_quota": 1800}
+_TRANSIENT_TRIP, _TRANSIENT_COOLDOWN_S = 3, 60
 
 
 class GeminiProvider:
@@ -85,6 +96,78 @@ class GeminiProvider:
         self._client: Any = None
         self._client_factory = client_factory
         self._sleep = sleep
+        self._circuit: dict[str, dict[str, Any]] = {}
+        self._circuit_lock = threading.Lock()
+        self._clock = time.monotonic
+
+    # ------------------------------------------------------------- circuit breaker
+    def _is_open(self, model: str) -> bool:
+        with self._circuit_lock:
+            c = self._circuit.get(model)
+            return bool(c and c.get("until", 0) > self._clock())
+
+    def _record(self, model: str, failure: _Failure | None) -> None:
+        with self._circuit_lock:
+            c = self._circuit.setdefault(model, {"fails": 0, "until": 0.0, "reason": None})
+            if failure is None:
+                if c.get("until") or c.get("fails"):
+                    log.info("llm_circuit model=%s state=closed", model)
+                c.update(fails=0, until=0.0, reason=None)
+                return
+            code = failure.error.code
+            c["fails"] += 1
+            cooldown = _COOLDOWN_S.get(code)
+            if cooldown is None and c["fails"] >= _TRANSIENT_TRIP and code in ("llm_unavailable", "llm_timeout",
+                                                                              "llm_rate_limited"):
+                cooldown = _TRANSIENT_COOLDOWN_S
+            if cooldown:
+                c.update(until=self._clock() + cooldown, reason=code)
+                log.warning("llm_circuit model=%s state=open reason=%s status=%s for_s=%d", model, code,
+                            failure.status or "-", cooldown)
+
+    def health(self) -> dict[str, Any]:
+        """Per-model circuit state for the admin view (no secrets)."""
+        now = self._clock()
+        with self._circuit_lock:
+            return {m: {"open": c.get("until", 0) > now, "reason": c.get("reason"),
+                        "retry_in_s": max(0, int(c.get("until", 0) - now)), "consecutive_failures": c.get("fails", 0)}
+                    for m, c in self._circuit.items()}
+
+    def probe(self, model: str) -> list[dict[str, Any]]:
+        """One tiny non-streaming and one tiny streaming call to ``model`` - no retries, no fallback, no circuit -
+        to see exactly how this API key and model behave with the configuration production uses."""
+        out = []
+        for kind in ("generate", "stream"):
+            t0 = time.perf_counter()
+            row: dict[str, Any] = {"model": model, "call": kind}
+            try:
+                cfg = self._config("Reply with the single word OK.", 32, "low")
+                client = self._get_client()
+                if kind == "generate":
+                    resp = client.models.generate_content(model=model, contents="Health check.", config=cfg)
+                    text, _f, _b = _read(resp)
+                else:
+                    text, resp = "", None
+                    for chunk in client.models.generate_content_stream(model=model, contents="Health check.",
+                                                                       config=cfg):
+                        resp = chunk
+                        text += _read(chunk)[0]
+                um = getattr(resp, "usage_metadata", None)
+                row.update(ok=bool(text.strip()), served_by=getattr(resp, "model_version", None) or model,
+                           input_tokens=_int(getattr(um, "prompt_token_count", None)),
+                           output_tokens=_int(getattr(um, "candidates_token_count", None)),
+                           total_tokens=_int(getattr(um, "total_token_count", None)))
+                if not text.strip():
+                    row.update(error="llm_empty")
+            except LLMError as exc:
+                row.update(ok=False, error=exc.code, detail=exc.message)
+            except Exception as exc:  # noqa: BLE001 - classified, never raw
+                f = _classify(exc, model)
+                row.update(ok=False, error=f.error.code, http=f.http, status=f.status, detail=f.detail,
+                           quota_id=f.quota_id, retry_after_s=f.retry_after)
+            row["latency_ms"] = int((time.perf_counter() - t0) * 1000)
+            out.append(row)
+        return out
 
     # ------------------------------------------------------------------ client
     def _get_client(self) -> Any:
@@ -164,6 +247,14 @@ class GeminiProvider:
         else:
             chain = [("primary", self.primary)] + ([("fallback", self.fallback)] if self.fallback else [])
             attempts_per_model = self.max_attempts
+        live = [(r, m) for r, m in chain if not self._is_open(m)]
+        if len(live) < len(chain):
+            skipped = [m for _r, m in chain if (_r, m) not in live]
+            if not live:       # everything is paused: still try the model that recovers first (half-open probe)
+                with self._circuit_lock:
+                    live = [min(chain, key=lambda rm: self._circuit.get(rm[1], {}).get("until", 0))]
+            log.info("llm_circuit skip=%s using=%s purpose=%s", ",".join(skipped), ",".join(m for _r, m in live), purpose)
+        chain = live
         state: dict[str, Any] = {"delivered": False, "attempts": 0}
         started = time.perf_counter()
         last: _Failure | None = None
@@ -189,6 +280,7 @@ class GeminiProvider:
                                   input_tokens=res.input_tokens, output_tokens=res.output_tokens,
                                   thinking_tokens=res.thinking_tokens, total_tokens=res.total_tokens)
                     usage.request(fallback_used=res.fallback_used)
+                    self._record(model, None)
                     return res
                 if state["delivered"]:          # text already reached the student: never retry or fail over
                     failure.error.partial = True
@@ -199,7 +291,10 @@ class GeminiProvider:
                     delay = delay if delay < remaining else None
                 usage.attempt(provider=self.name, model=model, role=role, purpose=purpose, attempt=attempt,
                               outcome="error", latency_ms=int((time.perf_counter() - t0) * 1000),
-                              error_code=failure.error.code, retry_in_s=delay)
+                              error_code=failure.error.code, retry_in_s=delay, http=failure.http,
+                              status=failure.status, detail=failure.detail, quota_id=failure.quota_id)
+                if not failure.error.partial:
+                    self._record(model, failure)
                 last = failure
                 if delay is None:
                     break
@@ -294,8 +389,24 @@ def _retry_after(exc: Any) -> float | None:
 
 
 def _daily_quota(exc: Any) -> bool:
-    """A 429 for an exhausted per-day quota: retrying the same model today is pointless."""
-    return bool(re.search(r"per ?day|PerDay|daily", f"{getattr(exc, 'details', '')} {getattr(exc, 'message', '')}"))
+    """A 429 for an exhausted per-day quota - or a quota of 0 (the model is not included in this project's tier):
+    retrying the same model now is pointless."""
+    text = f"{getattr(exc, 'details', '')} {getattr(exc, 'message', '')}"
+    return bool(re.search(r"per ?day|PerDay|daily|limit:\s*0\b", text))
+
+
+_SECRETISH = re.compile(r"AIza[0-9A-Za-z_\-]{10,}|(key|token)=[^&\s]+|Bearer\s+\S+", re.I)
+
+
+def _safe_detail(exc: Any) -> str | None:
+    """Google's error message, shortened, with anything key-like removed (safe for logs and the admin view)."""
+    msg = str(getattr(exc, "message", "") or "")
+    return _SECRETISH.sub("[redacted]", re.sub(r"\s+", " ", msg))[:240] or None
+
+
+def _quota_id(exc: Any) -> str | None:
+    m = re.search(r"'quotaId':\s*'([^']+)'|\"quotaId\":\s*\"([^\"]+)\"", str(getattr(exc, "details", "")))
+    return (m.group(1) or m.group(2)) if m else None
 
 
 def _classify(exc: Exception, model: str) -> _Failure:
@@ -303,37 +414,49 @@ def _classify(exc: Exception, model: str) -> _Failure:
         from google.genai import errors as gerr
     except ImportError:  # pragma: no cover - the SDK is a hard dependency of this provider
         gerr = None  # type: ignore[assignment]
-    import httpx
 
     if gerr is not None and isinstance(exc, gerr.APIError):
-        code = int(getattr(exc, "code", 0) or 0)
-        status = str(getattr(exc, "status", "") or "")
-        if code == 429:
-            daily = _daily_quota(exc)
-            return _Failure(LLMError("llm_quota" if daily else "llm_rate_limited",
-                                     "The Gemini API quota is exhausted." if daily
-                                     else "Gemini is rate limiting requests.", transient=True),
-                            retry_same=not daily, fallback_ok=True, retry_after=None if daily else _retry_after(exc))
-        if code in (401, 403) or status in ("UNAUTHENTICATED", "PERMISSION_DENIED") \
-                or re.search(r"API_KEY_INVALID|API key not valid", str(getattr(exc, "details", ""))):
-            return _Failure(LLMError("llm_permission" if code == 403 else "llm_auth",
-                                     "The Gemini API key is missing, invalid or not permitted."),
-                            retry_same=False, fallback_ok=False)
-        if code == 404 or status == "NOT_FOUND":
-            return _Failure(LLMError("llm_model", f"Gemini model '{model}' is not available to this project."),
-                            retry_same=False, fallback_ok=True)
-        if code in (500, 502, 503, 504, 499) or status in ("INTERNAL", "UNAVAILABLE", "DEADLINE_EXCEEDED"):
-            return _Failure(LLMError("llm_unavailable", f"Gemini is temporarily unavailable ({code}).", transient=True),
-                            retry_same=True, fallback_ok=True, retry_after=_retry_after(exc))
-        if code == 400 and status == "FAILED_PRECONDITION":
-            return _Failure(LLMError("llm_precondition", "Gemini cannot serve this project right now "
-                                                         "(billing, region or project setup)."),
-                            retry_same=False, fallback_ok=False)
-        if 400 <= code < 500:
-            return _Failure(LLMError("llm_bad_request", f"Gemini rejected the request ({code} {status})."),
-                            retry_same=False, fallback_ok=False)
-        return _Failure(LLMError("llm_error", f"Gemini error ({code}).", transient=True),
+        f = _classify_api(exc, model)
+        f.http, f.status = int(getattr(exc, "code", 0) or 0) or None, str(getattr(exc, "status", "") or "") or None
+        f.detail, f.quota_id = _safe_detail(exc), _quota_id(exc)
+        return f
+    return _classify_other(exc)
+
+
+def _classify_api(exc: Any, model: str) -> _Failure:
+    code = int(getattr(exc, "code", 0) or 0)
+    status = str(getattr(exc, "status", "") or "")
+    if code == 429:
+        daily = _daily_quota(exc)
+        return _Failure(LLMError("llm_quota" if daily else "llm_rate_limited",
+                                 "The Gemini API quota is exhausted." if daily
+                                 else "Gemini is rate limiting requests.", transient=True),
+                        retry_same=not daily, fallback_ok=True, retry_after=None if daily else _retry_after(exc))
+    if code in (401, 403) or status in ("UNAUTHENTICATED", "PERMISSION_DENIED") \
+            or re.search(r"API_KEY_INVALID|API key not valid", str(getattr(exc, "details", ""))):
+        return _Failure(LLMError("llm_permission" if code == 403 else "llm_auth",
+                                 "The Gemini API key is missing, invalid or not permitted."),
+                        retry_same=False, fallback_ok=False)
+    if code == 404 or status == "NOT_FOUND":
+        return _Failure(LLMError("llm_model", f"Gemini model '{model}' is not available to this project."),
                         retry_same=False, fallback_ok=True)
+    if code in (500, 502, 503, 504, 499) or status in ("INTERNAL", "UNAVAILABLE", "DEADLINE_EXCEEDED"):
+        return _Failure(LLMError("llm_unavailable", f"Gemini is temporarily unavailable ({code}).", transient=True),
+                        retry_same=True, fallback_ok=True, retry_after=_retry_after(exc))
+    if code == 400 and status == "FAILED_PRECONDITION":
+        return _Failure(LLMError("llm_precondition", "Gemini cannot serve this project right now "
+                                                     "(billing, region or project setup)."),
+                        retry_same=False, fallback_ok=False)
+    if 400 <= code < 500:
+        return _Failure(LLMError("llm_bad_request", f"Gemini rejected the request ({code} {status})."),
+                        retry_same=False, fallback_ok=False)
+    return _Failure(LLMError("llm_error", f"Gemini error ({code}).", transient=True),
+                    retry_same=False, fallback_ok=True)
+
+
+def _classify_other(exc: Exception) -> _Failure:
+    import httpx
+
     if isinstance(exc, (httpx.TimeoutException, TimeoutError)):
         return _Failure(LLMError("llm_timeout", "Gemini did not answer in time.", transient=True),
                         retry_same=True, fallback_ok=True)

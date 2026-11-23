@@ -131,6 +131,33 @@ generation=… offer=… reasons=… latency_ms=…`) — never message content.
   input_tokens output_tokens thinking_tokens total_tokens`) - token counts only as reported by the API, no content,
   no keys, no cost estimate. Aggregates: `GET /api/v1/admin/system/llm-usage` (admin; in-process since restart).
 
+## Model availability (circuit breaker and model check)
+
+* A model failing persistently - not found (404), no permission (403), quota exhausted or 0 for this project
+  (429 per-day / `limit: 0`), project precondition - is skipped for 15-30 min, so students don't wait for a failing
+  primary on every question; 3 consecutive temporary failures (5xx, timeouts, rate limits) pause it for 60 s. A success
+  closes the circuit; if every model is paused, the one recovering first is still tried. State:
+  `GET /api/v1/admin/system/llm-usage` (`health`, `last_error_by_model`).
+* Every failed attempt logs `llm_attempt ... outcome=error error=<category> http=<code> status=<GOOGLE_STATUS>
+  quota=<quotaId> detail="<Google's message, key-like text redacted>"` at WARNING.
+* **Check the models with the server's key:** Admin > Settings > "Check AI models" (`POST /api/v1/admin/system/llm-check`,
+  admin only, 3/min): one tiny non-streaming and one tiny streaming call per configured model, with production's
+  configuration. **With your own key, locally** (the key is not echoed or stored in shell history):
+
+      cd backend
+      read -rs GEMINI_KEY && LLM_PROVIDER=gemini LLM_API_KEY="$GEMINI_KEY" \
+        GEMINI_PRIMARY_MODEL=gemini-3.8-flash GEMINI_FALLBACK_MODEL=gemini-3.5-flash-lite \
+        .venv/bin/python -m app.cli check-llm --list --generate; unset GEMINI_KEY
+
+## Evidence for quantity questions
+
+Questions asking for an amount, limit, duration or date ("how many hours", "bao nhiêu", "얼마", "berapa", "多少")
+prefer, within each source, passages that state figures; documents with keyword agreement (>= 1/3 of the weighted
+query terms) from at least one query variant come before documents that only matched semantically (multilingual-E5's
+same-script bias). Up to 3 passages per source and 9,000 characters reach the model. Korean syllables glued inside a
+word of another script ("làm제취업") are removed from non-Korean answers; Korean terms written as their own word or in
+parentheses are kept.
+
 ## Retrieval (weighted hybrid)
 
 See `app/services/retrieval/service.py` and `query_analysis.py`. Dense and keyword candidates are fetched separately
@@ -141,6 +168,19 @@ demoted; a small multilingual glossary links equivalent terms (ARC / residence c
 ...); overlapping chunks are dropped and each document contributes at most 3 passages. `mode=hybrid_legacy` keeps the
 original SQL fusion for benchmarking; `RETRIEVAL_FUSION=sql_rrf` switches the default back.
 Benchmark: `scripts/eval_retrieval_benchmark.py` (real public corpus, `scripts/benchmarks/retrieval_pilot_v0.1.json`).
+
+## Optional reranking (off by default)
+
+`app/services/retrieval/rerank.py` can rerank the first-stage hybrid passages with the multilingual cross-encoder
+`cross-encoder/mmarco-mMiniLMv2-L12-H384-v1` (ONNX export, onnxruntime on CPU, no PyTorch; the same SentencePiece
+tokenization as the E5 provider). With `RERANK_PROVIDER=onnx` the assistant fetches `RERANK_TOP_N` (20) candidates,
+reranks them and passes the result to evidence selection with `preserve_order=True`: sources are ordered by their best
+reranked passage and passages by score; the keyword-agreement / figures-first ordering above is applied only to
+first-stage results, because applying it after a reranker undid most of the reranker's measured gain. Code filters,
+validity dates, near-duplicate removal and the source / passage / character limits apply unchanged. A reranker error
+keeps the first-stage order (`retrieval.rerank.error`); `retrieval.rerank` records the model, candidates and time.
+Keep it off until memory and latency are measured on the target instance (see
+`research/reports/production_readiness/production_readiness_report.md`).
 
 ## Configuration
 
@@ -160,5 +200,7 @@ Benchmark: `scripts/eval_retrieval_benchmark.py` (real public corpus, `scripts/b
 | `ASSISTANT_ANONYMOUS_CHAT` | `true` | allow visitors who are not signed in |
 | `ASSISTANT_STRONG_SIMILARITY` | `0.84` | evidence level for passage-only replies |
 | `ASSISTANT_HISTORY_TURNS` | `6` | earlier messages used for rewriting / generation |
+| `RERANK_PROVIDER` | `none` | `onnx` enables cross-encoder reranking (with `RERANK_MODEL_PATH`, `RERANK_TOKENIZER_PATH`) |
+| `RERANK_TOP_N` / `RERANK_BATCH_SIZE` / `RERANK_THREADS` | `20` / `4` / `1` | candidates scored, pairs per forward pass, CPU threads |
 
 No database migration: conversations, messages and support tickets use the existing tables.

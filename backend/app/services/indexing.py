@@ -51,12 +51,9 @@ class IndexingService:
         inputs = [c.embedding_input(title) for c in chunks]
         hashes = [text_fingerprint(t) for t in inputs]
 
-        existing, _ = self.store.select("document_chunks", Query(eq={"version_id": version_id}))
-        reuse = {
-            e["content_hash"]: e["embedding"]
-            for e in existing
-            if e.get("embedding") is not None and e.get("embedding_model") == self.embedder.model_id
-        }
+        # other versions' vectors are only reused when this run embeds (approval/activation); a pending version that is
+        # only chunked for review keeps no vectors, exactly as before
+        reuse, reused_from_other = self._reusable(version_id, version["document_id"], other_versions=bool(embed))
         vectors: dict[int, list[float]] = {}
         todo = [i for i, h in enumerate(hashes) if h not in reuse]
         error: str | None = None
@@ -108,9 +105,58 @@ class IndexingService:
                 self._mark(version_id, "not_indexed", None)
         return {
             "chunk_count": len(rows), "embedded_chunks": embedded, "failed_chunks": len(rows) - embedded,
-            "reused_embeddings": len(rows) - len(todo), "embedding_model": self.embedder.model_id,
+            "reused_embeddings": len(rows) - len(todo),
+            "reused_from_other_versions": sum(1 for h in hashes if h in reused_from_other),
+            "embedding_model": self.embedder.model_id,
             "embedding_error": error, "embedding_ms": embedding_ms,
         }
+
+    def _reusable(self, version_id: str, document_id: str, *, other_versions: bool = True
+                  ) -> tuple[dict[str, list[float]], set[str]]:
+        """Embeddings that can be reused, keyed by the hash of the exact embedding input (title + heading + text).
+
+        Sources: this version's own chunks (re-index / retry) and the chunks of the document's other versions, so an
+        updated document only embeds the chunks whose text actually changed. A vector is reused only when it was
+        produced by the current embedding model and has the configured dimensions; other versions' chunks are read,
+        never modified. Returns (hash -> embedding, hashes found only in other versions)."""
+        model = self.embedder.model_id
+        own, _ = self.store.select("document_chunks", Query(eq={"version_id": version_id}))
+        reuse: dict[str, list[float]] = {}
+        for e in own:
+            vec = self._vector(e) if e.get("embedding_model") == model else None
+            if vec is not None and e.get("content_hash"):
+                reuse[e["content_hash"]] = vec
+        others: set[str] = set()
+        if not other_versions:
+            return reuse, others
+        try:
+            versions, _ = self.store.select("document_versions", Query(eq={"document_id": document_id}, cols="id"))
+            ids = [v["id"] for v in versions if v["id"] != version_id]
+            if ids:
+                rows, _ = self.store.select("document_chunks", Query(
+                    in_={"version_id": ids}, eq={"embedding_model": model}, cols="content_hash,embedding,embedding_model"))
+                for e in rows:
+                    h, vec = e.get("content_hash"), self._vector(e)
+                    if h and h not in reuse and vec is not None:
+                        reuse[h] = vec
+                        others.add(h)
+        except Exception:  # noqa: BLE001 - reuse is an optimisation; on any error the chunks are embedded instead
+            log.warning("could not load reusable embeddings from other versions of %s", document_id)
+        return reuse, others
+
+    def _vector(self, chunk: dict[str, Any]) -> list[float] | None:
+        """A stored embedding as a list of floats, or None if absent/invalid. PostgREST returns pgvector columns as
+        text ("[0.1,0.2,...]"); passing that string on to replace_version_chunks would store NULL, so parse it."""
+        emb = chunk.get("embedding")
+        if emb is None:
+            return None
+        try:
+            if isinstance(emb, str):
+                emb = [float(x) for x in emb.strip().strip("[]").split(",") if x.strip()]
+            vec = [float(x) for x in emb]
+        except (TypeError, ValueError):
+            return None
+        return vec if len(vec) == self.dimensions and all(math.isfinite(x) for x in vec) else None
 
     def _mark(self, version_id: str, status: str, error: str | None) -> None:
         patch: dict[str, Any] = {"indexing_status": status, "indexing_error": error}

@@ -1,6 +1,7 @@
 """Announcement workflow: draft -> submit -> approve/reject (-> cancel), translations, public views."""
 from __future__ import annotations
 
+import logging
 import re
 from datetime import UTC, date, datetime, timedelta, timezone
 from typing import Any
@@ -22,6 +23,8 @@ SUBMISSION_SOURCES = {
                           organization="SCH Global Supporters", authority_type="supporter_submitted"),
 }
 
+
+log = logging.getLogger("app.announcements")
 
 def today_kst() -> date:
     return datetime.now(KST).date()
@@ -60,6 +63,7 @@ class AnnouncementService:
     def __init__(self, store: Store, indexer: IndexingService):
         self.store = store
         self.indexer = indexer
+        self.rag_health: Any = None     # RagHealthService (wired by the container)
 
     # ------------------------------------------------------------ helpers
     def _names(self, ids: list[str | None]) -> dict[str, str]:
@@ -268,6 +272,14 @@ class AnnouncementService:
         if versions:
             self.indexer.ensure_indexed(versions[0]["id"])
         self.store.rpc("approve_announcement", dict(p_announcement_id=announcement_id, p_actor=user.id, p_note=note))
+        health_svc = getattr(self, "rag_health", None)
+        if versions and health_svc is not None:
+            try:   # published: verify students can find it (alert admins if not; never undo the publication)
+                health = health_svc.check_version(versions[0]["id"])
+                if not health["ok"]:
+                    health_svc.alert(health)
+            except Exception:  # noqa: BLE001
+                log.exception("searchability check failed for announcement %s", announcement_id)
         return self.admin_view(self._get(announcement_id))
 
     def reject(self, announcement_id: str, user: AuthUser, reason: str) -> dict[str, Any]:

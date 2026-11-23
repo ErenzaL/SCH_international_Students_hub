@@ -482,7 +482,20 @@
       "domain": "域名",
       "note": "备注",
       "addDomain": "添加域名",
-      "superAdminOnly": "只有超级管理员可以修改白名单。"
+      "superAdminOnly": "只有超级管理员可以修改白名单。",
+      "llmCheck": {
+        "title": "AI 模型检查",
+        "description": "使用服务器的密钥测试已配置的 Gemini 模型（每个模型两次简短的测试请求）。",
+        "run": "检查 AI 模型",
+        "model": "模型",
+        "call": "调用",
+        "result": "结果",
+        "latency": "延迟",
+        "details": "详情",
+        "ok": "正常",
+        "primary": "主要",
+        "fallback": "备用"
+      }
     },
     "users": {
       "title": "用户与角色",

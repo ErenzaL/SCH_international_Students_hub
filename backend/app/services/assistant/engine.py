@@ -33,10 +33,12 @@ from datetime import UTC, datetime, timedelta, timezone
 from typing import Any
 
 from app.core.config import Settings
+from app.services.assistant.evidence import EvidenceChecker, EvidenceConfig
 from app.services.assistant.prompts import META_MARKER, load_system_prompt
 from app.services.assistant.texts import NATIVE_NAMES, t
 from app.services.llm.base import LLMError, LLMProvider, NullLLMProvider
 from app.services.retrieval.query_analysis import code_matches, find_codes, normalize_codes, token_set
+from app.services.retrieval.rerank import Reranker, build_reranker
 from app.services.retrieval.service import RetrievalService
 from app.services.translation_drafts import LANGUAGE_NAMES
 
@@ -82,6 +84,11 @@ _CLOSER = re.compile(
     r"nếu bạn (có|cần) (thêm )?(câu hỏi|thông tin|hỗ trợ)|bạn có muốn|hy vọng (điều này|thông tin)|"
     r"如果您(还)?有(其他|任何)?(问题|疑问)|希望(对您|这些)|还有其他(问题|需要))", re.I)
 _MARKER = re.compile(r"[ \t]*\[\d{1,2}\]")
+# the question asks for an amount, a limit, a duration or a date: passages stating figures answer it
+_QUANTITY = re.compile(r"\b(how (many|much|long|often)|maximum|minimum|limit|fee|cost|deadline|when)\b|몇|얼마|최대|최소|"
+                       r"한도|수수료|비용|언제|까지|\b(berapa|maksimal|minimal|batas|biaya|kapan)\b|bao nhiêu|bao lâu|mấy|"
+                       r"tối đa|tối thiểu|giới hạn|chi phí|lệ phí|khi nào|多少|几|多久|最多|最少|上限|费用|什么时候", re.I)
+_FIGURE = re.compile(r"\d+(?:[.,]\d+)?\s*(?:%|[A-Za-z가-힣]{1,8}|[一-鿿]{1,3})|\d{2,}")
 _GREETING = re.compile(r"^\s*(hi|hello|hey|good (morning|afternoon|evening)|안녕(하세요)?|반가워요|halo|hai|selamat "
                        r"(pagi|siang|sore|malam)|xin chào|chào( bạn)?|你好|您好|嗨)\s*[!.~？?！。]*\s*$", re.I)
 _THANKS = re.compile(r"^\s*(thanks?( you)?( so much)?|thank u|thx|감사합니다|고마워(요)?|고맙습니다|terima kasih|makasih|"
@@ -137,8 +144,10 @@ today: {today} (Korea time)
 
 class AssistantEngine:
     def __init__(self, retrieval: RetrievalService, llm: LLMProvider | None, settings: Settings,
-                 budget: Callable[[], bool] | None = None):
+                 budget: Callable[[], bool] | None = None, reranker: Reranker | None = None):
         self.retrieval = retrieval
+        # optional cross-encoder reranking (RERANK_PROVIDER, off by default; the model loads lazily on first use)
+        self.reranker: Reranker = reranker if reranker is not None else build_reranker(settings)
         self.llm: LLMProvider = llm or NullLLMProvider()
         self.settings = settings
         # global daily AI budget: returns False when today's generated answers are used up (answers then degrade to
@@ -202,22 +211,45 @@ class AssistantEngine:
         return [question], info
 
     # ------------------------------------------------------------------ retrieval
-    def _retrieve(self, queries: list[str], top_k: int = 8) -> dict[str, Any]:
-        """Hybrid search for each query, reciprocal-rank fusion across queries (only approved current originals)."""
+    def _retrieve(self, queries: list[str], top_k: int = 10) -> dict[str, Any]:
+        """Hybrid search for each query, reciprocal-rank fusion across queries (only approved current originals).
+
+        Each search may return up to 5 passages of one document (evidence selection trims later), and the best
+        keyword agreement a passage had with ANY of the query variants is kept (``best_lexical``)."""
         fused: dict[str, tuple[float, dict[str, Any]]] = {}
         mode, warning = "hybrid", None
         for q in queries:
-            res = self.retrieval.search(q, top_k=top_k)
+            res = self.retrieval.search(q, top_k=top_k, max_per_document=5)
             mode = res["retrieval"]["mode"]
             warning = warning or res["retrieval"].get("warning")
             for rank, h in enumerate(res["results"], 1):
                 score = 1.0 / (60 + rank)
                 prev = fused.get(h["chunk_id"])
-                fused[h["chunk_id"]] = ((prev[0] if prev else 0.0) + score, h)
+                lex = max(float(h.get("lexical_coverage") or 0.0),
+                          float((prev[1].get("best_lexical") if prev else 0.0) or 0.0))
+                exact = bool(h.get("exact_match")) or bool(prev and prev[1].get("exact_match"))
+                fused[h["chunk_id"]] = ((prev[0] if prev else 0.0) + score,
+                                        dict(h, best_lexical=lex, exact_match=exact))
         hits = [h for _s, h in sorted(fused.values(), key=lambda x: (-x[0], str(x[1].get("document_title"))))]
         return dict(hits=hits, mode=mode, warning=warning)
 
-    def _select(self, hits: list[dict[str, Any]], codes: set[str]) -> list[dict[str, Any]]:
+    def _rerank(self, query: str, hits: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        """Cross-encoder reranking of the first-stage hits when a reranker is configured. Never fails an answer: on
+        any error the first-stage order is kept and the error is reported in the retrieval info."""
+        if not self.reranker.enabled or not hits:
+            return hits, {}
+        n = min(len(hits), self.settings.rerank_top_n)
+        t0 = time.perf_counter()
+        try:
+            ranked = self.reranker.rerank(query, hits, self.settings.rerank_top_n)
+        except Exception as exc:  # noqa: BLE001 - reranking is an optional improvement, not a dependency
+            log.warning("reranking failed (%s); keeping the first-stage order", type(exc).__name__)
+            return hits, dict(applied=False, model=self.reranker.model_id, error=type(exc).__name__)
+        return ranked, dict(applied=True, model=self.reranker.model_id, candidates=n,
+                            ms=round((time.perf_counter() - t0) * 1000, 1))
+
+    def _select(self, hits: list[dict[str, Any]], codes: set[str], question: str = "", *,
+                preserve_order: bool = False) -> list[dict[str, Any]]:
         """Evidence selection -> sources (one per document, best first), each with its best passages.
 
         * a question naming a visa/status code keeps only passages about that code (or code-neutral ones) whenever
@@ -225,7 +257,10 @@ class AssistantEngine:
         * passages past their validity date are dropped (defence in depth; the SQL view already excludes them);
         * near-duplicate passages (chunk overlap, the same notice imported twice) are dropped across documents;
         * at most ``assistant_max_sources`` documents, ``assistant_max_passages_per_source`` passages each, and
-          ``assistant_context_chars`` characters in total are sent to the model."""
+          ``assistant_context_chars`` characters in total are sent to the model;
+        * ``preserve_order``: the hits were ranked by a cross-encoder reranker. Its order (sources ordered by their best
+          passage, passages by score) is kept: the keyword-agreement / figures-first heuristics below exist for
+          first-stage hybrid results, and applying them after a reranker undid most of its measured gain."""
         s = self.settings
         now = datetime.now(UTC)
         pool = []
@@ -245,6 +280,10 @@ class AssistantEngine:
 
             matching = [h for h in pool if not about_other_code(h)]
             pool = matching or pool
+        if preserve_order:   # stable: equal / missing scores keep their incoming order
+            pool = sorted(pool, key=lambda h: -float(h.get("rerank_score") or 0.0))
+        else:
+            pool = _prioritize(pool, quantity=bool(_QUANTITY.search(question or "")))
         sources: list[dict[str, Any]] = []
         by_doc: dict[str, dict[str, Any]] = {}
         kept_tokens: list[set[str]] = []
@@ -269,6 +308,13 @@ class AssistantEngine:
             kept_tokens.append(toks)
             used_chars += size
         return [src for src in sources if src["passages"]]
+
+    def evidence_checker(self) -> EvidenceChecker:
+        s = self.settings
+        return EvidenceChecker(self.retrieval.store, self.retrieval, EvidenceConfig(
+            adjacent=s.assistant_evidence_adjacent, second_search=s.assistant_evidence_second_search,
+            max_added_passages=s.assistant_evidence_max_added_passages,
+            max_added_chars=s.assistant_evidence_max_added_chars))
 
     @staticmethod
     def _citation(n: int, src: dict[str, Any]) -> dict[str, Any]:
@@ -327,12 +373,22 @@ class AssistantEngine:
         emit("status", {"stage": "searching"})
         ai_ok = self.llm.enabled and self.budget()
         queries, qinfo = self._queries(question, history, use_llm=ai_ok)
-        found = self._retrieve(queries)
+        found = self._retrieve(queries, top_k=self.settings.rerank_top_n if self.reranker.enabled else 10)
         codes = find_codes(normalize_codes(qinfo.get("standalone") or question))
-        sources = self._select(found["hits"], codes)
+        hits, rerank_info = self._rerank(qinfo.get("standalone") or question, found["hits"])
+        sources = self._select(hits, codes, " ".join(filter(None, [question, qinfo.get("standalone")])),
+                               preserve_order=bool(rerank_info.get("applied")))
+        evidence_report = None
+        if self.settings.assistant_evidence_check and sources:
+            sources, evidence_report = self.evidence_checker().complete(
+                qinfo.get("standalone") or question, sources, max_sources=self.settings.assistant_max_sources)
         hits = [p for src in sources for p in src["passages"]]
         out["retrieval"] = dict(mode=found["mode"], warning=found["warning"], hits=len(hits), sources=len(sources),
                                 queries=len(queries), **{k: v for k, v in qinfo.items() if k != "standalone"})
+        if evidence_report is not None:
+            out["retrieval"]["evidence_check"] = evidence_report
+        if rerank_info:
+            out["retrieval"]["rerank"] = rerank_info
         out["citations"] = [self._citation(i, src) for i, src in enumerate(sources, 1)]
         wants_human = bool(_HUMAN.search(question))
         asks_action = bool(_ACTION_REQUEST.search(question))
@@ -361,6 +417,7 @@ class AssistantEngine:
                     ev = "none"
                 checked, removed = _validate_answer(body, sources)
                 checked = _clean_endings(checked)
+                checked, glued = _fix_script_mixing(checked, lang)
                 if _leaks_prompt(checked, self.prompt.text):
                     # the instructions are confidential (system prompt, section 8): never shown, whatever was asked
                     out["generation"] = gen | {"answer_generation": "fallback", "fallback_reason": "prompt_leak"}
@@ -374,7 +431,8 @@ class AssistantEngine:
                     generation_failed = True
                 else:
                     answer, evidence, out["generation"] = checked, ev, gen | ({"removed_unsupported": removed}
-                                                                               if removed else {})
+                                                                               if removed else {}) | (
+                        {"fixed_mixed_script": glued} if glued else {})
                     needs_human = _needs_human(meta)
                     in_scope = meta.get("in_scope") if isinstance(meta.get("in_scope"), bool) else None
                     out["individual"] = needs_human == "case_specific"
@@ -524,6 +582,68 @@ def _validate_answer(answer: str, sources: list[dict[str, Any]]) -> tuple[str, i
             lines_out.append(" ".join(kept))
     text = re.sub(r"\n{3,}", "\n\n", "\n".join(lines_out)).strip()
     return text, removed
+
+
+def _prioritize(pool: list[dict[str, Any]], *, quantity: bool) -> list[dict[str, Any]]:
+    """Order evidence by how directly it answers: documents with keyword agreement from at least one query variant
+    (or an exact identifier) before documents that only matched semantically - multilingual-E5 rates any text in
+    the question's script as similar, which let unrelated Korean notices crowd out the answer - and, for questions
+    asking for an amount/limit/date, passages that state figures before passages that only discuss the topic.
+    Nothing is dropped here; caps are applied afterwards."""
+    order: list[str] = []
+    by_doc: dict[str, list[dict[str, Any]]] = {}
+    for h in pool:
+        if h["document_id"] not in by_doc:
+            order.append(h["document_id"])
+            by_doc[h["document_id"]] = []
+        by_doc[h["document_id"]].append(h)
+
+    def agrees(doc: str) -> bool:
+        # a third of the (rarity-weighted) query terms from at least one variant - one generic shared word such as
+        # "유학생" (international student) is not agreement
+        return any((h.get("best_lexical") or h.get("lexical_coverage") or 0) >= 0.34 or h.get("exact_match")
+                   or h.get("keyword_rank") is not None for h in by_doc[doc])
+
+    docs = [d for d in order if agrees(d)] + [d for d in order if not agrees(d)]
+    out: list[dict[str, Any]] = []
+    for d in docs:
+        passages = by_doc[d]
+        if quantity:
+            passages = sorted(passages, key=lambda h: not _FIGURE.search(_body_without_lists(h.get("passage") or "")))
+        out.extend(passages)
+    return out
+
+
+def _body_without_lists(text: str) -> str:
+    return re.sub(r"(?m)^\s*(\d+[.)]|#+|[-*•])\s", " ", text)
+
+
+_LATIN_WORD = r"[A-Za-zÀ-ɏḀ-ỿ]"
+_GLUED_AFTER = re.compile(rf"({_LATIN_WORD}+|[一-鿿]+)([가-힣]+)")
+_GLUED_BEFORE = re.compile(rf"([가-힣]+)({_LATIN_WORD}{{2,}})")
+
+
+def _fix_script_mixing(text: str, lang: str) -> tuple[str, int]:
+    """Remove Korean syllables glued INSIDE a word of another script ("làm제취업", "申请생활관") - a generation
+    artifact - in answers that are not Korean. Korean terms written as their own word or in parentheses
+    ("(시간제취업 허가)", "외국인등록증") are kept: they are legitimate administrative terminology."""
+    if lang == "ko":
+        return text, 0
+    n = 0
+
+    def after(m: re.Match[str]) -> str:
+        nonlocal n
+        n += 1
+        return m.group(1)
+
+    def before(m: re.Match[str]) -> str:
+        nonlocal n
+        n += 1
+        return m.group(2)
+
+    text = _GLUED_AFTER.sub(after, text)
+    text = _GLUED_BEFORE.sub(before, text)
+    return text, n
 
 
 def _strip_markers(text: str) -> str:

@@ -25,6 +25,9 @@ MIN_CHARS_PER_TEXT_PAGE = 20
 TABLE_MODES = ("off", "auto")
 DEFAULT_MAX_TABLE_ITEMS = 1500   # drawing items per page above which find_tables() is skipped (auto mode)
 _HANGUL_RE = re.compile(r"[\uac00-\ud7a3]")
+# C0 control characters other than \t \n. InDesign exports put an invisible "indent to here" mark (\x07) after list
+# markers ("- \x07text"); it carries no content.
+_CONTROL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f]")
 MAX_DOCX_UNCOMPRESSED = 60 * 1024 * 1024  # zip-bomb guard
 
 # kind -> (allowed extensions, allowed declared content types)
@@ -185,10 +188,20 @@ def _pdf_page_text(page: Any, body_size: float, *, tables_enabled: bool = False)
     return normalize_text("\n\n".join(t for _, t in items)), len(tables)
 
 
-def _body_font_size(doc: Any, max_pages: int = 20) -> float:
+def _strip_controls(text: str) -> str:
+    return _CONTROL_RE.sub("", text)
+
+
+def _body_font_size(doc: Any, max_pages: int | None = None) -> float:
+    """Body text size = the character-weighted most common span size over ALL pages (``max_pages`` only for tests).
+
+    Estimating it from the first pages alone is wrong for documents whose front matter is set in small type: the
+    2021 NIIED guidebook's pages 14-18 (embassy contact tables, 6.2 pt) dominated the first 20 pages, so the real 9.4 pt
+    body text was >= 1.2x the estimate and 82 % of it was tagged as '##' headings (then lost by the chunker).
+    """
     sizes: Counter[float] = Counter()
     for i, page in enumerate(doc):
-        if i >= max_pages:
+        if max_pages is not None and i >= max_pages:
             break
         for block in page.get_text("dict").get("blocks", []):
             for line in block.get("lines", []):
@@ -249,6 +262,7 @@ def extract_pdf(data: bytes, filename: str = "document.pdf", *, table_mode: str 
             text, n_tables = _pdf_page_text(page, body, tables_enabled=use_tables)
             if len(text) < MIN_CHARS_PER_TEXT_PAGE:  # fall back to the plain text layer
                 text = normalize_text(page.get_text("text"))
+            text = _strip_controls(text)
             if len(text) >= MIN_CHARS_PER_TEXT_PAGE:
                 pages_with_text += 1
                 table_count += n_tables

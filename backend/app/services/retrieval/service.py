@@ -93,12 +93,14 @@ class RetrievalService:
         self.settings = settings
 
     def search(self, query: str, *, language: str | None = None, category: str | None = None, top_k: int = 5,
-               mode: str = "hybrid", scope: str | None = None, authority: list[str] | None = None) -> dict[str, Any]:
+               mode: str = "hybrid", scope: str | None = None, authority: list[str] | None = None,
+               max_per_document: int | None = None) -> dict[str, Any]:
         top_k = min(max(top_k, 1), 20)
         if mode == "hybrid" and self.settings.retrieval_fusion != "weighted":
             mode = "hybrid_legacy"
         if mode == "hybrid":
-            return self._search_weighted(query, category=category, top_k=top_k, scope=scope, authority=authority)
+            return self._search_weighted(query, category=category, top_k=top_k, scope=scope, authority=authority,
+                                         max_per_document=max_per_document)
         return self._search_sql(query, category=category, top_k=top_k, mode="hybrid" if mode == "hybrid_legacy" else mode,
                                 scope=scope, authority=authority, label=mode)
 
@@ -164,7 +166,7 @@ class RetrievalService:
 
     # ---------------------------------------------------------- weighted fusion
     def _search_weighted(self, query: str, *, category: str | None, top_k: int, scope: str | None,
-                         authority: list[str] | None) -> dict[str, Any]:
+                         authority: list[str] | None, max_per_document: int | None = None) -> dict[str, Any]:
         s = self.settings
         qa = analyze(query)
         pool = max(top_k * 3, min(max(s.retrieval_candidate_pool, top_k), 50))
@@ -234,7 +236,7 @@ class RetrievalService:
         kept_tokens: dict[str, list[set[str]]] = {}
         for _score, row, extra in scored:
             doc = row["document_id"]
-            if per_doc.get(doc, 0) >= s.retrieval_max_chunks_per_document:
+            if per_doc.get(doc, 0) >= (max_per_document or s.retrieval_max_chunks_per_document):
                 continue
             toks = token_set(row.get("passage") or "")
             if any(_jaccard(toks, t) >= 0.8 for t in kept_tokens.get(doc, [])):

@@ -147,6 +147,61 @@ the worker so pending indexing jobs and retries are processed too. Configure `CR
 the same value as a GitHub Actions secret. Index jobs triggered by admins run immediately (the admin's own
 requests keep the instance awake).
 
+### Embedding reuse, searchability verification and health checks (2026-11-23)
+
+- **Reuse across versions.** When a new version is indexed at approval, chunks whose exact embedding input
+  (title + heading + text, hashed) already exists in another version of the same document, embedded by the
+  current model, reuse that vector. Only changed chunks are embedded. Pending versions chunked for review still get
+  no vectors. The job statistics record `reused_embeddings` and `reused_from_other_versions`. Stored vectors returned as
+  text by PostgREST are parsed rather than dropped.
+- **Post-activation verification.** After `activate_document_version`, the index job checks the version the way
+  students see it: its chunks must appear in `searchable_chunks` and carry an embedding from the current model. The
+  result goes into the job statistics (`searchable_chunks`, `searchability_ok`, `hidden_reason`) and a `verify`
+  step event. Announcement approval runs the same check.
+- **Alerts.** A published document that is not fully searchable creates an `error` admin notification
+  `not_searchable`, at most one per document per 24 h. Documents hidden on purpose (scheduled `valid_from`, expired
+  `valid_until`, inactive source, archived, withdrawn) are reported as `hidden_reason` and not alerted. The check
+  never undoes an activation and never re-indexes.
+- **On demand.** `GET /api/v1/admin/rag/health` (admin, read-only) returns every published document's chunk,
+  embedding and searchable counts plus lightweight statistics, computed live. `python -m app.cli check-rag
+  [--notify]` prints the same report; `run-due` runs it with `--notify` after the scheduled syncs.
+- Research benchmarks, answer evaluations and corpus snapshots are never started by the lifecycle. They live in
+  `research/` and run only when a researcher starts them explicitly.
+
+## Korean PDF body text, re-extraction and older sources (2026-11-23)
+
+**Defect.** `extractors_files._body_font_size` estimated the body font size from the first 20 pages. In the 2021
+NIIED guidebook (`guideBook_ko.pdf`, 94 pages) pages 14-18 are dense 6.2 pt contact tables, so the estimate was 6.2 pt
+while the body text is 9.4 pt (the modal size on 39 pages). Every body line was then >= 1.2x "body size" and tagged
+as a `##` heading (82 % of the characters); the chunker treats headings as section labels and consecutive labels
+replace each other, so only 27 % of the guidebook's words reached chunk text.
+
+**Fix.** The body size is the character-weighted modal span size over all pages (about +0.7 s for the 94-page
+guidebook). PDF text also drops C0 control characters: InDesign exports put an invisible `\x07` "indent to here" mark
+after list markers. Validated on all six production PDFs (`research/scripts/validate_pdf_fix.py`, report in
+`research/reports/production_readiness/`): the five other PDFs produce identical text apart from the removed `\x07`
+marks; the guidebook's chunk text goes from 27 % to 97 % of its words, with every checked line verbatim from the
+cited page.
+
+**Re-extraction (no re-upload).** Re-uploading the same file is refused as a duplicate, and "Reprocess" only re-indexes
+the stored text. To apply an extractor fix to an existing document:
+
+* `POST /api/v1/admin/versions/{version_id}/re-extract` (admin only) is a **dry run** by default: it downloads the
+  original, extracts it (PDFs in the isolated child process) and chunks it in memory, and returns stored vs new
+  statistics (characters, chunks, word coverage of chunk text, pages with/without chunks, image-only pages, heading
+  share) and warnings, writing nothing.
+* `POST .../re-extract?apply=true` (202) queues the normal ingest job with that version's stored original file. A
+  changed result becomes a new `pending_review` version; the approved version stays live until a reviewer approves
+  the new one (normal activation, embeddings reused where unchanged). Identical output creates nothing. Nothing is
+  ever activated automatically. Audited as `version.reextract_requested`.
+* `python -m app.cli reextract <version_id>` prints the same dry-run report; `--apply` creates the pending version.
+
+**Older sources.** A new version whose publication date (PDF metadata or page) or declared edition ("2021 개정판")
+is older than `SOURCE_REVIEW_AGE_DAYS` (default 3 years) gets a reviewer warning to verify time-sensitive guidance
+(fees, deadlines, visa, work and insurance rules, contacts) before approving. It is a warning only: nothing is
+hidden, changed or published automatically. The assistant already passes each source's publication date to the
+model (`published: 2021-03-05`).
+
 ## PDF ingestion robustness (2026-11-22)
 
 **Incident.** Uploaded PDFs stayed in `Running` after `[file] Loaded … from private storage`; the service restarted

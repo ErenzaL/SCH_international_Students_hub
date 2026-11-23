@@ -231,7 +231,8 @@ class MemoryStore:
     def select(self, table: str, query: Query | None = None, *, count: bool = False):  # type: ignore[no-untyped-def]
         query = query or Query()
         with self._lock:
-            rows = [r for r in self.t[table] if self._match(r, query)]
+            source = self._searchable_view() if table == "searchable_chunks" else self.t[table]
+            rows = [r for r in source if self._match(r, query)]
             for col, desc in reversed(query.order):
                 rows.sort(key=lambda r, c=col: (r.get(c) is None, r.get(c)), reverse=desc)
             total = len(rows)
@@ -749,6 +750,15 @@ class MemoryStore:
                     {"document_id": d["id"], "version_number": v["version_number"],
                      "previous_status": "draft", "new_status": "pending_review"})
         return v
+
+    def _searchable_view(self) -> list[Row]:
+        """Rows of the ``searchable_chunks`` view (same filter as the SQL view; the subset of columns the code reads)."""
+        return [dict(chunk_id=c["id"], version_id=v["id"], chunk_index=c["chunk_index"], heading=c.get("heading"),
+                     content=c.get("content"), page_start=c.get("page_start"),
+                     embedding_model=c.get("embedding_model"), document_id=d["id"], document_title=d["title"],
+                     document_language=d.get("language"), source_id=s["id"], category=s.get("category"),
+                     valid_until=v.get("valid_until"), source_type=s.get("source_type"))
+                for c, v, d, s in self._searchable()]
 
     def _searchable(self) -> list[tuple[Row, Row, Row, Row]]:
         now = datetime.now(UTC)

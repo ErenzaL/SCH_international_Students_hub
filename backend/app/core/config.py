@@ -122,8 +122,25 @@ class Settings(BaseSettings):
     # follow-up suggestion chips under answers (off: answers end when they are complete)
     assistant_follow_up_suggestions: bool = False
     assistant_max_sources: int = 4            # distinct source documents given to the model per answer
-    assistant_max_passages_per_source: int = 2
-    assistant_context_chars: int = 7000       # total passage text sent to the model
+    assistant_max_passages_per_source: int = 3
+    assistant_context_chars: int = 9000       # total passage text sent to the model
+    # evidence-sufficiency layer (app/services/assistant/evidence.py). OFF by default: chat behaviour is unchanged
+    # unless enabled. When on: neighbouring chunks / one targeted search for missing information types, and an
+    # ``evidence_check`` report in the response's retrieval metadata (still-missing information is recorded).
+    assistant_evidence_check: bool = False
+    assistant_evidence_adjacent: bool = True
+    assistant_evidence_second_search: bool = True
+    assistant_evidence_max_added_passages: int = 4
+    assistant_evidence_max_added_chars: int = 3000
+    # optional cross-encoder reranking of the first-stage hybrid results (app/services/retrieval/rerank.py). OFF by
+    # default; needs a local ONNX export and measured memory/latency on the target instance before it is enabled.
+    rerank_provider: str = "none"            # none | onnx
+    rerank_model_path: str = ""              # e.g. /models/mminilm/model_int8.onnx
+    rerank_tokenizer_path: str = ""          # its sentencepiece.bpe.model
+    rerank_top_n: int = 20                   # first-stage passages scored by the cross-encoder
+    rerank_batch_size: int = 4               # pairs per forward pass (activation memory grows with it)
+    rerank_threads: int = 1
+    rerank_max_length: int = 512
     # --- PDF extraction --------------------------------------------------------
     # subprocess: a child process per PDF with a hard timeout (a crash or OOM fails the job, not the service)
     pdf_extraction_isolation: str = "subprocess"     # subprocess | inline (tests)
@@ -132,6 +149,9 @@ class Settings(BaseSettings):
     pdf_table_detection: str = "off"        # off | auto (find_tables() costs ~230 MB; enable only on larger plans)
     pdf_max_table_items: int = 1500         # auto mode: skip table detection on pages with more drawing operations
     pdf_max_pages: int = 300
+    # new versions whose publication date / declared edition is older than this get a reviewer warning to verify
+    # time-sensitive guidance (nothing is changed or hidden automatically)
+    source_review_age_days: int = 3 * 365
     # Shared secret for POST /api/v1/internal/sync/run-due (external scheduler). Empty = endpoint disabled.
     cron_secret: str = Field(default="", repr=False)
 

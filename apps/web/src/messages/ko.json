@@ -482,7 +482,20 @@
       "domain": "도메인",
       "note": "메모",
       "addDomain": "도메인 추가",
-      "superAdminOnly": "허용 목록은 슈퍼 관리자만 변경할 수 있습니다."
+      "superAdminOnly": "허용 목록은 슈퍼 관리자만 변경할 수 있습니다.",
+      "llmCheck": {
+        "title": "AI 모델 점검",
+        "description": "서버의 키로 설정된 Gemini 모델을 점검합니다(모델당 짧은 테스트 요청 2개).",
+        "run": "AI 모델 점검",
+        "model": "모델",
+        "call": "호출",
+        "result": "결과",
+        "latency": "응답 시간",
+        "details": "세부 정보",
+        "ok": "정상",
+        "primary": "기본",
+        "fallback": "대체"
+      }
     },
     "users": {
       "title": "사용자 및 역할",
