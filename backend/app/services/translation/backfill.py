@@ -100,13 +100,13 @@ def _length_ratio(src: str, tgt: str) -> float:
     return {("ko", "en"): 1.6, ("en", "ko"): 0.45}.get((src, tgt), 1.0)
 
 
-def apply(svc: Any, limit: int, languages: list[str] | None = None) -> list[dict[str, Any]]:
+def apply(svc: Any, limit: int, languages: list[str] | None = None, *, kinds: list[str] | None = None) -> list[dict[str, Any]]:
     """Queue up to ``limit`` jobs from the plan (announcements first, then documents); returns what was queued."""
     out: list[dict[str, Any]] = []
     for it in plan(svc, languages)["items"]:
         if len(out) >= limit:
             break
-        if it["queued"] or it["too_long"]:
+        if it["queued"] or it["too_long"] or (kinds and it["kind"] not in kinds):
             continue
         if it["kind"] == "announcement":
             job = svc.announcement_translator.queue(it["id"], it["language"], None, enqueue=False)

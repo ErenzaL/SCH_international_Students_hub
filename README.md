@@ -69,4 +69,10 @@ python scripts/check_sources.py               # live access + extraction test of
 * [docs/architecture.md](docs/architecture.md) – components, trust boundaries, security model
 * [docs/database.md](docs/database.md) – tables, lifecycle, RLS, functions
 * [docs/ingestion.md](docs/ingestion.md) – pipeline, SSRF rules, source registry and verified access results
+* [docs/ollama.md](docs/ollama.md) – local Qwen model (Ollama) on the university server
+* [docs/gpu-worker.md](docs/gpu-worker.md) – outbound-only GPU worker for translation drafts, deployment checklist
+* [docs/release/gpu-worker-readiness.md](docs/release/gpu-worker-readiness.md) – GPU worker: readiness, benchmark, blockers, pilot
+* [docs/gpu-gateway-assessment.md](docs/gpu-gateway-assessment.md) – assessment of real-time Qwen answers (not built)
+* [docs/release/release-readiness.md](docs/release/release-readiness.md) – Release A and B: status, commits, blockers
+* [docs/review/README.md](docs/review/README.md) – guide and term sheets for native reviewers
 * [docs/api-contract.md](docs/api-contract.md) – every endpoint

@@ -28,9 +28,10 @@ from typing import Any
 from app.core.config import Settings
 from app.core.errors import DuplicateError, Forbidden, InvalidState, NotFound
 from app.repositories.base import Query, Store, get_one
+from app.services.gpu_routing import gpu_executor
 from app.services.ingestion.errors import IngestionError
 from app.services.llm.base import LLMError, LLMProvider
-from app.services.translation.quality import is_high_risk, validate_translation
+from app.services.translation.quality import is_high_risk, local_translation_warnings, validate_translation
 from app.services.translation_drafts import chunk_text, translate_document
 
 log = logging.getLogger("app.translation")
@@ -57,11 +58,13 @@ def require_not_touched_since(row: dict[str, Any], job: dict[str, Any], forced: 
 
 
 def daily_budget_exceeded(store: Store, settings: Settings, job_id: str) -> bool:
-    """True when today's (UTC) translation job budget is used up (this job excluded)."""
+    """True when today's (UTC) translation job budget is used up (this job excluded). Jobs of the GPU worker use no
+    model quota and are not counted."""
     start = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
     _rows, n = store.select("ingestion_jobs", Query(
         in_={"job_type": list(TRANSLATION_JOB_TYPES), "status": ["running", "succeeded", "failed"]},
-        gte={"started_at": start}, neq={"id": job_id}, cols="id", limit=1), count=True)
+        gte={"started_at": start}, neq={"id": job_id}, cols="id", limit=1,
+        eq={"executor": "local"} if settings.gpu_worker_enabled else {}), count=True)
     return (n or 0) >= settings.translation_daily_job_limit
 
 
@@ -111,6 +114,10 @@ class AnnouncementAutoTranslator:
         self.public: Any = None       # PublicService: what students can see right now
         self.reviews: Any = None      # TranslationReviewService (original text + hash, reviewer lists)
 
+    @property
+    def can_generate(self) -> bool:
+        return self.llm.enabled or gpu_executor(self.store, self.settings, "translate_announcement") is not None
+
     # ------------------------------------------------------------------ rows
     @staticmethod
     def machine_made(row: dict[str, Any]) -> bool:
@@ -159,7 +166,7 @@ class AnnouncementAutoTranslator:
             raise InvalidState("Only published announcements are translated automatically.")
         if language == a["original_language"] or language not in SUPPORTED:
             raise InvalidState("The original language does not need a translation.")
-        if not self.llm.enabled:
+        if not self.can_generate:
             raise InvalidState("Machine translation needs an LLM provider (LLM_PROVIDER and an API key).",
                                code="llm_disabled")
         row = self._row(announcement_id, language) or self.store.insert("announcement_translations", dict(
@@ -170,16 +177,19 @@ class AnnouncementAutoTranslator:
         existing = self.open_job(row["id"])
         if existing:
             return existing
+        executor = gpu_executor(self.store, self.settings, "translate_announcement")
         try:
             job = self.ingestion.create_job(self._source(a), "manual", actor_id, job_type="translate_announcement",
                                             payload=dict(announcement_id=announcement_id, translation_id=row["id"],
-                                                         language=language, force=force))
+                                                         language=language, force=force),
+                                            executor=executor)
         except DuplicateError:          # queued concurrently (unique index): use that job
             existing = self.open_job(row["id"])
             if existing is None:
                 raise
             return existing
-        self.ingestion.event(job["id"], "queued", f"Machine translation into {language} queued for the announcement.")
+        self.ingestion.event(job["id"], "queued", f"Machine translation into {language} queued for the announcement"
+                                                 f"{' (GPU worker)' if executor else ''}.")
         self.store.insert("audit_log", dict(action="translation.machine_requested", entity_type="announcement",
                                             entity_id=announcement_id, actor_id=actor_id,
                                             details={"language": language, "job_id": job["id"]}))
@@ -189,7 +199,7 @@ class AnnouncementAutoTranslator:
 
     def on_published(self, announcement_id: str, actor_id: str | None, background: Any = None) -> list[dict[str, Any]]:
         """Publication hook: queue the missing / outdated machine translations (never blocks publication)."""
-        if not (self.settings.auto_translate_announcements and self.llm.enabled and self.ingestion):
+        if not (self.settings.auto_translate_announcements and self.can_generate and self.ingestion):
             return []
         a = get_one(self.store, "announcements", id=announcement_id)
         if a is None or a["publication_status"] != "published":
@@ -222,7 +232,8 @@ class AnnouncementAutoTranslator:
             raise IngestionError("source_unapproved", "The announcement has an unapproved change; request the "
                                                       "translation again after it is approved.")
 
-    def run_job(self, job: dict[str, Any], heartbeat: Any, event: Any) -> dict[str, Any]:
+    def prepare(self, job: dict[str, Any]) -> dict[str, Any]:
+        """Check a job and collect its input. ``finished`` is set when there is nothing left to generate."""
         p = job.get("payload") or {}
         row = get_one(self.store, "announcement_translations", id=p.get("translation_id"))
         if row is None:
@@ -238,8 +249,16 @@ class AnnouncementAutoTranslator:
             raise IngestionError("human_draft_exists", "A person edited this translation; the machine translation "
                                                        "was not written.")
         done = dict(outcome="translated", document_id=a["document_id"], version_id=None, changed=False, warning=None)
+        finished = None
         if not self.needs_translation(row, orig["content_hash"]) and not p.get("force"):
-            return done | dict(message="Already translated from exactly this text; nothing to do.")
+            finished = done | dict(message="Already translated from exactly this text; nothing to do.")
+        return dict(row=row, a=a, orig=orig, lang=lang, src=src, done=done, finished=finished, force=bool(p.get("force")))
+
+    def run_job(self, job: dict[str, Any], heartbeat: Any, event: Any) -> dict[str, Any]:
+        work = self.prepare(job)
+        if work["finished"]:
+            return work["finished"]
+        row, orig, lang, src = work["row"], work["orig"], work["lang"], work["src"]
         cached = self._cached(orig["content_hash"], lang, row["id"])
         if cached is None:
             if daily_budget_exceeded(self.store, self.settings, job["id"]):
@@ -260,16 +279,24 @@ class AnnouncementAutoTranslator:
         else:
             event(job["id"], "translate", "Identical text was translated before; reusing that translation.")
             title, body, provider, model = cached["title"], cached["body"], cached.get("provider"), cached.get("model")
+        return self.store_result(job, work, title, body, provider, model)
+
+    def store_result(self, job: dict[str, Any], work: dict[str, Any], title: str, body: str, provider: str | None,
+                     model: str | None, *, always_review: bool = False) -> dict[str, Any]:
+        """``always_review``: never 'machine_draft' (which may be shown to students), even when every check passed."""
+        a, orig, lang, src, done = work["a"], work["orig"], work["lang"], work["src"], work["done"]
         # re-check: the original or the human state may have changed while the model was working
-        row = get_one(self.store, "announcement_translations", id=row["id"])
+        row = get_one(self.store, "announcement_translations", id=work["row"]["id"])
         if row is None or self.reviews.original(a["id"])["content_hash"] != orig["content_hash"]:
             raise IngestionError("source_changed", "The announcement changed while it was translated; discarded.")
         self.require_approved(a["id"], orig)
-        require_not_touched_since(row, job, bool(p.get("force")))
-        if self.human_touched(row) and not p.get("force"):
+        require_not_touched_since(row, job, work["force"])
+        if self.human_touched(row) and not work["force"]:
             raise IngestionError("human_draft_exists", "A person edited this translation meanwhile; discarded.")
-        warnings = validate_translation(f"{orig['title']}\n{orig['body']}", f"{title}\n{body}", src, lang)
-        status = "needs_review" if warnings else "machine_draft"
+        check = local_translation_warnings if provider == "ollama" else validate_translation
+        warnings = check(f"{orig['title']}\n{orig['body']}", f"{title}\n{body}", src, lang)
+        # drafts of local models are never 'machine_draft' (which may be shown to students)
+        status = "needs_review" if warnings or always_review or provider == "ollama" else "machine_draft"
         row = self.store.update("announcement_translations", dict(
             title=title, body=body, translation_status=status, source_content_hash=orig["content_hash"],
             is_outdated=False, provider=provider, model=model, generated_at=now(), warnings=warnings,
@@ -283,7 +310,7 @@ class AnnouncementAutoTranslator:
                                             entity_id=a["id"], actor_id=job.get("requested_by"),
                                             details={"language": lang, "status": status, "warnings": len(warnings),
                                                      "provider": provider, "model": model}))
-        if warnings and self.reviews is not None:
+        if status == "needs_review" and self.reviews is not None:
             self.notes.notify_many(self.reviews._people(lang, "review"), "translation_review",
                                    f"Machine translation needs review ({lang}): {a['title'][:110]}",
                                    entity_type="announcement", entity_id=a["id"],
@@ -320,7 +347,7 @@ class AnnouncementAutoTranslator:
                     job=dict(id=job["id"], status=job["status"], error_code=job.get("error_code"),
                              error_message=job.get("error_message"), created_at=job["created_at"],
                              run_after=job.get("run_after")) if job else None,
-                    llm_enabled=self.llm.enabled)
+                    llm_enabled=self.can_generate)
 
 
 def translation_llm(settings: Settings, llm: LLMProvider, budget: Any = None) -> LLMProvider:
@@ -329,7 +356,16 @@ def translation_llm(settings: Settings, llm: LLMProvider, budget: Any = None) ->
     With Gemini it is always its own provider instance: TRANSLATION_MODEL (or the assistant's models) with its own
     circuit breaker, and - when a budget is given - a gate before every attempt that charges the per-day background
     budget (``llm_background_daily_attempts``), so background work never uses the chatbot's reserved quota. With a
-    separate TRANSLATION_MODEL it has no fallback: it must not fail over onto the chatbot's fallback model."""
+    separate TRANSLATION_MODEL it has no fallback: it must not fail over onto the chatbot's fallback model.
+
+    BACKGROUND_LLM_PROVIDER selects another provider for background work only (e.g. local Ollama translation drafts
+    while the assistant stays on Gemini). Neither side ever falls back to the other's provider."""
+    chosen = settings.background_llm_provider.strip().lower()
+    if chosen and chosen != settings.llm_provider.strip().lower():
+        from app.services.llm.base import build_llm_from_settings
+
+        settings = settings.model_copy(update={"llm_provider": chosen})
+        llm = build_llm_from_settings(settings)
     if not llm.enabled:
         return llm
     limit = settings.llm_background_daily_attempts
@@ -366,6 +402,14 @@ class BudgetedLLM:
     def stream(self, *a: Any, **kw: Any) -> Any:
         self._check()
         return self._inner.stream(*a, **kw)
+
+    async def acomplete(self, *a: Any, **kw: Any) -> Any:
+        self._check()
+        return await self._inner.acomplete(*a, **kw)  # type: ignore[attr-defined]
+
+    async def astream(self, *a: Any, **kw: Any) -> Any:
+        self._check()
+        return await self._inner.astream(*a, **kw)  # type: ignore[attr-defined]
 
 
 def require_translation_access(user: Any, language: str, perms: dict[str, bool]) -> None:

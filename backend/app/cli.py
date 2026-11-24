@@ -188,6 +188,29 @@ def check_rag(svc, *, notify: bool) -> int:  # type: ignore[no-untyped-def]
     return 1 if report["problems"] else 0
 
 
+def check_ollama(settings, *, generate: bool, list_models: bool = False) -> int:  # type: ignore[no-untyped-def]
+    """Is Ollama reachable on this machine and is OLLAMA_MODEL installed? ``--generate``: one tiny call of each kind."""
+    from app.services.llm.base import LLMError
+
+    llm = build_llm_from_settings(settings.model_copy(update={"llm_provider": "ollama"}))
+    try:
+        names = llm.installed_models()  # type: ignore[attr-defined]
+    except LLMError as exc:
+        print(f"ollama: {settings.ollama_base_url} -> {exc.code}: {exc.message}", file=sys.stderr)
+        return 1
+    if list_models:
+        print("installed models:\n" + "\n".join(f"  {n}" for n in sorted(names)))
+    ok = llm.model in names or f"{llm.model}:latest" in names
+    print(f"ollama: {settings.ollama_base_url} model={llm.model} installed={'yes' if ok else 'NO'} "
+          f"num_ctx={settings.ollama_num_ctx}")
+    if generate and ok:
+        for row in llm.probe(llm.model):  # type: ignore[attr-defined]
+            print(f"  {row['call']:8} {'OK' if row['ok'] else 'FAILED error=' + row['error']} "
+                  f"latency_ms={row['latency_ms']} tokens={row.get('total_tokens')}")
+            ok = ok and row["ok"]
+    return 0 if ok else 1
+
+
 def check_llm(settings, *, generate: bool, list_models: bool = False) -> int:  # type: ignore[no-untyped-def]
     """Validate the configured Gemini models for THIS key (the key is never printed).
 
@@ -196,8 +219,13 @@ def check_llm(settings, *, generate: bool, list_models: bool = False) -> int:  #
       configuration production uses (thinking level, output limit) - reports ok / error category / HTTP status /
       Google's (non-secret) message / latency / tokens.
     * ``--list``: every Gemini model this key can call with generateContent."""
-    if settings.llm_provider.strip().lower() not in ("gemini", "google"):
-        print(f"LLM_PROVIDER={settings.llm_provider!r}: check-llm validates Gemini models only.")
+    chosen = settings.llm_provider.strip().lower()
+    if "ollama" in (chosen, settings.background_llm_provider.strip().lower()):
+        code = check_ollama(settings, generate=generate, list_models=list_models)
+        if code or chosen not in ("gemini", "google"):
+            return code
+    if chosen not in ("gemini", "google"):
+        print(f"LLM_PROVIDER={settings.llm_provider!r}: check-llm validates Gemini and Ollama models only.")
         return 0
     from google import genai
     from google.genai import errors

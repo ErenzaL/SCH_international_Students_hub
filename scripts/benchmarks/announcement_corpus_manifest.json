@@ -1,0 +1,213 @@
+{
+ "note": "Public SCH notices used by scripts/bench_announcements.py. Texts are not stored in the repository.",
+ "notices": [
+  {
+   "id": "N01",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6650&table_name=noti_fore",
+   "posted": "2026-09-08",
+   "chars": 411,
+   "sha256": "91095fa2f31dfe6aa6128172b98bc80e22f2a08f3eb54d2ec5261e52491d7ae2"
+  },
+  {
+   "id": "N02",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6567&table_name=noti_fore",
+   "posted": "2026-05-14",
+   "chars": 1057,
+   "sha256": "d9cb4b39d485ce10923cc68bf5499b527149fe960c528e4762d579e0ec4823d0"
+  },
+  {
+   "id": "N03",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6709&table_name=noti_fore",
+   "posted": "2026-11-23",
+   "chars": 1342,
+   "sha256": "78806449d531e514449f8e61729ee6952525e607c568aa58f1a64658cfe6d52a"
+  },
+  {
+   "id": "N04",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6708&table_name=noti_fore",
+   "posted": "2026-11-17",
+   "chars": 370,
+   "sha256": "b54556b6eebefe94d92b1737e06e6843d73f93d5fd98b269e790acffeade52e4"
+  },
+  {
+   "id": "N05",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6707&table_name=noti_fore",
+   "posted": "2026-11-17",
+   "chars": 455,
+   "sha256": "ce7de5b24de183a452d85054cad0a06d6ed27a1f15496b86238f0038bb1b24d8"
+  },
+  {
+   "id": "N06",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6705&table_name=noti_fore",
+   "posted": "2026-11-16",
+   "chars": 467,
+   "sha256": "f14df547f05c81447a0fc726df9d73b881f19ea09b4e8c0ab4ddf4d54604fdaf"
+  },
+  {
+   "id": "N07",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6704&table_name=noti_fore",
+   "posted": "2026-11-16",
+   "chars": 637,
+   "sha256": "ef25dabf4e06a252fd8e30cc7cb5c96a2d62121cadbcf02fd57d2fd4d5d65648"
+  },
+  {
+   "id": "N08",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6698&table_name=noti_fore",
+   "posted": "2026-10-29",
+   "chars": 602,
+   "sha256": "244819fbfdaf6c17fcc9557a10257df43dfed55bcec3bb21112e7121f1e0eb97"
+  },
+  {
+   "id": "N09",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6695&table_name=noti_fore",
+   "posted": "2026-10-29",
+   "chars": 630,
+   "sha256": "34680570e872ad17104e778ce4f0f855ede82065dcdc11e3b8e5984113275008"
+  },
+  {
+   "id": "N10",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6691&table_name=noti_fore",
+   "posted": "2026-10-14",
+   "chars": 1190,
+   "sha256": "4823ea3cf9b23d875638fb53907ebc2dc6359984c1051c3406196847862a135c"
+  },
+  {
+   "id": "N11",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6686&table_name=noti_fore",
+   "posted": "2026-10-13",
+   "chars": 590,
+   "sha256": "f32e5e6218573fd44881bf97805789d1a0843a4c34a222f88d16ca7475202379"
+  },
+  {
+   "id": "N12",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6682&table_name=noti_fore",
+   "posted": "2026-10-02",
+   "chars": 1704,
+   "sha256": "928b62279e97cad5f1dbf5259db7fb829efee9d79167b56db22bddbd3b1f2fe1"
+  },
+  {
+   "id": "N13",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6671&table_name=noti_fore",
+   "posted": "2026-09-17",
+   "chars": 614,
+   "sha256": "1198094deb3631e07b28daafd4d013d60ac73f32c0bfe95fbfcc91345ab27100"
+  },
+  {
+   "id": "N14",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6664&table_name=noti_fore",
+   "posted": "2026-09-10",
+   "chars": 442,
+   "sha256": "a339085e0c5ee986d611f5728782571f5e862b71eb5821cdf4a1859dff0c203b"
+  },
+  {
+   "id": "N15",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6649&table_name=noti_fore",
+   "posted": "2026-09-04",
+   "chars": 1050,
+   "sha256": "a9e2cfb4bff33544e2f763139ebe007175013d33919b9393c441aca513c21a41"
+  },
+  {
+   "id": "N16",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6643&table_name=noti_fore",
+   "posted": "2026-09-02",
+   "chars": 431,
+   "sha256": "6d51e5257818343306ed29fc5f002d70ed5f892f5ef8c14822b1e4f23e43794d"
+  },
+  {
+   "id": "N17",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6007&table_name=noti_fore",
+   "posted": "2026-09-01",
+   "chars": 270,
+   "sha256": "d5e66aa02333f1e2b435c6f074daa01589531847b69895bb087fdf4d333ba041"
+  },
+  {
+   "id": "N18",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6638&table_name=noti_fore",
+   "posted": "2026-08-24",
+   "chars": 653,
+   "sha256": "882ccc9b44e3bc2cb3867dc48a985bcea56ebf2d399cfa06f350bbd466ee6fc4"
+  },
+  {
+   "id": "N19",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6632&table_name=noti_fore",
+   "posted": "2026-08-18",
+   "chars": 591,
+   "sha256": "e8a654f5f61ff4e41c094bc2ab0d05692571e38fced9ff77deae04c90e8c5269"
+  },
+  {
+   "id": "N20",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6625&table_name=noti_fore",
+   "posted": "2026-08-12",
+   "chars": 343,
+   "sha256": "344797dbd6a2ccf1a05da96da1962632a3f2c244b06d423c2d238af8837e6446"
+  },
+  {
+   "id": "N21",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6624&table_name=noti_fore",
+   "posted": "2026-08-12",
+   "chars": 227,
+   "sha256": "821b90463d302199096ccb6c2d2f28a5ed7a0a14463aea31e675c71c467d6703"
+  },
+  {
+   "id": "N22",
+   "group": "academic",
+   "url": "https://home.sch.ac.kr/sch/06/010200.jsp?mode=view&article_no=20261117130537192081&board_wrapper=%2Fsch%2F06%2F010200.jsp&pager.offset=0&board_no=20090724142539399571",
+   "posted": "2026-11-17",
+   "chars": 406,
+   "sha256": "e8dcce9a240e784373c6c74c0c169f1696488386bbe7d4530d8010a811a596d0"
+  },
+  {
+   "id": "N23",
+   "group": "academic",
+   "url": "https://home.sch.ac.kr/sch/06/010200.jsp?mode=view&article_no=20261116131627040017&board_wrapper=%2Fsch%2F06%2F010200.jsp&pager.offset=0&board_no=20090724142539399571",
+   "posted": "2026-11-16",
+   "chars": 882,
+   "sha256": "d6743e406a7a0710797db589e1218db97b859a93cc83d6b9c0a1ae8325b436f8"
+  },
+  {
+   "id": "N24",
+   "group": "academic",
+   "url": "https://home.sch.ac.kr/sch/06/010200.jsp?mode=view&article_no=20261113092633418088&board_wrapper=%2Fsch%2F06%2F010200.jsp&pager.offset=0&board_no=20090724142539399571",
+   "posted": "2026-11-13",
+   "chars": 1010,
+   "sha256": "8d393fdd37dd71d4c5d4f1a25c757a6a08a61fe6c2a17f71155cdff1035fb404"
+  },
+  {
+   "id": "N25",
+   "group": "academic",
+   "url": "https://home.sch.ac.kr/sch/06/010200.jsp?mode=view&article_no=20261105150749338081&board_wrapper=%2Fsch%2F06%2F010200.jsp&pager.offset=0&board_no=20090724142539399571",
+   "posted": "2026-11-05",
+   "chars": 574,
+   "sha256": "bbf00bea8059978aa3ecc0b1ba639c97ecd1ab60cda5eca1bb2ae593248c69ce"
+  },
+  {
+   "id": "N26",
+   "group": "scholarship",
+   "url": "https://home.sch.ac.kr/sch/06/010300.jsp?mode=view&article_no=20261105160205788090&board_wrapper=%2Fsch%2F06%2F010300.jsp&pager.offset=0&board_no=20090724142604517617",
+   "posted": "2026-11-05",
+   "chars": 439,
+   "sha256": "9acb07925b15f94c907b34e279e809f02ad58bd682d05fdf61a7017504004874"
+  }
+ ]
+}

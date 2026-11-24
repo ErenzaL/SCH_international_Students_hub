@@ -1,6 +1,7 @@
 """Configurable LLM provider (answer generation and translation drafts).
 
 * ``none`` (default): nothing is generated; the site, retrieval and the assistant's evidence-only replies keep working.
+* ``gemini``: see ``gemini.py``. ``ollama``: local models on this machine, see ``ollama.py``.
 * ``anthropic``: Claude via the official ``anthropic`` SDK (``LLM_MODEL``, default ``claude-opus-5-5``).
 Every provider exposes one primitive, ``complete(system, prompt)``; the prompts live in the services that use it
 (``services/assistant/engine.py``, ``services/translation_drafts.py``) so a provider never decides what is said.
@@ -198,6 +199,29 @@ def build_llm_provider(provider: str, api_key: str, model: str = "claude-opus-5-
             retry_max_delay=getattr(s, "llm_retry_max_delay_seconds", 8.0),
             deadline=getattr(s, "llm_request_deadline_seconds", 45.0),
             fast_timeout=getattr(s, "llm_fast_timeout_seconds", 12.0),
+        )
+    if p == "ollama":
+        from app.services.llm.ollama import OllamaProvider
+
+        s = settings
+        return OllamaProvider(
+            getattr(s, "ollama_model", "") or "qwen2.5:7b-instruct",
+            base_url=getattr(s, "ollama_base_url", "http://127.0.0.1:11434"),
+            num_ctx=getattr(s, "ollama_num_ctx", 16384),
+            max_output_tokens=getattr(s, "ollama_max_output_tokens", 8192),
+            temperature=getattr(s, "ollama_temperature", 0.2),
+            keep_alive=getattr(s, "ollama_keep_alive", "10m"),
+            connect_timeout=getattr(s, "ollama_connect_timeout_seconds", 3.0),
+            request_timeout=getattr(s, "ollama_request_timeout_seconds", 90.0),
+            job_timeout=getattr(s, "ollama_job_timeout_seconds", 180.0),
+            fast_timeout=getattr(s, "ollama_fast_timeout_seconds", 30.0),
+            queue_timeout=getattr(s, "ollama_queue_timeout_seconds", 30.0),
+            job_queue_timeout=getattr(s, "ollama_job_queue_timeout_seconds", 300.0),
+            max_concurrency=getattr(s, "ollama_max_concurrency", 1),
+            deadline=getattr(s, "ollama_request_deadline_seconds", 120.0),
+            max_attempts=getattr(s, "llm_max_attempts_per_model", 2),
+            retry_base=getattr(s, "llm_retry_base_seconds", 0.8),
+            retry_max_delay=getattr(s, "llm_retry_max_delay_seconds", 8.0),
         )
     if p not in ("none", ""):
         log.warning("unknown LLM_PROVIDER %r; answer generation and translation drafts are disabled", provider)

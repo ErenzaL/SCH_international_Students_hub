@@ -98,10 +98,13 @@ class IngestionService:
 
     # ---------------------------------------------------------------- jobs
     def create_job(self, source: dict[str, Any], trigger: str = "manual", requested_by: str | None = None,
-                   payload: dict[str, Any] | None = None, job_type: str | None = None) -> dict[str, Any]:
+                   payload: dict[str, Any] | None = None, job_type: str | None = None,
+                   executor: str | None = None) -> dict[str, Any]:
         jt = job_type or ("board_sync" if source["source_type"] == "sch_board" else "ingest")
         row = dict(source_id=source["id"], status="queued", trigger=trigger, requested_by=requested_by,
                    payload=payload or {}, statistics={}, job_type=jt)
+        if executor == "gpu":     # only then: the column exists since migration 0016
+            row["executor"] = "gpu"
         if jt not in ("ingest", "board_sync"):
             return self.store.insert("ingestion_jobs", row)   # e.g. index_version handles its own duplicates
         try:
@@ -156,7 +159,7 @@ class IngestionService:
         job = get_one(self.store, "ingestion_jobs", id=job_id)
         if job is None:
             raise NotFound("job not found")
-        if job["status"] != "queued":
+        if job["status"] != "queued" or job.get("executor") == "gpu":
             return job
         job = self.store.update("ingestion_jobs", dict(status="running", started_at=utcnow(), heartbeat_at=utcnow(),
                                                        attempts=(job.get("attempts") or 0) + 1), {"id": job_id})[0]
@@ -1019,6 +1022,13 @@ class IngestionService:
                                       severity="warning", entity_type="ingestion_job", entity_id=job["id"],
                                       link=f"/admin/documents/{(job.get('payload') or {}).get('document_id', '')}")
             return
+        if job.get("job_type") == "translate_announcement":
+            p = job.get("payload") or {}
+            self.notifications.notify("translation_failed", f"Translation draft failed ({p.get('language')}): {title}",
+                                      f"{error.message} The original stays published; translate manually or retry.",
+                                      severity="warning", entity_type="ingestion_job", entity_id=job["id"],
+                                      link=f"/admin/translations/{p.get('announcement_id', '')}/{p.get('language', '')}")
+            return
         if job.get("job_type") == "index_version":
             self.notifications.notify("indexing_failed", f"Indexing failed: {title}",
                                       f"{error.message} The previously approved version remains active.",
@@ -1039,6 +1049,7 @@ class IngestionService:
         """Inline mode only: jobs left 'running' cannot still be running; mark them failed (visible + retryable).
         In worker mode the claim RPC re-queues stale jobs instead."""
         rows, _ = self.store.select("ingestion_jobs", Query(eq={"status": "running"}))
+        rows = [r for r in rows if r.get("executor") != "gpu"]      # leased to a GPU worker, not to this process
         for r in rows:
             self.store.update("ingestion_jobs", dict(status="failed", completed_at=utcnow(), error_code="interrupted",
                                                      error_message="The server restarted while this job was running."),
