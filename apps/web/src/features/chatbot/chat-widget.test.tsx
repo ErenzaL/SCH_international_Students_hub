@@ -211,6 +211,7 @@ describe("AI assistant launcher", () => {
       const { NUDGE } = await import("@/features/chatbot/chat-widget");
       renderWithIntl(<ChatWidget />);
       expect(screen.getByTestId("chat-launcher")).toHaveTextContent("AI assistant");
+      expect(screen.getByTestId("chat-launcher").querySelector("img")).toHaveAttribute("src", "/assistant/hana-avatar.png");
       expect(screen.queryByTestId("assistant-nudge")).toBeNull();
       act(() => { vi.advanceTimersByTime(NUDGE.firstMs); });
       expect(screen.getByTestId("assistant-nudge")).toHaveTextContent("I'm the SCH AI assistant");

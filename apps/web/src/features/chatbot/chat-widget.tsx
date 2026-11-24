@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { History, MessageCircle, Minus, Plus, Sparkles, X } from "lucide-react";
+import { History, Minus, Plus, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatBody } from "@/features/chatbot/chat-body";
 import { OPEN_CHAT_EVENT, type OpenChatDetail } from "@/features/chatbot/open-chat";
@@ -96,10 +96,10 @@ function ChatWidgetInner() {
           aria-label={t("open")}
           aria-expanded={false}
           onClick={() => { setOpen(true); setMinimized(false); }}
-          className="relative flex h-14 items-center gap-2 rounded-full bg-primary px-4 text-primary-foreground shadow-xl transition hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/40"
+          className="group relative flex h-16 items-center gap-2 rounded-full bg-primary py-1 pl-1 pr-4 text-primary-foreground shadow-xl transition hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/40"
           data-testid="chat-launcher"
         >
-          <MessageCircle className="size-6" aria-hidden />
+          <AssistantAvatar size={56} online />
           {/* says what it is: an AI assistant (not a person) */}
           <span className="flex items-center gap-1 text-sm font-bold" aria-hidden>
             <Sparkles className="size-4" />
@@ -135,6 +135,24 @@ function ChatWidgetInner() {
       <ChatBody chat={chat} welcome={t("welcome")} examples={[t("example1"), t("example2"), t("example3")]}
         onNavigate={closeOnPhone} />
     </section>
+  );
+}
+
+/**
+ * The AI assistant's face: Hana from the office artwork (assets/characters/Agent_General_AI.png), cropped from the
+ * face to the chest (public/assistant/hana-avatar.*). Decorative: the button's label says what it is.
+ */
+export function AssistantAvatar({ size, online = false }: { size: number; online?: boolean }) {
+  return (
+    <span aria-hidden className="relative inline-flex shrink-0" style={{ width: size, height: size }}>
+      <span className="office-bob flex size-full overflow-hidden rounded-full bg-[#E8F2FB] ring-2 ring-white">
+        <picture className="contents">
+          <source type="image/webp" srcSet="/assistant/hana-avatar.webp" />
+          <img src="/assistant/hana-avatar.png" alt="" width={size} height={size} className="size-full object-cover" />
+        </picture>
+      </span>
+      {online && <span className="absolute bottom-0.5 right-0.5 size-3 rounded-full bg-emerald-400 ring-2 ring-primary" />}
+    </span>
   );
 }
 
@@ -196,10 +214,16 @@ function AssistantNudge({ onOpen }: { onOpen: () => void }) {
     <div className="chat-nudge relative mr-1 max-w-[min(280px,calc(100vw-10rem))]" data-testid="assistant-nudge">
       <button type="button" onClick={() => { stopForGood(); onOpen(); }}
         className="block rounded-2xl rounded-br-sm bg-card px-4 py-3 pr-8 text-left text-sm leading-snug text-card-foreground shadow-xl ring-1 ring-border hover:bg-muted">
-        <span className="mb-0.5 flex items-center gap-1 text-xs font-bold text-primary">
-          <Sparkles className="size-3.5" aria-hidden /> {t("launcherLabel")}
+        <span className="flex items-start gap-2.5">
+          {/* phones: the launcher right beside it already shows her face, the message gets the room */}
+          <span className="hidden sm:inline-flex"><AssistantAvatar size={40} /></span>
+          <span className="min-w-0">
+            <span className="mb-0.5 flex items-center gap-1 text-xs font-bold text-primary">
+              <Sparkles className="size-3.5" aria-hidden /> {t("launcherLabel")}
+            </span>
+            {t(NUDGE_MESSAGES[shown])}
+          </span>
         </span>
-        {t(NUDGE_MESSAGES[shown])}
       </button>
       <button type="button" aria-label={t("nudgeDismiss")} onClick={stopForGood} data-testid="assistant-nudge-close"
         className="absolute right-1.5 top-1.5 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground">
