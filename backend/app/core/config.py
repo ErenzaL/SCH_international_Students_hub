@@ -160,7 +160,10 @@ class Settings(BaseSettings):
     cron_secret: str = Field(default="", repr=False)
 
     # --- LLM (optional): answer generation + translation drafts -------------
-    llm_provider: str = "none"               # none | anthropic | gemini
+    llm_provider: str = "none"               # none | anthropic | gemini | ollama
+    # background work only (translation drafts, agent summaries / translations, discovery summaries):
+    # none | anthropic | gemini | ollama. Empty = LLM_PROVIDER (the existing behaviour).
+    background_llm_provider: str = ""
     # server-side secret; empty = the SDK reads its own variable (ANTHROPIC_API_KEY / GEMINI_API_KEY)
     llm_api_key: str = Field(default="", repr=False)
     llm_model: str = "claude-opus-5-5"       # anthropic only
@@ -171,6 +174,21 @@ class Settings(BaseSettings):
     gemini_primary_model: str = "gemini-3.6-flash"
     gemini_fallback_model: str = "gemini-3.5-flash-lite"   # empty = no fallback model
     gemini_thinking_level: str = "low"       # minimal | low | medium | high ("" = model default)
+    # Ollama (local models, university server only; see docs/ollama.md). Loopback addresses only.
+    ollama_base_url: str = "http://127.0.0.1:11434"
+    ollama_model: str = "qwen2.5:7b-instruct"
+    ollama_num_ctx: int = 16384               # a prompt that does not fit is an error, never cut silently
+    ollama_max_output_tokens: int = 8192      # per call (at most half of the context)
+    ollama_temperature: float = 0.2
+    ollama_keep_alive: str = "10m"            # how long the model stays in GPU memory when idle
+    ollama_max_concurrency: int = 1           # requests sent at the same time, all features together (one GPU)
+    ollama_connect_timeout_seconds: float = 3.0
+    ollama_request_timeout_seconds: float = 90.0     # one attempt, interactive calls
+    ollama_job_timeout_seconds: float = 180.0        # one attempt, translation jobs
+    ollama_fast_timeout_seconds: float = 30.0        # query rewriting (may include loading the model)
+    ollama_queue_timeout_seconds: float = 30.0       # waiting for a free slot, interactive calls
+    ollama_job_queue_timeout_seconds: float = 300.0  # ... jobs
+    ollama_request_deadline_seconds: float = 120.0   # interactive calls: no retry starts after this much time
     llm_temperature: float | None = None     # None = the model's default (recommended for Gemini 3 models)
     llm_answer_max_tokens: int = 2048        # answer generation output cap (thinking tokens count separately)
     llm_request_timeout_seconds: float = 30.0   # per attempt (assistant answers); translation jobs use llm_timeout

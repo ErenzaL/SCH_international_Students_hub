@@ -56,6 +56,10 @@ def create_app(settings: Settings | None = None, *, store: Store | None = None, 
         yield
         if svc is not None:
             svc.jobs.stop()
+            for p in (svc.llm, svc.doc_translations.llm):     # providers that own threads / connections (Ollama)
+                close = getattr(p, "close", None)
+                if close is not None:
+                    close()
 
     app = FastAPI(
         title="SCH International Student Hub API", version=settings.app_version, lifespan=lifespan,

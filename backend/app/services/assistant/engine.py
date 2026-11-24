@@ -143,6 +143,19 @@ today: {today} (Korea time)
 </question>"""
 
 
+# appended for small local models only (``needs_format_reminder``): they lose format rules given far above the question
+FORMAT_REMINDER = """
+
+Reminder of the required format:
+- Write in {language} only.
+- Put the source number INSIDE every sentence or list item that uses a source, before the final punctuation: "The \
+office opens at 09:00 [1]." Never put a number on a line of its own.
+- Use only facts from <sources>. Do not add advice, offers of help or a list of sources.
+- Then write a line containing exactly {meta} followed by the JSON object, for example:
+{meta}
+{{"evidence": "sufficient", "needs_human": "none", "in_scope": true}}"""
+
+
 class AssistantEngine:
     def __init__(self, retrieval: RetrievalService, llm: LLMProvider | None, settings: Settings,
                  budget: Callable[[], bool] | None = None, reranker: Reranker | None = None):
@@ -528,6 +541,8 @@ class AssistantEngine:
         prompt = ANSWER_PROMPT.format(language=language, today=today,
                                       sources=blocks or "(no approved source matched this question)",
                                       history=hist, interpreted=interpreted, question=question[:4000])
+        if getattr(self.llm, "needs_format_reminder", False):
+            prompt += FORMAT_REMINDER.format(language=language, meta=META)
         system = self.prompt.text      # identical for the primary and the fallback model
         # the student never sees [n] markers or the assessment block, not even while the answer streams
         streamer = _MetaHoldback(_MarkerFilter(lambda text: emit("delta", {"text": text})).feed)

@@ -30,7 +30,12 @@ from app.services.translation.auto import (
     public_machine_allowed,
     require_not_touched_since,
 )
-from app.services.translation.quality import is_high_risk, validate_summary, validate_translation
+from app.services.translation.quality import (
+    is_high_risk,
+    local_model_warnings,
+    validate_summary,
+    validate_translation,
+)
 from app.services.translation_drafts import (
     extract_headings,
     preservation_warnings,
@@ -444,6 +449,8 @@ class DocumentTranslationService:
                                          target_lang=lang, chunk_chars=self.settings.translation_chunk_chars,
                                          on_progress=progress)
                 checks = validate_translation(f"{d['title']}\n{body}", f"{out['title']}\n{out['body']}", src, lang)
+            if out["provider"] == "ollama":
+                checks += local_model_warnings(f"{d['title']}\n{body}", f"{out['title']}\n{out['body']}", src, lang)
         except LLMError as exc:
             raise IngestionError(exc.code, exc.message) from exc
         # re-check: the original or the human state may have changed while the model was working
@@ -464,7 +471,7 @@ class DocumentTranslationService:
             human_edited=False, reviewed_by=None, reviewed_at=None, original_verified=False, review_note=None,
             submitted_at=None), {"id": t["id"]})[0]
         self._revision(t, "generate", job.get("requested_by"), f"{'summary' if summary else str(out['chunks']) + ' part(s)'}"
-                       f"{' of the first ' + str(self.settings.translation_summary_source_chars) + ' characters' if out.get('partial') else ''}; "
+                       f"{' of the first ' + str(out['source_chars']) + ' characters' if out.get('partial') else ''}; "
                        f"{len(out['warnings'])} warning(s)")
         self._audit("document_translation.generated", d["id"], job.get("requested_by"), language=lang,
                     provider=out["provider"], model=out["model"], warnings=len(out["warnings"]))

@@ -94,7 +94,7 @@ def llm_check(svc: Services = Depends(get_services), user: AuthUser = Depends(re
     llm = svc.llm
     if not llm.enabled or not hasattr(llm, "probe"):
         return dict(provider=llm.name if llm.enabled else "none", probes=[], health={},
-                    note="LLM_PROVIDER is not gemini; nothing to check.")
+                    note="LLM_PROVIDER is not gemini or ollama; nothing to check.")
     probes = []
     for role, model in (("primary", getattr(llm, "primary", "")), ("fallback", getattr(llm, "fallback", ""))):
         if model:

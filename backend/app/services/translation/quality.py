@@ -67,6 +67,34 @@ def validate_translation(original: str, translated: str, source: str, target: st
     return out
 
 
+_HAN = re.compile(r"[\u4e00-\u9fff]")
+_HANGUL = re.compile(r"[가-힣]")
+
+
+def local_model_warnings(original: str, translated: str, source: str, target: str) -> list[dict[str, Any]]:
+    """Extra checks for small local models (Qwen), which tend to slip into Chinese or to return the source text
+    unchanged. Only applied to their output: other providers' checks are unchanged."""
+    out: list[dict[str, Any]] = []
+    if target != "zh-CN":
+        allowed = set(_HAN.findall(original))
+        stray = [c for c in _HAN.findall(translated) if c not in allowed]
+        # official Chinese names may stay (translation rules), whole sentences may not
+        if source == "zh-CN" and len(_HAN.findall(translated)) > 0.1 * len(translated):
+            stray = _HAN.findall(translated)
+        if stray:
+            out.append({"type": "language", "value": f"{len(stray)} Chinese character(s)"})
+    if target != "ko":
+        letters = re.findall(r"[^\W\d_]", translated)
+        # official Korean names may stay (translation rules), whole sentences may not
+        if len(letters) >= 40 and len(_HANGUL.findall(translated)) / len(letters) > 0.25:
+            out.append({"type": "language", "value": "mostly Korean text left"})
+    if target in ("id", "vi", "zh-CN"):           # ko / en are covered by _wrong_language
+        got = detect_language(re.sub(r"https?://\S+|[\w.+-]+@[\w-]+(?:\.[\w-]+)+", " ", translated))
+        if got and got != target:
+            out.append({"type": "language", "value": f"expected {target}, looks like {got}"})
+    return out
+
+
 def validate_summary(original: str, summary: str, target: str) -> list[dict[str, Any]]:
     """A summary may leave things out but must not state anything the original does not contain."""
     out: list[dict[str, Any]] = []

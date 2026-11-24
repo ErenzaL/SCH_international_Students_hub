@@ -30,7 +30,7 @@ from app.core.errors import DuplicateError, Forbidden, InvalidState, NotFound
 from app.repositories.base import Query, Store, get_one
 from app.services.ingestion.errors import IngestionError
 from app.services.llm.base import LLMError, LLMProvider
-from app.services.translation.quality import is_high_risk, validate_translation
+from app.services.translation.quality import is_high_risk, local_model_warnings, validate_translation
 from app.services.translation_drafts import chunk_text, translate_document
 
 log = logging.getLogger("app.translation")
@@ -269,6 +269,8 @@ class AnnouncementAutoTranslator:
         if self.human_touched(row) and not p.get("force"):
             raise IngestionError("human_draft_exists", "A person edited this translation meanwhile; discarded.")
         warnings = validate_translation(f"{orig['title']}\n{orig['body']}", f"{title}\n{body}", src, lang)
+        if provider == "ollama":
+            warnings += local_model_warnings(f"{orig['title']}\n{orig['body']}", f"{title}\n{body}", src, lang)
         status = "needs_review" if warnings else "machine_draft"
         row = self.store.update("announcement_translations", dict(
             title=title, body=body, translation_status=status, source_content_hash=orig["content_hash"],
@@ -329,7 +331,16 @@ def translation_llm(settings: Settings, llm: LLMProvider, budget: Any = None) ->
     With Gemini it is always its own provider instance: TRANSLATION_MODEL (or the assistant's models) with its own
     circuit breaker, and - when a budget is given - a gate before every attempt that charges the per-day background
     budget (``llm_background_daily_attempts``), so background work never uses the chatbot's reserved quota. With a
-    separate TRANSLATION_MODEL it has no fallback: it must not fail over onto the chatbot's fallback model."""
+    separate TRANSLATION_MODEL it has no fallback: it must not fail over onto the chatbot's fallback model.
+
+    BACKGROUND_LLM_PROVIDER selects another provider for background work only (e.g. local Ollama translation drafts
+    while the assistant stays on Gemini). Neither side ever falls back to the other's provider."""
+    chosen = settings.background_llm_provider.strip().lower()
+    if chosen and chosen != settings.llm_provider.strip().lower():
+        from app.services.llm.base import build_llm_from_settings
+
+        settings = settings.model_copy(update={"llm_provider": chosen})
+        llm = build_llm_from_settings(settings)
     if not llm.enabled:
         return llm
     limit = settings.llm_background_daily_attempts
@@ -366,6 +377,14 @@ class BudgetedLLM:
     def stream(self, *a: Any, **kw: Any) -> Any:
         self._check()
         return self._inner.stream(*a, **kw)
+
+    async def acomplete(self, *a: Any, **kw: Any) -> Any:
+        self._check()
+        return await self._inner.acomplete(*a, **kw)  # type: ignore[attr-defined]
+
+    async def astream(self, *a: Any, **kw: Any) -> Any:
+        self._check()
+        return await self._inner.astream(*a, **kw)  # type: ignore[attr-defined]
 
 
 def require_translation_access(user: Any, language: str, perms: dict[str, bool]) -> None:

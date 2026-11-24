@@ -213,6 +213,8 @@ def summarize_document(llm: LLMProvider, *, title: str, body: str, source_lang: 
                      max_tokens=1024)
     results.append(t)
     new_title = _strip_wrappers(t.text).splitlines()[0].strip().strip("#").strip() or title
+    # a local model with a small context window may accept less text than the configured maximum
+    max_source_chars = min(max_source_chars, getattr(llm, "max_source_chars", max_source_chars))
     partial = len(body) > max_source_chars
     headings = extract_headings(body)
     outline = ("Section headings of the whole document (for orientation): " + " | ".join(headings[:80]) + "\n") \
@@ -223,5 +225,5 @@ def summarize_document(llm: LLMProvider, *, title: str, body: str, source_lang: 
     results.append(r)
     summary = _strip_wrappers(r.text)
     return dict(title=new_title, body=summary, headings=extract_headings(summary), provider=results[-1].provider,
-                model=results[-1].model, chunks=1, partial=partial,
+                model=results[-1].model, chunks=1, partial=partial, source_chars=min(len(body), max_source_chars),
                 input_tokens=sum(x.input_tokens for x in results), output_tokens=sum(x.output_tokens for x in results))
