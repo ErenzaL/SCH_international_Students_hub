@@ -23,7 +23,15 @@ from typing import TYPE_CHECKING, Any
 from fastapi import BackgroundTasks
 from pydantic import ValidationError
 
-from app.core.errors import AppError, DuplicateError, Forbidden, NotAuthenticated, NotFound, ValidationFailed
+from app.core.errors import (
+    AppError,
+    Conflict,
+    DuplicateError,
+    Forbidden,
+    NotAuthenticated,
+    NotFound,
+    ValidationFailed,
+)
 from app.repositories.base import Query, get_one
 from app.services.agents.registry import AGENTS, AgentDefinition, get_agent
 from app.services.agents.router import plan_request
@@ -303,6 +311,10 @@ class AgentTaskService:
             raise Forbidden(f"{agent.name} does not handle '{task_type}' tasks.", code="task_not_allowed")
         if task_type in ADMIN_TASKS and not (schedule_id or (user is not None and user.is_admin)):
             raise Forbidden("Checking official websites is limited to administrators.", code="admin_only")
+        if task_type in ADMIN_TASKS and self._discovery_active(agent.id):
+            # one check of an agent's official websites at a time (two admins, a double click, a schedule)
+            raise Conflict("A check of these official websites is already running; its result will appear here.",
+                           code="check_running")
         clean = self._validate(task_type, params)
         if task_type == "lookup":       # a lookup may only use one of this agent's own, instant, read-only tools
             self._lookup_tool(agent, clean["tool"])
@@ -679,14 +691,36 @@ class AgentTaskService:
             except AppError as exc:
                 raise ValidationFailed(f"{u}: {exc.message}") from exc
 
+    def _discovery_active(self, agent_id: str) -> bool:
+        rows, _ = self.store.select("agent_tasks", Query(eq={"agent_id": agent_id},
+                                                         in_={"task_type": sorted(ADMIN_TASKS),
+                                                              "status": ["queued", "running"]}, cols="id", limit=1))
+        return bool(rows)
+
+    def _content_work_pending(self) -> bool:
+        """Documents are being ingested / indexed / translated (or wait for the worker) right now."""
+        now = now_iso()
+        rows, _ = self.store.select("ingestion_jobs", Query(eq={"status": "running"}, cols="id", limit=1))
+        if rows:
+            return True
+        rows, _ = self.store.select("ingestion_jobs", Query(eq={"status": "queued"}, lte={"run_after": now},
+                                                            cols="id", limit=1))
+        return bool(rows)
+
     def run_due_schedules(self) -> dict[str, Any]:
         """Called by the scheduler hook (run-due). Does nothing unless switched on globally AND per schedule."""
         if not self.settings.agent_schedules_enabled:
             return dict(enabled=False, queued=0)
         now = datetime.now(UTC)
-        queued = 0
+        queued = postponed = 0
         for s in self._schedules():
             if not s["enabled"] or (s.get("next_run_at") and datetime.fromisoformat(s["next_run_at"]) > now):
+                continue
+            if s["task_type"] in ADMIN_TASKS and self._content_work_pending():
+                # official-source checks only start when the worker has capacity: try again in 15 minutes
+                self.store.update("agent_schedules", dict(next_run_at=(now + timedelta(minutes=15)).isoformat()),
+                                  {"id": s["id"]})
+                postponed += 1
                 continue
             nxt = (now + timedelta(minutes=s["interval_minutes"])).isoformat()
             self.store.update("agent_schedules", dict(last_run_at=now.isoformat(), next_run_at=nxt), {"id": s["id"]})
@@ -696,7 +730,7 @@ class AgentTaskService:
                 queued += 1
             except AppError as exc:
                 self.store.update("agent_schedules", dict(last_error=exc.message[:500]), {"id": s["id"]})
-        return dict(enabled=True, queued=queued)
+        return dict(enabled=True, queued=queued, postponed=postponed)
 
     # ================================================================== retention
     def purge_expired(self) -> int:

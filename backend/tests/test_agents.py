@@ -6,6 +6,7 @@ from datetime import UTC, date, datetime, timedelta
 
 import pytest
 
+from app.repositories.base import Query
 from app.services.agents.registry import AGENTS, CHARACTER_TO_AGENT
 from app.services.agents.router import plan_request
 from app.services.agents.tools import TOOLS, extract_dates
@@ -340,8 +341,16 @@ def test_worker_claims_agent_tasks_after_ingestion_jobs_and_recovers_dead_worker
     svc = env.app.state.services
     svc.jobs.kick = lambda: None
     t = task(env, "events", "event_digest").json()
-    assert svc.jobs.run_once() is True                   # no ingestion job: the agent task is claimed and run
+    # agent tasks have their own worker lane: the ingestion worker never takes them ...
+    assert svc.jobs.agent_lane and svc.jobs.run_once() is False
+    assert get_task(env, t["id"]).json()["status"] == "queued"
+    assert svc.jobs.run_agent_task_once() is True        # ... the agent-task worker does
     assert get_task(env, t["id"]).json()["status"] == "completed"
+    # one shared worker (AGENT_TASK_WORKER off): ingestion jobs first, then agent tasks, as before
+    env.settings.agent_task_worker = False
+    t1 = task(env, "events", "event_digest").json()
+    assert svc.jobs.run_once() is True and get_task(env, t1["id"]).json()["status"] == "completed"
+    env.settings.agent_task_worker = True
     t2 = task(env, "events", "event_digest").json()
     claimed = svc.agents.claim("dead-worker", 300)
     old = (datetime.now(UTC) - timedelta(minutes=30)).isoformat()
@@ -469,7 +478,7 @@ def test_schedules_are_disabled_by_default_and_need_both_switches(env):
     assert cron(env).json()["agent_schedules"]["enabled"] is False         # the server switch is still off
     env.settings.agent_schedules_enabled = True
     out = cron(env).json()["agent_schedules"]
-    assert out == dict(enabled=True, queued=1)
+    assert out == dict(enabled=True, queued=1, postponed=0)
     sys_tasks = [t for t in env.store.select("agent_tasks")[0] if t["schedule_id"] == events["id"]]
     assert len(sys_tasks) == 1 and sys_tasks[0]["requested_by"] is None and sys_tasks[0]["status"] == "completed"
     assert cron(env).json()["agent_schedules"]["queued"] == 0               # not due again yet
@@ -529,3 +538,73 @@ def test_workspace_actions_never_call_the_model(env):
     t = task(env, "announcement", "summarize_announcement", {"ref": a["id"], "language": "en"})
     assert get_task(env, t.json()["id"]).json()["status"] == "completed"
     assert calls, "the counting model was not reachable: the guard above would prove nothing"
+
+
+# ------------------------------------------------------------------ worker capacity (pilot hardening)
+def test_only_one_official_source_check_per_agent_at_a_time(env):
+    first = task(env, "announcement", "announcement_discovery", role="admin")
+    assert first.status_code == 201
+    env.store.update("agent_tasks", {"status": "running"}, {"id": first.json()["id"]})
+    again = task(env, "announcement", "announcement_discovery", role="admin")
+    assert again.status_code == 409 and again.json()["error"]["code"] == "check_running"
+    # another agent's check is independent
+    assert task(env, "scholarship", "opportunity_discovery", role="admin").status_code == 201
+
+
+def test_scheduled_checks_wait_while_documents_are_being_processed(env):
+    from tests.test_document_lifecycle import website_doc
+
+    env.settings.agent_schedules_enabled = True
+    svc = env.app.state.services
+    sched = next(s for s in svc.agents._schedules() if s["task_type"] == "announcement_discovery")
+    env.store.update("agent_schedules", {"enabled": True, "next_run_at": None}, {"id": sched["id"]})
+    src, _ = website_doc(env)
+    env.store.insert("ingestion_jobs", dict(source_id=src["id"], status="queued", trigger="manual", job_type="ingest"))
+    out = svc.agents.run_due_schedules()
+    assert out["postponed"] >= 1
+    assert not any(t["task_type"] == "announcement_discovery" for t in env.store.select("agent_tasks")[0])
+    row = next(s for s in svc.agents._schedules() if s["id"] == sched["id"])
+    assert row["next_run_at"] > datetime.now(UTC).isoformat()          # tried again in 15 minutes
+
+
+@pytest.mark.parametrize("lane", [True, False])
+def test_document_ingestion_does_not_wait_behind_a_long_agent_task(env, lane):
+    """Measured with real worker threads: a slow agent task (stand-in for a ~90 s official-source check) runs while
+    a document is ingested. With the agent lane the ingestion finishes long before the task; without it, it waits."""
+    import time
+
+    from app.services.agents import handlers
+    from tests.test_document_lifecycle import website_doc
+
+    svc = env.app.state.services
+    env.settings.job_execution, env.settings.agent_task_worker, env.settings.job_poll_seconds = "worker", lane, 0.05
+    slow = 1.5
+    original = handlers.HANDLERS["event_digest"]
+    handlers.HANDLERS["event_digest"] = lambda s, ctx, t: (time.sleep(slow), original(s, ctx, t))[1]
+    try:
+        t = task(env, "events", "event_digest").json()
+        svc.jobs.kick()
+        deadline = time.time() + 5
+        while env.store.select("agent_tasks", Query(eq={"id": t["id"]}))[0][0]["status"] != "running":
+            assert time.time() < deadline
+            time.sleep(0.02)
+        started = time.time()
+        env.settings.job_execution = "inline"                      # create the source + job without running it inline
+        src, _ = website_doc(env)
+        env.settings.job_execution = "worker"
+        job = env.store.insert("ingestion_jobs", dict(source_id=src["id"], status="queued", trigger="manual",
+                                                      job_type="ingest"))
+        svc.jobs.kick()
+        while env.store.select("ingestion_jobs", Query(eq={"id": job["id"]}))[0][0]["status"] in ("queued", "running"):
+            assert time.time() < deadline + slow
+            time.sleep(0.02)
+        waited = time.time() - started
+        task_done = env.store.select("agent_tasks", Query(eq={"id": t["id"]}))[0][0]["status"] == "completed"
+    finally:
+        handlers.HANDLERS["event_digest"] = original
+        svc.jobs.stop()
+        env.settings.job_execution = "inline"
+    if lane:
+        assert waited < slow * 0.6 and not task_done, waited        # did not wait for the agent task
+    else:
+        assert waited >= slow * 0.6, waited                         # one shared worker: waited behind it

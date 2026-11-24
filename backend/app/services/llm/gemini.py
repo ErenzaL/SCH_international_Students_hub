@@ -73,7 +73,8 @@ class GeminiProvider:
                  job_timeout: float = 120.0, thinking_level: str = "low", temperature: float | None = None,
                  max_attempts: int = 2, retry_base: float = 0.8, retry_max_delay: float = 8.0,
                  deadline: float = 45.0, fast_timeout: float = 12.0,
-                 client_factory: Callable[[], Any] | None = None, sleep: Callable[[float], None] = time.sleep):
+                 client_factory: Callable[[], Any] | None = None, sleep: Callable[[float], None] = time.sleep,
+                 attempt_gate: Callable[[], bool] | None = None):
         self.primary = primary.strip()
         self.fallback = (fallback or "").strip()
         if self.fallback == self.primary:
@@ -97,6 +98,8 @@ class GeminiProvider:
         self._client_factory = client_factory
         self._sleep = sleep
         self._circuit: dict[str, dict[str, Any]] = {}
+        #: background providers: consulted before EVERY attempt (retries and fallback included); False = stop now
+        self.attempt_gate = attempt_gate
         self._circuit_lock = threading.Lock()
         self._clock = time.monotonic
 
@@ -262,6 +265,9 @@ class GeminiProvider:
             for attempt in range(1, attempts_per_model + 1):
                 if interactive and state["attempts"] and time.perf_counter() - started >= self.deadline:
                     break         # the request already took too long: stop here instead of holding the worker
+                if self.attempt_gate is not None and not self.attempt_gate():
+                    raise LLMError("llm_background_budget", "Today's AI budget for background work is used up; the "
+                                   "chatbot's share of the model quota is reserved.")
                 state["attempts"] += 1
                 state["role"] = role
                 t0 = time.perf_counter()

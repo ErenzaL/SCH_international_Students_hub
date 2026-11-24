@@ -540,7 +540,7 @@ def test_a_discovery_task_of_a_dead_worker_is_recovered(env):
     claimed = svc.agents.claim("dead", 300)
     old = (datetime.now(UTC) - timedelta(hours=1)).isoformat()
     env.store.update("agent_tasks", dict(heartbeat_at=old, started_at=old), {"id": claimed["id"]})
-    assert svc.jobs.run_once() is True
+    assert svc.jobs.run_agent_task_once() is True
     t = env.client.get(f"/api/v1/agent-tasks/{r.json()['id']}", headers=env.auth("admin")).json()
     assert t["status"] == "completed" and t["attempts"] == 2 and t["output"]["new_count"] == 3
 

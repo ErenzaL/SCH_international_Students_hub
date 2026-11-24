@@ -112,7 +112,12 @@ def llm_usage(svc: Services = Depends(get_services), _: AuthUser = Depends(requi
 
     return dict(provider=svc.llm.name if svc.llm.enabled else "none", usage=usage.snapshot(),
                 health=svc.llm.health() if hasattr(svc.llm, "health") else {},
-                daily_budget=ai_budget.snapshot() | {"global_limit": svc.settings.ai_daily_limit_global})
+                daily_budget=ai_budget.snapshot() | {"global_limit": svc.settings.ai_daily_limit_global},
+                # background AI (translations, summaries): attempts today against its cap = the chatbot's reserve
+                background_budget=dict(
+                    attempts_today=svc.background_budget.used("background") if svc.background_budget else 0,
+                    daily_attempt_limit=svc.settings.llm_background_daily_attempts,
+                    separate_model=svc.settings.translation_model or None))
 
 
 @router.get("/audit-log")

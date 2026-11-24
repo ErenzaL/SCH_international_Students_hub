@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from app.core.config import Settings
+from app.core.rate_limit import DailyBudget
 from app.repositories.base import FileStorage, Store
 from app.services.agents.tasks import AgentTaskService
 from app.services.announcements import AnnouncementService
@@ -61,6 +62,8 @@ class Services:
     announcement_translator: AnnouncementAutoTranslator
     discovery: DiscoveryService = None  # type: ignore[assignment]
     agents: AgentTaskService = None  # type: ignore[assignment]  # set right after construction (needs Services)
+    #: per-day attempt budget of background AI work (the chatbot's quota reserve)
+    background_budget: DailyBudget | None = None
 
 
 def build_services(settings: Settings, store: Store, storage: FileStorage | None, embedder: EmbeddingProvider,
@@ -78,7 +81,9 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     conversations = ConversationService(store, retrieval, retention_days=settings.conversation_retention_days,
                                         llm=llm, settings=settings)
     support = SupportService(store, conversations, user_notes, retention_days=settings.support_retention_days)
-    tr_llm = translation_llm(settings, llm)           # display translations may use their own (cheaper) model
+    background_budget = DailyBudget()                 # per process / Services (one instance in production)
+    # background AI (translations, summaries) has its own provider and a daily attempt budget: the chatbot's reserve
+    tr_llm = translation_llm(settings, llm, background_budget)
     doc_translations = DocumentTranslationService(store, tr_llm, user_notes, settings)
     jobs = JobRunner(store, ingestion, settings)
     doc_translations.ingestion, doc_translations.jobs = ingestion, jobs
@@ -106,6 +111,7 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     discovery = DiscoveryService(store, settings, fetcher, domains, notifications)
     discovery.sources_service, discovery.ingestion, discovery.jobs, discovery.llm = services.sources, ingestion, jobs, tr_llm
     services.discovery = discovery
+    services.background_budget = background_budget
     services.agents = jobs.agents = AgentTaskService(services)
     services.agents.worker_id = jobs.worker_id
     return services

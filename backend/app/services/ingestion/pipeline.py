@@ -942,13 +942,14 @@ class IngestionService:
         """Translation jobs that hit the provider's quota or today's translation budget wait (re-queued for later,
         the attempt is not counted) instead of failing - up to TRANSLATION_MAX_DEFERRALS times."""
         if job.get("job_type") not in ("translate_document", "translate_announcement") \
-                or error.code not in ("llm_quota", "translation_daily_limit"):
+                or error.code not in ("llm_quota", "translation_daily_limit", "llm_background_budget"):
             return None
         from app.services.translation.auto import seconds_until_tomorrow
 
         deferrals = int((job.get("statistics") or {}).get("deferrals") or 0) + 1
         if deferrals > self.settings.translation_max_deferrals:
             return None
+        # provider quota: retry later today; translation / background budget: tomorrow (KST budgets reset at midnight)
         delay = self.settings.translation_quota_retry_seconds if error.code == "llm_quota" else seconds_until_tomorrow()
         run_after = (datetime.now(UTC) + timedelta(seconds=delay)).isoformat()
         self.event(job["id"], "deferred", f"{error.message} Trying again in {delay // 60} min "

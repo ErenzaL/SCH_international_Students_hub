@@ -52,9 +52,10 @@ def test_worker_claim_rpc_and_idempotency_index(it: IT):
         b = it.client.post("/api/v1/agents/events/tasks", json=dict(task_type="event_digest", idempotency_key=key),
                            headers=it.auth("student")).json()
         assert a["id"] == b["id"] and a["status"] == "queued"        # unique partial index -> the same task
-        # the worker drains everything that is due (other tests' rows may be queued too)
+        # the workers drain everything that is due (other tests' rows may be queued too): ingestion jobs on the
+        # ingestion worker, agent tasks on the agent-task worker (AGENT_TASK_WORKER) - through the real claim RPCs
         for _ in range(20):
-            if not svc.jobs.run_once():
+            if not (svc.jobs.run_once() or svc.jobs.run_agent_task_once()):
                 break
         t = it.client.get(f"/api/v1/agent-tasks/{a['id']}", headers=it.auth("student")).json()
         assert t["status"] == "completed" and t["attempts"] == 1

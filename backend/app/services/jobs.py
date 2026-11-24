@@ -1,8 +1,10 @@
 """Persistent job execution.
 
 Every ingestion job is a row in ``ingestion_jobs`` first. Execution modes:
-  * ``worker`` (production): a single daemon thread claims queued jobs with the ``claim_ingestion_job``
-    RPC (``FOR UPDATE SKIP LOCKED``) and runs them one at a time (bounded memory on small instances).
+  * ``worker`` (production): a daemon thread claims queued jobs with the ``claim_ingestion_job``
+    RPC (``FOR UPDATE SKIP LOCKED``) and runs them one at a time (bounded memory on small instances). Agent tasks
+    run in a second thread (``AGENT_TASK_WORKER``, default on) so the two queues never block each other; at most
+    one job and one agent task run at the same time.
     After a restart or a Render free-tier sleep, queued jobs are simply claimed again; jobs that were
     running when the process died stop heart-beating and are re-queued (up to ``max_attempts``).
   * ``inline`` (tests, scripts): the job runs in the request's background task.
@@ -31,8 +33,10 @@ class JobRunner:
         self.settings = settings
         self.worker_id = f"{socket.gethostname()}:{os.getpid()}:{uuid.uuid4().hex[:6]}"
         self._wake = threading.Event()
+        self._agent_wake = threading.Event()
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
+        self._agent_thread: threading.Thread | None = None
         self.agents: Any = None          # AgentTaskService: agent tasks share this worker (one at a time)
 
     @property
@@ -51,10 +55,11 @@ class JobRunner:
         self._wake.set()
 
     def kick(self) -> None:
-        """Wake the worker (e.g. from the scheduler hook) so queued/retry jobs are processed now."""
+        """Wake the workers (e.g. a new agent task, the scheduler hook) so queued/retry work is processed now."""
         if not self.inline:
             self.start()
             self._wake.set()
+            self._agent_wake.set()
 
     # ------------------------------------------------------------ worker
     def claim(self, stale_seconds: int | None = None) -> dict[str, Any] | None:
@@ -67,11 +72,17 @@ class JobRunner:
         rows = [r for r in (rows or []) if r and r.get("id")]
         return rows[0] if rows else None
 
+    @property
+    def agent_lane(self) -> bool:
+        """Agent tasks have their own worker thread (worker mode with AGENT_TASK_WORKER on)."""
+        return not self.inline and self.settings.agent_task_worker
+
     def run_once(self, stale_seconds: int | None = None) -> bool:
         """Claim and execute one job. Returns True if a job was processed."""
         job = self.claim(stale_seconds)
         if job is None:
-            return self.run_agent_task_once(stale_seconds)
+            # with an agent lane, the ingestion thread never picks up agent tasks (so it is always free for content)
+            return False if self.agent_lane else self.run_agent_task_once(stale_seconds)
         log.info("worker %s claimed job %s (attempt %s)", self.worker_id, job["id"], job.get("attempts"))
         self.ingestion.execute(job)
         return True
@@ -103,15 +114,36 @@ class JobRunner:
             self._wake.clear()
         log.info("job worker %s stopped", self.worker_id)
 
+    def _agent_loop(self) -> None:
+        log.info("agent task worker %s started", self.worker_id)
+        first = True
+        while not self._stop.is_set():
+            try:
+                stale = self.settings.job_startup_stale_seconds if first else None
+                while not self._stop.is_set() and self.run_agent_task_once(stale):
+                    stale = None
+                first = False
+            except Exception:  # noqa: BLE001 - keep the worker alive; the task row records failures
+                log.exception("agent task worker iteration failed")
+            self._agent_wake.wait(self.settings.job_poll_seconds)
+            self._agent_wake.clear()
+        log.info("agent task worker %s stopped", self.worker_id)
+
     def start(self) -> None:
-        if self.inline or (self._thread is not None and self._thread.is_alive()):
+        if self.inline:
             return
         self._stop.clear()
-        self._thread = threading.Thread(target=self._loop, name="ingestion-worker", daemon=True)
-        self._thread.start()
+        if self._thread is None or not self._thread.is_alive():
+            self._thread = threading.Thread(target=self._loop, name="ingestion-worker", daemon=True)
+            self._thread.start()
+        if self.agent_lane and self.agents is not None and (self._agent_thread is None or not self._agent_thread.is_alive()):
+            self._agent_thread = threading.Thread(target=self._agent_loop, name="agent-task-worker", daemon=True)
+            self._agent_thread.start()
 
     def stop(self, timeout: float = 5.0) -> None:
         self._stop.set()
         self._wake.set()
-        if self._thread is not None:
-            self._thread.join(timeout)
+        self._agent_wake.set()
+        for t in (self._thread, self._agent_thread):
+            if t is not None:
+                t.join(timeout)

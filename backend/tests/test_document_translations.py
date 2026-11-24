@@ -299,3 +299,32 @@ def test_foreigner_registration_question_is_not_a_human_request():
     assert not _HUMAN.search("Bagaimana cara registrasi orang asing?")
     assert _HUMAN.search("Saya ingin bicara dengan orang sungguhan")
     assert _HUMAN.search("Can I talk to a real person?")
+
+
+def test_background_budget_defers_translation_jobs_and_never_touches_the_chat(env, doc):
+    """The chatbot's reserve: once background work used its daily attempts, translation jobs wait for tomorrow
+    (not failed, not counted as attempts) while the chat keeps its own model and budget."""
+    from app.services.translation.auto import BudgetedLLM
+
+    svc = env.app.state.services
+    env.settings.llm_background_daily_attempts = 1
+    svc.background_budget.reset()
+    model = ScriptedLLMProvider(fake_translate)
+    bg = BudgetedLLM(model, lambda: svc.background_budget.take("background", env.settings.llm_background_daily_attempts))
+    chat = ScriptedLLMProvider(lambda system, prompt: "chat answer")
+    svc.llm = svc.conversations.llm = chat                           # the chatbot: no budget in its path
+    svc.doc_translations.llm = bg
+    r = env.client.post(f"/api/v1/admin/documents/{doc['id']}/translations/drafts", headers=env.auth("admin"),
+                        json={"languages": ["en", "id"]})
+    assert r.status_code == 202, r.text
+    jobs = {j["language"]: env.client.get(f"/api/v1/admin/ingestion-jobs/{j['job_id']}", headers=env.auth("admin")).json()
+            for j in r.json()["items"]}
+    statuses = sorted((j["status"], j.get("error_code")) for j in jobs.values())
+    assert ("queued", "llm_background_budget") in statuses            # deferred to tomorrow, not failed
+    deferred = next(j for j in jobs.values() if j.get("error_code") == "llm_background_budget")
+    row = env.store.select("ingestion_jobs", Query(eq={"id": deferred["id"]}))[0][0]
+    assert row["attempts"] == 0 and row["run_after"] > row["created_at"]
+    assert svc.background_budget.used("background") == 1
+    # the chatbot still answers after the background budget is gone, and its answers consume nothing of it
+    assert chat.complete("s", "q").text == "chat answer"
+    assert svc.background_budget.used("background") == 1

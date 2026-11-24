@@ -235,3 +235,49 @@ def test_build_gemini_provider_from_settings():
     same = GeminiProvider("k", primary="m", fallback="m")
     assert same.fallback == ""                                      # never "fall back" to the same model
     assert "test-key" not in repr(p.__dict__.get("_client"))
+
+
+# ------------------------------------------------------------------------ background budget (chatbot reserve)
+def test_background_gate_is_charged_for_every_attempt_and_stops_before_the_request():
+    budget = {"left": 2}
+
+    def gate() -> bool:
+        if budget["left"] <= 0:
+            return False
+        budget["left"] -= 1
+        return True
+
+    down = api_error(503, "UNAVAILABLE")
+    p, fake, _ = provider({"primary-m": [down, down], "fallback-m": [resp("never")]}, max_attempts=2,
+                          attempt_gate=gate)
+    with pytest.raises(LLMError) as ei:
+        p.complete("s", "q", max_tokens=16000)
+    # two attempts were charged (a retry counts); the third (the fallback) was refused before any request was sent
+    assert ei.value.code == "llm_background_budget"
+    assert models_called(fake) == ["primary-m", "primary-m"] and budget["left"] == 0
+    with pytest.raises(LLMError):
+        p.complete("s", "q", max_tokens=16000)
+    assert models_called(fake) == ["primary-m", "primary-m"]          # nothing more reached the API
+
+
+def test_background_provider_is_separate_from_the_chat_provider():
+    from app.core.config import Settings
+    from app.core.rate_limit import DailyBudget
+    from app.services.llm.base import build_llm_from_settings
+    from app.services.translation.auto import translation_llm
+
+    s = Settings(_env_file=None, llm_provider="gemini", llm_api_key="test-key-not-real",
+                 gemini_primary_model="chat-primary", gemini_fallback_model="chat-fallback",
+                 llm_background_daily_attempts=3)
+    chat = build_llm_from_settings(s)
+    bg = translation_llm(s, chat, DailyBudget())
+    assert bg is not chat and bg._circuit is not chat._circuit        # own circuit breaker
+    assert (bg.primary, bg.fallback) == ("chat-primary", "chat-fallback") and chat.attempt_gate is None
+    assert [bg.attempt_gate() for _ in range(4)] == [True, True, True, False]
+    # a separate translation model never fails over onto the chatbot's fallback model
+    s2 = s.model_copy(update={"translation_model": "bg-model"})
+    bg2 = translation_llm(s2, build_llm_from_settings(s2), DailyBudget())
+    assert (bg2.primary, bg2.fallback) == ("bg-model", "")
+    # 0 = no background AI at all
+    off = translation_llm(s.model_copy(update={"llm_background_daily_attempts": 0}), chat, DailyBudget())
+    assert off.attempt_gate() is False

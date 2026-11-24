@@ -2280,7 +2280,9 @@
         "listing_structure_changed": "Bố cục trang đã thay đổi; cần cập nhật nguồn.",
         "http_404": "Không tìm thấy trang.",
         "http_403": "Trang từ chối truy cập.",
-        "http_503": "Trang tạm thời không khả dụng."
+        "http_503": "Trang tạm thời không khả dụng.",
+        "llm_background_budget": "Hạn mức AI hôm nay cho tóm tắt và dịch đã hết (trò chuyện vẫn hoạt động). Hãy thử lại vào ngày mai hoặc đọc bản gốc.",
+        "check_running": "Việc kiểm tra các trang chính thức này đang chạy. Kết quả sẽ hiện ở đây khi xong."
       },
       "tools": {
         "rag_search": "Tìm hướng dẫn đã duyệt",

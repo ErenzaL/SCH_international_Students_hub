@@ -2280,7 +2280,9 @@
         "listing_structure_changed": "Tata letak halaman berubah; sumber perlu diperbarui.",
         "http_404": "Halaman tidak ditemukan.",
         "http_403": "Situs menolak akses.",
-        "http_503": "Situs sedang tidak tersedia."
+        "http_503": "Situs sedang tidak tersedia.",
+        "llm_background_budget": "Kuota AI hari ini untuk ringkasan dan terjemahan sudah habis (chat tetap berfungsi). Coba lagi besok atau baca teks aslinya.",
+        "check_running": "Pemeriksaan situs resmi ini sedang berjalan. Hasilnya akan muncul di sini setelah selesai."
       },
       "tools": {
         "rag_search": "Cari panduan yang disetujui",

@@ -2280,7 +2280,9 @@
         "listing_structure_changed": "The page layout changed; the source needs to be updated.",
         "http_404": "Page not found.",
         "http_403": "The site refused access.",
-        "http_503": "The site is temporarily unavailable."
+        "http_503": "The site is temporarily unavailable.",
+        "llm_background_budget": "Today's AI budget for summaries and translations is used up (the chat keeps working). Try again tomorrow or read the original.",
+        "check_running": "A check of these official websites is already running. Its result will appear here when it finishes."
       },
       "tools": {
         "rag_search": "Search approved guides",

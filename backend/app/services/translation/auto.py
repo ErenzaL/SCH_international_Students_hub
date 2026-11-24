@@ -300,15 +300,49 @@ class AnnouncementAutoTranslator:
                     llm_enabled=self.llm.enabled)
 
 
-def translation_llm(settings: Settings, llm: LLMProvider) -> LLMProvider:
-    """The provider for translation jobs: TRANSLATION_MODEL (Gemini) as primary with the usual fallback, else the
-    assistant's provider. Same key, same retry / quota / circuit-breaker handling."""
-    model = (settings.translation_model or "").strip()
-    if not model or not llm.enabled or llm.name != "gemini":
+def translation_llm(settings: Settings, llm: LLMProvider, budget: Any = None) -> LLMProvider:
+    """The provider for BACKGROUND work (translation jobs, AI summaries, discovery summaries).
+
+    With Gemini it is always its own provider instance: TRANSLATION_MODEL (or the assistant's models) with its own
+    circuit breaker, and - when a budget is given - a gate before every attempt that charges the per-day background
+    budget (``llm_background_daily_attempts``), so background work never uses the chatbot's reserved quota. With a
+    separate TRANSLATION_MODEL it has no fallback: it must not fail over onto the chatbot's fallback model."""
+    if not llm.enabled:
         return llm
+    limit = settings.llm_background_daily_attempts
+    gate = (lambda: budget.take("background", limit) if limit > 0 else False) if budget is not None else None
+    if llm.name != "gemini":
+        return BudgetedLLM(llm, gate) if gate else llm
     from app.services.llm.base import build_llm_from_settings
 
-    return build_llm_from_settings(settings.model_copy(update={"gemini_primary_model": model}))
+    model = (settings.translation_model or "").strip()
+    update: dict[str, Any] = {"gemini_primary_model": model, "gemini_fallback_model": ""} if model else {}
+    bg = build_llm_from_settings(settings.model_copy(update=update))
+    bg.attempt_gate = gate
+    return bg
+
+
+class BudgetedLLM:
+    """Non-Gemini providers (tests, other vendors): the same per-day background budget, charged per call."""
+
+    def __init__(self, inner: LLMProvider, gate: Any):
+        self._inner, self._gate = inner, gate
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._inner, name)
+
+    def _check(self) -> None:
+        if not self._gate():
+            raise LLMError("llm_background_budget", "Today's AI budget for background work is used up; the "
+                                                    "chatbot's share of the model quota is reserved.")
+
+    def complete(self, *a: Any, **kw: Any) -> Any:
+        self._check()
+        return self._inner.complete(*a, **kw)
+
+    def stream(self, *a: Any, **kw: Any) -> Any:
+        self._check()
+        return self._inner.stream(*a, **kw)
 
 
 def require_translation_access(user: Any, language: str, perms: dict[str, bool]) -> None:

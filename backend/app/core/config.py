@@ -105,6 +105,10 @@ class Settings(BaseSettings):
     conversation_retention_days: int = 365   # AI conversations deleted after this many days without activity
     support_retention_days: int = 365        # resolved support tickets (and their threads) deleted after this   # transient failures re-queue after 30 s, 60 s, 120 s ... (max_attempts)
     job_poll_seconds: float = 10.0
+    # A second worker thread only for agent tasks (digests, checklists, official-source checks): document ingestion,
+    # indexing and translation never wait behind a ~90 s official-source check, and students' quick tasks never wait
+    # behind a long PDF. Same process (no extra memory for models); off = one thread runs everything, as before.
+    agent_task_worker: bool = True
     # running jobs heartbeat every job_heartbeat_seconds (a background ticker, also during long extractions);
     # a job without a heartbeat for job_stale_seconds belongs to a dead worker and is re-queued (or failed after
     # max_attempts). Right after a restart the first claim uses the shorter job_startup_stale_seconds.
@@ -193,6 +197,11 @@ class Settings(BaseSettings):
     translation_summary_source_chars: int = 40000  # text given to the summarizer (plus all section headings)
     translation_max_requests_per_job: int = 6      # model calls per job (title + parts); longer -> human translation
     translation_daily_job_limit: int = 60          # translation jobs started per UTC day; more wait until tomorrow
+    # Reserve for the chatbot: every model ATTEMPT made by background work (translation jobs, AI summaries, discovery
+    # summaries; retries and fallbacks included) counts against this per-KST-day cap, checked BEFORE the request is
+    # sent. Set it to at most ~30% of the chat model's requests-per-day quota (Google AI Studio -> rate limits) so
+    # background work can never use the quota the chatbot needs. 0 = no background AI at all.
+    llm_background_daily_attempts: int = 150
     translation_quota_retry_seconds: int = 3600    # provider quota exhausted: try the job again after this long
     translation_max_deferrals: int = 24            # ... at most this many times, then the job fails visibly
     # unreviewed machine translations of immigration / employment / insurance / fee / legal content:
