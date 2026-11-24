@@ -50,7 +50,7 @@ Announcements that are not published yet are prepared from their draft, as befor
 | Attachment read with the **public key** through PostgREST | approved list only |
 | Web app (identical to `main`): unit tests, typecheck, lint, production build | 240 passed, clean, clean, builds |
 | **Browser** (Chromium, production web build, real API, stand-in login), twice | 23 of 23; the same test fails against `main` |
-| **Gemini path**: the real provider class with a recording client, 13 tests | no pending text, title or attachment in any request |
+| **Gemini path**: the real provider class with a recording client, 14 tests | no pending text, title or attachment in any request |
 | Trial merge into Release B (not kept) | no conflict, 864 passed, 45 skipped |
 | Not run | hosted Supabase, Render, a real Gemini request, mobile browsers, languages other than English in the admin pages |
 
