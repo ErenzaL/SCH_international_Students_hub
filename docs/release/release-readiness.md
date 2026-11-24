@@ -1,5 +1,10 @@
 # Release readiness (2026-11-24)
 
+> **Release B is blocked** (university IT authorization, translation quality, deployment requirements). **Release A has moved on** since this
+> page was written (attachment fix, verification, checklists): its current state is `docs/release/release-a-plan.md` **on
+> `release/a-approved-source`**. A trial merge of the newer Release A into this branch had no conflict and passed all tests; it was not kept,
+> so no commit was rewritten. Retention R1–R4: not approved.
+
 **Nothing has been pushed, merged, deployed, migrated or enabled.** Details: [Release A](release-a-plan.md) ·
 [Release B](release-b-plan.md) · [GPU worker assessment](gpu-worker-readiness.md) · [retention proposal](retention-proposal.md) ·
 [review guide](../review/README.md)
