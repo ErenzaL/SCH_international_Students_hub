@@ -275,3 +275,43 @@ def test_every_tool_of_every_desk_exists_and_staff_tools_are_gated():
         assert a.allowed_tools <= set(TOOLS), a.id
     for name in ("translation_review_queue", "request_translation_draft", "support_queue"):
         assert TOOLS[name].roles and "student" not in TOOLS[name].roles and TOOLS[name].requires_auth
+
+
+def test_a_discovered_board_notice_is_imported_by_its_own_parser(env):
+    """Not as a generic page: the title is the notice's, menus stay out, attachments come along and stay reviewed."""
+    from tests.test_discovery import NOTICES, board
+
+    board(env, NOTICES)
+    admin_source(env)
+    run_task(env, "announcement", "announcement_discovery")
+    item = next(i for i in env.client.get("/api/v1/admin/discovery/items?agent_id=announcement", headers=env.auth("admin")).json()["items"] if "장학금" in i["title"])
+    assert env.client.post(f"/api/v1/admin/discovery/items/{item['id']}/send-to-review", headers=env.auth("admin")).status_code == 202
+    v = env.store.select("document_versions")[0][0]
+    d = env.store.select("source_documents")[0][0]
+    assert d["title"] == item["title"] and v["extracted_text"].startswith(f"# {item['title']}") and v["source_published_at"]
+    assert "평점 3.5" in v["extracted_text"] and v["extraction_meta"]["extractor"] == "sch_board"
+    env.client.post(f"/api/v1/admin/versions/{v['id']}/approve", headers=env.auth("admin"), json={})
+    pub = env.client.get(f"/api/v1/knowledge/documents/{d['id']}").json()
+    assert pub["title"] == item["title"]
+    # a page whose structure changed fails loudly instead of importing menus
+    env.page(item["url"], "<html><body><nav>menu</nav><p>" + "x" * 200 + "</p></body></html>")
+    src = env.store.select("knowledge_sources", Query(eq={"source_type": "website"}))[0][0]
+    r = env.client.post(f"/api/v1/admin/sources/{src['id']}/ingest", headers=env.auth("admin"))
+    job = env.client.get(f"/api/v1/admin/ingestion-jobs/{r.json()['job_id']}", headers=env.auth("admin")).json()
+    assert job["status"] == "failed" and len(env.store.select("document_versions")[0]) == 1
+
+
+def test_a_discovered_listing_item_is_imported_without_site_chrome(env):
+    url = "https://home.sch.ac.kr/sch/06/010300.jsp"
+    env.page(url, f'<table><tbody><tr><td class="subject"><a href="?mode=view&amp;article_no=2"> [장학] 동계 근로장학생 신청 안내 </a></td><td class="date">{D(-1)}</td></tr></tbody></table>')
+    env.page(f"{url}?mode=view&article_no=2", "<html><head><title>순천향대학교</title></head><body><div class='menu'>메뉴 홍보신청</div><div class='board_contents'><p>지원 자격: 재학생. 신청은 종합정보시스템에서 합니다.</p></div>"
+             "<div class='board_file'><a href='/download?f=1'>신청서.hwp</a><a href='javascript:x()'>bad</a></div></body></html>")
+    admin_source(env, agent_id="scholarship", name="장학공지", kind="listing", url=url, config={
+        "item_selector": "table tbody tr", "title_selector": "td.subject a", "date_selector": "td.date", "link_selector": "td.subject a",
+        "content_selector": "div.board_contents", "attachment_selector": "div.board_file"})
+    run_task(env, "scholarship", "opportunity_discovery")
+    item = env.client.get("/api/v1/admin/discovery/items?agent_id=scholarship", headers=env.auth("admin")).json()["items"][0]
+    env.client.post(f"/api/v1/admin/discovery/items/{item['id']}/send-to-review", headers=env.auth("admin"))
+    v, d = env.store.select("document_versions")[0][0], env.store.select("source_documents")[0][0]
+    assert d["title"] == "[장학] 동계 근로장학생 신청 안내" and "메뉴" not in v["extracted_text"] and "지원 자격: 재학생" in v["extracted_text"]
+    assert "신청서.hwp: https://home.sch.ac.kr/download?f=1" in v["extracted_text"] and "javascript" not in v["extracted_text"] and D(-1) in v["extracted_text"]

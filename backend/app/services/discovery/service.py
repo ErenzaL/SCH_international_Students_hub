@@ -25,6 +25,7 @@ from app.services.discovery.connectors import API_KINDS, Connectors, Entry, cano
 from app.services.discovery.extract import analyse
 from app.services.discovery.job_apis import HOME
 from app.services.ingestion.errors import ExtractionError, FetchError
+from app.services.ingestion.notice_reader import config_for
 
 log = logging.getLogger("app.discovery")
 BLOCKED = {"api_key_missing", "api_key_invalid", "robots_disallowed", "http_401", "http_403", "http_406", "http_429"}
@@ -442,7 +443,8 @@ class DiscoveryService:
             ks = self.sources_service.create(dict(
                 title=it["title"][:200], original_url=it["url"], organization=(src.get("name") or "Official source")[:200],
                 source_type="website", authority_type=authority, scope=scope, category=category,
-                language=it.get("language") or "ko", sync_frequency="manual", is_active=True), admin_id)
+                language=it.get("language") or "ko", sync_frequency="manual", is_active=True,
+                config=config_for(src.get("kind") or "", src.get("config") or {}, it)), admin_id)
         job = None
         if not self.ingestion.has_open_job(ks["id"]):
             job = self.ingestion.create_job(ks, "manual", admin_id)

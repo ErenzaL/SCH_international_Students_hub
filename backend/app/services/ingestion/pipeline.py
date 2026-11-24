@@ -43,6 +43,7 @@ from app.services.ingestion.extractors_files import (
 from app.services.ingestion.extractors_html import extract_html
 from app.services.ingestion.fetcher import BLOCKED_CODES, GuardedFetcher
 from app.services.ingestion.normalize import content_hash, normalize_text, text_fingerprint
+from app.services.ingestion.notice_reader import read_notice
 from app.services.ingestion.pdf_isolation import extract_pdf_isolated
 from app.services.ingestion.privacy import redact_personal_info
 from app.services.ingestion.sch_board import (
@@ -245,6 +246,8 @@ class IngestionService:
                        final_url=res.url, redirects=res.redirects)
             if res.content_type == "application/pdf":
                 extracted = self._extract_pdf(res.content, res.url.rsplit("/", 1)[-1] or "document.pdf", job, stats)
+            elif (reader := (source.get("config") or {}).get("reader")):
+                extracted = read_notice(reader, res.content, source)      # found by discovery: read by the same parser
             else:
                 extracted = extract_html(res.content, res.url, res.encoding, self.settings.min_extracted_chars)
             stats["content_chars"] = len(extracted.text)
