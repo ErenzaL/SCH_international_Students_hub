@@ -28,6 +28,7 @@ from app.core.errors import AppError, Conflict, DuplicateError, InvalidState, No
 from app.models.domain import ExtractedDocument
 from app.repositories.base import FileStorage, Query, Store, get_one
 from app.security.url_guard import canonicalize_url
+from app.services import document_titles
 from app.services.indexing import IndexingService
 from app.services.ingestion.errors import ExtractionError, FetchError, IngestionError
 from app.services.ingestion.extractors_files import (
@@ -565,6 +566,7 @@ class IngestionService:
             raise IngestionError("version_missing", "The version to index no longer exists.")
         doc = get_one(self.store, "source_documents", id=v["document_id"]) or {}
         if v["verification_status"] == "approved" and doc.get("current_version_id") == v["id"]:
+            document_titles.apply_title(self.store, v["id"])     # an earlier attempt stopped right after the switch
             return dict(outcome="activated", document_id=v["document_id"], version_id=v["id"], changed=False,
                         message=f"v{v['version_number']} is already active.")
         if v["verification_status"] != "pending_review":
@@ -573,7 +575,7 @@ class IngestionService:
         if doc.get("is_canceled"):
             raise IngestionError("invalid_state", "The document was withdrawn; nothing was published.")
         self.store.update("document_versions", {"indexing_status": "indexing"}, {"id": vid})
-        self.event(jid, "chunk", f"Indexing v{v['version_number']} of '{doc.get('title', '')[:100]}'.")
+        self.event(jid, "chunk", f"Indexing v{v['version_number']} of '{document_titles.version_title(v, doc)[:100]}'.")
 
         def progress(done: int, total: int) -> None:
             self._heartbeat(jid)
@@ -592,6 +594,7 @@ class IngestionService:
         if total == 0 or total != st["chunk_count"] or ok != total:
             raise IngestionError("not_indexed", f"Index incomplete: {ok}/{total} chunks embedded "
                                                 f"(expected {st['chunk_count']}). The previous version stays active.")
+        document_titles.remember_current_title(self.store, v["document_id"])
         try:
             self.store.rpc("activate_document_version", dict(
                 p_version_id=vid, p_actor=v.get("activation_requested_by"), p_note=v.get("activation_note"),
@@ -599,7 +602,10 @@ class IngestionService:
         except AppError as exc:
             code = "not_indexed" if "not_indexed" in exc.message else exc.code
             raise IngestionError(code, exc.message) from exc
-        self.event(jid, "activate", f"v{v['version_number']} is now the active version.")
+        new_title = document_titles.apply_title(self.store, vid)
+        doc = doc | ({"title": new_title} if new_title else {})
+        self.event(jid, "activate", f"v{v['version_number']} is now the active version."
+                                    f"{' The title changed with it.' if new_title else ''}")
         health = self._verify_searchable(jid, vid, stats)
         if self.translations is not None:
             try:   # outdate translations of the previous version, create tasks for this one (never blocks activation)
@@ -774,6 +780,7 @@ class IngestionService:
             msg = (f"No change: content is {labels.get(same['verification_status'], 'unchanged')} "
                    f"(v{same['version_number']}). No new version, chunks or embeddings were created.")
             self.event(job_id, "compare", msg, content_hash=h)
+            self._title_only_change(doc, same, extracted.title, job_id)
             return dict(outcome="unchanged", document_id=doc["id"], version_id=same["id"], message=msg, changed=False)
 
         # an unreviewed predecessor is replaced by the newer extraction (it is kept as 'superseded', never deleted)
@@ -794,6 +801,7 @@ class IngestionService:
             if checklist:
                 warnings.append(checklist)
         meta = {k: v for k, v in extracted.metadata.items() if k != "warnings"}
+        meta[document_titles.KEY] = (extracted.title or doc["title"])[:document_titles.MAX_TITLE]
         meta.update(warnings=warnings, links=(extracted.links or [])[:60],
                     requires_field_confirmation=bool(requires_field_confirmation or
                                                      str(meta.get("extractor", "")).startswith("ocr")))
@@ -834,6 +842,18 @@ class IngestionService:
         return dict(outcome="new_version", document_id=doc["id"], version_id=version["id"], message=msg,
                     warning=index_stats["embedding_error"], changed=True)
 
+    def _title_only_change(self, doc: dict[str, Any], version: dict[str, Any], title: str | None, job_id: str | None) -> None:
+        """The same text under another title (rare: extracted texts contain their title). An open version takes the new
+        title, it is reviewed anyway; a published title is kept."""
+        title = (title or "")[:document_titles.MAX_TITLE]
+        if not title or title == document_titles.version_title(version, doc):
+            return
+        if version["verification_status"] in ("draft", "pending_review"):
+            document_titles.set_meta(self.store, version, title)
+        elif version["id"] == doc.get("current_version_id"):
+            self.event(job_id, "compare", "The source uses another title for the same text; the published title was kept.",
+                       level="warning")
+
     def _skip_reason(self, source: dict[str, Any], canonical_url: str | None, external_id: str | None) -> str | None:
         """Deliberately deleted website/board documents are never re-imported automatically."""
         if external_id:
@@ -856,7 +876,8 @@ class IngestionService:
         doc = get_one(self.store, "source_documents", **eq)
         if doc:
             patch: dict[str, Any] = {}
-            if extracted.title and doc["title"] != extracted.title[:500]:
+            # a published title only changes with the approved version (document_titles.py)
+            if extracted.title and doc["title"] != extracted.title[:500] and not doc.get("current_version_id"):
                 patch["title"] = extracted.title[:500]
             if metadata and metadata != (doc.get("metadata") or {}):
                 patch["metadata"] = metadata

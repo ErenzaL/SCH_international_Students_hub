@@ -19,6 +19,7 @@ from app.core.config import Settings
 from app.core.errors import EmbeddingUnavailable
 from app.repositories.base import Query, Store, get_one
 from app.services.chunking import CHUNKER_VERSION, ChunkerConfig, chunk_text
+from app.services.document_titles import version_title
 from app.services.embeddings.base import EmbeddingError, EmbeddingProvider
 from app.services.ingestion.normalize import text_fingerprint
 
@@ -45,7 +46,7 @@ class IndexingService:
         if version is None:
             raise ValueError("version not found")
         doc = get_one(self.store, "source_documents", id=version["document_id"]) or {}
-        title = doc.get("title") or ""
+        title = version_title(version, doc)      # the title this version is published with, not the live one
 
         chunks = chunk_text(version["extracted_text"], self.cfg)
         inputs = [c.embedding_input(title) for c in chunks]
