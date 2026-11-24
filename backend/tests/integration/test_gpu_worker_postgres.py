@@ -13,6 +13,8 @@ pytestmark = pytest.mark.skipif(not (REST and PSQL), reason="set SCH_IT_REST_URL
 
 @pytest.fixture(scope="module")
 def it() -> IT:
+    if sql("select count(*) from information_schema.tables where table_name = 'gpu_workers'") == "0":
+        pytest.skip("migration 0016 is not applied")
     it = IT()
     it.settings.gpu_worker_enabled = it.settings.public_machine_translations = True
     sql("update public.ingestion_jobs set status = 'failed' where executor = 'gpu' and status in ('queued', 'running')")
