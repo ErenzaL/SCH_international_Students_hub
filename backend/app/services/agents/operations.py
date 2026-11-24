@@ -135,13 +135,14 @@ class AgentOperations:
         scheds = self.svc.agents._schedules()
         sources = self.svc.discovery.list_sources()
         agents = []
+        known: dict[str, str | None] = {}
         for a in AGENTS.values():
             mine = [r for r in rows if r["agent_id"] == a.id]
             count = {s: sum(1 for r in mine if r["status"] == s) for s in ("queued", "running", "awaiting_approval", "completed", "failed", "cancelled")}
             done = [r["completed_at"] for r in mine if r["status"] == "completed" and r.get("completed_at")]
             failed = [r for r in mine if r["status"] == "failed"]
             src = [s for s in sources if s["agent_id"] == a.id]
-            tools = self.svc.agents.tools.describe(self.svc, a)
+            tools = self.svc.agents.tools.describe(self.svc, a, known)
             agents.append(dict(
                 id=a.id, name=a.name, title=a.title, paused=a.id in paused, interface=a.interface.type, tasks_7d=count,
                 last_success_at=max(done) if done else None,

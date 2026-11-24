@@ -137,6 +137,7 @@ class AgentTaskService:
         schedules = {(s["agent_id"]) for s in self._schedules() if s["enabled"] and self.settings.agent_schedules_enabled}
         checking = self.monitoring_activity()
         paused = self.paused_agents()
+        known: dict[str, str | None] = {}
         role = user.role if user is not None else "visitor"
         out = []
         for a in AGENTS.values():
@@ -153,7 +154,7 @@ class AgentTaskService:
             out.append(dict(
                 id=a.id, character_id=a.character_id, name=a.name, title=a.title, department=a.department,
                 description=a.description, scope=a.scope, languages=list(a.languages), fixed_language=a.fixed_language,
-                tools=self.tools.describe(self.svc, a), task_types=list(a.task_types),
+                tools=self.tools.describe(self.svc, a, known), task_types=list(a.task_types),
                 can_delegate_to=list(a.can_delegate_to), restricted_actions=list(a.restricted_actions),
                 actions=actions, monitoring=a.id in schedules, interface=interface,
                 monitoring_check_running=a.id in checking, paused=a.id in paused, **state))

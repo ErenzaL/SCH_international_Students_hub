@@ -930,13 +930,17 @@ class ToolRegistry:
     def __init__(self, tools: dict[str, Tool] | None = None):
         self.tools = tools or TOOLS
 
-    def describe(self, svc: Services, agent: AgentDefinition) -> list[dict[str, Any]]:
+    def describe(self, svc: Services, agent: AgentDefinition, known: dict[str, str | None] | None = None) -> list[dict[str, Any]]:
+        """``known``: availability already looked up for other agents (some checks read the database)."""
+        known = {} if known is None else known
         out = []
         for name in sorted(agent.allowed_tools):
             t = self.tools.get(name)
             if t is None:
                 continue
-            reason = t.unavailable_reason(svc)
+            if name not in known:
+                known[name] = t.unavailable_reason(svc)
+            reason = known[name]
             out.append(dict(name=name, description=t.description, available=reason is None, unavailable_reason=reason,
                             requires_sign_in=t.requires_auth, background=t.background, uses_ai=t.uses_llm,
                             needs_approval=t.needs_approval,
