@@ -119,7 +119,7 @@ cd backend
 
 ## Deployment checklist (nothing here has been done)
 
-Status, blockers, approvals and the pilot: [release/gpu-worker-readiness.md](release/gpu-worker-readiness.md).
+Status and blockers: [release/release-readiness.md](release/release-readiness.md). Pilot: [release/gpu-worker-readiness.md](release/gpu-worker-readiness.md).
 
 Before:
 - [ ] University IT: may this account run an outbound worker that uses the GPU and contacts the Render host?

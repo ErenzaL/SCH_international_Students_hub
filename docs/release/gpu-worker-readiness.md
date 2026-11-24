@@ -1,7 +1,8 @@
-# GPU worker: production readiness (2026-11-24)
+# GPU worker: assessment (2026-11-24)
 
-Branch `feature/school-gpu-worker`, based on `main` `eca1d71`. **Nothing has been pushed, deployed, migrated or enabled.**
-Operation and installation: [docs/gpu-worker.md](../gpu-worker.md).
+Part of **Release B**. Overall status, commits and blockers of both releases: [release-readiness.md](release-readiness.md). **Nothing has been
+pushed, deployed, migrated or enabled.** Operation and installation: [docs/gpu-worker.md](../gpu-worker.md).
+Sections 2 and 11 describe the state before the split into Release A and B; current test results are in the release report.
 
 ## 1. Verdict
 
@@ -30,7 +31,7 @@ Operation and installation: [docs/gpu-worker.md](../gpu-worker.md).
 | A1 | Merge and push the branch | project owner |
 | A2 | Backup taken and stored off the university server; apply migration 0016 | project owner |
 | A3 | Deploy with `GPU_WORKER_ENABLED` unset | project owner |
-| A4 | Accept the Gemini behaviour change in section 5 | project owner |
+| A4 | ~~Accept the Gemini behaviour change~~ approved on 2026-11-24 (Release A) | project owner |
 | A5 | Outbound worker on the university account and GPU | university IT |
 | A6 | Create a worker credential; set `GPU_WORKER_ENABLED=true` for the pilot | project owner (super admin) |
 | A7 | The pilot announcement, the language and its reviewer | announcement owner, reviewer |
@@ -129,17 +130,7 @@ dormitory in a Vietnamese title. One seed was used per configuration. The scorer
 
 ## 5. One approved-source rule for both providers
 
-Before: the Gemini path read `document_versions` in state draft / pending of a published announcement, and documents were not
-re-checked at run time. Now, for **every** provider, before generating **and** before storing: the announcement is published and
-the text equals what students see; the document version is current, approved and public (not archived, withdrawn, inactive or
-private); the title did not change meanwhile; a person's later work is never replaced, also with "force".
-
-Behaviour change to accept (A4): reviewers of a published announcement with a waiting edit now see the **approved** text as the
-original. Jobs for hidden documents fail with `source_not_public`. Failed announcement translations get their own alert
-instead of "Sync failed".
-
-Open and unchanged: re-ingestion updates a document's **title** before the new version is approved (existing behaviour of
-`_find_or_create_document`; the public page shows that title too). Decide separately.
+Moved to [Release A](release-a-plan.md), together with the document title fix. The GPU worker uses the same checks.
 
 ## 6. Can a translation be blocked silently?
 
