@@ -2989,7 +2989,8 @@
         "supportEmpty": "Tidak ada permintaan yang menunggu.",
         "openInbox": "Buka kotak masuk dukungan",
         "summary": "Minta ringkasan"
-      }
+      },
+      "staffTabs": "Staf"
     }
   }
 }

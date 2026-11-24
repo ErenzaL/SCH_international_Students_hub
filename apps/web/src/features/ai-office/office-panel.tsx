@@ -132,7 +132,7 @@ export function OfficePanel({ c, minimized, onClose, onMinimize, onRestore, onSe
           {tabs.some((id) => ADMIN_TABS.has(id)) && (
             <div className="mt-1 flex items-center gap-1 border-t border-dashed border-violet-200 pt-1 dark:border-violet-900" data-testid="admin-tabs">
               <span className="flex items-center gap-1 px-1 text-[10px] font-bold uppercase tracking-wide text-violet-800 dark:text-violet-300">
-                <Lock className="size-3" aria-hidden /> {t("ws.adminTabs")}
+                <Lock className="size-3" aria-hidden /> {t(tabs.includes("review") ? "ws.adminTabs" : "ws.staffTabs")}
               </span>
               {tabs.filter((id) => ADMIN_TABS.has(id)).map((id) => <TabButton key={id} id={id} selected={tab === id} onSelect={setChosen} admin />)}
             </div>

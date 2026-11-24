@@ -1,0 +1,119 @@
+{
+ "rss_start_mb": 108,
+ "database_start_bytes": 11818675,
+ "ingestion": {
+  "documents": 27,
+  "characters": 372979,
+  "seconds": 20.4,
+  "characters_per_second": 18299
+ },
+ "database_growth": {
+  "bytes": 12910592,
+  "bytes_per_1000_characters": 34615,
+  "chunks_table": 12386304,
+  "chunks_indexes": 8716288
+ },
+ "rss_after_indexing_mb": 391,
+ "endpoints": {
+  "health": {
+   "n": 50,
+   "p50_ms": 3.7,
+   "p95_ms": 7.0
+  },
+  "categories": {
+   "n": 40,
+   "p50_ms": 34.3,
+   "p95_ms": 37.3
+  },
+  "announcements": {
+   "n": 40,
+   "p50_ms": 50.3,
+   "p95_ms": 55.3
+  },
+  "documents": {
+   "n": 40,
+   "p50_ms": 25.8,
+   "p95_ms": 41.8
+  },
+  "agents": {
+   "n": 30,
+   "p50_ms": 113.1,
+   "p95_ms": 117.3
+  },
+  "search_first": {
+   "n": 8,
+   "p50_ms": 60.8,
+   "p95_ms": 101.2
+  },
+  "search_again": {
+   "n": 24,
+   "p50_ms": 56.2,
+   "p95_ms": 91.4
+  },
+  "agent_tool": {
+   "n": 20,
+   "p50_ms": 30.3,
+   "p95_ms": 30.8
+  },
+  "admin_operations": {
+   "n": 20,
+   "p50_ms": 206.4,
+   "p95_ms": 217.5
+  },
+  "admin_storage": {
+   "n": 10,
+   "p50_ms": 52.5,
+   "p95_ms": 79.9
+  }
+ },
+ "concurrent_search": {
+  "requests": 60,
+  "parallel": 10,
+  "seconds": 1.7,
+  "failed": 0
+ },
+ "chat_local_model": [
+  {
+   "lang": "en",
+   "status": 200,
+   "ms": 3638,
+   "generation": null
+  },
+  {
+   "lang": "ko",
+   "status": 200,
+   "ms": 5112,
+   "generation": null
+  },
+  {
+   "lang": "id",
+   "status": 200,
+   "ms": 8217,
+   "generation": null
+  },
+  {
+   "lang": "vi",
+   "status": 200,
+   "ms": 6242,
+   "generation": null
+  },
+  {
+   "lang": "zh-CN",
+   "status": 200,
+   "ms": 8139,
+   "generation": null
+  },
+  {
+   "lang": "en",
+   "status": 200,
+   "ms": 4623,
+   "generation": null
+  }
+ ],
+ "tasks": {
+  "n": 10,
+  "p50_ms": 11.0,
+  "p95_ms": 22.8
+ },
+ "rss_end_mb": 410
+}

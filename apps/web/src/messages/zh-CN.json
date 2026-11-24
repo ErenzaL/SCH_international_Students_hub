@@ -2989,7 +2989,8 @@
         "supportEmpty": "没有等待的请求。",
         "openInbox": "打开支持收件箱",
         "summary": "请求摘要"
-      }
+      },
+      "staffTabs": "工作人员"
     }
   }
 }

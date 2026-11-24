@@ -2989,7 +2989,8 @@
         "supportEmpty": "No request is waiting.",
         "openInbox": "Open the support inbox",
         "summary": "Request a summary"
-      }
+      },
+      "staffTabs": "Staff"
     }
   }
 }

@@ -2989,7 +2989,8 @@
         "supportEmpty": "대기 중인 요청이 없습니다.",
         "openInbox": "상담함 열기",
         "summary": "요약 요청"
-      }
+      },
+      "staffTabs": "담당자"
     }
   }
 }
