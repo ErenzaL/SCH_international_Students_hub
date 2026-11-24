@@ -11,6 +11,8 @@
     python -m app.cli check-rag --notify # ... and alert admins about documents that are not (also part of run-due)
     python -m app.cli reextract <version_id>          # DRY RUN: re-extract the stored original, compare, write nothing
     python -m app.cli reextract <version_id> --apply  # ... and create a new 'pending_review' version (live one unchanged)
+    python -m app.cli doctor                          # configuration check: read-only, prints no secret
+    python -m app.cli doctor --api https://... --web https://...   # ... and the deployed services
     python -m app.cli translate-backfill              # DRY RUN: what needs machine translation + estimated usage
     python -m app.cli translate-backfill --apply --limit 10   # queue at most 10 jobs (the API worker runs them)
 
@@ -36,7 +38,7 @@ log = logging.getLogger("app.cli")
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="app.cli")
     parser.add_argument("command", choices=["run-due", "recover", "prefetch-model", "reindex-approved", "purge-expired",
-                                            "check-llm", "check-rag", "reextract", "translate-backfill"])
+                                            "check-llm", "check-rag", "reextract", "translate-backfill", "doctor"])
     parser.add_argument("version_id", nargs="?", help="reextract: the version whose stored original is re-extracted")
     parser.add_argument("--apply", action="store_true", help="reextract: create the new pending version (default: dry run)")
     parser.add_argument("--generate", action="store_true", help="check-llm: also run one tiny generation per model")
@@ -45,7 +47,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--limit", type=int, default=10, help="translate-backfill --apply: jobs to queue (default 10)")
     parser.add_argument("--languages", default="", help="translate-backfill: e.g. ko,en (default AUTO_TRANSLATE_LANGUAGES)")
     parser.add_argument("--json", action="store_true", help="translate-backfill: print the full plan as JSON")
+    parser.add_argument("--api", help="doctor: address of the deployed API (read-only requests)")
+    parser.add_argument("--web", help="doctor: address of the website")
     args = parser.parse_args(argv)
+    if args.command == "doctor":        # before logging is configured: the report is the only output
+        from app.doctor import main as doctor
+
+        return doctor(get_settings(), api=args.api, web=args.web, as_json=args.json)
     settings = get_settings()
     configure_logging(settings.log_level)
     if args.command == "check-llm":
