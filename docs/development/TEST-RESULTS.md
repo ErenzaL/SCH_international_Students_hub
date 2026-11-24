@@ -5,7 +5,7 @@
 | Command | Result |
 |---|---|
 | `cd backend && ruff check .` | clean |
-| `cd backend && pytest -q` | **951 passed, 47 skipped** (`main` 604/37, A+B merged 864/45) |
+| `cd backend && pytest -q` | **952 passed, 47 skipped** (`main` 604/37, A+B merged 864/45) |
 | `cd apps/web && npx tsc --noEmit && npx eslint && npx vitest run` | clean, clean, **256 passed** (`main` 240) |
 | `cd apps/web && npx next build` | builds |
 
