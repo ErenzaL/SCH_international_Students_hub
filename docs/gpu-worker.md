@@ -23,14 +23,14 @@ students without review), discovery, chatbot. "AI summaries" are the existing re
 | Requirement | How |
 |---|---|
 | Never published by the worker | results are always `needs_review`, even when every check passes (`machine_draft` can be public); approval needs a person |
-| Only approved content leaves | the text must equal what the public site shows; unapproved edits are refused |
+| Only approved content leaves | the text must equal what the public site shows, before generating and before storing; the same rule applies to Gemini |
 | Least privilege | claim, heartbeat, complete, fail; the token is rejected everywhere else and user tokens are rejected here |
 | Credential | 256-bit random, SHA-256 stored, shown once, 90 days, rotation with optional overlap, pause, revoke |
 | No production secrets at school | the worker needs only `httpx`; it refuses to start when Supabase or API-key variables are set |
 | Lease, idempotency | the worker chooses the lease token: repeated claims and results change nothing; a late result is discarded |
 | Source versions | a fingerprint of the sent text is compared before storing; changed → discarded and queued again |
 | Human work | never replaced by a late result, also when "force" was requested before the edit |
-| Offline | jobs wait; a lost lease (180 s) re-queues; 3 attempts; SIGTERM hands the job back without using one |
+| Offline | a lost lease (180 s) re-queues; 3 attempts; SIGTERM hands the job back without using one. Without a usable worker new requests use the server's own model; a job never waits longer than 48 hours |
 | One job at a time | enforced in SQL across all workers and by a lock file on the server |
 | Logs, metrics | ids, languages, codes, durations, token counts; failure reports are codes, metrics are numbers |
 
@@ -103,7 +103,8 @@ queue to the worker while it is enabled. Reviewers see drafts under Admin → Tr
 
 Settings on Render: `GPU_WORKER_ENABLED`, `GPU_WORKER_JOB_TYPES` (`translate_announcement,translate_document`),
 `GPU_WORKER_MODELS`, `GPU_WORKER_MAX_RUNNING` (1), `GPU_WORKER_LEASE_SECONDS` (180), `GPU_WORKER_JOB_MAX_SECONDS` (1800),
-`GPU_WORKER_CHUNK_CHARS` (3000), `GPU_WORKER_MAX_SOURCE_CHARS` (12000), `GPU_WORKER_TOKEN_DAYS` (90).
+`GPU_WORKER_CHUNK_CHARS` (1200), `GPU_WORKER_ONLINE_HOURS` (24), `GPU_WORKER_MAX_QUEUE_HOURS` (48),
+`GPU_WORKER_ON_EXPIRY` (`fail` or `local`), `GPU_WORKER_MAX_SOURCE_CHARS` (12000), `GPU_WORKER_TOKEN_DAYS` (90).
 
 ## Tests
 
@@ -111,12 +112,14 @@ Settings on Render: `GPU_WORKER_ENABLED`, `GPU_WORKER_JOB_TYPES` (`translate_ann
 cd backend
 .venv/bin/python -m pytest -q tests/test_gpu_worker.py tests/integration/test_gpu_worker_integration.py   # mocked
 .venv/bin/python ../scripts/e2e_gpu_worker.py --worker-python .venv-gpu/bin/python                        # real GPU
-PSQL="psql -h SOCKET_DIR -p PORT -U postgres" ../scripts/run_sql_tests.sh scratch_db                      # scratch PostgreSQL
+../scripts/scratch_db.sh start /tmp/my-scratch                                                             # private PostgreSQL + SQL tests
 ```
 
 `tests/integration/test_gpu_worker_postgres.py` runs the endpoints on PostgREST + PostgreSQL (docs/setup.md, section 7).
 
 ## Deployment checklist (nothing here has been done)
+
+Status, blockers, approvals and the pilot: [release/gpu-worker-readiness.md](release/gpu-worker-readiness.md).
 
 Before:
 - [ ] University IT: may this account run an outbound worker that uses the GPU and contacts the Render host?
@@ -132,7 +135,7 @@ Deploy, feature off:
 - [ ] Confirm `AGENT_SCHEDULES_ENABLED` and the `AUTO_TRANSLATE_*` settings have the values you want (off).
 
 Enable:
-- [ ] Set `GPU_WORKER_ENABLED=true`. From now on requested translations wait for the worker instead of Gemini.
+- [ ] Set `GPU_WORKER_ENABLED=true`. Once a worker has contacted the API, requested translations wait for it instead of Gemini.
 - [ ] Create the worker as super admin, save the token on the server, run `--check`.
 - [ ] Dry run `queue-missing`, queue **one** announcement, run `--once`.
 - [ ] Verify: status `needs_review`, not visible on the public page, a reviewer can edit and approve it.
@@ -141,16 +144,14 @@ Enable:
 
 Stop / roll back:
 - [ ] Stop at once: revoke the worker, or set `GPU_WORKER_ENABLED=false` (chatbot and everything else unaffected).
-      **Cancel queued GPU jobs before switching off**; they would otherwise block a new request for the same translation.
+      Open GPU jobs then fail visibly at the next sweep and can be requested again.
 - [ ] Remove completely: `supabase/rollback/20261124000016_gpu_worker_down.sql` (drafts are kept).
 
 ## Limits
 
 - Draft quality is that of a 7B model; the checks find lost facts, not wrong words. Every draft needs a person.
-- The checks flag some correct drafts (dates written as `December 1`, Chinese text directly after a URL).
-- Official names are protected by the prompt only; there is no glossary check.
+- The checks flag some correct drafts. Terms and names come from an unconfirmed list (`app/gpu_worker/glossary.py`).
 - A job that was cancelled while running stops at the next heartbeat (up to 45 s).
 - A compromised worker could hand in misleading drafts. They cannot become public without a reviewer.
 - A result is stored in several database calls (as before). A crash in between leaves a draft whose job is queued again
   and then finishes without generating twice.
-- Failed announcement translations create an admin alert titled "Sync failed" (existing wording).
