@@ -16,12 +16,14 @@ from __future__ import annotations
 import logging
 import re
 import threading
+import time
 from collections import OrderedDict
+from datetime import UTC, datetime
 from typing import Any
 
 from app.core.config import Settings
 from app.core.errors import EmbeddingUnavailable
-from app.repositories.base import Store
+from app.repositories.base import Query, Store
 from app.services.embeddings.base import EmbeddingError, EmbeddingProvider
 from app.services.retrieval import families
 from app.services.retrieval.bridge import bridge_queries
@@ -42,6 +44,7 @@ _STOP = {"the", "a", "an", "of", "to", "for", "and", "or", "in", "on", "is", "ar
          "yang", "dan", "di", "ke", "untuk", "dengan", "apa", "bagaimana", "saya"}
 MAX_TOKENS = 12
 QUERY_CACHE = 256
+FAMILY_TTL = 120.0
 # exact identifiers students search for: visa types (D-2, D-2-2, E-7, F-2-7), TOPIK levels, acronyms (ARC, NHIS)
 # ASCII-only boundaries so "D-2签证" / "D-2비자" (identifier glued to CJK text) still match
 _IDENT = re.compile(r"(?<![A-Za-z0-9-])([A-Za-z]-\d{1,2}(?:-\d{1,2})?|TOPIK\s?(?:I{1,3}|[1-6])(?:\s?급)?|[A-Z]{2,6})(?![A-Za-z0-9-])")
@@ -98,6 +101,8 @@ class RetrievalService:
         self.settings = settings
         self._cache: OrderedDict[tuple[str, str], list[float]] = OrderedDict()
         self._cache_lock = threading.Lock()
+        self._family_index: list[dict[str, Any]] | None = None
+        self._family_at = 0.0
 
     def search(self, query: str, *, language: str | None = None, category: str | None = None, top_k: int = 5,
                mode: str = "hybrid", scope: str | None = None, authority: list[str] | None = None,
@@ -110,6 +115,32 @@ class RetrievalService:
                                          max_per_document=max_per_document, bridge=bridge)
         return self._search_sql(query, category=category, top_k=top_k, mode="hybrid" if mode == "hybrid_legacy" else mode,
                                 scope=scope, authority=authority, label=mode)
+
+    def family_index(self) -> list[dict[str, Any]]:
+        """Titles of all published documents (a few hundred short rows, cached for FAMILY_TTL seconds): finds a newer
+        edition that this search did not return. A failure only costs that check."""
+        now = time.monotonic()
+        with self._cache_lock:
+            if self._family_index is not None and now - self._family_at < FAMILY_TTL:
+                return self._family_index
+        try:
+            docs, _ = self.store.select("source_documents", Query(eq={"is_canceled": False}, is_null={"current_version_id": False},
+                                                                  cols="id,title,source_id,current_version_id,archived_at", limit=2000))
+            sources = {r["id"]: r for r in self.store.select("knowledge_sources", Query(cols="id,organization,is_active", limit=2000))[0]}
+            versions = {r["id"]: r for r in self.store.select("document_versions", Query(
+                eq={"verification_status": "approved"}, cols="id,source_published_at,valid_until", limit=2000))[0]}
+            stamp = datetime.now(UTC).isoformat()
+            out = [dict(id=d["id"], title=d["title"], organization=(sources.get(d["source_id"]) or {}).get("organization"),
+                        published=(versions.get(d["current_version_id"]) or {}).get("source_published_at"))
+                   for d in docs if (sources.get(d["source_id"]) or {}).get("is_active", True)
+                   and not d.get("archived_at")
+                   and str((versions.get(d["current_version_id"]) or {}).get("valid_until") or "9999") > stamp]
+        except Exception:  # noqa: BLE001
+            log.warning("family index unavailable")
+            out = []
+        with self._cache_lock:
+            self._family_index, self._family_at = out, now
+        return out
 
     # ----------------------------------------------------------- shared helpers
     def _embed(self, query: str, *, required: bool) -> tuple[list[float] | None, str | None]:
@@ -265,7 +296,7 @@ class RetrievalService:
         scored.sort(key=lambda x: (-x[0], str(x[1].get("document_title") or ""), str(x[1].get("passage") or "")[:80]))
 
         # an older edition or a copy of a notice never ranks above its newer edition / original (families.py)
-        marked = {id(r): m for (_s, r, _x), m in zip(scored, families.annotate([r for _s, r, _x in scored], query), strict=True)}
+        marked = {id(r): m for (_s, r, _x), m in zip(scored, families.annotate([r for _s, r, _x in scored], query, self.family_index()), strict=True)}
         scored = [(sc, marked[id(r)], x) for sc, r, x in scored]
         scored = [t for t in scored if not (t[1].get("superseded_by") or t[1].get("copy_of"))] + \
             [t for t in scored if t[1].get("superseded_by") or t[1].get("copy_of")]

@@ -132,6 +132,7 @@ class Settings(BaseSettings):
     # evidence-sufficiency layer (app/services/assistant/evidence.py). OFF by default: chat behaviour is unchanged
     # unless enabled. When on: neighbouring chunks / one targeted search for missing information types, and an
     # ``evidence_check`` report in the response's retrieval metadata (still-missing information is recorded).
+    assistant_verify_local: bool = True        # a short second look at answers with figures, small local models only
     assistant_evidence_check: bool = False
     assistant_evidence_adjacent: bool = True
     assistant_evidence_second_search: bool = True

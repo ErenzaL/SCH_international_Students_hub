@@ -71,6 +71,46 @@ def test_the_engine_answers_from_the_newer_edition_only():
     assert [s["document_id"] for s in e._select([old], set(), "동계방학")] == ["a"]       # nothing newer: still usable
 
 
+def test_a_newer_edition_that_was_not_retrieved_is_still_known():
+    index = [dict(id="b", title="2026 동계방학 입사생 모집", organization="SCH", published=None)]
+    h = families.annotate([hit("a", "2025 동계방학 입사생 모집")], "", index)[0]
+    assert h["superseded_by"] == "b"
+    e = AssistantEngine(None, None, make_settings())  # type: ignore[arg-type]
+    sources = e._select([h], set(), "")
+    n = _notes("언제까지?", None, [dict(s, passages=[dict(p, superseded_by_title="2026 동계방학 입사생 모집") for p in s["passages"]]) for s in sources])
+    assert "newer: 2026" in n
+
+
+def test_the_family_index_lists_published_documents_only(env):
+    from tests.test_document_lifecycle import website_doc
+
+    svc = env.app.state.services
+    website_doc(env)
+    svc.retrieval._family_index = None
+    idx = svc.retrieval.family_index()
+    assert len(idx) == 1 and idx[0]["title"]
+    env.store.update("source_documents", {"is_canceled": True}, {"id": idx[0]["id"]})
+    assert svc.retrieval.family_index() == idx        # cached for a short time
+    svc.retrieval._family_index = None
+    assert svc.retrieval.family_index() == []
+
+
+# ------------------------------------------------------------------------------------------------ figures
+@pytest.mark.parametrize("sentence,evidence,ok", [
+    ("The deadline is 2026-12-09 [1].", "접수 마감: 2026. 12. 9.", True),
+    ("IPK minimal 3,35 [1].", "평점 3.35 이상", True),
+    ("Phí là 1.150.000 won [1].", "장학 금액은 1,150,000원", True),
+    ("The fee is 1,250,000 won [1].", "장학 금액은 1,150,000원", False),
+    ("IPK minimal 3,45 [1].", "평점 3.35 이상", False),
+    ("On 2026-12-19 [1].", "2026. 12. 9.", False),
+])
+def test_figures_are_compared_by_value_not_by_spelling(sentence, evidence, ok):
+    from app.services.assistant.engine import _validate_answer
+
+    text, removed = _validate_answer(sentence, [src("a", evidence)])
+    assert (removed == 0) is ok and bool(text) is ok
+
+
 # ------------------------------------------------------------------------------------------------ deadlines
 def test_deadlines_are_quoted_and_judged():
     today = date(2026, 11, 25)
@@ -159,6 +199,19 @@ def test_one_retry_in_the_requested_language_then_an_honest_fallback(env):
 
 
 # ------------------------------------------------------------------------------------------------ concept bridge
+def test_an_answer_without_citations_is_asked_for_once_more(env):
+    from tests.test_assistant import Q, conv, say
+    from tests.test_document_lifecycle import website_doc
+
+    website_doc(env)
+    calls = _engine_env(env, [EN.replace(" [1]", ""), EN])
+    m = say(env, conv(env), Q)
+    assert len(calls) == 2 and "[1]" in calls[1].rsplit("Important:", 1)[1] and "immigration office" in m["content"]
+    calls = _engine_env(env, [EN])
+    say(env, conv(env), Q)
+    assert len(calls) == 1                                     # a good answer is never asked twice
+
+
 def test_bridge_translates_only_what_the_question_says():
     qs = bridge_queries(analyze("Làm thế nào để đăng ký ở ký túc xá trong kỳ nghỉ đông?"))
     assert len(qs) == 2 and "생활관" in qs[0] and "동계방학" in qs[0] and "dormitory" in qs[1] and "winter vacation" in qs[1]

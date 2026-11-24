@@ -71,8 +71,9 @@ def asked_years(question: str) -> set[int]:
     return {int(x) for x in re.findall(r"(?<!\d)(20\d{2})(?!\d)", question or "")}
 
 
-def annotate(hits: list[dict[str, Any]], question: str = "") -> list[dict[str, Any]]:
-    """The same hits, in order, with ``superseded_by`` (a newer edition is among the hits) and ``copy_of`` (the same
+def annotate(hits: list[dict[str, Any]], question: str = "", index: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
+    """The same hits, in order, with ``superseded_by`` (a newer edition is among the hits or in ``index``, the list of all
+    published documents: id, title, organization, published) and ``copy_of`` (the same
     notice from another source; the newest verified copy is kept as the original)."""
     years = asked_years(question)
     docs: dict[str, dict[str, Any]] = {}
@@ -87,10 +88,16 @@ def annotate(hits: list[dict[str, Any]], question: str = "") -> list[dict[str, A
     for d in docs.values():
         if d["key"]:
             families.setdefault(d["key"], []).append(d)
+    for o in index or []:
+        key = family_key(o["title"], o.get("organization"))
+        if key in families and o["id"] not in docs:
+            families[key].append(dict(id=o["id"], title=o["title"], key=key, period=period_of(o["title"], o.get("published")), other=True))
     for members in families.values():
         if len(members) < 2:
             continue
         for d in members:
+            if d.get("other"):
+                continue
             newer = [o for o in members if o is not d and d["period"] and o["period"] and d["period"].older_than(o["period"])]
             if newer and d["period"].year not in years:
                 best = max(newer, key=lambda o: (o["period"].year, o["period"].part))
