@@ -18,7 +18,8 @@ vi.mock("@/lib/api", async (orig) => {
     get: (path: string, query?: Record<string, unknown>) => handle({ method: "GET", path, query }),
     post: (path: string, body?: unknown) => handle({ method: "POST", path, body }),
     put: (path: string, body?: unknown) => handle({ method: "PUT", path, body }),
-    patch: (path: string, body?: unknown) => handle({ method: "PATCH", path, body }) } };
+    patch: (path: string, body?: unknown) => handle({ method: "PATCH", path, body }),
+    delete: (path: string) => handle({ method: "DELETE", path }) } };
 });
 let role = "super_admin";
 vi.mock("@/features/admin/shell/admin-context", async (orig) => ({
@@ -96,6 +97,26 @@ describe("Admin: agents", () => {
     await userEvent.click(screen.getByRole("tab", { name: "Storage" }));
     expect(await screen.findByText("Database: 375.0 MB of 500.0 MB (75 %)")).toBeInTheDocument();
     expect(screen.getByText(/Nothing is deleted automatically/)).toBeInTheDocument();
+  });
+
+  it("adds a prepared source and deletes one only after a second click", async () => {
+    const prev = backend;
+    backend = (c) => {
+      if (c.path === "/api/v1/admin/discovery/catalog") return { items: [{ agent_id: "topik", name: "TOPIK page", kind: "page", url: "https://x.go.kr/t", category: "topik-korean", language: "ko", config: {}, added: false, ready: true, needs: null, validated: { status: "ok", checked: "2026-11-25" }, recommended_interval_minutes: 2880 },
+        { agent_id: "career", name: "Saramin", kind: "saramin_api", url: "https://www.saramin.co.kr/", category: "employment-internships", language: "ko", config: {}, added: false, ready: false, needs: "SARAMIN_ACCESS_KEY", validated: {}, recommended_interval_minutes: 1440 }] };
+      if (c.path === "/api/v1/admin/discovery/sources" && c.method === "GET") return { items: [{ id: "s9", agent_id: "career", name: "Jobs", kind: "listing", url: "https://y.ac.kr", enabled: true, last_checked_at: null, last_status: "failed", last_error: "http_503", consecutive_failures: 2 }] };
+      return prev(c);
+    };
+    renderWithIntl(<AgentsPage />);
+    await userEvent.click(screen.getByRole("tab", { name: "Sources" }));
+    const cards = await screen.findAllByTestId("prepared");
+    expect(cards[1]).toHaveTextContent("needs SARAMIN_ACCESS_KEY on the API service");
+    await userEvent.click(within(cards[0]).getByRole("button", { name: /Add/ }));
+    expect(calls.find((c) => c.method === "POST")?.body).toMatchObject({ agent_id: "topik", kind: "page", url: "https://x.go.kr/t" });
+    await userEvent.click(screen.getByRole("button", { name: "Remove" }));
+    expect(calls.some((c) => c.method === "DELETE")).toBe(false);
+    await userEvent.click(screen.getByRole("button", { name: "Remove with its candidates" }));
+    expect(calls.find((c) => c.method === "DELETE")?.path).toBe("/api/v1/admin/discovery/sources/s9");
   });
 
   it("is in the navigation of administrators only", () => {

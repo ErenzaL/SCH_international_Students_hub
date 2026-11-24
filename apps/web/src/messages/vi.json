@@ -1658,7 +1658,8 @@
         "desks": "Bàn",
         "tasks": "Nhiệm vụ",
         "schedules": "Lịch",
-        "storage": "Lưu trữ"
+        "storage": "Lưu trữ",
+        "sources": "Nguồn"
       },
       "privacy": "Nội dung và kết quả của sinh viên không bao giờ hiển thị ở đây.",
       "schedulesOffTitle": "Kiểm tra tự động đang tắt trên máy chủ",
@@ -1746,7 +1747,33 @@
         "visa_checklist": "Danh sách visa",
         "academic_checklist": "Danh sách học vụ",
         "topik_dates": "Lịch TOPIK"
-      }
+      },
+      "sourcesHelp": "Trang web chính thức mà bàn kiểm tra. Kết quả luôn chờ quản trị viên; sinh viên chỉ thấy nội dung đã duyệt.",
+      "sourcesActive": "Trang web đang theo dõi",
+      "sourcesNone": "Chưa theo dõi trang web nào.",
+      "source": "Nguồn",
+      "prepared": "Nguồn chính thức đã chuẩn bị ({count})",
+      "preparedHelp": "Đã kiểm tra trên trang thật. Chưa theo dõi cho đến khi bạn thêm.",
+      "checkedOn": "kiểm tra {date}",
+      "keyMissing": "cần {key} trên dịch vụ API",
+      "keySet": "đã đặt {key}",
+      "add": "Thêm",
+      "turnOn": "Bật",
+      "turnOff": "Tắt",
+      "reset": "Đặt lại lỗi",
+      "remove": "Xóa",
+      "confirmDelete": "Xóa cùng các mục đang chờ",
+      "custom": "Thêm trang chính thức khác",
+      "customHelp": "Tên miền phải có trong danh sách cho phép (Quản trị → Cài đặt). Không đọc trang cấm truy cập tự động trong robots.txt.",
+      "kind": "Loại",
+      "kinds": {
+        "page": "Một trang",
+        "listing": "Danh sách thông báo (cần selector)",
+        "sch_board": "Bảng thông báo SCH"
+      },
+      "category": "Danh mục",
+      "config": "Cài đặt (JSON, tùy chọn)",
+      "configBad": "JSON không hợp lệ."
     },
     "gpu": {
       "title": "Máy GPU",
@@ -2690,7 +2717,7 @@
         "noSchedules": "Bàn này không có lịch.",
         "sources": "Nguồn ({count})",
         "noSources": "Chưa có nguồn nào.",
-        "addSources": "Nguồn mới do quản trị viên thêm qua API quản trị sau khi được phê duyệt.",
+        "addSources": "Thêm hoặc xóa nguồn trong Quản trị → Tác nhân AI → Nguồn.",
         "disabled": "Đã tắt",
         "kinds": {
           "sch_board": "Bảng tin trường",

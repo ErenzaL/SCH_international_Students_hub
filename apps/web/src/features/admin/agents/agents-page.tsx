@@ -16,6 +16,7 @@ import { Select } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs } from "@/components/ui/tabs";
 import { EmptyState, ErrorState, LoadingState, PageHeader, Pagination } from "@/components/shared/states";
+import { SourcesTab } from "@/features/admin/agents/sources-tab";
 import { CHARACTERS } from "@/features/ai-office/characters";
 import { api } from "@/lib/api";
 import { useAction } from "@/lib/use-action";
@@ -42,7 +43,7 @@ interface Storage {
   tables?: { table_name: string; total_bytes: number; index_bytes: number | null; row_estimate: number }[]; rows_added_30d?: Record<string, number | null>;
 }
 
-const TABS = ["desks", "tasks", "schedules", "storage"] as const;
+const TABS = ["desks", "tasks", "sources", "schedules", "storage"] as const;
 type Tab = (typeof TABS)[number];
 const STATUSES: Status[] = ["queued", "running", "awaiting_approval", "completed", "failed", "cancelled"];
 const statusVariant = (s: Status) => (s === "failed" ? "danger" : s === "completed" ? "success" : "secondary") as "danger" | "success" | "secondary";
@@ -57,6 +58,7 @@ export function AgentsPage() {
       <Tabs label={t("title")} value={tab} onChange={(id) => setTab(id as Tab)} items={TABS.map((id) => ({ id, label: t(`tabs.${id}`) }))} />
       {tab === "desks" && <Desks />}
       {tab === "tasks" && <Tasks />}
+      {tab === "sources" && <SourcesTab />}
       {tab === "schedules" && <Schedules />}
       {tab === "storage" && <StorageView />}
     </div>

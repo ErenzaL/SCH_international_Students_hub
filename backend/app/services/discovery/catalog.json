@@ -1,5 +1,5 @@
 {
- "note": "Proposal. Each entry (without 'validated' and 'recommended_interval_minutes') is the body of POST /api/v1/admin/discovery/sources. Nothing here is configured anywhere.",
+ "note": "Prepared official sources (checked live on the date in 'validated'). Nothing is active until an administrator adds it.",
  "sources": [
   {
    "agent_id": "announcement",
@@ -527,6 +527,39 @@
     "newest": "2026-11-12",
     "seconds": 3.5,
     "checked": "2026-11-25"
+   }
+  },
+  {
+   "agent_id": "career",
+   "name": "공공기관 채용정보 (재정경제부 API)",
+   "kind": "data_go_kr_jobs",
+   "url": "https://job.alio.go.kr/",
+   "category": "employment-internships",
+   "language": "ko",
+   "config": {
+    "max_items": 10
+   },
+   "recommended_interval_minutes": 1440,
+   "needs": "DATA_GO_KR_SERVICE_KEY",
+   "validated": {
+    "status": "not_tested"
+   }
+  },
+  {
+   "agent_id": "career",
+   "name": "사람인 채용정보 (공식 API)",
+   "kind": "saramin_api",
+   "url": "https://www.saramin.co.kr/",
+   "category": "employment-internships",
+   "language": "ko",
+   "config": {
+    "max_items": 10,
+    "keywords": "외국인 유학생"
+   },
+   "recommended_interval_minutes": 1440,
+   "needs": "SARAMIN_ACCESS_KEY",
+   "validated": {
+    "status": "not_tested"
    }
   }
  ]

@@ -1658,7 +1658,8 @@
         "desks": "Desks",
         "tasks": "Tasks",
         "schedules": "Schedules",
-        "storage": "Storage"
+        "storage": "Storage",
+        "sources": "Sources"
       },
       "privacy": "Parameters and results of students are never shown here.",
       "schedulesOffTitle": "Automatic checks are switched off on the server",
@@ -1746,7 +1747,33 @@
         "visa_checklist": "Visa checklist",
         "academic_checklist": "Academic checklist",
         "topik_dates": "TOPIK dates"
-      }
+      },
+      "sourcesHelp": "Official websites a desk checks. Found items always wait for an administrator; students see only what was reviewed and approved.",
+      "sourcesActive": "Watched websites",
+      "sourcesNone": "No website is watched yet.",
+      "source": "Source",
+      "prepared": "Prepared official sources ({count})",
+      "preparedHelp": "Checked on the live websites. Nothing is watched until you add it.",
+      "checkedOn": "checked {date}",
+      "keyMissing": "needs {key} on the API service",
+      "keySet": "{key} is set",
+      "add": "Add",
+      "turnOn": "Turn on",
+      "turnOff": "Turn off",
+      "reset": "Reset failures",
+      "remove": "Remove",
+      "confirmDelete": "Remove with its candidates",
+      "custom": "Add another official page",
+      "customHelp": "The domain must be on the list of allowed domains (Admin → Settings). Pages that forbid automated access in robots.txt are never read.",
+      "kind": "Type",
+      "kinds": {
+        "page": "One page",
+        "listing": "List of notices (needs selectors)",
+        "sch_board": "SCH notice board"
+      },
+      "category": "Category",
+      "config": "Settings (JSON, optional)",
+      "configBad": "This is not valid JSON."
     },
     "gpu": {
       "title": "GPU worker",
@@ -2690,7 +2717,7 @@
         "noSchedules": "No schedule exists for this desk.",
         "sources": "Sources ({count})",
         "noSources": "No source is configured.",
-        "addSources": "New sources are added by an administrator through the admin API after approval.",
+        "addSources": "Add or remove sources in Admin → Agents → Sources.",
         "disabled": "Disabled",
         "kinds": {
           "sch_board": "University board",

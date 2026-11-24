@@ -233,6 +233,12 @@ def create_discovery_source(body: DiscoverySourceCreate, svc: Services = Depends
     return svc.discovery.create_source(admin.id, body.model_dump())
 
 
+@router.get("/admin/discovery/catalog")
+def discovery_catalog(svc: Services = Depends(get_services), _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """Prepared official sources that were checked live; adding one is an ordinary source creation."""
+    return dict(items=svc.discovery.catalog())
+
+
 @router.patch("/admin/discovery/sources/{source_id}")
 def update_discovery_source(source_id: str, body: DiscoverySourcePatch, svc: Services = Depends(get_services),
                             admin: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]

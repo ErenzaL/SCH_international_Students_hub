@@ -97,3 +97,18 @@ def test_apis_belong_to_the_career_desk_and_settings_are_checked(env):
     for body, code in ((dict(agent_id="events"), 422), (dict(config={"access-key": "x"}), 422)):
         r = env.client.post("/api/v1/admin/discovery/sources", headers=env.auth("admin"), json=dict(agent_id="career", name="API x", kind="saramin_api", url="https://x.example/") | body)
         assert r.status_code == code, r.text
+
+
+def test_the_catalogue_is_valid_allowlisted_and_added_by_an_administrator(env):
+    from app.core.constants import CATEGORY_SLUGS
+    from app.services.agents.tasks import DISCOVERY_AGENTS
+
+    assert env.client.get("/api/v1/admin/discovery/catalog", headers=env.auth("student")).status_code == 403
+    items = env.client.get("/api/v1/admin/discovery/catalog", headers=env.auth("admin")).json()["items"]
+    assert len(items) >= 23 and {i["agent_id"] for i in items} == set(DISCOVERY_AGENTS) and not any(i["added"] for i in items)
+    assert all(i["category"] in CATEGORY_SLUGS and (i["validated"]["status"] == "ok" or i["needs"]) for i in items)
+    for i in items:
+        r = env.client.post("/api/v1/admin/discovery/sources", headers=env.auth("admin"), json={k: i[k] for k in ("agent_id", "name", "kind", "url", "category", "language", "config")})
+        assert r.status_code == 201, (i["name"], r.text)
+    again = env.client.get("/api/v1/admin/discovery/catalog", headers=env.auth("admin")).json()["items"]
+    assert all(i["added"] for i in again) and [i["ready"] for i in again if i["needs"]] == [False, False]

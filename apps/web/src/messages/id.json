@@ -1658,7 +1658,8 @@
         "desks": "Meja",
         "tasks": "Tugas",
         "schedules": "Jadwal",
-        "storage": "Penyimpanan"
+        "storage": "Penyimpanan",
+        "sources": "Sumber"
       },
       "privacy": "Parameter dan hasil milik mahasiswa tidak pernah ditampilkan di sini.",
       "schedulesOffTitle": "Pemeriksaan otomatis dimatikan di server",
@@ -1746,7 +1747,33 @@
         "visa_checklist": "Daftar periksa visa",
         "academic_checklist": "Daftar periksa akademik",
         "topik_dates": "Jadwal TOPIK"
-      }
+      },
+      "sourcesHelp": "Situs resmi yang diperiksa meja. Temuan selalu menunggu administrator; mahasiswa hanya melihat yang sudah ditinjau dan disetujui.",
+      "sourcesActive": "Situs yang dipantau",
+      "sourcesNone": "Belum ada situs yang dipantau.",
+      "source": "Sumber",
+      "prepared": "Sumber resmi yang disiapkan ({count})",
+      "preparedHelp": "Sudah diperiksa di situs langsung. Tidak dipantau sebelum Anda menambahkannya.",
+      "checkedOn": "diperiksa {date}",
+      "keyMissing": "perlu {key} di layanan API",
+      "keySet": "{key} sudah diatur",
+      "add": "Tambah",
+      "turnOn": "Aktifkan",
+      "turnOff": "Matikan",
+      "reset": "Reset kegagalan",
+      "remove": "Hapus",
+      "confirmDelete": "Hapus beserta kandidatnya",
+      "custom": "Tambah halaman resmi lain",
+      "customHelp": "Domain harus ada di daftar domain yang diizinkan (Admin → Pengaturan). Halaman yang melarang akses otomatis di robots.txt tidak pernah dibaca.",
+      "kind": "Jenis",
+      "kinds": {
+        "page": "Satu halaman",
+        "listing": "Daftar pengumuman (perlu selector)",
+        "sch_board": "Papan pengumuman SCH"
+      },
+      "category": "Kategori",
+      "config": "Pengaturan (JSON, opsional)",
+      "configBad": "JSON tidak valid."
     },
     "gpu": {
       "title": "Pekerja GPU",
@@ -2690,7 +2717,7 @@
         "noSchedules": "Meja ini tidak punya jadwal.",
         "sources": "Sumber ({count})",
         "noSources": "Belum ada sumber.",
-        "addSources": "Sumber baru ditambahkan oleh administrator melalui API admin setelah disetujui.",
+        "addSources": "Tambah atau hapus sumber di Admin → Agen → Sumber.",
         "disabled": "Nonaktif",
         "kinds": {
           "sch_board": "Papan universitas",

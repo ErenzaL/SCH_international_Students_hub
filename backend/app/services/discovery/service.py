@@ -76,6 +76,21 @@ class DiscoveryService:
                                                                order=[("created_at", False)]))
         return rows
 
+    def catalog(self) -> list[dict[str, Any]]:
+        import json
+        from pathlib import Path
+
+        entries = json.loads((Path(__file__).parent / "catalog.json").read_text(encoding="utf-8"))["sources"]
+        have = {(s["agent_id"], s["url"]) for s in self.list_sources()}
+        out = []
+        for e in entries:
+            need = e.get("needs")
+            out.append(dict({k: e[k] for k in ("agent_id", "name", "kind", "url", "category", "language", "config")},
+                            recommended_interval_minutes=e["recommended_interval_minutes"], validated=e.get("validated") or {},
+                            added=(e["agent_id"], e["url"]) in have, needs=need,
+                            ready=not need or bool(getattr(self.settings, need.lower(), ""))))
+        return out
+
     def get_source(self, source_id: str) -> dict[str, Any]:
         s = get_one(self.store, "discovery_sources", id=source_id)
         if s is None:

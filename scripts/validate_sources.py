@@ -1,7 +1,7 @@
 """Check a file of official-source proposals against the LIVE websites, without a database: allowlist, robots.txt, parser, dates,
 links. Uses the Hub's own guarded fetcher and connectors (GET, robots.txt, at least one second between requests).
 
-    cd backend && .venv/bin/python ../scripts/validate_sources.py ../docs/owner/sources.json [--items 3] [--write]
+    cd backend && .venv/bin/python ../scripts/validate_sources.py app/services/discovery/catalog.json [--items 3] [--write]
 
 --write stores the result (status, counts, date) next to every entry. Nothing is sent to the Hub.
 """
@@ -17,7 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
 from app.core.config import Settings  # noqa: E402
 from app.services.agents.tasks import DISCOVERY_AGENTS  # noqa: E402
-from app.services.discovery.connectors import Connectors, validate_config  # noqa: E402
+from app.services.discovery.connectors import API_KINDS, Connectors, validate_config  # noqa: E402
 from app.services.discovery.extract import analyse  # noqa: E402
 from app.services.ingestion.fetcher import GuardedFetcher  # noqa: E402
 
@@ -36,6 +36,9 @@ def main() -> int:
     bad = 0
     for e in data["sources"]:
         if a.only and a.only not in e["url"] and a.only != e["agent_id"]:
+            continue
+        if e["kind"] in API_KINDS:
+            print(f"skipped  {e['agent_id']:13} {e['name'][:40]:42} needs {e.get('needs')}")
             continue
         t0, out = time.time(), {}
         try:

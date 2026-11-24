@@ -1658,7 +1658,8 @@
         "desks": "服务台",
         "tasks": "任务",
         "schedules": "计划",
-        "storage": "存储"
+        "storage": "存储",
+        "sources": "来源"
       },
       "privacy": "此处不会显示学生的输入和结果。",
       "schedulesOffTitle": "服务器已关闭自动检查",
@@ -1746,7 +1747,33 @@
         "visa_checklist": "签证清单",
         "academic_checklist": "学务清单",
         "topik_dates": "TOPIK 日期"
-      }
+      },
+      "sourcesHelp": "服务台检查的官方网站。发现的内容始终等待管理员；学生只能看到审核通过的内容。",
+      "sourcesActive": "已关注的网站",
+      "sourcesNone": "尚未关注任何网站。",
+      "source": "来源",
+      "prepared": "预备的官方来源（{count}）",
+      "preparedHelp": "已在实际网站上核验。添加之前不会关注。",
+      "checkedOn": "核验于 {date}",
+      "keyMissing": "API 服务需要 {key}",
+      "keySet": "已设置 {key}",
+      "add": "添加",
+      "turnOn": "开启",
+      "turnOff": "关闭",
+      "reset": "重置错误",
+      "remove": "移除",
+      "confirmDelete": "连同候选内容一并移除",
+      "custom": "添加其他官方页面",
+      "customHelp": "域名必须在允许列表中（管理 → 设置）。不会读取 robots.txt 禁止自动访问的页面。",
+      "kind": "类型",
+      "kinds": {
+        "page": "单个页面",
+        "listing": "公告列表（需要选择器）",
+        "sch_board": "顺天乡大学公告板"
+      },
+      "category": "分类",
+      "config": "设置（JSON，可选）",
+      "configBad": "不是有效的 JSON。"
     },
     "gpu": {
       "title": "GPU 工作机",
@@ -2690,7 +2717,7 @@
         "noSchedules": "此服务台没有计划。",
         "sources": "来源（{count}）",
         "noSources": "尚未配置来源。",
-        "addSources": "新来源经批准后由管理员通过管理 API 添加。",
+        "addSources": "在 管理 → 智能体 → 来源 中添加或移除来源。",
         "disabled": "已停用",
         "kinds": {
           "sch_board": "大学公告栏",
