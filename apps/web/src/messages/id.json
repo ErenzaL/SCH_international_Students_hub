@@ -211,7 +211,7 @@
     },
     "faqNote": "Jawaban ini hanya panduan umum dan tidak menggantikan peraturan atau tenggat resmi.",
     "assistantTitle": "Asisten AI",
-    "assistantBody": "Ajukan pertanyaan dan lihat kutipan terverifikasi beserta sumbernya. Pembuatan jawaban belum diaktifkan.",
+    "assistantBody": "Ajukan pertanyaan dalam bahasa Anda. Asisten AI menjawab dari sumber terverifikasi dan menautkan setiap sumbernya.",
     "assistantCta": "Buka asisten"
   },
   "footer": {
@@ -1853,7 +1853,9 @@
     "nudge1": "Halo! Saya asisten AI SCH. Tanyakan apa saja tentang kehidupan mahasiswa di Korea.",
     "nudge2": "Ada pertanyaan tentang visa, asrama, atau beasiswa? Saya menjawab dari sumber resmi, dalam bahasa Anda.",
     "nudge3": "Bingung mulai dari mana? Tanyakan saja — saya menunjukkan sumber setiap jawaban.",
-    "nudgeDismiss": "Sembunyikan pesan ini"
+    "nudgeDismiss": "Sembunyikan pesan ini",
+    "fullScreen": "Layar penuh",
+    "exitFullScreen": "Keluar dari layar penuh"
   },
   "office": {
     "title": "Kantor Layanan AI SCH",

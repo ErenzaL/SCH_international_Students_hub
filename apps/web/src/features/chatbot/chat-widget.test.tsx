@@ -257,3 +257,28 @@ describe("AI assistant launcher", () => {
     }
   });
 });
+
+describe("full screen", () => {
+  it("is offered on the home page only and Escape leaves it before closing", async () => {
+    pathnameMock.mockReturnValue("/");
+    renderWithIntl(<ChatWidget />);
+    await userEvent.click(screen.getByTestId("chat-launcher"));
+    const panel = screen.getByTestId("chat-panel");
+    expect(panel).toHaveAttribute("data-fullscreen", "false");
+    await userEvent.click(screen.getByTestId("chat-fullscreen"));
+    expect(panel).toHaveAttribute("data-fullscreen", "true");
+    expect(screen.getByTestId("chat-fullscreen")).toHaveAccessibleName("Exit full screen");
+    await userEvent.keyboard("{Escape}");
+    expect(screen.getByTestId("chat-panel")).toHaveAttribute("data-fullscreen", "false");
+    await userEvent.keyboard("{Escape}");
+    expect(screen.queryByTestId("chat-panel")).toBeNull();
+    pathnameMock.mockReturnValue("/knowledge");
+  });
+
+  it("is not offered on other pages", async () => {
+    pathnameMock.mockReturnValue("/knowledge");
+    renderWithIntl(<ChatWidget />);
+    await userEvent.click(screen.getByTestId("chat-launcher"));
+    expect(screen.queryByTestId("chat-fullscreen")).toBeNull();
+  });
+});

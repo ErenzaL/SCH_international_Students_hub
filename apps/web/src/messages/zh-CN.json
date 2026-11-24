@@ -211,7 +211,7 @@
     },
     "faqNote": "这些回答仅为一般性指引，不能替代官方规定或截止日期。",
     "assistantTitle": "AI 助手",
-    "assistantBody": "提出问题，查看匹配的已验证段落及其来源。尚未启用答案生成功能。",
+    "assistantBody": "用你的语言提问。AI 助手会根据已验证的资料回答，并附上每个来源的链接。",
     "assistantCta": "打开助手"
   },
   "footer": {
@@ -1853,7 +1853,9 @@
     "nudge1": "你好！我是 SCH 的 AI 助手。关于在韩国的留学生活，尽管问我。",
     "nudge2": "有签证、宿舍或奖学金方面的问题吗？我会根据官方资料，用你的语言回答。",
     "nudge3": "不知道从哪里开始？问我吧——每个回答我都会注明出处。",
-    "nudgeDismiss": "隐藏此消息"
+    "nudgeDismiss": "隐藏此消息",
+    "fullScreen": "全屏",
+    "exitFullScreen": "退出全屏"
   },
   "office": {
     "title": "SCH AI 支援办公室",

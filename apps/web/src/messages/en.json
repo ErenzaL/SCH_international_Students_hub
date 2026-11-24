@@ -211,7 +211,7 @@
     },
     "faqNote": "These answers are general guidance only. They do not replace official regulations or deadlines.",
     "assistantTitle": "AI Assistant",
-    "assistantBody": "Ask a question and see the verified passages and sources that match it. Answer generation is not enabled yet.",
+    "assistantBody": "Ask a question in your language. The AI assistant answers from verified sources and links to each one.",
     "assistantCta": "Open the assistant"
   },
   "footer": {
@@ -1853,7 +1853,9 @@
     "nudge1": "Hi! I'm the SCH AI assistant. Ask me anything about student life in Korea.",
     "nudge2": "Questions about visas, dormitories or scholarships? I answer from official sources, in your language.",
     "nudge3": "Not sure where to start? Ask me — I show the source of every answer.",
-    "nudgeDismiss": "Hide this message"
+    "nudgeDismiss": "Hide this message",
+    "fullScreen": "Full screen",
+    "exitFullScreen": "Exit full screen"
   },
   "office": {
     "title": "SCH AI Support Office",

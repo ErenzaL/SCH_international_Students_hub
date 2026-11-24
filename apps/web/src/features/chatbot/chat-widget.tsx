@@ -9,11 +9,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { History, Minus, Plus, Sparkles, X } from "lucide-react";
+import { History, Maximize2, Minimize2, Minus, Plus, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatBody } from "@/features/chatbot/chat-body";
 import { OPEN_CHAT_EVENT, type OpenChatDetail } from "@/features/chatbot/open-chat";
 import { useAssistantChat } from "@/features/chatbot/use-assistant-chat";
+import { cn } from "@/lib/utils";
 import type { LanguageCode } from "@/types/api";
 
 export { chatError } from "@/features/chatbot/use-assistant-chat";
@@ -36,6 +37,11 @@ function ChatWidgetInner() {
   const locale = useLocale() as LanguageCode;
   const [open, setOpen] = useState(false);
   const [minimized, setMinimized] = useState(false);
+  // full screen is offered on the home page only (elsewhere the chat stays beside the page)
+  const pathname = usePathname();
+  const canFull = pathname === "/";
+  const [fullRequested, setFull] = useState(false);
+  const full = fullRequested && canFull;
   const chat = useAssistantChat({ language: locale, active: open });
   const { setView, setDraft } = chat;
 
@@ -76,10 +82,15 @@ function ChatWidgetInner() {
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    // Escape leaves full screen first, then closes the chat
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (full) setFull(false);
+      else setOpen(false);
+    };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open]);
+  }, [open, full]);
 
   if (!open || minimized) {
     return (
@@ -117,7 +128,10 @@ function ChatWidgetInner() {
       aria-modal="false"
       aria-label={t("title")}
       data-testid="chat-panel"
-      className="fixed inset-0 z-50 flex h-[100dvh] flex-col bg-card text-card-foreground sm:inset-auto sm:bottom-[calc(1.25rem+env(safe-area-inset-bottom))] sm:right-5 sm:h-[min(680px,calc(100dvh-2.5rem))] sm:w-[420px] sm:rounded-2xl sm:border sm:border-border sm:shadow-2xl"
+      data-fullscreen={full ? "true" : "false"}
+      className={cn("fixed inset-0 z-50 flex h-[100dvh] flex-col bg-card text-card-foreground sm:rounded-2xl sm:border sm:border-border sm:shadow-2xl",
+        full ? "sm:inset-4 sm:h-auto"
+          : "sm:inset-auto sm:bottom-[calc(1.25rem+env(safe-area-inset-bottom))] sm:right-5 sm:h-[min(680px,calc(100dvh-2.5rem))] sm:w-[420px]")}
     >
       <header className="flex items-center gap-2 border-b border-border px-3 py-2.5 pt-[max(0.625rem,env(safe-area-inset-top))] sm:pt-2.5">
         <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground" aria-hidden>SCH</span>
@@ -129,11 +143,20 @@ function ChatWidgetInner() {
           <Button size="sm" variant="ghost" className="size-8 p-0" aria-label={t("history")} onClick={() => void chat.openHistory()}><History /></Button>
         )}
         <Button size="sm" variant="ghost" className="size-8 p-0" aria-label={t("newChat")} onClick={chat.newChat}><Plus /></Button>
+        {canFull && (
+          <Button size="sm" variant="ghost" className="hidden size-8 p-0 sm:inline-flex" data-testid="chat-fullscreen"
+            aria-label={full ? t("exitFullScreen") : t("fullScreen")} aria-pressed={full} onClick={() => setFull(!full)}>
+            {full ? <Minimize2 /> : <Maximize2 />}
+          </Button>
+        )}
         <Button size="sm" variant="ghost" className="hidden size-8 p-0 sm:inline-flex" aria-label={t("minimize")} onClick={() => setMinimized(true)}><Minus /></Button>
         <Button size="sm" variant="ghost" className="size-8 p-0" aria-label={t("close")} onClick={() => setOpen(false)}><X /></Button>
       </header>
-      <ChatBody chat={chat} welcome={t("welcome")} examples={[t("example1"), t("example2"), t("example3")]}
-        onNavigate={closeOnPhone} />
+      {/* full screen: the conversation stays in a readable column in the middle */}
+      <div className={full ? "mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col" : "contents"}>
+        <ChatBody chat={chat} welcome={t("welcome")} examples={[t("example1"), t("example2"), t("example3")]}
+          onNavigate={closeOnPhone} />
+      </div>
     </section>
   );
 }

@@ -211,7 +211,7 @@
     },
     "faqNote": "Các câu trả lời này chỉ mang tính hướng dẫn chung, không thay thế quy định hay hạn chót chính thức.",
     "assistantTitle": "Trợ lý AI",
-    "assistantBody": "Đặt câu hỏi và xem các đoạn trích đã xác minh cùng nguồn phù hợp. Tính năng tạo câu trả lời chưa được bật.",
+    "assistantBody": "Hãy đặt câu hỏi bằng ngôn ngữ của bạn. Trợ lý AI trả lời dựa trên nguồn đã xác minh và dẫn liên kết tới từng nguồn.",
     "assistantCta": "Mở trợ lý"
   },
   "footer": {
@@ -1853,7 +1853,9 @@
     "nudge1": "Xin chào! Mình là trợ lý AI của SCH. Hãy hỏi mình bất cứ điều gì về cuộc sống du học ở Hàn Quốc.",
     "nudge2": "Bạn có câu hỏi về visa, ký túc xá hay học bổng? Mình trả lời từ nguồn chính thức, bằng ngôn ngữ của bạn.",
     "nudge3": "Chưa biết bắt đầu từ đâu? Cứ hỏi mình — mình luôn cho biết nguồn của mỗi câu trả lời.",
-    "nudgeDismiss": "Ẩn tin nhắn này"
+    "nudgeDismiss": "Ẩn tin nhắn này",
+    "fullScreen": "Toàn màn hình",
+    "exitFullScreen": "Thoát toàn màn hình"
   },
   "office": {
     "title": "Văn phòng hỗ trợ AI SCH",
