@@ -58,6 +58,51 @@ def test_every_office_character_maps_to_one_registered_agent():
     assert writers == ["support-coordinator"]
 
 
+EXPECTED_INTERFACES = {
+    "reception": ("CHAT", "chat"), "supporter-ko": ("CHAT", "chat"), "supporter-en": ("CHAT", "chat"),
+    "supporter-id": ("CHAT", "chat"), "supporter-vi": ("CHAT", "chat"), "supporter-zh": ("CHAT", "chat"),
+    "immigration": ("SERVICE", "checklists"), "academic": ("SERVICE", "procedures"), "topik": ("SERVICE", "topik"),
+    "scholarship": ("DISCOVERY", "opportunities"), "events": ("DISCOVERY", "events"),
+    "career": ("DISCOVERY", "careers"), "announcement": ("MONITORING", "monitoring"),
+    "support-coordinator": ("TASK_WORKSPACE", "request"),
+}
+
+
+def test_every_agent_has_a_role_specific_interface(env):
+    from app.services.agents.registry import INTERFACE_TYPES
+
+    assert set(EXPECTED_INTERFACES) == set(AGENTS)
+    for role in (None, "student", "admin"):
+        items = {a["id"]: a for a in env.client.get("/api/v1/agents", headers=env.auth(role) if role else {})
+                 .json()["items"]}
+        for agent_id, (kind, view) in EXPECTED_INTERFACES.items():
+            ui = items[agent_id]["interface"]
+            assert ui["type"] == kind and ui["type"] in INTERFACE_TYPES and ui["default_view"] == view, agent_id
+            assert ui["tabs"][0] == view and ui["default_view"] in ui["tabs"] and "about" in ui["tabs"]
+            assert set(ui["task_actions"]) <= {x["id"] for x in items[agent_id]["actions"]}
+            # admin tabs and admin actions only for admins (the endpoints check the role again)
+            admin_tabs = {"review", "sources"} & set(ui["tabs"])
+            assert bool(admin_tabs) == (role == "admin" and kind in ("DISCOVERY", "MONITORING")
+                                        and agent_id in ("scholarship", "announcement")), (agent_id, role)
+            if role != "admin":
+                assert "check_official_sources" not in ui["task_actions"]
+    # only Hana and the language supporters are chat-first
+    chat = sorted(k for k, (kind, _) in EXPECTED_INTERFACES.items() if kind == "CHAT")
+    assert chat == sorted(["reception", "supporter-ko", "supporter-en", "supporter-id", "supporter-vi", "supporter-zh"])
+
+
+def test_monitoring_state_shows_a_running_official_source_check_to_everyone(env):
+    env.store.insert("agent_tasks", dict(agent_id="announcement", task_type="announcement_discovery",
+                                         status="running", params={}, requested_by=None))
+    for role in (None, "student"):
+        robo = next(a for a in env.client.get("/api/v1/agents", headers=env.auth(role) if role else {}).json()["items"]
+                    if a["id"] == "announcement")
+        assert robo["state"] == "working" and robo["monitoring_check_running"] is True
+        assert robo["active"] == 0                          # not the viewer's task: no details
+    leo = next(a for a in env.client.get("/api/v1/agents").json()["items"] if a["id"] == "scholarship")
+    assert leo["state"] == "idle" and leo["monitoring_check_running"] is False
+
+
 def test_directory_lists_agents_tools_and_honest_availability(env):
     r = env.client.get("/api/v1/agents")
     assert r.status_code == 200

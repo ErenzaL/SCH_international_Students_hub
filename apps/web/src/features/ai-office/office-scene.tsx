@@ -202,8 +202,9 @@ function Actor({ c, selected, bubble, onSelect, state }: {
           </span>
         )}
       </button>
+      {/* a greeting never blocks clicks on a neighbour standing behind it */}
       {bubble && (
-        <div role="status" className={cn("office-pop absolute bottom-full mb-2 w-max max-w-[260px] rounded-2xl bg-white px-3.5 py-2 text-[14px] font-medium leading-snug text-[#3D4B5C] shadow-lg ring-1 ring-black/5", anchor)}
+        <div role="status" className={cn("office-pop pointer-events-none absolute bottom-full mb-2 w-max max-w-[260px] rounded-2xl bg-white px-3.5 py-2 text-[14px] font-medium leading-snug text-[#3D4B5C] shadow-lg ring-1 ring-black/5", anchor)}
           data-testid="speech-bubble">
           {bubble}
           <span className={cn("absolute top-full -mt-1 size-3 rotate-45 bg-white", tail)} aria-hidden />

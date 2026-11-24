@@ -8,6 +8,11 @@ It is frontend only:
 
 ![Office](screenshots/desktop-office.png)
 
+> **Later phases.** Phase 2 added backend agents ([agents.md](agents.md)) and Phase 3 official-source discovery
+> ([discovery.md](discovery.md)). Each character now opens a **role-specific workspace** chosen by the backend
+> registry: chat, service desk, discovery list, monitoring desk or request form
+> ([workspaces.md](workspaces.md)). The table below describes Phase 1.
+
 ## Who is in the office
 
 The art comes from `assets/characters/`: transparent, single-figure PNGs with a uniform 20 px margin. They are copied unchanged by `apps/web/scripts/sync-office-characters.mjs`, and shown at one height with their own aspect ratio, never cropped or mirrored.

@@ -11,15 +11,13 @@ import { useLocale, useTranslations } from "next-intl";
 import { AlertTriangle, ArrowRight, Check, CircleDashed, ExternalLink, Globe, Loader2, ShieldCheck, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  ACTIVE, agentApi, type AgentInfo, type AgentState, type AgentTask, type RequestOutcome, type ResultItem,
-  type SourceRun, type TaskProgress, type ToolResult,
+  ACTIVE, agentApi, useAgentTasks, type AgentInfo, type AgentState, type AgentTask, type RequestOutcome,
+  type ResultItem, type SourceRun, type TaskProgress, type ToolResult,
 } from "@/features/ai-office/agent-api";
 import type { OfficeCharacter } from "@/features/ai-office/characters";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { LanguageCode } from "@/types/api";
-
-const POLL_MS = 2500;
 
 type Shown =
   | { kind: "result"; result: ToolResult; handledBy: string; delegatedFrom?: string | null }
@@ -45,32 +43,9 @@ export function AgentWork({ c, agent, agents, signedIn, isAdmin = false, onAnswe
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [shown, setShown] = useState<Shown | null>(null);
-  const [tasks, setTasks] = useState<AgentTask[] | null>(null);
+  const { tasks, reload: loadTasks } = useAgentTasks(agent, signedIn, onChanged);
   const language = (c.language ?? locale) as LanguageCode;
   const nameOf = useCallback((id: string) => agents?.find((a) => a.id === id)?.name ?? id, [agents]);
-
-  const loadTasks = useCallback(async () => {
-    if (!signedIn || !agent) return;
-    try {
-      const r = await agentApi.tasks(agent.id);
-      setTasks(r.items);
-    } catch {
-      setTasks((prev) => prev ?? []);
-    }
-  }, [signedIn, agent]);
-
-  useEffect(() => {
-    const id = window.setTimeout(() => void loadTasks(), 0);
-    return () => window.clearTimeout(id);
-  }, [loadTasks]);
-
-  // poll while one of the visible tasks is still queued / running
-  const running = tasks?.some((x) => x.status === "queued" || x.status === "running");
-  useEffect(() => {
-    if (!running) return;
-    const id = window.setInterval(() => void loadTasks().then(onChanged), POLL_MS);
-    return () => window.clearInterval(id);
-  }, [running, loadTasks, onChanged]);
 
   if (!agent) {
     return <p className="text-muted-foreground" data-testid="agent-unavailable">{t("loadError")}</p>;
@@ -127,7 +102,7 @@ export function AgentWork({ c, agent, agents, signedIn, isAdmin = false, onAnswe
     }
   };
 
-  const ownTasks = tasks?.filter((x) => x.agent_id === agent.id) ?? [];
+  const ownTasks = tasks ?? [];
 
   return (
     <ReviewContext.Provider value={{ isAdmin, onChanged }}>
@@ -309,16 +284,16 @@ export function StateDot({ state }: { state: Exclude<AgentState, "idle"> }) {
 }
 
 /** Admin-only review actions inside results (dismiss / send to the normal review queue). */
-const ReviewContext = createContext<{ isAdmin: boolean; onChanged: () => void }>({ isAdmin: false, onChanged: () => {} });
+export const ReviewContext = createContext<{ isAdmin: boolean; onChanged: () => void }>({ isAdmin: false, onChanged: () => {} });
 
-function ResultView({ result }: { result: ToolResult }) {
+export function ResultView({ result }: { result: ToolResult }) {
   const t = useTranslations("office.agent");
   const verified = result.items.filter((i) => i.reliability !== "external_unverified");
   const unverified = result.items.filter((i) => i.reliability === "external_unverified");
   const split = verified.length > 0 && unverified.length > 0;
   const list = (items: ResultItem[]) => (
     <ul className="space-y-1.5">
-      {items.map((item, i) => <li key={`${item.id ?? item.href ?? ""}-${i}`}><Item item={item} /></li>)}
+      {items.map((item, i) => <li key={`${item.id ?? item.href ?? ""}-${i}`}><AgentResultCard item={item} /></li>)}
     </ul>
   );
   return (
@@ -354,7 +329,7 @@ function ResultView({ result }: { result: ToolResult }) {
   );
 }
 
-function SourceList({ sources }: { sources: SourceRun[] }) {
+export function SourceList({ sources }: { sources: SourceRun[] }) {
   const t = useTranslations("office.agent");
   return (
     <details className="rounded-lg border border-border px-2.5 py-1.5 text-xs" data-testid="sources-checked">
@@ -389,12 +364,14 @@ function SourceStatus({ status }: { status: NonNullable<SourceRun["status"]> }) 
   );
 }
 
-function fmt(iso: string): string {
+/** Date and time in the page's language (the site locale, set on <html lang>). */
+export function fmt(iso: string): string {
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? iso : d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+  const lang = typeof document !== "undefined" ? document.documentElement.lang || undefined : undefined;
+  return Number.isNaN(d.getTime()) ? iso : d.toLocaleString(lang, { dateStyle: "medium", timeStyle: "short" });
 }
 
-function OpenStatus({ item }: { item: ResultItem }) {
+export function OpenStatus({ item }: { item: ResultItem }) {
   const t = useTranslations("office.agent.open");
   const s = item.open_status ?? "unknown";
   const uncertain = item.flags?.includes("open_status_uncertain");
@@ -409,7 +386,8 @@ function OpenStatus({ item }: { item: ResultItem }) {
   );
 }
 
-function Item({ item }: { item: ResultItem }) {
+/** One result of an agent tool (announcement, guide, passage, discovered notice, ticket ...) with its labels. */
+export function AgentResultCard({ item }: { item: ResultItem }) {
   const t = useTranslations("office.agent");
   const review = useContext(ReviewContext);
   const [state, setState] = useState<"idle" | "busy" | "dismissed" | "sent" | "error">("idle");
@@ -541,7 +519,7 @@ function TaskProgressView({ progress }: { progress: TaskProgress }) {
   );
 }
 
-function Reliability({ r }: { r: NonNullable<ResultItem["reliability"]> }) {
+export function Reliability({ r }: { r: NonNullable<ResultItem["reliability"]> }) {
   const t = useTranslations("office.agent.reliability");
   const tone = r === "verified" ? "bg-emerald-100 text-emerald-900" : r === "ai_generated" || r === "external_unverified"
     ? "bg-violet-100 text-violet-900" : "bg-amber-100 text-amber-900";
@@ -553,7 +531,7 @@ function Reliability({ r }: { r: NonNullable<ResultItem["reliability"]> }) {
   );
 }
 
-function TaskCard({ task, nameOf, onChanged }: { task: AgentTask; nameOf: (id: string) => string; onChanged: () => void }) {
+export function TaskCard({ task, nameOf, onChanged }: { task: AgentTask; nameOf: (id: string) => string; onChanged: () => void }) {
   const t = useTranslations("office.agent");
   const [full, setFull] = useState<AgentTask | null>(null);
   const [acting, setActing] = useState(false);
@@ -656,7 +634,7 @@ function TaskCard({ task, nameOf, onChanged }: { task: AgentTask; nameOf: (id: s
   );
 }
 
-function TaskStatusPill({ status }: { status: AgentTask["status"] }) {
+export function TaskStatusPill({ status }: { status: AgentTask["status"] }) {
   const t = useTranslations("office.agent.status");
   const tone = status === "completed" ? "bg-emerald-100 text-emerald-900" : status === "failed" ? "bg-red-100 text-red-900"
     : status === "awaiting_approval" ? "bg-amber-100 text-amber-900" : status === "cancelled" ? "bg-muted text-muted-foreground"

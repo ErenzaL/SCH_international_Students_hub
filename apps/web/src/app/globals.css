@@ -76,6 +76,15 @@ body {
 .office-actor[data-phase="walk"] .office-bob {
   animation: office-walk 0.52s ease-in-out infinite;
 }
+/* an agent whose backend task is running works at its desk: a quick, small "typing" nod (state from the API only) */
+@keyframes office-work {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  30% { transform: translateY(-1.5px) rotate(-1deg); }
+  60% { transform: translateY(0.5px) rotate(1deg); }
+}
+.office-actor[data-state="working"] .office-bob {
+  animation: office-work 0.8s ease-in-out infinite;
+}
 .office-actor {
   will-change: transform;
 }

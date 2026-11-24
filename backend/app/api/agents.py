@@ -94,6 +94,15 @@ def list_agents(svc: Services = Depends(get_services), user: AuthUser | None = D
                 is_admin=bool(user is not None and user.is_admin))
 
 
+@router.get("/agents/{agent_id}/monitoring", dependencies=[Depends(rate_limit("public"))])
+def agent_monitoring(agent_id: str, svc: Services = Depends(get_services),
+                     user: AuthUser | None = Depends(optional_user)) -> dict:  # type: ignore[type-arg]
+    """A monitoring desk's public status: configured official sources (name, public URL, last check, ok /
+    attention), whether a check is running and whether automatic checks are on. Admins also get errors, failure
+    counts, disabled sources, schedule settings and the number of candidates waiting for review. Never items."""
+    return svc.agents.monitoring_status(user, agent_id)
+
+
 @router.post("/agents/{agent_id}/requests", dependencies=[Depends(rate_limit("search"))])
 def agent_request(agent_id: str, body: AgentRequest, request: Request, background: BackgroundTasks,
                   svc: Services = Depends(get_services), user: AuthUser | None = Depends(optional_user)) -> dict:  # type: ignore[type-arg]

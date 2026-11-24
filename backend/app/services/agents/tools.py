@@ -674,8 +674,23 @@ def official_source_check(ctx: ToolContext, p: SourceCheckParams) -> dict[str, A
 
 def opportunity_search(ctx: ToolContext, p: OpportunityParams) -> dict[str, Any]:
     kinds = [p.kind] if p.kind else (["job"] if ctx.agent.id == "career" else ["scholarship", "competition", "program"])
-    items = ctx.svc.discovery.opportunities(q=p.q, kinds=kinds, include_closed=p.include_closed, limit=p.limit)
-    notes = ["official_unreviewed", "open_only_when_stated"] if items else ["no_discoveries"]
+    staff = ctx.user is not None and ctx.user.is_admin
+    # students and visitors: only discoveries an admin reviewed and the Knowledge Center approved
+    items = ctx.svc.discovery.opportunities(q=p.q, kinds=kinds, include_closed=p.include_closed, limit=p.limit,
+                                            approved_documents=ctx.svc.public.approved_documents_for_sources,
+                                            reviewed_only=not staff)
+    if staff:
+        unreviewed = any(i["reliability"] != "verified" for i in items)
+        notes = [("official_unreviewed" if unreviewed else "official_reviewed"), "open_only_when_stated"] if items \
+            else ["no_discoveries"]
+    elif items:
+        notes = ["official_reviewed", "open_only_when_stated"]
+    elif not p.include_closed and ctx.svc.discovery.opportunities(
+            q=p.q, kinds=kinds, include_closed=True, limit=1,
+            approved_documents=ctx.svc.public.approved_documents_for_sources):
+        notes = ["reviewed_closed_hidden"]           # approved ones exist, all closed: say so precisely
+    else:
+        notes = ["no_reviewed_discoveries"]
     if any("missing_deadline" in i["flags"] or "missing_eligibility" in i["flags"] for i in items):
         notes.append("some_missing_info")
     return result("opportunity_search", items, notes=notes)
@@ -726,7 +741,7 @@ TOOLS: dict[str, Tool] = {t.name: t for t in [
          requires_auth=True),
     Tool("official_source_check", "Check the configured official websites now; new or changed notices become "
          "review candidates.", SourceCheckParams, official_source_check, background=True, roles=ADMIN),
-    Tool("opportunity_search", "Opportunities found on configured official websites (not reviewed by staff).",
+    Tool("opportunity_search", "Opportunities found on configured official websites (students: only reviewed and approved ones).",
          OpportunityParams, opportunity_search),
     Tool("review_candidates", "Discovered official notices waiting for an admin's review.", CandidateParams,
          review_candidates, roles=ADMIN),

@@ -63,7 +63,9 @@ export interface AgentTask {
   createdAt: string;
 }
 
-export type PanelTab = "chat" | "work" | "guides" | "notices" | "events" | "opportunities" | "desks" | "help" | "support" | "about";
+export type PanelTab = "chat" | "work" | "guides" | "notices" | "events" | "opportunities" | "desks" | "help" | "support" | "about"
+  // role-specific workspaces (the backend registry offers them per agent and viewer: AgentInterface.tabs)
+  | "checklists" | "procedures" | "topik" | "careers" | "monitoring" | "review" | "sources" | "request" | "requests";
 
 const read = (id: string, tool: ToolId, extra: Partial<AgentCapability> = {}): AgentCapability =>
   ({ id, tool, status: "available", access: "read", requiresConfirmation: false, ...extra });
@@ -98,6 +100,7 @@ const TAB_FOR_TOOL: Partial<Record<ToolId, PanelTab>> = {
   office_directory: "desks", office_help: "help", human_handoff: "support",
 };
 
+/** Tabs used until (or if) the backend directory with each agent's interface is available: the chat-first layout. */
 export function tabsFor(role: CharacterRole): PanelTab[] {
   const tabs: PanelTab[] = [];
   for (const c of CAPABILITIES[role]) {

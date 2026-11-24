@@ -143,3 +143,30 @@ def test_agent_tool_permissions_hold_for_every_role(it: IT):
     assert r.status_code == 403 and r.json()["error"]["code"] == "background_only"
     r = task(it, "admin", "scholarship", "opportunity_discovery", {"url": "https://evil.example.com"})
     assert r.status_code == 422
+
+
+# ------------------------------------------------------------------ workspaces (presentation) and monitoring status
+@pytest.mark.parametrize("role,admin", [(None, False), ("student", False), ("supporter", False), ("admin", True),
+                                        ("super_admin", True)])
+def test_workspace_interfaces_monitoring_and_discoveries_respect_roles(it: IT, role: str | None, admin: bool):
+    headers = it.auth(role) if role else {}
+    items = {a["id"]: a for a in it.client.get("/api/v1/agents", headers=headers).json()["items"]}
+    for agent_id in ("scholarship", "announcement"):
+        ui = items[agent_id]["interface"]
+        assert ({"review", "sources"} <= set(ui["tabs"])) is admin
+        assert ("check_official_sources" in ui["task_actions"]) is admin
+    assert items["support-coordinator"]["interface"]["type"] == "TASK_WORKSPACE"
+    mon = it.client.get("/api/v1/agents/announcement/monitoring", headers=headers)
+    assert mon.status_code == 200
+    body = mon.json()
+    assert ("candidates_waiting" in body) is admin
+    assert all(("last_error" in s and "id" in s) is admin for s in body["sources"])
+    assert all(("params" in s) is admin for s in body["schedules"])
+    # unreviewed discoveries never reach non-admins (whatever the database holds)
+    out = it.client.post("/api/v1/agents/scholarship/tools", headers=headers,
+                         json=dict(tool="opportunity_search", params={"include_closed": True, "limit": 30})).json()["result"]
+    if not admin:
+        assert all(i["reliability"] == "verified" and "review_status" not in i and i["href"].startswith("/knowledge/")
+                   for i in out["items"])
+        candidates = {t for t in sql("select title from discovered_items where status = 'candidate'").splitlines() if t}
+        assert not candidates & {i["title"] for i in out["items"]}

@@ -1890,8 +1890,8 @@
         "description": "Menyambut Anda, menjawab pertanyaan umum, dan menunjukkan meja yang tepat."
       },
       "guide": {
-        "title": "Robot pemandu kantor",
-        "description": "Menjelaskan cara kerja kantor dan lokasi setiap staf."
+        "title": "Pemantau pengumuman & pemandu kantor",
+        "description": "Memantau situs resmi universitas dan pengumuman yang dipublikasikan, serta menjelaskan cara kerja kantor."
       },
       "supporter": {
         "title": "Pendamping {language}",
@@ -2001,7 +2001,16 @@
       "help": "Cara kerja",
       "support": "Bantuan manusia",
       "about": "Yang bisa saya lakukan",
-      "work": "Tugas"
+      "work": "Tugas",
+      "checklists": "Daftar periksa",
+      "procedures": "Prosedur",
+      "topik": "TOPIK",
+      "careers": "Karier",
+      "monitoring": "Pemantauan",
+      "review": "Tinjauan",
+      "sources": "Sumber",
+      "request": "Permintaan baru",
+      "requests": "Permintaan saya"
     },
     "lists": {
       "guidesTitle": "Panduan yang disetujui di Pusat Pengetahuan",
@@ -2144,7 +2153,9 @@
         "official_opportunities": "Dari situs resmi",
         "check_official_sources": "Periksa situs resmi (admin)",
         "review_queue": "Antrean tinjauan (admin)",
-        "official_jobs": "Lowongan di situs resmi"
+        "official_jobs": "Lowongan di situs resmi",
+        "leave_of_absence": "Cuti & kembali kuliah",
+        "graduation": "Syarat kelulusan"
       },
       "notes": {
         "no_match": "Tidak ada sumber yang disetujui di Hub yang cocok.",
@@ -2173,7 +2184,10 @@
         "open_only_when_stated": "Ditandai dibuka hanya jika sumber menyebut tenggat di masa depan atau menyatakan pendaftaran dibuka.",
         "no_discoveries": "Belum ada yang ditemukan di situs resmi yang diatur.",
         "some_missing_info": "Beberapa item tidak memiliki tenggat atau persyaratan; sudah ditandai.",
-        "no_candidates": "Tidak ada pengumuman yang menunggu tinjauan."
+        "no_candidates": "Tidak ada pengumuman yang menunggu tinjauan.",
+        "official_reviewed": "Dari situs resmi, ditinjau staf dan disetujui di Pusat Informasi.",
+        "no_reviewed_discoveries": "Belum ada pengumuman dari situs resmi yang ditinjau dan disetujui.",
+        "reviewed_closed_hidden": "Ada peluang dari situs resmi yang sudah ditinjau, tetapi semuanya sudah ditutup. Sertakan yang ditutup untuk melihatnya."
       },
       "reliability": {
         "verified": "Sumber disetujui",
@@ -2370,6 +2384,319 @@
         "candidate": "Menunggu tinjauan",
         "dismissed": "Diabaikan",
         "imported": "Dikirim ke tinjauan"
+      }
+    },
+    "ws": {
+      "backToOffice": "Kembali ke kantor",
+      "adminOnly": "Khusus admin",
+      "noActivity": "Belum ada aktivitas tercatat.",
+      "apply": "Daftar",
+      "eligibilityQuoted": "Syarat (dikutip dari sumber)",
+      "publishedOn": "Dipublikasikan {date}",
+      "verifiedOn": "Disetujui {date}",
+      "lastChecked": "Diperiksa {when}",
+      "itemKinds": {
+        "guide": "Panduan",
+        "notice": "Pengumuman"
+      },
+      "annStatus": {
+        "upcoming": "Akan datang",
+        "expired": "Lampau"
+      },
+      "dates": {
+        "deadline": "Tenggat",
+        "event": "Tanggal",
+        "passed": "lewat",
+        "today": "hari ini",
+        "tomorrow": "besok",
+        "inDays": "{count} hari lagi"
+      },
+      "status": {
+        "checkingSources": "Memeriksa situs resmi",
+        "awaiting": "{count} menunggu Anda"
+      },
+      "source": {
+        "hub": "Disetujui di Hub",
+        "official": "Halaman resmi"
+      },
+      "opp": {
+        "intro": "Beasiswa, kompetisi, dan program yang dipublikasikan di Hub atau telah ditinjau dan disetujui staf. Tenggat dan syarat dikutip dari setiap sumber.",
+        "search": "Cari peluang",
+        "searchPlaceholder": "mis. GKS, biaya kuliah, kompetisi",
+        "kindFilter": "Jenis",
+        "kinds": {
+          "all": "Semua",
+          "scholarship": "Beasiswa",
+          "competition": "Kompetisi",
+          "program": "Program"
+        },
+        "showClosed": "Sertakan yang sudah ditutup",
+        "listTitle": "Peluang ({count})",
+        "lastChecked": "Situs resmi diperiksa {when}",
+        "noMatch": "Tidak ada yang cocok dengan filter ini.",
+        "empty": "Saat ini belum ada peluang yang disetujui. Peluang baru muncul di sini setelah ditinjau staf.",
+        "watching": "Leo memantau: {names}",
+        "adminUnreviewed": "{count, plural, =0 {Tidak ada item dari situs resmi yang belum ditinjau.} other {# item dari situs resmi menunggu di Tinjauan (tidak ditampilkan kepada mahasiswa).}}",
+        "openReview": "Buka antrean tinjauan",
+        "openSources": "Sumber & jadwal",
+        "myChecks": "Pemeriksaan beasiswa saya",
+        "myChecksHint": "Pemeriksaan lengkap berjalan di latar belakang atas konten yang disetujui dan menyimpan hasilnya untuk Anda. Tidak pernah mencari di situs web atas nama Anda.",
+        "signInForChecks": "Masuk untuk menjalankan pemeriksaan lengkap dan menyimpan hasilnya.",
+        "recentChecks": "Pemeriksaan terakhir"
+      },
+      "mon": {
+        "checkingNow": "Sedang memeriksa situs resmi",
+        "notChecking": "Tidak sedang memeriksa",
+        "lastCheck": "Pemeriksaan terakhir {when}",
+        "noCheckYet": "Belum ada pemeriksaan.",
+        "lastSuccess": "berhasil terakhir {when}",
+        "noSchedule": "Pemeriksaan otomatis belum diatur.",
+        "sourcesTitle": "Situs resmi yang dipantau ({count})",
+        "noSources": "Belum ada situs resmi untuk meja ini.",
+        "changesTitle": "Yang berubah untuk Anda",
+        "changesHint": "Ringkasan mencantumkan pengumuman yang baru atau berubah sejak ringkasan terakhir Anda.",
+        "latestDigest": "Ringkasan terakhir Anda",
+        "signInForDigest": "Masuk untuk mendapatkan ringkasan pengumuman baru dan yang berubah.",
+        "recentTitle": "Baru dipublikasikan",
+        "allNotices": "Semua pengumuman",
+        "noRecent": "Belum ada pengumuman yang dipublikasikan.",
+        "activityTitle": "Aktivitas terbaru",
+        "candidatesWaiting": "{count, plural, =0 {Tidak ada pengumuman temuan yang menunggu tinjauan.} other {# pengumuman temuan menunggu tinjauan.}}",
+        "openReview": "Buka antrean tinjauan",
+        "openSources": "Sumber & jadwal",
+        "timeline": {
+          "checking": "Memeriksa situs resmi",
+          "checkedOk": "{name} diperiksa",
+          "checkedAttention": "{name} perlu perhatian",
+          "scheduled": "Pemeriksaan terjadwal berjalan",
+          "taskDone": "{task} selesai",
+          "taskFailed": "{task} gagal",
+          "taskStarted": "{task} dimulai"
+        }
+      },
+      "review": {
+        "adminOnly": "Hanya admin yang dapat meninjau pengumuman temuan.",
+        "intro": "Pengumuman yang ditemukan di situs resmi. Tidak ada yang terlihat oleh mahasiswa. “Kirim ke tinjauan” memasukkan halaman ke tinjauan Pusat Informasi biasa; halaman baru dipublikasikan setelah disetujui di sana.",
+        "filter": "Status",
+        "statuses": {
+          "candidate": "Menunggu",
+          "imported": "Dikirim ke tinjauan",
+          "dismissed": "Diabaikan",
+          "all": "Semua"
+        },
+        "changedOnly": "Hanya yang baru atau berubah",
+        "empty": "Tidak ada apa-apa di sini."
+      },
+      "sources": {
+        "checkNow": "Pemeriksaan manual",
+        "checkNowHint": "Membaca situs yang dipantau satu kali dengan sopan (robots.txt dan batas permintaan berlaku). Pengumuman baru dan berubah menjadi kandidat tinjauan.",
+        "latestCheck": "Pemeriksaan terakhir",
+        "schedules": "Pemeriksaan otomatis",
+        "serverOff": "Pemeriksaan otomatis dimatikan di server ini. Jadwal yang dinyalakan di sini baru berjalan setelah sakelar server dinyalakan.",
+        "noSchedules": "Meja ini tidak punya jadwal.",
+        "sources": "Sumber ({count})",
+        "noSources": "Belum ada sumber.",
+        "addSources": "Sumber baru ditambahkan oleh administrator melalui API admin setelah disetujui.",
+        "disabled": "Nonaktif",
+        "kinds": {
+          "sch_board": "Papan universitas",
+          "listing": "Halaman daftar",
+          "page": "Satu halaman"
+        },
+        "failures": "{count} kali gagal berturut-turut",
+        "disable": "Nonaktifkan",
+        "enable": "Aktifkan",
+        "resetFailures": "Atur ulang kegagalan"
+      },
+      "health": {
+        "ok": "OK",
+        "attention": "Perlu perhatian",
+        "not_checked": "Belum diperiksa"
+      },
+      "schedule": {
+        "states": {
+          "active": "Pemeriksaan otomatis aktif",
+          "disabled": "Pemeriksaan otomatis mati",
+          "off_on_server": "Mati di server"
+        },
+        "every": "setiap {hours} jam",
+        "next": "berikutnya {when}",
+        "explain": {
+          "active": "berjalan sesuai jadwal",
+          "disabled": "pemeriksaan hanya berjalan saat dimulai staf",
+          "off_on_server": "dinyalakan di sini, tetapi sakelar server mati"
+        },
+        "lastRun": "Terakhir berjalan {when}",
+        "neverRun": "Belum pernah berjalan",
+        "lastSuccess": "berhasil terakhir {when}",
+        "confirmOn": "Nyalakan pemeriksaan otomatis setiap {hours} jam? Pengumuman baru dan berubah akan menunggu tinjauan; tidak ada yang dipublikasikan otomatis.",
+        "turnOn": "Nyalakan",
+        "turnOff": "Matikan"
+      },
+      "events": {
+        "intro": "Pengumuman yang dipublikasikan dengan tanggal acara atau tenggat. Tanggal diambil dari setiap pengumuman.",
+        "when": "Waktu",
+        "upcoming": "Akan datang ({count})",
+        "past": "Lampau ({count})",
+        "category": "Kategori",
+        "allCategories": "Semua",
+        "upcomingTitle": "Akan datang",
+        "pastTitle": "Acara lampau",
+        "noUpcoming": "Saat ini tidak ada acara mendatang yang dipublikasikan.",
+        "noPast": "Tidak ada acara lampau yang dipublikasikan.",
+        "registrationNote": "Pendaftaran hanya ditampilkan seperti tertulis di setiap pengumuman. Buka pengumuman untuk melihat tempat dan cara mendaftar.",
+        "changesTitle": "Yang berubah",
+        "latestDigest": "Pembaruan acara terakhir Anda",
+        "signInForDigest": "Masuk untuk mendapatkan pembaruan acara baru dan yang berubah.",
+        "backToList": "Semua acara",
+        "translationVerified": "Terjemahan yang ditinjau",
+        "translationMachine": "Terjemahan mesin, belum ditinjau",
+        "detailNote": "Periksa pengumuman asli sebelum mendaftar atau datang.",
+        "openInHub": "Buka di Hub",
+        "officialNotice": "Pengumuman resmi"
+      },
+      "careers": {
+        "intro": "Pengumuman karier dan magang yang dipublikasikan di Hub, panduan kerja yang disetujui, dan lowongan dari situs resmi universitas yang ditinjau staf.",
+        "search": "Cari karier",
+        "searchPlaceholder": "mis. magang, paruh waktu, bursa kerja",
+        "showExpired": "Sertakan yang sudah lewat",
+        "noticesTitle": "Pengumuman & panduan karier ({count})",
+        "noMatch": "Tidak ada hasil untuk pencarian ini.",
+        "noNotices": "Saat ini belum ada pengumuman karier.",
+        "postingsTitle": "Lowongan dari situs resmi yang ditinjau ({count})",
+        "noPostings": "Belum ada lowongan dari situs resmi yang ditinjau dan disetujui.",
+        "externalOn": "Pencarian kerja eksternal terhubung.",
+        "externalOff": "Pencarian di situs kerja di luar universitas tidak terhubung. Daniel hanya menampilkan pengumuman di Hub dan lowongan dari situs resmi universitas yang telah ditinjau; ia tidak pernah mengarang lowongan.",
+        "openGuides": "Panduan kerja",
+        "myResults": "Hasil karier saya"
+      },
+      "procedures": {
+        "title": "Prosedur",
+        "otherTopics": "Prosedur lain",
+        "noGuide": "Belum ada panduan yang disetujui di Hub untuk ini.",
+        "askAbout": "Tanyakan ke {name}",
+        "noTopics": "Tidak ada prosedur yang tersedia."
+      },
+      "visa": {
+        "intro": "Daftar periksa langkah demi langkah yang dikutip dari panduan imigrasi yang disetujui, dengan tautan ke setiap sumber.",
+        "askQuestion": "Tanya {name}",
+        "guides": "Panduan visa",
+        "notDecision": "Hanya informasi prosedur. Keputusan ada di imigrasi; Yuna tidak pernah menilai kelayakan Anda."
+      },
+      "academic": {
+        "intro": "Prosedur universitas, dikutip dari panduan akademik yang disetujui.",
+        "noticesTitle": "Pengumuman universitas terbaru",
+        "allNotices": "Semua pengumuman",
+        "noNotices": "Saat ini belum ada pengumuman universitas.",
+        "resources": "Materi Pusat Informasi"
+      },
+      "topik": {
+        "intro": "Jadwal ujian TOPIK dan pengumuman pendaftaran yang dipublikasikan di Hub, dengan tanggal dikutip dari setiap pengumuman.",
+        "datesTitle": "Jadwal ujian & pendaftaran",
+        "noNotices": "Saat ini belum ada pengumuman TOPIK di Hub.",
+        "resourcesTitle": "Materi di Pusat Informasi",
+        "noResources": "Belum ada panduan TOPIK yang dipublikasikan.",
+        "allGuides": "Semua panduan TOPIK",
+        "noDates": "Tidak ada tanggal di pengumuman ini.",
+        "openNotice": "Buka pengumuman"
+      },
+      "support": {
+        "signIn": "Masuk untuk mengirim permintaan ke Global Supporter dan memantau statusnya.",
+        "formTitle": "Minta bantuan dari manusia",
+        "formIntro": "Sumin menyiapkan permintaan Anda untuk Global Supporter. Tidak ada yang dikirim sebelum Anda memeriksa dan mengonfirmasi.",
+        "category": "Topik",
+        "categories": {
+          "visa": "Visa & izin tinggal",
+          "academic": "Akademik",
+          "housing": "Tempat tinggal",
+          "scholarship": "Beasiswa",
+          "work": "Kerja & karier",
+          "health": "Kesehatan & asuransi",
+          "daily": "Kehidupan sehari-hari",
+          "other": "Lainnya"
+        },
+        "language": "Bahasa balasan",
+        "subject": "Judul",
+        "details": "Rincian",
+        "detailsPlaceholder": "Apa yang terjadi, apa yang sudah Anda coba, dan bantuan apa yang Anda butuhkan.",
+        "privacy": "Jangan tulis kata sandi atau nomor lengkap kartu izin tinggal. Supporter untuk bahasa yang dipilih akan membacanya.",
+        "review": "Periksa permintaan",
+        "previewTitle": "Periksa permintaan Anda",
+        "previewNote": "Inilah persis yang akan diterima tim {team}. Belum dikirim.",
+        "confirm": "Konfirmasi dan kirim",
+        "edit": "Ubah",
+        "sending": "Mengirim permintaan…",
+        "sent": "Permintaan #{number} telah dikirim.",
+        "openRequest": "Buka permintaan",
+        "waitingTitle": "Menunggu konfirmasi Anda",
+        "historyTitle": "Permintaan saya",
+        "refresh": "Muat ulang",
+        "noRequests": "Anda belum punya permintaan dukungan.",
+        "updated": "Diperbarui {when}",
+        "allRequests": "Semua permintaan di halaman Dukungan Mahasiswa"
+      },
+      "about": {
+        "types": {
+          "CHAT": "Meja percakapan",
+          "SERVICE": "Meja layanan",
+          "DISCOVERY": "Meja penemuan",
+          "MONITORING": "Meja pemantauan",
+          "TASK_WORKSPACE": "Meja permintaan"
+        },
+        "capabilities": "Yang saya kerjakan",
+        "dataSources": "Dari mana informasi saya",
+        "never": "Yang tidak pernah saya lakukan",
+        "serverChecks": "Setiap tindakan diperiksa server: halaman ini tidak dapat memberi siapa pun akses lebih."
+      },
+      "capabilities": {
+        "grounded_chat": "Menjawab dari sumber yang disetujui",
+        "citations": "Menampilkan sumber setiap jawaban",
+        "delegation": "Meneruskan pekerjaan khusus ke meja yang tepat",
+        "task_results": "Menyimpan hasil tugas Anda",
+        "directory": "Menunjukkan meja yang tepat",
+        "procedure_checklists": "Daftar periksa prosedur langkah demi langkah",
+        "outdated_flags": "Menandai panduan yang mungkin usang",
+        "academic_notices": "Pengumuman universitas",
+        "knowledge_resources": "Materi Pusat Informasi",
+        "test_dates": "Jadwal ujian dari pengumuman",
+        "registration_notices": "Pengumuman pendaftaran",
+        "approved_opportunities": "Hanya peluang yang disetujui",
+        "deadlines": "Tenggat dikutip dari sumber",
+        "eligibility_quotes": "Syarat dikutip dari sumber",
+        "official_links": "Tautan pendaftaran resmi",
+        "verification_status": "Status verifikasi setiap item",
+        "filters": "Filter dan pencarian",
+        "own_checks": "Pemeriksaan latar belakang Anda",
+        "published_events": "Acara yang dipublikasikan",
+        "event_dates": "Tanggal acara",
+        "registration_deadlines": "Tenggat dari setiap pengumuman",
+        "upcoming_past_filter": "Acara mendatang dan lampau",
+        "change_digest": "Yang berubah sejak terakhir",
+        "published_career_notices": "Pengumuman karier dan magang",
+        "employment_guidance": "Panduan kerja",
+        "application_dates": "Tanggal pendaftaran",
+        "work_permission_reminder": "Pengingat izin kerja",
+        "source_status": "Status situs yang dipantau",
+        "last_check": "Waktu pemeriksaan terakhir",
+        "activity_status": "Status aktivitas langsung",
+        "recent_announcements": "Pengumuman terbaru",
+        "change_detection": "Pengumuman baru dan berubah",
+        "own_digests": "Ringkasan Anda sendiri",
+        "request_form": "Formulir permintaan",
+        "issue_category": "Topik permintaan",
+        "request_preview": "Pratinjau sebelum dikirim",
+        "explicit_confirmation": "Dikirim hanya setelah Anda konfirmasi",
+        "own_request_history": "Riwayat permintaan Anda",
+        "request_status": "Status permintaan"
+      },
+      "dataSources": {
+        "rag": "Dokumen Hub yang disetujui (jawaban dengan sumber)",
+        "published_announcements": "Pengumuman universitas yang dipublikasikan",
+        "knowledge_center": "Panduan Pusat Informasi yang disetujui",
+        "discovery_sources": "Situs resmi universitas yang diizinkan",
+        "reviewed_discoveries": "Pengumuman situs resmi yang ditinjau dan disetujui staf",
+        "support_tickets": "Permintaan dukungan Anda sendiri",
+        "agent_tasks": "Tugas Anda di meja ini"
       }
     }
   }

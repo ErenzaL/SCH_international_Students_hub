@@ -371,28 +371,65 @@ def test_scholarship_agent_discovers_opportunities_with_honest_status(env):
     assert t["progress"]["sources_total"] == 3 and t["progress"]["sources_done"] == 3
 
 
-def test_students_see_verified_and_unverified_results_separately(env):
+def test_students_see_only_reviewed_and_approved_discoveries(env):
     from tests.test_agents import publish
 
     setup_scholarship_sources(env)
     run_task(env, "scholarship", "opportunity_discovery")
     publish(env)                                                                    # a Hub-approved scholarship
-    out = env.client.post("/api/v1/agents/scholarship/tools", json=dict(tool="opportunity_search")).json()["result"]
-    titles = [i["title"] for i in out["items"]]
-    assert "2027 Global Korea Summer Camp for international students" in titles
-    assert "GKS scholarship page" not in titles and "Startup competition guide (PDF)" not in titles   # closed hidden
-    assert all(i["reliability"] == "external_unverified" for i in out["items"])
-    assert "open_only_when_stated" in out["notes"]
-    # the student's scholarship task: verified Hub items first, then official-site results, with last-checked times
+    camp_title = "2027 Global Korea Summer Camp for international students"
+
+    def search(role=None):  # type: ignore[no-untyped-def]
+        return env.client.post("/api/v1/agents/scholarship/tools", json=dict(tool="opportunity_search"),
+                               headers=env.auth(role) if role else {}).json()["result"]
+
+    # admins see the unreviewed candidates, labelled unverified (closed ones hidden by default)
+    staff = search("admin")
+    titles = [i["title"] for i in staff["items"]]
+    assert camp_title in titles
+    assert "GKS scholarship page" not in titles and "Startup competition guide (PDF)" not in titles
+    assert all(i["reliability"] == "external_unverified" for i in staff["items"])
+    assert "open_only_when_stated" in staff["notes"]
+    # visitors and students: nothing unreviewed at all
+    for role in (None, "student", "supporter"):
+        out = search(role)
+        assert out["items"] == [] and out["notes"] == ["no_reviewed_discoveries"], role
     r = env.client.post("/api/v1/agents/scholarship/tasks", json=dict(task_type="scholarship_scan"),
                         headers=env.auth("student"))
     t = env.client.get(f"/api/v1/agent-tasks/{r.json()['id']}", headers=env.auth("student")).json()
     o = t["output"]
-    assert o["verified_count"] == 1 and o["unverified_count"] >= 2
-    assert o["items"][0]["reliability"] == "verified" and o["items"][-1]["reliability"] == "external_unverified"
+    assert o["verified_count"] == 1 and o["unverified_count"] == 0
+    assert all(i["reliability"] == "verified" for i in o["items"])
     assert len(o["sources"]) == 3 and all(s["last_checked_at"] for s in o["sources"])
-    # students never trigger crawling
-    assert t["events"] and not any(e["tool"] == "official_source_check" for e in t["events"])
+    assert t["events"] and not any(e["tool"] == "official_source_check" for e in t["events"])   # no crawling
+
+    # sent to review: still hidden while the Knowledge Center version waits for approval
+    camp = next(i for i in staff["items"] if i["title"] == camp_title)
+    assert env.client.post(f"/api/v1/admin/discovery/items/{camp['id']}/send-to-review",
+                           headers=env.auth("admin")).status_code == 202
+    assert search("student")["items"] == []
+    version = next(v for v in env.store.select("document_versions")[0] if v["verification_status"] == "pending_review")
+    assert env.client.post(f"/api/v1/admin/versions/{version['id']}/approve", headers=env.auth("admin"),
+                           json={}).status_code == 202
+    # approved: shown to students as verified, linked to the approved Hub document and the official page
+    out = search("student")
+    assert [i["title"] for i in out["items"]] == [camp_title]
+    item = out["items"][0]
+    assert item["reliability"] == "verified" and item["href"].startswith("/knowledge/")
+    assert item["official_url"].startswith("https://www.studyinkorea.go.kr/") and "review_status" not in item
+    assert "imported_source_id" not in item and "review_note" not in item
+    assert out["notes"][0] == "official_reviewed"
+    # admins see the same approved item as verified too (and the other candidates as unverified)
+    staff = {i["title"]: i for i in search("admin")["items"]}
+    assert staff[camp_title]["reliability"] == "verified" and staff[camp_title]["href"] == item["href"]
+    assert staff[camp_title]["review_status"] == "imported"
+    # once it closes, students are told precisely why the list is empty (and can include closed ones)
+    env.store.update("discovered_items", {"open_status": "closed"}, {"id": camp["id"]})
+    hidden = search("student")
+    assert hidden["items"] == [] and hidden["notes"] == ["reviewed_closed_hidden"]
+    shown = env.client.post("/api/v1/agents/scholarship/tools", headers=env.auth("student"), json=dict(
+        tool="opportunity_search", params={"include_closed": True})).json()["result"]
+    assert [i["title"] for i in shown["items"]] == [camp_title]
 
 
 def test_dismissed_and_duplicate_items_are_not_shown_to_students(env):
@@ -405,7 +442,8 @@ def test_dismissed_and_duplicate_items_are_not_shown_to_students(env):
     d = env.client.post(f"/api/v1/admin/discovery/items/{camp['id']}/dismiss", headers=env.auth("admin"),
                         json={"note": "not for SCH students"})
     assert d.status_code == 200 and d.json()["review_status"] == "dismissed"
-    out = env.client.post("/api/v1/agents/scholarship/tools", json=dict(tool="opportunity_search")).json()["result"]
+    out = env.client.post("/api/v1/agents/scholarship/tools", json=dict(tool="opportunity_search"),
+                          headers=env.auth("admin")).json()["result"]
     assert "Camp" not in " ".join(i["title"] for i in out["items"])
 
 
@@ -560,3 +598,33 @@ def test_scheduled_runs_never_duplicate_and_failures_alert(env):
     assert len(alerts) == 1 and alerts[0]["severity"] == "error"
     assert env.store.select("agent_schedules", )[0] and next(
         s for s in env.store.select("agent_schedules")[0] if s["id"] == sched["id"])["last_error"].startswith("internal_error")
+
+
+def test_monitoring_status_is_public_but_sanitised(env):
+    board(env, NOTICES)
+    admin_source(env)
+    sid = env.client.get("/api/v1/admin/discovery/sources", headers=env.auth("admin")).json()["items"][0]["id"]
+    pub = env.client.get("/api/v1/agents/announcement/monitoring").json()
+    assert pub["supported"] and pub["checking"] is False and pub["last_checked_at"] is None
+    assert [s["health"] for s in pub["sources"]] == ["not_checked"]
+    assert all(s["state"] == "disabled" and s["next_run_at"] is None for s in pub["schedules"])
+    run_task(env, "announcement", "announcement_discovery")
+    for role in (None, "student"):
+        out = env.client.get("/api/v1/agents/announcement/monitoring",
+                             headers=env.auth(role) if role else {}).json()
+        src = out["sources"][0]
+        assert set(src) == {"name", "url", "kind", "health", "last_checked_at", "last_success_at"}
+        assert src["health"] == "ok" and out["last_checked_at"]
+        assert "candidates_waiting" not in out
+        assert all("id" not in s and "params" not in s and "last_error" not in s for s in out["schedules"])
+    admin = env.client.get("/api/v1/agents/announcement/monitoring", headers=env.auth("admin")).json()
+    assert admin["candidates_waiting"] >= 1 and admin["sources"][0]["consecutive_failures"] == 0
+    assert all("id" in s and "enabled" in s for s in admin["schedules"])
+    # a disabled source is not shown publicly; a failing one shows only "attention"
+    env.client.patch(f"/api/v1/admin/discovery/sources/{sid}", headers=env.auth("admin"), json={"enabled": False})
+    assert env.client.get("/api/v1/agents/announcement/monitoring").json()["sources"] == []
+    assert len(env.client.get("/api/v1/agents/announcement/monitoring",
+                              headers=env.auth("admin")).json()["sources"]) == 1
+    assert env.client.get("/api/v1/agents/nobody/monitoring").status_code == 404
+    visa = env.client.get("/api/v1/agents/immigration/monitoring").json()
+    assert visa["supported"] is False and visa["sources"] == [] and visa["schedules"] == []

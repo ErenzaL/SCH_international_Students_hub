@@ -33,10 +33,27 @@ export interface AgentAction {
   admin_only?: boolean;
 }
 
+/** How the office presents an agent (backend registry). Presentation only: it never grants anything. */
+export type InterfaceType = "CHAT" | "SERVICE" | "DISCOVERY" | "MONITORING" | "TASK_WORKSPACE";
+
+export interface AgentInterfaceView {
+  type: InterfaceType;
+  /** the workspace view opened first */
+  default_view: string;
+  /** tabs this viewer may open (admin tabs only for admins; the admin endpoints check the role again) */
+  tabs: string[];
+  capabilities: string[];
+  /** ids of this agent's actions shown in the workspace action bar */
+  task_actions: string[];
+  allowed_user_roles: string[];
+  data_sources: string[];
+}
+
 export interface AgentInfo {
   id: string;
   character_id: string;
   name: string;
+  title?: string;
   department: string;
   languages: LanguageCode[];
   fixed_language: LanguageCode | null;
@@ -49,6 +66,50 @@ export interface AgentInfo {
   state: AgentState;
   active: number;
   awaiting: number;
+  interface?: AgentInterfaceView;
+  /** an official-source check of this agent is queued or running (public, no details) */
+  monitoring_check_running?: boolean;
+}
+
+export interface MonitoredSource {
+  name: string;
+  url: string;
+  kind: "sch_board" | "listing" | "page";
+  health: "ok" | "attention" | "not_checked";
+  last_checked_at: string | null;
+  last_success_at: string | null;
+  // admins only
+  id?: string;
+  enabled?: boolean;
+  last_status?: "ok" | "partial" | "failed" | "blocked" | null;
+  last_error?: string | null;
+  consecutive_failures?: number;
+}
+
+export interface MonitoredSchedule {
+  task_type: string;
+  /** active = runs automatically; off_on_server = enabled but the server switch is off; disabled */
+  state: "active" | "disabled" | "off_on_server";
+  interval_minutes: number | null;
+  last_run_at: string | null;
+  last_success_at: string | null;
+  next_run_at: string | null;
+  // admins only
+  id?: string;
+  enabled?: boolean;
+  last_error?: string | null;
+}
+
+export interface MonitoringStatus {
+  agent_id: string;
+  supported: boolean;
+  sources: MonitoredSource[];
+  schedules: MonitoredSchedule[];
+  schedules_enabled_on_server: boolean;
+  checking: boolean;
+  last_checked_at: string | null;
+  last_success_at: string | null;
+  candidates_waiting?: number;
 }
 
 export interface FoundDate {
@@ -89,6 +150,15 @@ export interface ResultItem {
   next_deadline?: string | null;
   eligibility?: string[];
   application_links?: { url: string; text: string; kind: string }[];
+  /** reviewed discoveries: the official page (href is then the approved Knowledge Center document) */
+  official_url?: string | null;
+  category?: string | null;
+  organization?: string | null;
+  source?: string | null;
+  verified_at?: string | null;
+  published_at?: string | null;
+  updated_at?: string | null;
+  subject?: string | null;
   flags?: string[];
   last_checked_at?: string | null;
   source_name?: string | null;
@@ -196,7 +266,48 @@ export const agentApi = {
   dismiss: (itemId: string) => api.post<ResultItem>(`/api/v1/admin/discovery/items/${itemId}/dismiss`, {}, { auth: true }),
   sendToReview: (itemId: string) =>
     api.post<{ knowledge_source_id: string }>(`/api/v1/admin/discovery/items/${itemId}/send-to-review`, {}, { auth: true }),
+  // monitoring desks (public status; admins get more) and admin source / schedule management
+  monitoring: (agentId: string) => call<MonitoringStatus>("GET", `/api/v1/agents/${agentId}/monitoring`),
+  updateSource: (sourceId: string, patch: { enabled?: boolean; reset_failures?: boolean }) =>
+    api.patch<MonitoredSource>(`/api/v1/admin/discovery/sources/${sourceId}`, patch),
+  updateSchedule: (scheduleId: string, patch: { enabled: boolean }) =>
+    api.patch<MonitoredSchedule>(`/api/v1/admin/agent-schedules/${scheduleId}`, patch),
 };
+
+const TASK_POLL_MS = 2500;
+
+/**
+ * The signed-in viewer's own tasks of one agent (the API only ever returns the caller's tasks). Re-polls while one
+ * of them is queued or running; `onChanged` lets the office refresh the character's state.
+ */
+export function useAgentTasks(agent: AgentInfo | undefined, signedIn: boolean, onChanged: () => void) {
+  const [tasks, setTasks] = useState<AgentTask[] | null>(null);
+  const agentId = agent?.id;
+
+  const reload = useCallback(async () => {
+    if (!signedIn || !agentId) return;
+    try {
+      const r = await agentApi.tasks(agentId);
+      setTasks(r.items.filter((x) => x.agent_id === agentId));
+    } catch {
+      setTasks((prev) => prev ?? []);
+    }
+  }, [signedIn, agentId]);
+
+  useEffect(() => {
+    const id = window.setTimeout(() => void reload(), 0);
+    return () => window.clearTimeout(id);
+  }, [reload]);
+
+  const running = tasks?.some((x) => x.status === "queued" || x.status === "running");
+  useEffect(() => {
+    if (!running) return;
+    const id = window.setInterval(() => void reload().then(onChanged), TASK_POLL_MS);
+    return () => window.clearInterval(id);
+  }, [running, reload, onChanged]);
+
+  return { tasks, reload };
+}
 
 const FAST_MS = 3000;
 const SLOW_MS = 30000;

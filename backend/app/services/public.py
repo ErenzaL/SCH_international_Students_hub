@@ -166,6 +166,25 @@ class PublicService:
         return {r["id"]: r for r in rows if r["source_type"] != "kakao_message"
                 or r["authority_type"] == "staff_communication"}
 
+    def approved_documents_for_sources(self, source_ids: list[str]) -> dict[str, str]:
+        """source id -> id of a PUBLIC Knowledge Center document of that source whose current version is approved
+        (the same rules as the Knowledge Center)."""
+        if not source_ids:
+            return {}
+        sources = self._eligible_sources(None, None)
+        ids = [i for i in source_ids if i in sources and sources[i]["authority_type"] != "supporter_submitted"]
+        if not ids:
+            return {}
+        docs, _ = self.store.select("source_documents", Query(
+            in_={"source_id": ids}, eq={"is_canceled": False}, neq={"document_type": "announcement"},
+            is_null={"current_version_id": False, "archived_at": True}))
+        versions = get_many(self.store, "document_versions", [d["current_version_id"] for d in docs])
+        out: dict[str, str] = {}
+        for d in docs:
+            if (versions.get(d["current_version_id"]) or {}).get("verification_status") == "approved":
+                out.setdefault(d["source_id"], d["id"])
+        return out
+
     def _public_documents_all(self) -> list[dict[str, Any]]:
         sources = self._eligible_sources(None, None)
         if not sources:

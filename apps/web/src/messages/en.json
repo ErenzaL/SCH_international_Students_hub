@@ -1890,8 +1890,8 @@
         "description": "Welcomes you, answers general questions and shows you the right desk."
       },
       "guide": {
-        "title": "Office guide robot",
-        "description": "Explains how the office works and where everyone is."
+        "title": "Announcement monitor & office guide",
+        "description": "Watches official university websites and published announcements, and explains how the office works."
       },
       "supporter": {
         "title": "{language} supporter",
@@ -2001,7 +2001,16 @@
       "help": "How it works",
       "support": "Human support",
       "about": "What I can do",
-      "work": "Tasks"
+      "work": "Tasks",
+      "checklists": "Checklists",
+      "procedures": "Procedures",
+      "topik": "TOPIK",
+      "careers": "Careers",
+      "monitoring": "Monitoring",
+      "review": "Review",
+      "sources": "Sources",
+      "request": "New request",
+      "requests": "My requests"
     },
     "lists": {
       "guidesTitle": "Approved guides in the Knowledge Center",
@@ -2144,7 +2153,9 @@
         "official_opportunities": "From official websites",
         "check_official_sources": "Check official websites (admin)",
         "review_queue": "Review queue (admin)",
-        "official_jobs": "Jobs on official websites"
+        "official_jobs": "Jobs on official websites",
+        "leave_of_absence": "Leave of absence & return",
+        "graduation": "Graduation requirements"
       },
       "notes": {
         "no_match": "No approved source in the Hub matches this.",
@@ -2173,7 +2184,10 @@
         "open_only_when_stated": "Shown as open only when the source gives a future deadline or says applications are open.",
         "no_discoveries": "Nothing has been found on the configured official websites yet.",
         "some_missing_info": "Some items are missing a deadline or eligibility; they are marked.",
-        "no_candidates": "No notices are waiting for review."
+        "no_candidates": "No notices are waiting for review.",
+        "official_reviewed": "From official websites, reviewed by staff and approved in the Knowledge Center.",
+        "no_reviewed_discoveries": "No notice from the official websites has been reviewed and approved yet.",
+        "reviewed_closed_hidden": "Reviewed opportunities from the official websites exist, but they are all closed. Include closed ones to see them."
       },
       "reliability": {
         "verified": "Approved source",
@@ -2370,6 +2384,319 @@
         "candidate": "Waiting for review",
         "dismissed": "Dismissed",
         "imported": "Sent to review"
+      }
+    },
+    "ws": {
+      "backToOffice": "Back to the office",
+      "adminOnly": "Admins only",
+      "noActivity": "No activity recorded yet.",
+      "apply": "Apply",
+      "eligibilityQuoted": "Eligibility (quoted from the source)",
+      "publishedOn": "Published {date}",
+      "verifiedOn": "Approved {date}",
+      "lastChecked": "Checked {when}",
+      "itemKinds": {
+        "guide": "Guide",
+        "notice": "Notice"
+      },
+      "annStatus": {
+        "upcoming": "Upcoming",
+        "expired": "Past"
+      },
+      "dates": {
+        "deadline": "Deadline",
+        "event": "Date",
+        "passed": "passed",
+        "today": "today",
+        "tomorrow": "tomorrow",
+        "inDays": "in {count, plural, one {# day} other {# days}}"
+      },
+      "status": {
+        "checkingSources": "Checking official websites",
+        "awaiting": "{count} waiting for you"
+      },
+      "source": {
+        "hub": "Approved in the Hub",
+        "official": "Official page"
+      },
+      "opp": {
+        "intro": "Scholarships, competitions and programs that are published in the Hub or were reviewed and approved by staff. Deadlines and eligibility are quoted from each source.",
+        "search": "Search opportunities",
+        "searchPlaceholder": "e.g. GKS, tuition, competition",
+        "kindFilter": "Type",
+        "kinds": {
+          "all": "All",
+          "scholarship": "Scholarships",
+          "competition": "Competitions",
+          "program": "Programs"
+        },
+        "showClosed": "Include closed and expired",
+        "listTitle": "Opportunities ({count})",
+        "lastChecked": "Official sites checked {when}",
+        "noMatch": "Nothing matches these filters.",
+        "empty": "No approved opportunity is published right now. New ones appear here after staff review.",
+        "watching": "Leo watches: {names}",
+        "adminUnreviewed": "{count, plural, =0 {No unreviewed item from the official websites.} one {# unreviewed item from the official websites is waiting in Review (not shown to students).} other {# unreviewed items from the official websites are waiting in Review (not shown to students).}}",
+        "openReview": "Open review queue",
+        "openSources": "Sources & schedules",
+        "myChecks": "My scholarship checks",
+        "myChecksHint": "A full check runs in the background over approved content and keeps the result for you. It never searches websites on your behalf.",
+        "signInForChecks": "Sign in to run a full check and keep the results.",
+        "recentChecks": "Recent checks"
+      },
+      "mon": {
+        "checkingNow": "Checking the official websites now",
+        "notChecking": "Not checking right now",
+        "lastCheck": "Last check {when}",
+        "noCheckYet": "No check has run yet.",
+        "lastSuccess": "last success {when}",
+        "noSchedule": "No automatic checks are set up.",
+        "sourcesTitle": "Watched official websites ({count})",
+        "noSources": "No official website is configured for this desk yet.",
+        "changesTitle": "What changed for you",
+        "changesHint": "A digest lists published announcements that are new or changed since your last digest.",
+        "latestDigest": "Your latest digest",
+        "signInForDigest": "Sign in to get your own digest of new and changed announcements.",
+        "recentTitle": "Recently published",
+        "allNotices": "All notices",
+        "noRecent": "No announcement is published yet.",
+        "activityTitle": "Recent activity",
+        "candidatesWaiting": "{count, plural, =0 {No discovered notice is waiting for review.} one {# discovered notice is waiting for review.} other {# discovered notices are waiting for review.}}",
+        "openReview": "Open review queue",
+        "openSources": "Sources & schedules",
+        "timeline": {
+          "checking": "Checking official websites",
+          "checkedOk": "Checked {name}",
+          "checkedAttention": "{name} needs attention",
+          "scheduled": "Scheduled check ran",
+          "taskDone": "{task} finished",
+          "taskFailed": "{task} failed",
+          "taskStarted": "{task} started"
+        }
+      },
+      "review": {
+        "adminOnly": "Only admins can review discovered notices.",
+        "intro": "Notices found on the official websites. Nothing here is visible to students. “Send to review” adds the page to the normal Knowledge Center review; it is published only after it is approved there.",
+        "filter": "Status",
+        "statuses": {
+          "candidate": "Waiting",
+          "imported": "Sent to review",
+          "dismissed": "Dismissed",
+          "all": "All"
+        },
+        "changedOnly": "Only new or changed",
+        "empty": "Nothing here."
+      },
+      "sources": {
+        "checkNow": "Manual check",
+        "checkNowHint": "Reads the watched websites once, politely (robots.txt and rate limits apply). New and changed notices become review candidates.",
+        "latestCheck": "Latest check",
+        "schedules": "Automatic checks",
+        "serverOff": "Automatic checks are switched off on this server. A schedule turned on here runs only after the server switch is turned on.",
+        "noSchedules": "No schedule exists for this desk.",
+        "sources": "Sources ({count})",
+        "noSources": "No source is configured.",
+        "addSources": "New sources are added by an administrator through the admin API after approval.",
+        "disabled": "Disabled",
+        "kinds": {
+          "sch_board": "University board",
+          "listing": "List page",
+          "page": "Single page"
+        },
+        "failures": "{count, plural, one {# failed check} other {# failed checks}} in a row",
+        "disable": "Disable",
+        "enable": "Enable",
+        "resetFailures": "Reset failures"
+      },
+      "health": {
+        "ok": "OK",
+        "attention": "Needs attention",
+        "not_checked": "Not checked yet"
+      },
+      "schedule": {
+        "states": {
+          "active": "Automatic checks on",
+          "disabled": "Automatic checks off",
+          "off_on_server": "Off on the server"
+        },
+        "every": "every {hours} h",
+        "next": "next {when}",
+        "explain": {
+          "active": "runs on schedule",
+          "disabled": "checks run only when staff start them",
+          "off_on_server": "turned on here, but the server switch is off"
+        },
+        "lastRun": "Last run {when}",
+        "neverRun": "Never run",
+        "lastSuccess": "last success {when}",
+        "confirmOn": "Turn on automatic checks every {hours} hours? New and changed notices will wait for review; nothing is published automatically.",
+        "turnOn": "Turn on",
+        "turnOff": "Turn off"
+      },
+      "events": {
+        "intro": "Published announcements with an event date or a deadline. Dates come from each notice.",
+        "when": "When",
+        "upcoming": "Upcoming ({count})",
+        "past": "Past ({count})",
+        "category": "Category",
+        "allCategories": "All",
+        "upcomingTitle": "Upcoming",
+        "pastTitle": "Past events",
+        "noUpcoming": "No upcoming event is published right now.",
+        "noPast": "No past event is published.",
+        "registrationNote": "Registration is shown only as written in each notice. Open the notice to see the place and how to register.",
+        "changesTitle": "What changed",
+        "latestDigest": "Your latest event update",
+        "signInForDigest": "Sign in to get your own update of new and changed events.",
+        "backToList": "All events",
+        "translationVerified": "Reviewed translation",
+        "translationMachine": "Machine translation, not reviewed",
+        "detailNote": "Check the original notice before you register or go.",
+        "openInHub": "Open in the Hub",
+        "officialNotice": "Official notice"
+      },
+      "careers": {
+        "intro": "Career and internship notices published in the Hub, approved employment guides, and job postings from official university websites that staff reviewed.",
+        "search": "Search careers",
+        "searchPlaceholder": "e.g. internship, part-time, job fair",
+        "showExpired": "Include expired",
+        "noticesTitle": "Career notices & guides ({count})",
+        "noMatch": "Nothing matches this search.",
+        "noNotices": "No career notice is published right now.",
+        "postingsTitle": "Reviewed postings from official websites ({count})",
+        "noPostings": "No job posting from the official websites has been reviewed and approved yet.",
+        "externalOn": "External job search is connected.",
+        "externalOff": "Searching job sites outside the university is not connected. Daniel only shows notices published in the Hub and reviewed postings from official university websites; he never invents vacancies.",
+        "openGuides": "Employment guides",
+        "myResults": "My career results"
+      },
+      "procedures": {
+        "title": "Procedures",
+        "otherTopics": "Other procedures",
+        "noGuide": "No approved guide in the Hub covers this yet.",
+        "askAbout": "Ask {name} about this",
+        "noTopics": "No procedure is available."
+      },
+      "visa": {
+        "intro": "Step-by-step checklists quoted from approved immigration guides, with links to each source.",
+        "askQuestion": "Ask {name} a question",
+        "guides": "Visa guides",
+        "notDecision": "Procedural information only. Immigration decides; Yuna never judges your eligibility."
+      },
+      "academic": {
+        "intro": "University procedures, quoted from approved academic guides.",
+        "noticesTitle": "Latest university notices",
+        "allNotices": "All notices",
+        "noNotices": "No university notice is published right now.",
+        "resources": "Knowledge Center resources"
+      },
+      "topik": {
+        "intro": "TOPIK test dates and registration notices published in the Hub, with the dates quoted from each notice.",
+        "datesTitle": "Test dates & registration",
+        "noNotices": "No TOPIK notice is published in the Hub right now.",
+        "resourcesTitle": "Resources in the Knowledge Center",
+        "noResources": "No TOPIK guide is published yet.",
+        "allGuides": "All TOPIK guides",
+        "noDates": "No date found in this notice.",
+        "openNotice": "Open the notice"
+      },
+      "support": {
+        "signIn": "Sign in to send a request to a Global Supporter and follow its status.",
+        "formTitle": "Request help from a person",
+        "formIntro": "Sumin prepares your request for a human Global Supporter. Nothing is sent until you review it and confirm.",
+        "category": "Topic",
+        "categories": {
+          "visa": "Visa & stay",
+          "academic": "Academics",
+          "housing": "Housing",
+          "scholarship": "Scholarships",
+          "work": "Work & careers",
+          "health": "Health & insurance",
+          "daily": "Daily life",
+          "other": "Other"
+        },
+        "language": "Language for the reply",
+        "subject": "Subject",
+        "details": "Details",
+        "detailsPlaceholder": "What happened, what you already tried, and what you need help with.",
+        "privacy": "Do not include passwords or your full residence card number. A supporter of the chosen language will read this.",
+        "review": "Review request",
+        "previewTitle": "Check your request",
+        "previewNote": "This is exactly what the {team} team will receive. It has not been sent yet.",
+        "confirm": "Confirm and send",
+        "edit": "Edit",
+        "sending": "Sending your request…",
+        "sent": "Request #{number} was sent.",
+        "openRequest": "Open the request",
+        "waitingTitle": "Waiting for your confirmation",
+        "historyTitle": "My requests",
+        "refresh": "Refresh",
+        "noRequests": "You have no support requests yet.",
+        "updated": "Updated {when}",
+        "allRequests": "All requests on the Student Support page"
+      },
+      "about": {
+        "types": {
+          "CHAT": "Conversation desk",
+          "SERVICE": "Service desk",
+          "DISCOVERY": "Discovery desk",
+          "MONITORING": "Monitoring desk",
+          "TASK_WORKSPACE": "Request desk"
+        },
+        "capabilities": "What I do",
+        "dataSources": "Where my information comes from",
+        "never": "What I never do",
+        "serverChecks": "Every action is checked by the server: this page cannot give anyone more access."
+      },
+      "capabilities": {
+        "grounded_chat": "Answer questions from approved sources",
+        "citations": "Show the source of every answer",
+        "delegation": "Pass specialist work to the right desk",
+        "task_results": "Keep your task results",
+        "directory": "Show you the right desk",
+        "procedure_checklists": "Step-by-step procedure checklists",
+        "outdated_flags": "Flag guidance that may be outdated",
+        "academic_notices": "University notices",
+        "knowledge_resources": "Knowledge Center resources",
+        "test_dates": "Test dates from published notices",
+        "registration_notices": "Registration notices",
+        "approved_opportunities": "Approved opportunities only",
+        "deadlines": "Deadlines quoted from the source",
+        "eligibility_quotes": "Eligibility quoted from the source",
+        "official_links": "Official application links",
+        "verification_status": "Verification status of each item",
+        "filters": "Filters and search",
+        "own_checks": "Your own background checks",
+        "published_events": "Published events",
+        "event_dates": "Event dates",
+        "registration_deadlines": "Deadlines from each notice",
+        "upcoming_past_filter": "Upcoming and past events",
+        "change_digest": "What changed since last time",
+        "published_career_notices": "Published career and internship notices",
+        "employment_guidance": "Employment guidance",
+        "application_dates": "Application dates",
+        "work_permission_reminder": "Work-permission reminders",
+        "source_status": "Status of the watched websites",
+        "last_check": "Time of the last check",
+        "activity_status": "Live activity status",
+        "recent_announcements": "Recently published announcements",
+        "change_detection": "New and changed notices",
+        "own_digests": "Your own digests",
+        "request_form": "Request form",
+        "issue_category": "Topic of your request",
+        "request_preview": "Preview before sending",
+        "explicit_confirmation": "Sends only after you confirm",
+        "own_request_history": "Your request history",
+        "request_status": "Request status"
+      },
+      "dataSources": {
+        "rag": "Approved Hub documents (grounded answers with citations)",
+        "published_announcements": "Published university announcements",
+        "knowledge_center": "Approved Knowledge Center guides",
+        "discovery_sources": "Allowlisted official university websites",
+        "reviewed_discoveries": "Official-website notices reviewed and approved by staff",
+        "support_tickets": "Your own support requests",
+        "agent_tasks": "Your own tasks with this desk"
       }
     }
   }

@@ -1890,8 +1890,8 @@
         "description": "欢迎你、回答一般问题，并指引你到合适的服务台。"
       },
       "guide": {
-        "title": "办公室导览机器人",
-        "description": "介绍办公室的使用方法和每个人的位置。"
+        "title": "公告监测与办公室向导",
+        "description": "关注大学官方网站和已发布的公告，并介绍办公室的使用方法。"
       },
       "supporter": {
         "title": "{language}支援",
@@ -2001,7 +2001,16 @@
       "help": "使用说明",
       "support": "真人支援",
       "about": "我能做什么",
-      "work": "任务"
+      "work": "任务",
+      "checklists": "清单",
+      "procedures": "办理流程",
+      "topik": "TOPIK",
+      "careers": "就业",
+      "monitoring": "监测",
+      "review": "审核",
+      "sources": "来源",
+      "request": "新请求",
+      "requests": "我的请求"
     },
     "lists": {
       "guidesTitle": "知识中心中已审核的指南",
@@ -2144,7 +2153,9 @@
         "official_opportunities": "来自官方网站",
         "check_official_sources": "检查官方网站（管理员）",
         "review_queue": "审核队列（管理员）",
-        "official_jobs": "官方网站上的招聘"
+        "official_jobs": "官方网站上的招聘",
+        "leave_of_absence": "休学与复学",
+        "graduation": "毕业要求"
       },
       "notes": {
         "no_match": "Hub中没有匹配的已审核资料。",
@@ -2173,7 +2184,10 @@
         "open_only_when_stated": "只有当来源给出未来的截止日期或说明正在接受申请时，才显示为开放。",
         "no_discoveries": "在已配置的官方网站上尚未发现内容。",
         "some_missing_info": "部分条目缺少截止日期或资格信息，已作标记。",
-        "no_candidates": "没有等待审核的通知。"
+        "no_candidates": "没有等待审核的通知。",
+        "official_reviewed": "来自官方网站，已由工作人员审核并在知识中心批准。",
+        "no_reviewed_discoveries": "官方网站上的公告尚无经审核批准的内容。",
+        "reviewed_closed_hidden": "有经审核的官方网站机会，但都已截止。勾选包括已截止的即可查看。"
       },
       "reliability": {
         "verified": "已审核来源",
@@ -2370,6 +2384,319 @@
         "candidate": "等待审核",
         "dismissed": "已忽略",
         "imported": "已提交审核"
+      }
+    },
+    "ws": {
+      "backToOffice": "返回办公室",
+      "adminOnly": "仅限管理员",
+      "noActivity": "暂无活动记录。",
+      "apply": "申请",
+      "eligibilityQuoted": "申请资格（引自原文）",
+      "publishedOn": "{date} 发布",
+      "verifiedOn": "{date} 批准",
+      "lastChecked": "{when} 已检查",
+      "itemKinds": {
+        "guide": "指南",
+        "notice": "公告"
+      },
+      "annStatus": {
+        "upcoming": "即将开始",
+        "expired": "已结束"
+      },
+      "dates": {
+        "deadline": "截止",
+        "event": "日期",
+        "passed": "已过",
+        "today": "今天",
+        "tomorrow": "明天",
+        "inDays": "还有 {count} 天"
+      },
+      "status": {
+        "checkingSources": "正在检查官方网站",
+        "awaiting": "{count} 项等待你确认"
+      },
+      "source": {
+        "hub": "Hub已批准",
+        "official": "官方页面"
+      },
+      "opp": {
+        "intro": "已在Hub发布或经工作人员审核批准的奖学金、竞赛和项目。截止日期和申请资格均引自各来源。",
+        "search": "搜索机会",
+        "searchPlaceholder": "例如：GKS、学费、竞赛",
+        "kindFilter": "类型",
+        "kinds": {
+          "all": "全部",
+          "scholarship": "奖学金",
+          "competition": "竞赛",
+          "program": "项目"
+        },
+        "showClosed": "包括已截止的",
+        "listTitle": "机会（{count}）",
+        "lastChecked": "官方网站检查于 {when}",
+        "noMatch": "没有符合筛选条件的内容。",
+        "empty": "目前没有已批准的机会。新内容经工作人员审核后会显示在这里。",
+        "watching": "Leo 关注：{names}",
+        "adminUnreviewed": "{count, plural, =0 {官方网站没有未审核的内容。} other {官方网站有 # 项未审核内容在“审核”中等待（学生看不到）。}}",
+        "openReview": "打开审核队列",
+        "openSources": "来源与计划",
+        "myChecks": "我的奖学金检查",
+        "myChecksHint": "完整检查在后台针对已批准的内容运行，并为你保存结果。它不会代你搜索网站。",
+        "signInForChecks": "登录后可以运行完整检查并保存结果。",
+        "recentChecks": "最近的检查"
+      },
+      "mon": {
+        "checkingNow": "正在检查官方网站",
+        "notChecking": "目前未在检查",
+        "lastCheck": "上次检查 {when}",
+        "noCheckYet": "尚未进行检查。",
+        "lastSuccess": "上次成功 {when}",
+        "noSchedule": "未设置自动检查。",
+        "sourcesTitle": "关注的官方网站（{count}）",
+        "noSources": "此服务台尚未配置官方网站。",
+        "changesTitle": "与你有关的变化",
+        "changesHint": "摘要列出自你上次摘要以来新发布或有变更的公告。",
+        "latestDigest": "你最近的摘要",
+        "signInForDigest": "登录后可获取新公告和变更公告的个人摘要。",
+        "recentTitle": "最近发布",
+        "allNotices": "全部公告",
+        "noRecent": "尚无已发布的公告。",
+        "activityTitle": "最近活动",
+        "candidatesWaiting": "{count, plural, =0 {没有等待审核的发现公告。} other {有 # 条发现的公告等待审核。}}",
+        "openReview": "打开审核队列",
+        "openSources": "来源与计划",
+        "timeline": {
+          "checking": "正在检查官方网站",
+          "checkedOk": "已检查 {name}",
+          "checkedAttention": "{name} 需要注意",
+          "scheduled": "已运行计划检查",
+          "taskDone": "{task} 已完成",
+          "taskFailed": "{task} 失败",
+          "taskStarted": "{task} 已开始"
+        }
+      },
+      "review": {
+        "adminOnly": "只有管理员可以审核发现的公告。",
+        "intro": "在官方网站上发现的公告。这里的内容学生都看不到。“提交审核”会把页面送入知识中心的常规审核，只有在那里批准后才会发布。",
+        "filter": "状态",
+        "statuses": {
+          "candidate": "等待中",
+          "imported": "已提交审核",
+          "dismissed": "已忽略",
+          "all": "全部"
+        },
+        "changedOnly": "仅新增或变更",
+        "empty": "这里没有内容。"
+      },
+      "sources": {
+        "checkNow": "手动检查",
+        "checkNowHint": "礼貌地读取一次关注的网站（遵守 robots.txt 和访问频率限制）。新增和变更的公告会成为审核候选。",
+        "latestCheck": "最近一次检查",
+        "schedules": "自动检查",
+        "serverOff": "此服务器已关闭自动检查。在这里开启的计划，只有在服务器开关打开后才会运行。",
+        "noSchedules": "此服务台没有计划。",
+        "sources": "来源（{count}）",
+        "noSources": "尚未配置来源。",
+        "addSources": "新来源经批准后由管理员通过管理 API 添加。",
+        "disabled": "已停用",
+        "kinds": {
+          "sch_board": "大学公告栏",
+          "listing": "列表页面",
+          "page": "单个页面"
+        },
+        "failures": "连续失败 {count} 次",
+        "disable": "停用",
+        "enable": "启用",
+        "resetFailures": "重置失败记录"
+      },
+      "health": {
+        "ok": "正常",
+        "attention": "需要注意",
+        "not_checked": "尚未检查"
+      },
+      "schedule": {
+        "states": {
+          "active": "自动检查已开启",
+          "disabled": "自动检查已关闭",
+          "off_on_server": "服务器上已关闭"
+        },
+        "every": "每 {hours} 小时",
+        "next": "下次 {when}",
+        "explain": {
+          "active": "按计划运行",
+          "disabled": "仅在工作人员启动时检查",
+          "off_on_server": "此处已开启，但服务器开关已关闭"
+        },
+        "lastRun": "上次运行 {when}",
+        "neverRun": "从未运行",
+        "lastSuccess": "上次成功 {when}",
+        "confirmOn": "要开启每 {hours} 小时一次的自动检查吗？新增和变更的公告会等待审核，不会自动发布任何内容。",
+        "turnOn": "开启",
+        "turnOff": "关闭"
+      },
+      "events": {
+        "intro": "带有活动日期或截止日期的已发布公告。日期均取自各公告。",
+        "when": "时间",
+        "upcoming": "即将开始（{count}）",
+        "past": "已结束（{count}）",
+        "category": "类别",
+        "allCategories": "全部",
+        "upcomingTitle": "即将开始",
+        "pastTitle": "已结束的活动",
+        "noUpcoming": "目前没有已发布的即将开始的活动。",
+        "noPast": "没有已发布的往期活动。",
+        "registrationNote": "报名信息只按各公告原文显示。地点和报名方式请打开公告查看。",
+        "changesTitle": "变化",
+        "latestDigest": "你最近的活动更新",
+        "signInForDigest": "登录后可获取新活动和变更活动的个人更新。",
+        "backToList": "全部活动",
+        "translationVerified": "已审核译文",
+        "translationMachine": "机器翻译，未审核",
+        "detailNote": "报名或参加前请查看原始公告。",
+        "openInHub": "在Hub中打开",
+        "officialNotice": "官方公告"
+      },
+      "careers": {
+        "intro": "在Hub发布的就业和实习公告、已批准的就业指南，以及经工作人员审核的大学官方网站招聘信息。",
+        "search": "搜索就业信息",
+        "searchPlaceholder": "例如：实习、兼职、招聘会",
+        "showExpired": "包括已截止的",
+        "noticesTitle": "就业公告与指南（{count}）",
+        "noMatch": "没有搜索结果。",
+        "noNotices": "目前没有已发布的就业公告。",
+        "postingsTitle": "官方网站已审核的招聘信息（{count}）",
+        "noPostings": "官方网站上的招聘信息尚无经审核批准的内容。",
+        "externalOn": "已连接外部职位搜索。",
+        "externalOff": "未连接校外招聘网站的搜索。Daniel 只显示在Hub发布的公告和经审核的大学官方网站招聘信息，从不编造职位。",
+        "openGuides": "就业指南",
+        "myResults": "我的就业结果"
+      },
+      "procedures": {
+        "title": "办理流程",
+        "otherTopics": "其他流程",
+        "noGuide": "Hub中还没有涵盖此内容的已批准指南。",
+        "askAbout": "向 {name} 询问此事",
+        "noTopics": "暂无可用流程。"
+      },
+      "visa": {
+        "intro": "引自已批准出入境指南的分步清单，并附各来源链接。",
+        "askQuestion": "向 {name} 提问",
+        "guides": "签证指南",
+        "notDecision": "仅为流程信息。由出入境部门决定；Yuna 从不判断你是否符合资格。"
+      },
+      "academic": {
+        "intro": "大学办理流程，引自已批准的学业指南。",
+        "noticesTitle": "最新学校公告",
+        "allNotices": "全部公告",
+        "noNotices": "目前没有已发布的学校公告。",
+        "resources": "知识中心资料"
+      },
+      "topik": {
+        "intro": "在Hub发布的TOPIK考试日期和报名公告，日期引自各公告。",
+        "datesTitle": "考试日期与报名",
+        "noNotices": "Hub目前没有发布TOPIK公告。",
+        "resourcesTitle": "知识中心资料",
+        "noResources": "尚无已发布的TOPIK指南。",
+        "allGuides": "全部TOPIK指南",
+        "noDates": "此公告中未找到日期。",
+        "openNotice": "打开公告"
+      },
+      "support": {
+        "signIn": "登录后可以向全球支援人员（Global Supporter）发送请求并查看进度。",
+        "formTitle": "请求真人帮助",
+        "formIntro": "Sumin 会为你准备发给全球支援人员的请求。在你查看并确认之前不会发送任何内容。",
+        "category": "主题",
+        "categories": {
+          "visa": "签证与居留",
+          "academic": "学业",
+          "housing": "住宿",
+          "scholarship": "奖学金",
+          "work": "工作与就业",
+          "health": "健康与保险",
+          "daily": "日常生活",
+          "other": "其他"
+        },
+        "language": "回复语言",
+        "subject": "标题",
+        "details": "详细内容",
+        "detailsPlaceholder": "发生了什么、你已经尝试过什么、需要什么帮助。",
+        "privacy": "请勿填写密码或完整的外国人登录证号码。所选语言的支援人员会阅读这些内容。",
+        "review": "查看请求",
+        "previewTitle": "请确认你的请求",
+        "previewNote": "这正是 {team} 团队将收到的内容。尚未发送。",
+        "confirm": "确认并发送",
+        "edit": "修改",
+        "sending": "正在发送请求…",
+        "sent": "请求 #{number} 已发送。",
+        "openRequest": "打开请求",
+        "waitingTitle": "等待你确认",
+        "historyTitle": "我的请求",
+        "refresh": "刷新",
+        "noRequests": "你还没有支持请求。",
+        "updated": "{when} 更新",
+        "allRequests": "在学生支持页面查看全部请求"
+      },
+      "about": {
+        "types": {
+          "CHAT": "对话服务台",
+          "SERVICE": "服务台",
+          "DISCOVERY": "发现服务台",
+          "MONITORING": "监测服务台",
+          "TASK_WORKSPACE": "请求服务台"
+        },
+        "capabilities": "我的工作",
+        "dataSources": "我的信息来源",
+        "never": "我绝不会做的事",
+        "serverChecks": "每个操作都由服务器检查：此页面无法为任何人增加权限。"
+      },
+      "capabilities": {
+        "grounded_chat": "根据已批准的来源回答问题",
+        "citations": "每个回答都显示来源",
+        "delegation": "把专业工作交给合适的服务台",
+        "task_results": "保存你的任务结果",
+        "directory": "为你指引合适的服务台",
+        "procedure_checklists": "分步办理清单",
+        "outdated_flags": "标记可能过时的指南",
+        "academic_notices": "学校公告",
+        "knowledge_resources": "知识中心资料",
+        "test_dates": "来自已发布公告的考试日期",
+        "registration_notices": "报名公告",
+        "approved_opportunities": "只显示已批准的机会",
+        "deadlines": "引自来源的截止日期",
+        "eligibility_quotes": "引自来源的申请资格",
+        "official_links": "官方申请链接",
+        "verification_status": "每一项的核实状态",
+        "filters": "筛选与搜索",
+        "own_checks": "你自己的后台检查",
+        "published_events": "已发布的活动",
+        "event_dates": "活动日期",
+        "registration_deadlines": "各公告的截止日期",
+        "upcoming_past_filter": "即将开始和已结束的活动",
+        "change_digest": "自上次以来的变化",
+        "published_career_notices": "已发布的就业和实习公告",
+        "employment_guidance": "就业指导",
+        "application_dates": "申请日期",
+        "work_permission_reminder": "打工许可提醒",
+        "source_status": "关注网站的状态",
+        "last_check": "上次检查时间",
+        "activity_status": "实时活动状态",
+        "recent_announcements": "最近发布的公告",
+        "change_detection": "新增和变更的公告",
+        "own_digests": "你自己的摘要",
+        "request_form": "请求表单",
+        "issue_category": "请求主题",
+        "request_preview": "发送前预览",
+        "explicit_confirmation": "只有在你确认后才发送",
+        "own_request_history": "你的请求记录",
+        "request_status": "请求状态"
+      },
+      "dataSources": {
+        "rag": "已批准的Hub文档（附来源的回答）",
+        "published_announcements": "已发布的学校公告",
+        "knowledge_center": "已批准的知识中心指南",
+        "discovery_sources": "允许访问的大学官方网站",
+        "reviewed_discoveries": "经工作人员审核批准的官方网站公告",
+        "support_tickets": "你自己的支持请求",
+        "agent_tasks": "你在此服务台的任务"
       }
     }
   }

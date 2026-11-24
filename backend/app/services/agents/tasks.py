@@ -95,6 +95,8 @@ TASK_PARAMS: dict[str, type[P]] = {
 }
 #: tasks that crawl official websites: administrators (or an admin-enabled schedule) only
 ADMIN_TASKS = {"announcement_discovery", "opportunity_discovery"}
+#: agents that can have official sources (discovery_sources.agent_id)
+DISCOVERY_AGENTS = ("announcement", "scholarship", "career", "events")
 LLM_TASKS = {"summarize_announcement", "explain_document"}
 APPROVAL_TASKS = {"support_request"}
 
@@ -116,16 +118,80 @@ class AgentTaskService:
     def directory(self, user: AuthUser | None) -> list[dict[str, Any]]:
         states = self.agent_states(user)
         schedules = {(s["agent_id"]) for s in self._schedules() if s["enabled"] and self.settings.agent_schedules_enabled}
+        checking = self.monitoring_activity()
+        role = user.role if user is not None else "visitor"
         out = []
         for a in AGENTS.values():
+            actions = [dict(id=x.id, kind=x.kind, target=x.target, params=x.params, admin_only=x.roles is not None)
+                       for x in a.actions if x.roles is None or (user is not None and user.role in x.roles)]
+            visible = {x["id"] for x in actions}
+            state = states.get(a.id, dict(state="idle", active=0, awaiting=0))
+            if state["state"] in ("idle", "completed") and a.id in checking:
+                # a monitoring check of official websites is running (scheduled or started by an admin): public,
+                # nothing about who started it or what it found
+                state = dict(state, state="working")
+            interface = a.interface.view_for(role) | dict(
+                task_actions=[x for x in a.interface.task_actions if x in visible])
             out.append(dict(
                 id=a.id, character_id=a.character_id, name=a.name, title=a.title, department=a.department,
                 description=a.description, scope=a.scope, languages=list(a.languages), fixed_language=a.fixed_language,
                 tools=self.tools.describe(self.svc, a), task_types=list(a.task_types),
                 can_delegate_to=list(a.can_delegate_to), restricted_actions=list(a.restricted_actions),
-                actions=[dict(id=x.id, kind=x.kind, target=x.target, params=x.params, admin_only=x.roles is not None)
-                         for x in a.actions if x.roles is None or (user is not None and user.role in x.roles)],
-                monitoring=a.id in schedules, **states.get(a.id, dict(state="idle", active=0, awaiting=0))))
+                actions=actions, monitoring=a.id in schedules, interface=interface,
+                monitoring_check_running=a.id in checking, **state))
+        return out
+
+    def monitoring_activity(self) -> set[str]:
+        """Agents with an official-source check queued or running right now (any requester)."""
+        rows, _ = self.store.select("agent_tasks", Query(in_={"task_type": sorted(ADMIN_TASKS),
+                                                              "status": ["queued", "running"]},
+                                                         cols="agent_id", limit=20))
+        return {r["agent_id"] for r in rows}
+
+    def monitoring_status(self, user: AuthUser | None, agent_id: str) -> dict[str, Any]:
+        """What a monitoring desk shows: its configured official sources, their coarse health, the last checks and
+        whether automatic checks are switched on. Everyone sees names, public URLs, times and ok / attention;
+        admins also see errors, failure counts, disabled sources and the schedule settings."""
+        agent = self._agent(agent_id)
+        admin = user is not None and user.is_admin
+        sources = [s for s in self.svc.discovery.list_sources(agent_id=agent.id) if admin or s["enabled"]]
+
+        def health(s: dict[str, Any]) -> str:
+            if not s.get("last_checked_at"):
+                return "not_checked"
+            return "ok" if s.get("last_status") in ("ok", "partial") and not s.get("consecutive_failures") \
+                else "attention"
+
+        src_out = []
+        for s in sources:
+            row = dict(name=s["name"], url=s["url"], kind=s["kind"], health=health(s),
+                       last_checked_at=s.get("last_checked_at"), last_success_at=s.get("last_success_at"))
+            if admin:
+                row.update(id=s["id"], enabled=s["enabled"], last_status=s.get("last_status"),
+                           last_error=s.get("last_error"), consecutive_failures=s.get("consecutive_failures", 0))
+            src_out.append(row)
+        scheds = []
+        for s in self._schedules():
+            if s["agent_id"] != agent.id:
+                continue
+            state = "active" if s["enabled"] and self.settings.agent_schedules_enabled else \
+                "off_on_server" if s["enabled"] else "disabled"
+            row = dict(task_type=s["task_type"], state=state, interval_minutes=s.get("interval_minutes"),
+                       last_run_at=s.get("last_run_at"), last_success_at=s.get("last_success_at"),
+                       next_run_at=s.get("next_run_at") if state == "active" else None)
+            if admin:
+                row.update(id=s["id"], enabled=s["enabled"], last_error=s.get("last_error"),
+                           params=s.get("params") or {})
+            scheds.append(row)
+        checks = [s["last_checked_at"] for s in sources if s.get("last_checked_at")]
+        successes = [s["last_success_at"] for s in sources if s.get("last_success_at")]
+        out: dict[str, Any] = dict(
+            agent_id=agent.id, supported=agent.id in DISCOVERY_AGENTS, sources=src_out, schedules=scheds,
+            schedules_enabled_on_server=self.settings.agent_schedules_enabled,
+            checking=agent.id in self.monitoring_activity(),
+            last_checked_at=max(checks) if checks else None, last_success_at=max(successes) if successes else None)
+        if admin and agent.id in DISCOVERY_AGENTS:
+            out["candidates_waiting"] = len(self.svc.discovery.candidates(agent_id=agent.id, limit=200))
         return out
 
     def agent_states(self, user: AuthUser | None) -> dict[str, dict[str, Any]]:

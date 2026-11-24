@@ -318,13 +318,22 @@ class DiscoveryService:
         return {s["id"]: s for s in self.list_sources()}
 
     def opportunities(self, *, q: str | None = None, kinds: list[str] | None = None, include_closed: bool = False,
-                      limit: int = 20) -> list[dict[str, Any]]:
-        """What students may see: official items classified as opportunities, never dismissed ones or duplicates.
-        They are labelled unverified (official site, not reviewed by staff)."""
+                      limit: int = 20, approved_documents: Callable[[list[str]], dict[str, str]] | None = None,
+                      reviewed_only: bool = True) -> list[dict[str, Any]]:
+        """Official items classified as opportunities, never dismissed ones or duplicates.
+
+        An item an admin sent to review whose Knowledge Center version has since been approved is shown as verified,
+        linked to that document (``approved_documents`` maps knowledge source -> public document). With
+        ``reviewed_only`` (everyone but admins) ONLY such items are returned; admins also get the unreviewed
+        candidates, labelled unverified (official site, not reviewed by staff)."""
+        statuses = ["imported"] if reviewed_only else ["candidate", "imported"]
         rows, _ = self.store.select("discovered_items", Query(
-            in_={"opportunity_kind": kinds or ["scholarship", "competition", "program", "job"],
-                 "status": ["candidate", "imported"]},
+            in_={"opportunity_kind": kinds or ["scholarship", "competition", "program", "job"], "status": statuses},
             is_null={"duplicate_of": True}, order=[("last_changed_at", True)], limit=200))
+        imported = sorted({r["imported_source_id"] for r in rows if r.get("imported_source_id")})
+        approved = approved_documents(imported) if approved_documents and imported else {}
+        if reviewed_only:
+            rows = [r for r in rows if r.get("imported_source_id") in approved]
         if not include_closed:
             rows = [r for r in rows if r["open_status"] != "closed"]
         if q:
@@ -333,7 +342,16 @@ class DiscoveryService:
         rows.sort(key=lambda r: ({"open": 0, "unknown": 1, "closed": 2}[r["open_status"]],
                                  (r.get("extracted") or {}).get("next_deadline") or "9999"))
         smap = self._sources_map()
-        return [self.view(r, smap) for r in rows[:limit]]
+        out = []
+        for r in rows[:limit]:
+            v = self.view(r, smap, admin=not reviewed_only)
+            doc = approved.get(r.get("imported_source_id") or "")
+            if doc:
+                v.update(reliability="verified", href=f"/knowledge/{doc}", document_id=doc, official_url=r["url"])
+            if reviewed_only:
+                v.pop("review_status", None)
+            out.append(v)
+        return out
 
     def candidates(self, *, agent_id: str | None = None, status: str = "candidate", changed_only: bool = False,
                    limit: int = 50) -> list[dict[str, Any]]:

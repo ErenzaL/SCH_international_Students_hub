@@ -23,6 +23,52 @@ class AgentAction:
 
 
 ADMIN = ("super_admin", "admin")
+SIGNED_IN = ("student", "supporter", "admin", "super_admin")
+EVERYONE = ("visitor",) + SIGNED_IN
+
+#: how a character's workspace looks (presentation only: permissions are the tools / actions above and below)
+INTERFACE_TYPES = ("CHAT", "SERVICE", "DISCOVERY", "MONITORING", "TASK_WORKSPACE")
+
+
+@dataclass(frozen=True)
+class WorkspaceTab:
+    id: str
+    #: shown only to these viewer roles ("visitor" = not signed in); None = everyone
+    roles: tuple[str, ...] | None = None
+
+
+@dataclass(frozen=True)
+class AgentInterface:
+    """Presentation of an agent in the AI Office. The frontend chooses the workspace component by ``type`` and
+    ``default_view``; it never grants anything: a tab only shows data the API already allows for the viewer, and
+    admin tabs are both hidden here and protected by the admin endpoints."""
+    type: str
+    default_view: str
+    tabs: tuple[WorkspaceTab, ...]
+    #: what the workspace offers (codes the UI translates)
+    capabilities: tuple[str, ...]
+    #: ids of this agent's AgentActions shown in the workspace action bar (filtered by the action's own roles)
+    task_actions: tuple[str, ...] = ()
+    allowed_user_roles: tuple[str, ...] = EVERYONE
+    #: where the shown data comes from (codes): rag, published_announcements, knowledge_center, discovery_sources,
+    #: reviewed_discoveries, support_tickets, agent_tasks
+    data_sources: tuple[str, ...] = ()
+
+    def view_for(self, role: str) -> dict[str, object]:
+        tabs = [t.id for t in self.tabs if t.roles is None or role in t.roles]
+        return dict(type=self.type, default_view=self.default_view if self.default_view in tabs else tabs[0],
+                    tabs=tabs, capabilities=list(self.capabilities), allowed_user_roles=list(self.allowed_user_roles),
+                    data_sources=list(self.data_sources))
+
+
+def _tabs(*ids: str, admin: tuple[str, ...] = ()) -> tuple[WorkspaceTab, ...]:
+    return tuple(WorkspaceTab(i) for i in ids) + tuple(WorkspaceTab(i, ADMIN) for i in admin)
+
+
+CHAT_INTERFACE = AgentInterface(
+    "CHAT", "chat", _tabs("chat", "work", "about"),
+    capabilities=("grounded_chat", "citations", "delegation", "task_results"),
+    task_actions=("latest_notices",), data_sources=("rag", "published_announcements", "knowledge_center", "agent_tasks"))
 
 
 @dataclass(frozen=True)
@@ -42,6 +88,7 @@ class AgentDefinition:
     actions: tuple[AgentAction, ...] = ()
     #: supporters answer in one language; None = the request's / site language
     fixed_language: str | None = None
+    interface: AgentInterface = CHAT_INTERFACE
 
 
 READ_COMMON = frozenset({"rag_search", "knowledge_document_lookup", "announcement_search", "announcement_detail",
@@ -64,6 +111,7 @@ def _supporter(lang: str, name: str, char: str) -> AgentDefinition:
         task_types=("summarize_announcement", "explain_document", "delegated_search"),
         can_delegate_to=SPECIALISTS, restricted_actions=NO_DECISIONS,
         actions=(AgentAction("latest_notices", "tool", "announcement_search", {"limit": 6}),),
+        interface=CHAT_INTERFACE,
     )
 
 
@@ -77,6 +125,10 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
         languages=LANGS, allowed_tools=READ_COMMON | {"create_agent_task"},
         task_types=("delegated_search",), can_delegate_to=SPECIALISTS, restricted_actions=NO_DECISIONS,
         actions=(AgentAction("latest_notices", "tool", "announcement_search", {"status": "active", "limit": 6}),),
+        interface=AgentInterface("CHAT", "chat", _tabs("chat", "work", "desks", "about"),
+                                 capabilities=("grounded_chat", "citations", "delegation", "task_results", "directory"),
+                                 task_actions=("latest_notices",),
+                                 data_sources=("rag", "published_announcements", "knowledge_center", "agent_tasks")),
     ),
     _supporter("ko", "Minji", "supporter-ko"),
     _supporter("en", "Alex", "supporter-en"),
@@ -98,6 +150,10 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
                  AgentAction("residence_card", "tool", "visa_checklist", {"topic": "residence_card"}),
                  AgentAction("address_change", "tool", "visa_checklist", {"topic": "address"}),
                  AgentAction("part_time_permission", "tool", "visa_checklist", {"topic": "part_time"})),
+        interface=AgentInterface("SERVICE", "checklists", _tabs("checklists", "chat", "guides", "work", "about"),
+                                 capabilities=("procedure_checklists", "grounded_chat", "citations", "outdated_flags"),
+                                 task_actions=("d2_extension", "residence_card", "address_change", "part_time_permission"),
+                                 data_sources=("knowledge_center", "rag")),
     ),
     AgentDefinition(
         id="academic", character_id="academic", name="Joon", title="Academic agent", department="Academic & TOPIK",
@@ -107,8 +163,15 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
         allowed_tools=READ_COMMON | {"deadline_extraction", "academic_checklist"},
         task_types=("academic_checklist",), restricted_actions=NO_DECISIONS,
         actions=(AgentAction("course_registration", "tool", "academic_checklist", {"topic": "registration"}),
+                 AgentAction("leave_of_absence", "tool", "academic_checklist", {"topic": "leave"}),
+                 AgentAction("graduation", "tool", "academic_checklist", {"topic": "graduation"}),
                  AgentAction("academic_notices", "tool", "announcement_search",
                              {"category": "university-announcements", "limit": 6})),
+        interface=AgentInterface("SERVICE", "procedures", _tabs("procedures", "notices", "guides", "chat", "work", "about"),
+                                 capabilities=("procedure_checklists", "academic_notices", "knowledge_resources",
+                                               "grounded_chat"),
+                                 task_actions=("course_registration", "leave_of_absence", "graduation", "academic_notices"),
+                                 data_sources=("knowledge_center", "published_announcements", "rag")),
     ),
     AgentDefinition(
         id="topik", character_id="topik", name="Seo", title="TOPIK agent", department="Academic & TOPIK",
@@ -117,6 +180,11 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
         allowed_tools=READ_COMMON | {"deadline_extraction", "topik_dates"},
         task_types=("topik_dates",), restricted_actions=NO_DECISIONS,
         actions=(AgentAction("topik_dates", "tool", "topik_dates", {}),),
+        interface=AgentInterface("SERVICE", "topik", _tabs("topik", "guides", "chat", "work", "about"),
+                                 capabilities=("test_dates", "registration_notices", "knowledge_resources",
+                                               "grounded_chat"),
+                                 task_actions=("topik_dates",),
+                                 data_sources=("published_announcements", "knowledge_center", "rag")),
     ),
     AgentDefinition(
         id="scholarship", character_id="opportunities", name="Leo", title="Scholarship agent",
@@ -135,6 +203,13 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
                  AgentAction("scan_sources", "task", "scholarship_scan", {}),
                  AgentAction("check_official_sources", "task", "opportunity_discovery", {}, roles=ADMIN),
                  AgentAction("review_queue", "tool", "review_candidates", {}, roles=ADMIN)),
+        interface=AgentInterface("DISCOVERY", "opportunities",
+                                 _tabs("opportunities", "work", "chat", "about", admin=("review", "sources")),
+                                 capabilities=("approved_opportunities", "deadlines", "eligibility_quotes",
+                                               "official_links", "verification_status", "filters", "own_checks"),
+                                 task_actions=("scan_sources", "check_official_sources"),
+                                 data_sources=("published_announcements", "knowledge_center", "reviewed_discoveries",
+                                               "discovery_sources", "agent_tasks")),
     ),
     AgentDefinition(
         id="events", character_id="events", name="Mia", title="Event agent", department="Events & Campus Life",
@@ -145,6 +220,11 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
         task_types=("event_digest",), restricted_actions=NO_DECISIONS,
         actions=(AgentAction("upcoming_events", "tool", "event_search", {}),
                  AgentAction("what_changed", "task", "event_digest", {})),
+        interface=AgentInterface("DISCOVERY", "events", _tabs("events", "work", "chat", "about"),
+                                 capabilities=("published_events", "event_dates", "registration_deadlines",
+                                               "official_links", "upcoming_past_filter", "change_digest"),
+                                 task_actions=("what_changed",),
+                                 data_sources=("published_announcements", "agent_tasks")),
     ),
     AgentDefinition(
         id="career", character_id="career", name="Daniel", title="Career agent",
@@ -159,6 +239,11 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
         restricted_actions=NO_DECISIONS + ("work_legality",),
         actions=(AgentAction("find_opportunities", "tool", "career_opportunity_search", {}),
                  AgentAction("official_jobs", "tool", "opportunity_search", {"kind": "job"})),
+        interface=AgentInterface("DISCOVERY", "careers", _tabs("careers", "guides", "work", "chat", "about"),
+                                 capabilities=("published_career_notices", "employment_guidance", "application_dates",
+                                               "official_links", "work_permission_reminder"),
+                                 task_actions=("find_opportunities", "official_jobs"),
+                                 data_sources=("published_announcements", "knowledge_center", "reviewed_discoveries")),
     ),
     AgentDefinition(
         id="announcement", character_id="guide-bot", name="Robo", title="Announcement agent",
@@ -176,6 +261,12 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
                  AgentAction("digest", "task", "announcement_digest", {}),
                  AgentAction("check_official_sources", "task", "announcement_discovery", {}, roles=ADMIN),
                  AgentAction("review_queue", "tool", "review_candidates", {}, roles=ADMIN)),
+        interface=AgentInterface("MONITORING", "monitoring",
+                                 _tabs("monitoring", "notices", "work", "about", admin=("review", "sources")),
+                                 capabilities=("source_status", "last_check", "activity_status", "recent_announcements",
+                                               "change_detection", "own_digests"),
+                                 task_actions=("digest", "check_official_sources"),
+                                 data_sources=("discovery_sources", "published_announcements", "agent_tasks")),
     ),
     AgentDefinition(
         id="support-coordinator", character_id="supporter-lead", name="Sumin", title="Support coordinator",
@@ -187,6 +278,11 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
         task_types=("support_request",), restricted_actions=("send_without_confirmation",
                                                              "show_others_requests"),
         actions=(AgentAction("my_requests", "tool", "get_support_request_status", {}),),
+        interface=AgentInterface("TASK_WORKSPACE", "request", _tabs("request", "requests", "chat", "about"),
+                                 capabilities=("request_form", "issue_category", "request_preview",
+                                               "explicit_confirmation", "own_request_history", "request_status"),
+                                 task_actions=("my_requests",),
+                                 data_sources=("support_tickets", "agent_tasks")),
     ),
 ]}
 

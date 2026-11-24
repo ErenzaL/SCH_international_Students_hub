@@ -13,7 +13,10 @@ vi.mock("@/lib/chat-stream", () => ({ postStream: (...a: unknown[]) => postStrea
 const get = vi.fn();
 vi.mock("@/lib/api", async (orig) => {
   const mod = await orig<typeof import("@/lib/api")>();
-  return { ...mod, api: { ...mod.api, get: (...a: unknown[]) => get(...a), post: vi.fn() } };
+  // no backend agent directory here (offline): these tests cover the chat-first fallback layout; the role-specific
+  // workspaces are covered by workspaces.test.tsx. Never reach a real local API.
+  const offline = async () => { throw new mod.ApiError({ status: 0, code: "network_error", message: "offline" }); };
+  return { ...mod, apiRequest: offline, api: { ...mod.api, get: (...a: unknown[]) => get(...a), post: vi.fn() } };
 });
 
 import { AiOffice } from "@/features/ai-office/ai-office";

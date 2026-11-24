@@ -1890,8 +1890,8 @@
         "description": "Chào đón bạn, trả lời câu hỏi chung và chỉ bạn đến đúng quầy."
       },
       "guide": {
-        "title": "Robot hướng dẫn",
-        "description": "Giải thích cách dùng văn phòng và vị trí của mọi người."
+        "title": "Theo dõi thông báo & hướng dẫn văn phòng",
+        "description": "Theo dõi các trang chính thức của trường và thông báo đã đăng, đồng thời giải thích cách dùng văn phòng."
       },
       "supporter": {
         "title": "Hỗ trợ {language}",
@@ -2001,7 +2001,16 @@
       "help": "Cách sử dụng",
       "support": "Hỗ trợ từ người thật",
       "about": "Mình có thể làm gì",
-      "work": "Công việc"
+      "work": "Công việc",
+      "checklists": "Danh sách kiểm tra",
+      "procedures": "Thủ tục",
+      "topik": "TOPIK",
+      "careers": "Nghề nghiệp",
+      "monitoring": "Theo dõi",
+      "review": "Duyệt",
+      "sources": "Nguồn",
+      "request": "Yêu cầu mới",
+      "requests": "Yêu cầu của tôi"
     },
     "lists": {
       "guidesTitle": "Hướng dẫn đã được duyệt trong Trung tâm kiến thức",
@@ -2144,7 +2153,9 @@
         "official_opportunities": "Từ trang chính thức",
         "check_official_sources": "Kiểm tra trang chính thức (admin)",
         "review_queue": "Hàng chờ duyệt (admin)",
-        "official_jobs": "Việc làm trên trang chính thức"
+        "official_jobs": "Việc làm trên trang chính thức",
+        "leave_of_absence": "Bảo lưu & học lại",
+        "graduation": "Điều kiện tốt nghiệp"
       },
       "notes": {
         "no_match": "Không có nguồn đã duyệt nào trong Hub phù hợp.",
@@ -2173,7 +2184,10 @@
         "open_only_when_stated": "Chỉ ghi là đang mở khi nguồn nêu hạn chót trong tương lai hoặc nói đang nhận hồ sơ.",
         "no_discoveries": "Chưa tìm thấy gì trên các trang chính thức đã cấu hình.",
         "some_missing_info": "Một số mục thiếu hạn chót hoặc điều kiện; đã được đánh dấu.",
-        "no_candidates": "Không có thông báo nào chờ duyệt."
+        "no_candidates": "Không có thông báo nào chờ duyệt.",
+        "official_reviewed": "Từ trang chính thức, đã được nhân viên duyệt và phê duyệt trong Trung tâm thông tin.",
+        "no_reviewed_discoveries": "Chưa có thông báo nào từ trang chính thức được duyệt và phê duyệt.",
+        "reviewed_closed_hidden": "Có cơ hội đã duyệt từ trang chính thức nhưng đều đã đóng. Chọn gồm cả mục đã đóng để xem."
       },
       "reliability": {
         "verified": "Nguồn đã duyệt",
@@ -2370,6 +2384,319 @@
         "candidate": "Chờ duyệt",
         "dismissed": "Đã bỏ qua",
         "imported": "Đã gửi đi duyệt"
+      }
+    },
+    "ws": {
+      "backToOffice": "Quay lại văn phòng",
+      "adminOnly": "Chỉ quản trị viên",
+      "noActivity": "Chưa có hoạt động nào.",
+      "apply": "Đăng ký",
+      "eligibilityQuoted": "Điều kiện (trích từ nguồn)",
+      "publishedOn": "Đăng ngày {date}",
+      "verifiedOn": "Duyệt ngày {date}",
+      "lastChecked": "Kiểm tra {when}",
+      "itemKinds": {
+        "guide": "Hướng dẫn",
+        "notice": "Thông báo"
+      },
+      "annStatus": {
+        "upcoming": "Sắp diễn ra",
+        "expired": "Đã qua"
+      },
+      "dates": {
+        "deadline": "Hạn chót",
+        "event": "Ngày",
+        "passed": "đã qua",
+        "today": "hôm nay",
+        "tomorrow": "ngày mai",
+        "inDays": "còn {count} ngày"
+      },
+      "status": {
+        "checkingSources": "Đang kiểm tra trang chính thức",
+        "awaiting": "{count} mục chờ bạn"
+      },
+      "source": {
+        "hub": "Đã duyệt trên Hub",
+        "official": "Trang chính thức"
+      },
+      "opp": {
+        "intro": "Học bổng, cuộc thi và chương trình đã đăng trên Hub hoặc đã được nhân viên duyệt. Hạn chót và điều kiện được trích từ từng nguồn.",
+        "search": "Tìm cơ hội",
+        "searchPlaceholder": "vd. GKS, học phí, cuộc thi",
+        "kindFilter": "Loại",
+        "kinds": {
+          "all": "Tất cả",
+          "scholarship": "Học bổng",
+          "competition": "Cuộc thi",
+          "program": "Chương trình"
+        },
+        "showClosed": "Gồm cả mục đã đóng",
+        "listTitle": "Cơ hội ({count})",
+        "lastChecked": "Đã kiểm tra trang chính thức {when}",
+        "noMatch": "Không có mục nào phù hợp bộ lọc.",
+        "empty": "Hiện chưa có cơ hội nào được duyệt. Mục mới sẽ hiện ở đây sau khi nhân viên duyệt.",
+        "watching": "Leo theo dõi: {names}",
+        "adminUnreviewed": "{count, plural, =0 {Không có mục chưa duyệt từ trang chính thức.} other {# mục chưa duyệt từ trang chính thức đang chờ trong Duyệt (sinh viên không thấy).}}",
+        "openReview": "Mở hàng chờ duyệt",
+        "openSources": "Nguồn & lịch",
+        "myChecks": "Kiểm tra học bổng của tôi",
+        "myChecksHint": "Kiểm tra đầy đủ chạy nền trên nội dung đã duyệt và lưu kết quả cho bạn. Không bao giờ thay bạn tìm trên các trang web.",
+        "signInForChecks": "Đăng nhập để chạy kiểm tra đầy đủ và lưu kết quả.",
+        "recentChecks": "Lần kiểm tra gần đây"
+      },
+      "mon": {
+        "checkingNow": "Đang kiểm tra các trang chính thức",
+        "notChecking": "Hiện không kiểm tra",
+        "lastCheck": "Lần kiểm tra cuối {when}",
+        "noCheckYet": "Chưa có lần kiểm tra nào.",
+        "lastSuccess": "thành công gần nhất {when}",
+        "noSchedule": "Chưa thiết lập kiểm tra tự động.",
+        "sourcesTitle": "Trang chính thức đang theo dõi ({count})",
+        "noSources": "Bàn này chưa có trang chính thức nào.",
+        "changesTitle": "Những gì thay đổi với bạn",
+        "changesHint": "Bản tổng hợp liệt kê các thông báo mới hoặc đã thay đổi kể từ bản tổng hợp trước của bạn.",
+        "latestDigest": "Bản tổng hợp gần nhất",
+        "signInForDigest": "Đăng nhập để nhận bản tổng hợp thông báo mới và thay đổi.",
+        "recentTitle": "Mới đăng",
+        "allNotices": "Tất cả thông báo",
+        "noRecent": "Chưa có thông báo nào được đăng.",
+        "activityTitle": "Hoạt động gần đây",
+        "candidatesWaiting": "{count, plural, =0 {Không có thông báo nào chờ duyệt.} other {# thông báo tìm thấy đang chờ duyệt.}}",
+        "openReview": "Mở hàng chờ duyệt",
+        "openSources": "Nguồn & lịch",
+        "timeline": {
+          "checking": "Đang kiểm tra trang chính thức",
+          "checkedOk": "Đã kiểm tra {name}",
+          "checkedAttention": "{name} cần chú ý",
+          "scheduled": "Đã chạy kiểm tra theo lịch",
+          "taskDone": "{task} đã xong",
+          "taskFailed": "{task} thất bại",
+          "taskStarted": "{task} đã bắt đầu"
+        }
+      },
+      "review": {
+        "adminOnly": "Chỉ quản trị viên mới duyệt được thông báo tìm thấy.",
+        "intro": "Thông báo tìm thấy trên trang chính thức. Sinh viên không thấy mục nào ở đây. “Gửi đi duyệt” đưa trang vào quy trình duyệt thông thường của Trung tâm thông tin; chỉ được đăng sau khi được phê duyệt ở đó.",
+        "filter": "Trạng thái",
+        "statuses": {
+          "candidate": "Đang chờ",
+          "imported": "Đã gửi duyệt",
+          "dismissed": "Đã bỏ qua",
+          "all": "Tất cả"
+        },
+        "changedOnly": "Chỉ mục mới hoặc đã thay đổi",
+        "empty": "Không có gì ở đây."
+      },
+      "sources": {
+        "checkNow": "Kiểm tra thủ công",
+        "checkNowHint": "Đọc các trang đang theo dõi một lần, lịch sự (tuân thủ robots.txt và giới hạn truy cập). Thông báo mới và thay đổi trở thành mục chờ duyệt.",
+        "latestCheck": "Lần kiểm tra gần nhất",
+        "schedules": "Kiểm tra tự động",
+        "serverOff": "Kiểm tra tự động đang tắt trên máy chủ này. Lịch bật ở đây chỉ chạy sau khi công tắc máy chủ được bật.",
+        "noSchedules": "Bàn này không có lịch.",
+        "sources": "Nguồn ({count})",
+        "noSources": "Chưa có nguồn nào.",
+        "addSources": "Nguồn mới do quản trị viên thêm qua API quản trị sau khi được phê duyệt.",
+        "disabled": "Đã tắt",
+        "kinds": {
+          "sch_board": "Bảng tin trường",
+          "listing": "Trang danh sách",
+          "page": "Trang đơn"
+        },
+        "failures": "{count} lần thất bại liên tiếp",
+        "disable": "Tắt",
+        "enable": "Bật",
+        "resetFailures": "Đặt lại lỗi"
+      },
+      "health": {
+        "ok": "Ổn",
+        "attention": "Cần chú ý",
+        "not_checked": "Chưa kiểm tra"
+      },
+      "schedule": {
+        "states": {
+          "active": "Kiểm tra tự động: bật",
+          "disabled": "Kiểm tra tự động: tắt",
+          "off_on_server": "Tắt trên máy chủ"
+        },
+        "every": "mỗi {hours} giờ",
+        "next": "lần tới {when}",
+        "explain": {
+          "active": "chạy theo lịch",
+          "disabled": "chỉ kiểm tra khi nhân viên bắt đầu",
+          "off_on_server": "đã bật ở đây nhưng công tắc máy chủ đang tắt"
+        },
+        "lastRun": "Lần chạy cuối {when}",
+        "neverRun": "Chưa từng chạy",
+        "lastSuccess": "thành công gần nhất {when}",
+        "confirmOn": "Bật kiểm tra tự động mỗi {hours} giờ? Thông báo mới và thay đổi sẽ chờ duyệt; không có gì được đăng tự động.",
+        "turnOn": "Bật",
+        "turnOff": "Tắt"
+      },
+      "events": {
+        "intro": "Thông báo đã đăng có ngày sự kiện hoặc hạn chót. Ngày được lấy từ từng thông báo.",
+        "when": "Thời gian",
+        "upcoming": "Sắp diễn ra ({count})",
+        "past": "Đã qua ({count})",
+        "category": "Danh mục",
+        "allCategories": "Tất cả",
+        "upcomingTitle": "Sắp diễn ra",
+        "pastTitle": "Sự kiện đã qua",
+        "noUpcoming": "Hiện chưa có sự kiện sắp tới nào được đăng.",
+        "noPast": "Không có sự kiện đã qua nào được đăng.",
+        "registrationNote": "Thông tin đăng ký chỉ hiển thị đúng như trong từng thông báo. Mở thông báo để xem địa điểm và cách đăng ký.",
+        "changesTitle": "Những gì thay đổi",
+        "latestDigest": "Cập nhật sự kiện gần nhất",
+        "signInForDigest": "Đăng nhập để nhận cập nhật về sự kiện mới và thay đổi.",
+        "backToList": "Tất cả sự kiện",
+        "translationVerified": "Bản dịch đã duyệt",
+        "translationMachine": "Dịch máy, chưa duyệt",
+        "detailNote": "Hãy kiểm tra thông báo gốc trước khi đăng ký hoặc tham dự.",
+        "openInHub": "Mở trên Hub",
+        "officialNotice": "Thông báo chính thức"
+      },
+      "careers": {
+        "intro": "Thông báo nghề nghiệp và thực tập đã đăng trên Hub, hướng dẫn việc làm đã duyệt, và tin tuyển dụng từ trang chính thức của trường đã được nhân viên duyệt.",
+        "search": "Tìm nghề nghiệp",
+        "searchPlaceholder": "vd. thực tập, làm thêm, hội chợ việc làm",
+        "showExpired": "Gồm cả mục đã hết hạn",
+        "noticesTitle": "Thông báo & hướng dẫn nghề nghiệp ({count})",
+        "noMatch": "Không có kết quả.",
+        "noNotices": "Hiện chưa có thông báo nghề nghiệp nào.",
+        "postingsTitle": "Tin tuyển dụng đã duyệt từ trang chính thức ({count})",
+        "noPostings": "Chưa có tin tuyển dụng nào từ trang chính thức được duyệt và phê duyệt.",
+        "externalOn": "Đã kết nối tìm việc bên ngoài.",
+        "externalOff": "Chưa kết nối tìm kiếm trên các trang việc làm ngoài trường. Daniel chỉ hiển thị thông báo trên Hub và tin tuyển dụng đã duyệt từ trang chính thức của trường; anh ấy không bao giờ bịa ra vị trí tuyển dụng.",
+        "openGuides": "Hướng dẫn việc làm",
+        "myResults": "Kết quả nghề nghiệp của tôi"
+      },
+      "procedures": {
+        "title": "Thủ tục",
+        "otherTopics": "Thủ tục khác",
+        "noGuide": "Hub chưa có hướng dẫn đã duyệt cho nội dung này.",
+        "askAbout": "Hỏi {name} về việc này",
+        "noTopics": "Không có thủ tục nào."
+      },
+      "visa": {
+        "intro": "Danh sách kiểm tra từng bước trích từ hướng dẫn xuất nhập cảnh đã duyệt, kèm liên kết tới từng nguồn.",
+        "askQuestion": "Đặt câu hỏi cho {name}",
+        "guides": "Hướng dẫn visa",
+        "notDecision": "Chỉ là thông tin thủ tục. Cơ quan xuất nhập cảnh quyết định; Yuna không bao giờ đánh giá điều kiện của bạn."
+      },
+      "academic": {
+        "intro": "Thủ tục của trường, trích từ hướng dẫn học vụ đã duyệt.",
+        "noticesTitle": "Thông báo mới của trường",
+        "allNotices": "Tất cả thông báo",
+        "noNotices": "Hiện chưa có thông báo nào của trường.",
+        "resources": "Tài liệu Trung tâm thông tin"
+      },
+      "topik": {
+        "intro": "Lịch thi TOPIK và thông báo đăng ký đã đăng trên Hub, với ngày trích từ từng thông báo.",
+        "datesTitle": "Lịch thi & đăng ký",
+        "noNotices": "Hiện Hub chưa đăng thông báo TOPIK nào.",
+        "resourcesTitle": "Tài liệu trong Trung tâm thông tin",
+        "noResources": "Chưa có hướng dẫn TOPIK nào được đăng.",
+        "allGuides": "Tất cả hướng dẫn TOPIK",
+        "noDates": "Không tìm thấy ngày trong thông báo này.",
+        "openNotice": "Mở thông báo"
+      },
+      "support": {
+        "signIn": "Đăng nhập để gửi yêu cầu tới Global Supporter và theo dõi trạng thái.",
+        "formTitle": "Nhờ người thật hỗ trợ",
+        "formIntro": "Sumin chuẩn bị yêu cầu của bạn cho Global Supporter. Không có gì được gửi cho đến khi bạn xem lại và xác nhận.",
+        "category": "Chủ đề",
+        "categories": {
+          "visa": "Visa & lưu trú",
+          "academic": "Học vụ",
+          "housing": "Nhà ở",
+          "scholarship": "Học bổng",
+          "work": "Việc làm & nghề nghiệp",
+          "health": "Sức khỏe & bảo hiểm",
+          "daily": "Đời sống",
+          "other": "Khác"
+        },
+        "language": "Ngôn ngữ trả lời",
+        "subject": "Tiêu đề",
+        "details": "Chi tiết",
+        "detailsPlaceholder": "Chuyện gì đã xảy ra, bạn đã thử gì, và bạn cần giúp gì.",
+        "privacy": "Đừng ghi mật khẩu hoặc toàn bộ số thẻ cư trú. Supporter của ngôn ngữ đã chọn sẽ đọc nội dung này.",
+        "review": "Xem lại yêu cầu",
+        "previewTitle": "Kiểm tra yêu cầu của bạn",
+        "previewNote": "Đây chính xác là nội dung nhóm {team} sẽ nhận. Chưa được gửi.",
+        "confirm": "Xác nhận và gửi",
+        "edit": "Sửa",
+        "sending": "Đang gửi yêu cầu…",
+        "sent": "Đã gửi yêu cầu #{number}.",
+        "openRequest": "Mở yêu cầu",
+        "waitingTitle": "Đang chờ bạn xác nhận",
+        "historyTitle": "Yêu cầu của tôi",
+        "refresh": "Làm mới",
+        "noRequests": "Bạn chưa có yêu cầu hỗ trợ nào.",
+        "updated": "Cập nhật {when}",
+        "allRequests": "Tất cả yêu cầu trên trang Hỗ trợ sinh viên"
+      },
+      "about": {
+        "types": {
+          "CHAT": "Bàn trò chuyện",
+          "SERVICE": "Bàn dịch vụ",
+          "DISCOVERY": "Bàn tìm kiếm",
+          "MONITORING": "Bàn theo dõi",
+          "TASK_WORKSPACE": "Bàn yêu cầu"
+        },
+        "capabilities": "Việc tôi làm",
+        "dataSources": "Thông tin của tôi đến từ đâu",
+        "never": "Việc tôi không bao giờ làm",
+        "serverChecks": "Mọi thao tác đều được máy chủ kiểm tra: trang này không thể cấp thêm quyền cho ai."
+      },
+      "capabilities": {
+        "grounded_chat": "Trả lời từ nguồn đã duyệt",
+        "citations": "Hiển thị nguồn của mọi câu trả lời",
+        "delegation": "Chuyển việc chuyên môn đến đúng bàn",
+        "task_results": "Lưu kết quả công việc của bạn",
+        "directory": "Chỉ bạn đến đúng bàn",
+        "procedure_checklists": "Danh sách kiểm tra thủ tục từng bước",
+        "outdated_flags": "Đánh dấu hướng dẫn có thể đã cũ",
+        "academic_notices": "Thông báo của trường",
+        "knowledge_resources": "Tài liệu Trung tâm thông tin",
+        "test_dates": "Lịch thi từ thông báo đã đăng",
+        "registration_notices": "Thông báo đăng ký",
+        "approved_opportunities": "Chỉ cơ hội đã duyệt",
+        "deadlines": "Hạn chót trích từ nguồn",
+        "eligibility_quotes": "Điều kiện trích từ nguồn",
+        "official_links": "Liên kết đăng ký chính thức",
+        "verification_status": "Trạng thái xác minh từng mục",
+        "filters": "Bộ lọc và tìm kiếm",
+        "own_checks": "Kiểm tra chạy nền của bạn",
+        "published_events": "Sự kiện đã đăng",
+        "event_dates": "Ngày sự kiện",
+        "registration_deadlines": "Hạn chót trong từng thông báo",
+        "upcoming_past_filter": "Sự kiện sắp tới và đã qua",
+        "change_digest": "Thay đổi kể từ lần trước",
+        "published_career_notices": "Thông báo nghề nghiệp và thực tập",
+        "employment_guidance": "Hướng dẫn việc làm",
+        "application_dates": "Ngày nộp hồ sơ",
+        "work_permission_reminder": "Nhắc về giấy phép làm việc",
+        "source_status": "Trạng thái các trang theo dõi",
+        "last_check": "Thời điểm kiểm tra cuối",
+        "activity_status": "Trạng thái hoạt động trực tiếp",
+        "recent_announcements": "Thông báo mới đăng",
+        "change_detection": "Thông báo mới và thay đổi",
+        "own_digests": "Bản tổng hợp của riêng bạn",
+        "request_form": "Mẫu yêu cầu",
+        "issue_category": "Chủ đề yêu cầu",
+        "request_preview": "Xem trước khi gửi",
+        "explicit_confirmation": "Chỉ gửi sau khi bạn xác nhận",
+        "own_request_history": "Lịch sử yêu cầu của bạn",
+        "request_status": "Trạng thái yêu cầu"
+      },
+      "dataSources": {
+        "rag": "Tài liệu Hub đã duyệt (câu trả lời có nguồn)",
+        "published_announcements": "Thông báo đã đăng của trường",
+        "knowledge_center": "Hướng dẫn đã duyệt trong Trung tâm thông tin",
+        "discovery_sources": "Trang chính thức của trường được cho phép",
+        "reviewed_discoveries": "Thông báo từ trang chính thức đã được nhân viên duyệt",
+        "support_tickets": "Yêu cầu hỗ trợ của bạn",
+        "agent_tasks": "Công việc của bạn tại bàn này"
       }
     }
   }
