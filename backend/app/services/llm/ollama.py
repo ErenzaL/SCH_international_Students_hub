@@ -79,7 +79,7 @@ class OllamaProvider:
                  connect_timeout: float = 3.0, request_timeout: float = 90.0, job_timeout: float = 180.0,
                  fast_timeout: float = 30.0, queue_timeout: float = 30.0, job_queue_timeout: float = 300.0,
                  max_concurrency: int = 1, max_attempts: int = 2, retry_base: float = 0.8,
-                 retry_max_delay: float = 8.0, deadline: float = 120.0,
+                 retry_max_delay: float = 8.0, deadline: float = 120.0, seed: int | None = None,
                  transport: httpx.AsyncBaseTransport | None = None,
                  sleep: Callable[[float], Awaitable[None]] = asyncio.sleep):
         self.base_url = check_base_url(base_url)
@@ -91,6 +91,7 @@ class OllamaProvider:
         self.max_output_tokens = max(256, min(int(max_output_tokens), self.num_ctx // 2))
         self.temperature = temperature
         self.keep_alive = keep_alive
+        self.seed = seed                 # benchmarks only: repeatable sampling
         self.connect_timeout = connect_timeout
         self.request_timeout = request_timeout
         self.job_timeout = job_timeout
@@ -254,6 +255,8 @@ class OllamaProvider:
             messages=[{"role": "system", "content": system}, {"role": "user", "content": prompt}],
             options=dict(num_ctx=self.num_ctx, num_predict=min(max_tokens, self.max_output_tokens),
                          temperature=self.temperature))
+        if self.seed is not None:
+            payload["options"]["seed"] = self.seed
         if purpose == "rewrite":
             payload["format"] = "json"       # the query rewrite asks for one JSON object
         started = time.perf_counter()

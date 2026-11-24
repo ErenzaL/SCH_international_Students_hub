@@ -1,0 +1,360 @@
+{
+ "name": "baseline",
+ "at": "2026-11-24T12:42:13+00:00",
+ "model": "qwen2.5:7b-instruct",
+ "seed": 1,
+ "temperature": 0.2,
+ "num_ctx": 16384,
+ "notices": 26,
+ "errors": 0,
+ "gpu": {
+  "memory_mib_peak": 5627.0,
+  "memory_mib_median": 5627.0,
+  "utilization_median": 98.0,
+  "power_w_median": 199.41,
+  "power_w_peak": 200.51,
+  "samples": 799
+ },
+ "results": {
+  "en": {
+   "drafts": 26,
+   "dates": [
+    69,
+    69
+   ],
+   "times": [
+    33,
+    33
+   ],
+   "money": [
+    12,
+    12
+   ],
+   "links": [
+    15,
+    15
+   ],
+   "weekdays": [
+    70,
+    70
+   ],
+   "drafts_with_wrong_weekday": 0,
+   "drafts_with_leaked_instructions": 1,
+   "terminology": [
+    40,
+    42
+   ],
+   "proper_nouns": [
+    28,
+    36
+   ],
+   "drafts_missing_lines": 1,
+   "drafts_with_added_numbers": 0,
+   "drafts_with_added_links": 0,
+   "drafts_with_korean_left": 0,
+   "drafts_with_stray_chinese": 2,
+   "fact_errors": 2,
+   "drafts_without_any_measured_error": 22,
+   "passed_production_checks": 4,
+   "checks_flagged_and_error": 4,
+   "checks_flagged_no_error": 18,
+   "checks_missed_error": 0,
+   "warning_types": {
+    "number": 37,
+    "headings": 19,
+    "missing_sections": 5,
+    "code_added": 3,
+    "language": 3,
+    "table_rows": 1,
+    "url": 1,
+    "url_added": 1
+   },
+   "drafts_per_warning_type": {
+    "headings": 19,
+    "number": 18,
+    "missing_sections": 5,
+    "language": 2,
+    "code_added": 1,
+    "table_rows": 1,
+    "url_added": 1,
+    "url": 1
+   },
+   "seconds_median": 7.7,
+   "seconds_p95": 15.23,
+   "seconds_max": 17.44,
+   "input_tokens": 51004,
+   "output_tokens": 19282,
+   "repairs": 27
+  },
+  "id": {
+   "drafts": 26,
+   "dates": [
+    67,
+    69
+   ],
+   "times": [
+    33,
+    33
+   ],
+   "money": [
+    10,
+    12
+   ],
+   "links": [
+    15,
+    15
+   ],
+   "weekdays": [
+    54,
+    61
+   ],
+   "drafts_with_wrong_weekday": 4,
+   "drafts_with_leaked_instructions": 2,
+   "terminology": [
+    30,
+    42
+   ],
+   "proper_nouns": [
+    27,
+    36
+   ],
+   "drafts_missing_lines": 1,
+   "drafts_with_added_numbers": 2,
+   "drafts_with_added_links": 1,
+   "drafts_with_korean_left": 0,
+   "drafts_with_stray_chinese": 1,
+   "fact_errors": 8,
+   "drafts_without_any_measured_error": 18,
+   "passed_production_checks": 4,
+   "checks_flagged_and_error": 8,
+   "checks_flagged_no_error": 14,
+   "checks_missed_error": 0,
+   "warning_types": {
+    "number": 36,
+    "number_added": 9,
+    "missing_sections": 3,
+    "headings": 3,
+    "table_rows": 2,
+    "language": 1,
+    "url_added": 1
+   },
+   "drafts_per_warning_type": {
+    "number": 18,
+    "number_added": 5,
+    "missing_sections": 3,
+    "headings": 3,
+    "table_rows": 2,
+    "language": 1,
+    "url_added": 1
+   },
+   "seconds_median": 11.2,
+   "seconds_p95": 19.54,
+   "seconds_max": 24.08,
+   "input_tokens": 50590,
+   "output_tokens": 26721,
+   "repairs": 24
+  },
+  "vi": {
+   "drafts": 26,
+   "dates": [
+    69,
+    69
+   ],
+   "times": [
+    33,
+    33
+   ],
+   "money": [
+    10,
+    12
+   ],
+   "links": [
+    15,
+    15
+   ],
+   "weekdays": [
+    12,
+    43
+   ],
+   "drafts_with_wrong_weekday": 11,
+   "drafts_with_leaked_instructions": 1,
+   "terminology": [
+    33,
+    42
+   ],
+   "proper_nouns": [
+    22,
+    36
+   ],
+   "drafts_missing_lines": 1,
+   "drafts_with_added_numbers": 3,
+   "drafts_with_added_links": 0,
+   "drafts_with_korean_left": 0,
+   "drafts_with_stray_chinese": 4,
+   "fact_errors": 12,
+   "drafts_without_any_measured_error": 13,
+   "passed_production_checks": 11,
+   "checks_flagged_and_error": 11,
+   "checks_flagged_no_error": 4,
+   "checks_missed_error": 2,
+   "warning_types": {
+    "number": 11,
+    "number_added": 7,
+    "headings": 5,
+    "table_rows": 4,
+    "language": 4,
+    "missing_sections": 2
+   },
+   "drafts_per_warning_type": {
+    "number": 6,
+    "number_added": 5,
+    "headings": 5,
+    "table_rows": 4,
+    "language": 4,
+    "missing_sections": 2
+   },
+   "seconds_median": 6.4,
+   "seconds_p95": 11.37,
+   "seconds_max": 17.41,
+   "input_tokens": 39957,
+   "output_tokens": 16842,
+   "repairs": 14
+  },
+  "zh-CN": {
+   "drafts": 26,
+   "dates": [
+    69,
+    69
+   ],
+   "times": [
+    33,
+    33
+   ],
+   "money": [
+    12,
+    12
+   ],
+   "links": [
+    15,
+    15
+   ],
+   "weekdays": [
+    62,
+    63
+   ],
+   "drafts_with_wrong_weekday": 1,
+   "drafts_with_leaked_instructions": 0,
+   "terminology": [
+    39,
+    42
+   ],
+   "proper_nouns": [
+    28,
+    36
+   ],
+   "drafts_missing_lines": 1,
+   "drafts_with_added_numbers": 0,
+   "drafts_with_added_links": 0,
+   "drafts_with_korean_left": 1,
+   "drafts_with_stray_chinese": 0,
+   "fact_errors": 2,
+   "drafts_without_any_measured_error": 23,
+   "passed_production_checks": 16,
+   "checks_flagged_and_error": 2,
+   "checks_flagged_no_error": 8,
+   "checks_missed_error": 1,
+   "warning_types": {
+    "number": 14,
+    "headings": 6,
+    "number_added": 2,
+    "url": 1,
+    "url_added": 1
+   },
+   "drafts_per_warning_type": {
+    "headings": 6,
+    "number": 4,
+    "number_added": 2,
+    "url_added": 1,
+    "url": 1
+   },
+   "seconds_median": 4.4,
+   "seconds_p95": 7.66,
+   "seconds_max": 8.15,
+   "input_tokens": 36684,
+   "output_tokens": 11206,
+   "repairs": 9
+  },
+  "all": {
+   "drafts": 104,
+   "dates": [
+    274,
+    276
+   ],
+   "times": [
+    132,
+    132
+   ],
+   "money": [
+    44,
+    48
+   ],
+   "links": [
+    60,
+    60
+   ],
+   "weekdays": [
+    198,
+    237
+   ],
+   "drafts_with_wrong_weekday": 16,
+   "drafts_with_leaked_instructions": 4,
+   "terminology": [
+    142,
+    168
+   ],
+   "proper_nouns": [
+    105,
+    144
+   ],
+   "drafts_missing_lines": 4,
+   "drafts_with_added_numbers": 5,
+   "drafts_with_added_links": 1,
+   "drafts_with_korean_left": 1,
+   "drafts_with_stray_chinese": 7,
+   "fact_errors": 24,
+   "drafts_without_any_measured_error": 76,
+   "passed_production_checks": 35,
+   "checks_flagged_and_error": 25,
+   "checks_flagged_no_error": 44,
+   "checks_missed_error": 3,
+   "warning_types": {
+    "number": 98,
+    "headings": 33,
+    "number_added": 18,
+    "missing_sections": 10,
+    "language": 8,
+    "table_rows": 7,
+    "code_added": 3,
+    "url_added": 3,
+    "url": 2
+   },
+   "drafts_per_warning_type": {
+    "number": 46,
+    "headings": 33,
+    "number_added": 12,
+    "missing_sections": 10,
+    "language": 7,
+    "table_rows": 7,
+    "url_added": 3,
+    "url": 2,
+    "code_added": 1
+   },
+   "seconds_median": 7.2,
+   "seconds_p95": 17.41,
+   "seconds_max": 24.08,
+   "input_tokens": 178235,
+   "output_tokens": 74051,
+   "repairs": 74
+  }
+ }
+}
