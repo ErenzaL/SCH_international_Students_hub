@@ -1,0 +1,678 @@
+{
+ "model": "qwen2.5:7b-instruct",
+ "at": "2026-11-24T11:08:29.616925+00:00",
+ "num_ctx": 16384,
+ "temperature": 0.2,
+ "by_target": {
+  "ko": {
+   "n": 8,
+   "chrf": 66.9,
+   "median_s": 1.61,
+   "max_s": 1.8,
+   "clean": 3
+  },
+  "en": {
+   "n": 8,
+   "chrf": 70.2,
+   "median_s": 1.01,
+   "max_s": 1.4,
+   "clean": 5
+  },
+  "id": {
+   "n": 8,
+   "chrf": 66.2,
+   "median_s": 1.7,
+   "max_s": 2.16,
+   "clean": 6
+  },
+  "vi": {
+   "n": 8,
+   "chrf": 61.2,
+   "median_s": 1.47,
+   "max_s": 1.79,
+   "clean": 8
+  },
+  "zh-CN": {
+   "n": 8,
+   "chrf": 51.8,
+   "median_s": 1.1,
+   "max_s": 1.59,
+   "clean": 1
+  }
+ },
+ "rows": [
+  {
+   "source": "ko",
+   "target": "en",
+   "notice": "scholarship",
+   "chrf": 75.6,
+   "seconds": 1.36,
+   "input_tokens": 777,
+   "output_tokens": 118,
+   "tokens_per_s": 87.1,
+   "warnings": [
+    {
+     "type": "number",
+     "value": "12"
+    }
+   ],
+   "output": "International Student Scholarship Application Guide\nInternational student scholarship application is accepted. The application period is from December 01, 2026, to December 15, 2026, 18:00.\n\n- Application amount: 500,000 won\n- Required documents: Application form, transcript, passport copy\n\nSubmit the application form at https://example.ac.kr/apply. Applications will not be accepted after the deadline.\n\nFor inquiries: intl@example.ac.kr, 041-000-1234"
+  },
+  {
+   "source": "ko",
+   "target": "en",
+   "notice": "visa",
+   "chrf": 52.2,
+   "seconds": 0.9,
+   "input_tokens": 746,
+   "output_tokens": 79,
+   "tokens_per_s": 87.7,
+   "warnings": [],
+   "output": "D-2 Stay Period Extension Guidelines\nD-2 Stay Qualification Students must apply for extension before their stay period expires.\n\n- Required Documents: Passport, Alien Registration Card, Enrollment Certificate\n- Fee: 60,000 won\n\nA penalty may be imposed if the expiration date has passed. Applications must be submitted personally and cannot be done by the school on your behalf."
+  },
+  {
+   "source": "ko",
+   "target": "id",
+   "notice": "scholarship",
+   "chrf": 66.9,
+   "seconds": 2.16,
+   "input_tokens": 803,
+   "output_tokens": 192,
+   "tokens_per_s": 89.1,
+   "warnings": [
+    {
+     "type": "number",
+     "value": "12"
+    }
+   ],
+   "output": "Panduan Pemohon Beasiswa untuk Mahasiswa Internasional\nPemberitahuan Pendaftaran Beasiswa untuk Mahasiswa Internasional\n\nPendaftaran beasiswa untuk mahasiswa internasional diterima. Periode pendaftaran berlangsung dari 01 Desember 2026 hingga 15 Desember 2026 pukul 18:00 WIB.\n\n- Besaran Beasiswa: 500,000 won\n- Dokumen yang Diperlukan: Surat Pendaftaran, Transkrip Nilai, Salinan Paspor\n\nSurat pendaftaran dapat disubmit di https://example.ac.kr/apply. Pendaftaran tidak dapat dilakukan setelah batas waktu.\n\nKontak: intl@example.ac.kr, 041-000-1234"
+  },
+  {
+   "source": "ko",
+   "target": "id",
+   "notice": "visa",
+   "chrf": 51.4,
+   "seconds": 1.37,
+   "input_tokens": 772,
+   "output_tokens": 124,
+   "tokens_per_s": 90.3,
+   "warnings": [],
+   "output": "Pengumuman Perpanjangan Waktu Berada di D-2\nD-2 keberadaan mahasiswa harus mengajukan pengajuan penambahan masa tinggal sebelum masa tinggalnya berakhir.\n\n- Dokumen yang dibutuhkan: Paspor, Kartu Residen, Bukti Daftar Kuliah\n- Biaya: 60.000 KRW\n\nJika tanggal berakhir sudah lewat, dikenakan denda. Pengajuan tidak dapat dilakukan oleh sekolah, melainkan harus dilakukan secara pribadi."
+  },
+  {
+   "source": "ko",
+   "target": "vi",
+   "notice": "scholarship",
+   "chrf": 60.0,
+   "seconds": 1.79,
+   "input_tokens": 809,
+   "output_tokens": 159,
+   "tokens_per_s": 88.7,
+   "warnings": [],
+   "output": "Hướng dẫn nộp đơn học bổng cho sinh viên quốc tế\nQuy chế học bổng cho sinh viên quốc tế đang được áp dụng. Thời gian nộp đơn từ 01/12/2026 đến 15/12/2026 18:00.\n\n- Số tiền hỗ trợ: 500.000 won\n- Văn bản cần nộp: Đơn xin học bổng, bảng điểm, bản sao hộ chiếu\n\nĐơn xin học bổng phải được nộp tại https://example.ac.kr/apply. Sau thời hạn nộp đơn, không còn được nộp nữa.\n\nLiên hệ: intl@example.ac.kr, 041-000-1234"
+  },
+  {
+   "source": "ko",
+   "target": "vi",
+   "notice": "visa",
+   "chrf": 54.1,
+   "seconds": 1.12,
+   "input_tokens": 778,
+   "output_tokens": 101,
+   "tokens_per_s": 90.1,
+   "warnings": [],
+   "output": "D-2 kéo dài thời gian lưu trú hướng dẫn\nD-2 lưu trú tư cách học sinh phải nộp đơn xin gia hạn trước khi thời gian lưu trú kết thúc.\n\n- Văn kiện cần chuẩn bị: hộ chiếu, thẻ tạm trú, giấy xác nhận học tập\n- Phí: 60.000 won\n\nNếu ngày kết thúc đã qua, có thể bị phạt. Trường không nộp đơn thay bạn, bạn phải nộp đơn trực tiếp."
+  },
+  {
+   "source": "ko",
+   "target": "zh-CN",
+   "notice": "scholarship",
+   "chrf": 71.3,
+   "seconds": 1.34,
+   "input_tokens": 815,
+   "output_tokens": 117,
+   "tokens_per_s": 87.0,
+   "warnings": [
+    {
+     "type": "number",
+     "value": "01"
+    },
+    {
+     "type": "url_added",
+     "value": "https://example.ac.kr/apply提交申请表。截止日期后将无法申请。"
+    }
+   ],
+   "output": "国际学生奖学金申请指南\n国际学生奖学金申请通知\n\n国际学生奖学金申请开始。申请期间为2026年12月1日至2026年12月15日18:00。\n\n- 申请金额：500,000韩元\n- 提交文件：申请表、成绩单复印件、护照复印件\n\n请在https://example.ac.kr/apply提交申请表。截止日期后将无法申请。\n\n咨询：intl@example.ac.kr，041-000-1234"
+  },
+  {
+   "source": "ko",
+   "target": "zh-CN",
+   "notice": "visa",
+   "chrf": 45.7,
+   "seconds": 0.85,
+   "input_tokens": 784,
+   "output_tokens": 75,
+   "tokens_per_s": 88.6,
+   "warnings": [],
+   "output": "D-2签证延期指南\nD-2 留学生在签证有效期到期前需要申请延长签证。\n\n- 准备材料：护照、外国人登记证、在读证明\n- 手续费：60,000韩元\n\n如果超过有效期，可能会被罚款。学校不会代为申请，必须本人亲自申请。"
+  },
+  {
+   "source": "en",
+   "target": "ko",
+   "notice": "scholarship",
+   "chrf": 70.0,
+   "seconds": 1.8,
+   "input_tokens": 752,
+   "output_tokens": 161,
+   "tokens_per_s": 89.3,
+   "warnings": [
+    {
+     "type": "number",
+     "value": "01"
+    },
+    {
+     "type": "url_added",
+     "value": "https://example.ac.kr/apply에서"
+    }
+   ],
+   "output": "국제학생 장학금 신청 안내\n국제학생 장학금 신청 안내\n\n우리는 2026년 12월 1일부터 2026년 12월 15일 18:00까지 국제학생 장학금 신청을 받습니다.\n\n- 장학금 금액: 500,000 원\n- 필요 서류: 신청서, 학적증명서, 여권 복사본\n\n신청서를 https://example.ac.kr/apply에서 제출하십시오. 마감일 이후로는 신청할 수 없습니다.\n\n문의: intl@example.ac.kr, 041-000-1234"
+  },
+  {
+   "source": "en",
+   "target": "ko",
+   "notice": "visa",
+   "chrf": 53.7,
+   "seconds": 1.2,
+   "input_tokens": 711,
+   "output_tokens": 110,
+   "tokens_per_s": 91.4,
+   "warnings": [],
+   "output": "D-2 체류기간 연장 안내\n학생들이 D-2 입주 상태에서 벗어나기 전에 연장 신청을 해야 합니다.\n\n- 준비할 서류: 여권, 주민등록증, 등록증명서\n- 수수료: 60,000원\n\n만료일 이후에는 과태료가 부과될 수 있습니다. 대학은 대신 신청하지 않으므로, 본인으로부터 신청해야 합니다."
+  },
+  {
+   "source": "en",
+   "target": "id",
+   "notice": "scholarship",
+   "chrf": 73.0,
+   "seconds": 1.76,
+   "input_tokens": 752,
+   "output_tokens": 157,
+   "tokens_per_s": 89.2,
+   "warnings": [],
+   "output": "Pedoman Pemohon Beasiswa untuk Mahasiswa Internasional\nKami menerima aplikasi untuk beasiswa siswa internasional. Periode mendaftar adalah dari 2026-12-01 hingga 2026-12-15 18:00.\n\n- Jumlah: 500.000 won\n- Dokumen yang dibutuhkan: formulir aplikasi, transkrip akademik, salinan paspor\n\nKirimkan formulir aplikasi di https://example.ac.kr/apply. Anda tidak dapat mendaftar setelah batas waktu.\n\nHubungi: intl@example.ac.kr, 041-000-1234"
+  },
+  {
+   "source": "en",
+   "target": "id",
+   "notice": "visa",
+   "chrf": 65.2,
+   "seconds": 1.26,
+   "input_tokens": 711,
+   "output_tokens": 115,
+   "tokens_per_s": 91.3,
+   "warnings": [],
+   "output": "Petunjuk Prolongasi Stay D-2\nMahasiswa dengan status D-2 harus mengajukan pengajuan perpanjangan sebelum masa tinggal berakhir.\n\n- Dokumen yang perlu disiapkan: paspor, kartu tinggal, bukti pendaftaran\n- Biaya: 60.000 won\n\nDikenakan denda setelah tanggal berakhir. Perguruan tinggi tidak mengajukan permohonannya secara mandiri; Anda harus mengajukannya sendiri."
+  },
+  {
+   "source": "en",
+   "target": "vi",
+   "notice": "scholarship",
+   "chrf": 69.2,
+   "seconds": 1.73,
+   "input_tokens": 758,
+   "output_tokens": 154,
+   "tokens_per_s": 89.2,
+   "warnings": [],
+   "output": "Hướng dẫn nộp đơn học bổng cho sinh viên quốc tế\nChúng tôi đang nhận hồ sơ học bổng cho sinh viên quốc tế. Thời gian nộp hồ sơ từ 2026-12-01 đến 2026-12-15 18:00.\n\n- Số tiền: 500.000 won\n- Văn bản cần thiết: biểu mẫu đăng ký, bản sao công bố học lực, bản sao passport\n\nNộp biểu mẫu đăng ký tại https://example.ac.kr/apply. Bạn không thể nộp hồ sơ sau thời hạn.\n\nLiên hệ: intl@example.ac.kr, 041-000-1234"
+  },
+  {
+   "source": "en",
+   "target": "vi",
+   "notice": "visa",
+   "chrf": 60.5,
+   "seconds": 1.06,
+   "input_tokens": 717,
+   "output_tokens": 96,
+   "tokens_per_s": 90.8,
+   "warnings": [],
+   "output": "Hướng dẫn gia hạnStay D-2\nSinh viên có trạng thái D-2 phải nộp đơn xin gia hạn trước khi thời gian lưu trú hết hạn.\n\n- Văn bản cần chuẩn bị: hộ chiếu, thẻ cư trú, giấy xác nhận nhập học\n- Phí: 60.000 won\n\nSau ngày hết hạn, có thể bị phạt. Trường không thay bạn nộp đơn; bạn phải nộp đơn tự mình."
+  },
+  {
+   "source": "en",
+   "target": "zh-CN",
+   "notice": "scholarship",
+   "chrf": 59.2,
+   "seconds": 1.59,
+   "input_tokens": 764,
+   "output_tokens": 141,
+   "tokens_per_s": 88.6,
+   "warnings": [
+    {
+     "type": "number",
+     "value": "01"
+    }
+   ],
+   "output": "国际学生奖学金申请指南\n我们接受国际学生奖学金的申请。申请期间为2026年12月1日至2026年12月15日18:00。\n\n- 奖学金金额：500,000韩元\n- 必需文件：申请表、成绩单、护照复印件\n\n请通过以下链接提交申请表：[https://example.ac.kr/apply](https://example.ac.kr/apply)。申请截止后将不再接受申请。\n\n联系邮箱：[intl@example.ac.kr](mailto:intl@example.ac.kr)，电话：041-000-1234"
+  },
+  {
+   "source": "en",
+   "target": "zh-CN",
+   "notice": "visa",
+   "chrf": 34.8,
+   "seconds": 0.86,
+   "input_tokens": 723,
+   "output_tokens": 77,
+   "tokens_per_s": 89.2,
+   "warnings": [
+    {
+     "type": "truncated",
+     "value": "329 → 103 characters"
+    }
+   ],
+   "output": "D-2签证停留延期指南\n学生持有D-2签证必须在居留期限到期前申请延期。\n\n- 需准备的文件：护照、居留卡、在读证明\n- 费用：60,000韩元\n\n逾期后可能会被处以罚款。学校不会代为申请；您必须自行申请。"
+  },
+  {
+   "source": "id",
+   "target": "ko",
+   "notice": "scholarship",
+   "chrf": 81.1,
+   "seconds": 1.77,
+   "input_tokens": 828,
+   "output_tokens": 156,
+   "tokens_per_s": 88.3,
+   "warnings": [
+    {
+     "type": "number",
+     "value": "01"
+    },
+    {
+     "type": "url_added",
+     "value": "https://example.ac.kr/apply에서"
+    }
+   ],
+   "output": "국제학생 장학금 신청 안내\n우리 대학은 국제학생 장학금 신청을 받습니다. 신청 기간은 2026년 12월 1일부터 2026년 12월 15일 18:00까지입니다.\n\n- 장학금 금액: 500,000원\n- 필요 서류: 신청서, 성적증명서, 여권 사본\n\n신청서는 https://example.ac.kr/apply에서 제출하십시오. 마감일 이후에는 신청할 수 없습니다.\n\n문의: intl@example.ac.kr, 041-000-1234"
+  },
+  {
+   "source": "id",
+   "target": "ko",
+   "notice": "visa",
+   "chrf": 56.4,
+   "seconds": 1.31,
+   "input_tokens": 772,
+   "output_tokens": 118,
+   "tokens_per_s": 90.1,
+   "warnings": [
+    {
+     "type": "truncated",
+     "value": "372 → 168 characters"
+    }
+   ],
+   "output": "D-2 체류기간 연장 안내\nD-2 상태의 학생들은 체류 기간이 끝나기 전에 연장 신청을 해야 합니다.\n\n- 준비해야 하는 서류: 여권, 외국인등록증, 재학증명서\n- 비용: 60,000원\n\n만료일 이후에는 벌금이 부과될 수 있습니다. 대학은 본인의 이름으로 신청하지 않으니 본인 스스로 신청해야 합니다."
+  },
+  {
+   "source": "id",
+   "target": "en",
+   "notice": "scholarship",
+   "chrf": 82.4,
+   "seconds": 1.39,
+   "input_tokens": 802,
+   "output_tokens": 120,
+   "tokens_per_s": 86.6,
+   "warnings": [
+    {
+     "type": "number",
+     "value": "12"
+    }
+   ],
+   "output": "International Student Scholarship Application Guide\nWe accept applications for international student scholarships. The application period is from December 01, 2026, to December 15, 2026, 18:00.\n\n- Scholarship amount: 500,000 won\n- Required documents: application form, transcript of records, copy of passport\n\nSubmit the application form at https://example.ac.kr/apply. Applications cannot be accepted after the deadline.\n\nContact: intl@example.ac.kr, 041-000-1234"
+  },
+  {
+   "source": "id",
+   "target": "en",
+   "notice": "visa",
+   "chrf": 73.6,
+   "seconds": 0.91,
+   "input_tokens": 746,
+   "output_tokens": 81,
+   "tokens_per_s": 89.2,
+   "warnings": [],
+   "output": "D-2 Visa Extension Guide\nStudents with D-2 status must apply for an extension before their stay expires.\n\n- Documents to be prepared: passport, foreigner registration card, letter of active student status\n- Fee: 60,000 won\n\nA fine may be imposed after the expiration date. The university will not submit the application on your behalf; you must apply yourself."
+  },
+  {
+   "source": "id",
+   "target": "vi",
+   "notice": "scholarship",
+   "chrf": 74.8,
+   "seconds": 1.74,
+   "input_tokens": 834,
+   "output_tokens": 154,
+   "tokens_per_s": 88.4,
+   "warnings": [],
+   "output": "Hướng dẫn đăng ký học bổng sinh viên quốc tế\nChúng tôi nhận hồ sơ học bổng sinh viên quốc tế. Thời gian nhận hồ sơ từ 2026-12-01 đến 2026-12-15 18:00.\n\n- Số tiền hỗ trợ: 500.000 won\n- Các giấy tờ cần thiết: biểu mẫu đăng ký, sao kê bảng điểm, bản sao passport\n\nGửi biểu mẫu đăng ký tại https://example.ac.kr/apply. Bạn không thể đăng ký sau thời gian quy định.\n\nLiên hệ: intl@example.ac.kr, 041-000-1234"
+  },
+  {
+   "source": "id",
+   "target": "vi",
+   "notice": "visa",
+   "chrf": 58.1,
+   "seconds": 1.12,
+   "input_tokens": 778,
+   "output_tokens": 100,
+   "tokens_per_s": 89.3,
+   "warnings": [],
+   "output": "Hướng dẫn gia hạn visa D-2\nHọc sinh với trạng thái D-2 phải đề nghị gia hạn trước khi thời gian lưu trú của bạn kết thúc.\n\n- Văn kiện cần chuẩn bị: hộ chiếu, thẻ đăng ký người nước ngoài, giấy xác nhận sinh viên đang học\n- Chi phí: 60.000 won\n\nCó thể bị phạt sau ngày kết thúc. Trường không đề nghị thay bạn; bạn phải đề nghị tự mình."
+  },
+  {
+   "source": "id",
+   "target": "zh-CN",
+   "notice": "scholarship",
+   "chrf": 65.9,
+   "seconds": 1.42,
+   "input_tokens": 840,
+   "output_tokens": 123,
+   "tokens_per_s": 86.7,
+   "warnings": [
+    {
+     "type": "number",
+     "value": "01"
+    },
+    {
+     "type": "truncated",
+     "value": "445 → 196 characters"
+    },
+    {
+     "type": "url_added",
+     "value": "https://example.ac.kr/apply提交申请表。申请截止时间过后将不再接受申请。"
+    }
+   ],
+   "output": "国际学生奖学金申请指南\n我们接受国际学生奖学金的申请。申请期间为2026年12月1日至2026年12月15日18:00。\n\n- 奖学金金额：500,000韩元\n- 需要的文件：申请表、成绩单、护照复印件\n\n请通过https://example.ac.kr/apply提交申请表。申请截止时间过后将不再接受申请。\n\n联系邮箱：intl@example.ac.kr，电话：041-000-1234"
+  },
+  {
+   "source": "id",
+   "target": "zh-CN",
+   "notice": "visa",
+   "chrf": 35.0,
+   "seconds": 0.86,
+   "input_tokens": 784,
+   "output_tokens": 76,
+   "tokens_per_s": 88.4,
+   "warnings": [
+    {
+     "type": "truncated",
+     "value": "372 → 108 characters"
+    }
+   ],
+   "output": "D-2签证延期指南\nD-2状态的学生必须在居留期限到期前申请延期。\n\n- 准备的文件：护照、外国人登记卡、在读证明\n- 费用：60,000韩元\n\n如果超过截止日期，可能会被处以罚款。大学不会为您申请；您需要自行申请。"
+  },
+  {
+   "source": "vi",
+   "target": "ko",
+   "notice": "scholarship",
+   "chrf": 71.0,
+   "seconds": 1.75,
+   "input_tokens": 816,
+   "output_tokens": 155,
+   "tokens_per_s": 88.4,
+   "warnings": [
+    {
+     "type": "number",
+     "value": "01"
+    },
+    {
+     "type": "url_added",
+     "value": "https://example.ac.kr/apply에서"
+    },
+    {
+     "type": "language",
+     "value": "10 Chinese character(s)"
+    }
+   ],
+   "output": "국际学生奖学金申请指南\n우리 대학은 국제학생을 위한 장학금 신청을 받습니다. 신청 기간은 2026년 12월 1일부터 2026년 12월 15일 18:00까지입니다.\n\n- 지원 금액: 500,000원\n- 제출 서류: 지원서, 성적증명서, 여권 사본\n\n지원서는 https://example.ac.kr/apply에서 제출하셔야 합니다. 기한 이후에는 신청이 불가능합니다.\n\n문의: intl@example.ac.kr, 041-000-1234"
+  },
+  {
+   "source": "vi",
+   "target": "ko",
+   "notice": "visa",
+   "chrf": 59.4,
+   "seconds": 1.55,
+   "input_tokens": 770,
+   "output_tokens": 141,
+   "tokens_per_s": 91.1,
+   "warnings": [],
+   "output": "재거주 허가 D-2 유효기간 연장 안내\n재류 상태 D-2를 유지하고 있는 학생은 체류 기간이 만료되기 전에 재입국 신청서를 제출해야 합니다.\n\n- 준비해야 하는 서류: 여권, 외국인 등록증, 재학 증명서\n- 수수료: 60,000원\n\n만료일 이후에는 과태료가 부과될 수 있습니다. 대학은 대신 신청서를 제출하지 않으므로 본인으로부터 신청서를 제출해야 합니다."
+  },
+  {
+   "source": "vi",
+   "target": "en",
+   "notice": "scholarship",
+   "chrf": 83.5,
+   "seconds": 1.4,
+   "input_tokens": 790,
+   "output_tokens": 122,
+   "tokens_per_s": 87.4,
+   "warnings": [],
+   "output": "Scholarship Application Guide for International Students\nWe accept applications for scholarship applications for international students. The application period is from 2026-12-01 to 2026-12-15 18:00.\n\n- Scholarship amount: 500,000 won\n- Documents required: application form, transcript, copy of passport\n\nSubmit your application at https://example.ac.kr/apply. You cannot apply after the deadline.\n\nFor contact: intl@example.ac.kr, 041-000-1234"
+  },
+  {
+   "source": "vi",
+   "target": "en",
+   "notice": "visa",
+   "chrf": 64.0,
+   "seconds": 0.89,
+   "input_tokens": 744,
+   "output_tokens": 79,
+   "tokens_per_s": 88.5,
+   "warnings": [],
+   "output": "D-2 Visa Extension Guidelines\nInternational students with D-2 residency status must submit an extension application before their stay expires.\n\n- Documents required: passport, foreigner registration card, current student certificate\n- Fee: 60,000 won\n\nYou may be fined after the expiration date. The university does not submit the application on your behalf; you must do it yourself."
+  },
+  {
+   "source": "vi",
+   "target": "id",
+   "notice": "scholarship",
+   "chrf": 87.0,
+   "seconds": 1.91,
+   "input_tokens": 816,
+   "output_tokens": 170,
+   "tokens_per_s": 89.2,
+   "warnings": [],
+   "output": "Petunjuk Pendaftaran Beasiswa untuk Mahasiswa Internasional\nKami menerima formulir pendaftaran beasiswa untuk mahasiswa internasional. Waktu pendaftaran adalah dari 2026-12-01 hingga 2026-12-15 18:00.\n\n- Jumlah bantuan: 500.000 won\n- Dokumen yang perlu disertakan: formulir pendaftaran, transkrip nilai, salinan paspor\n\nKirimkan formulir pendaftaran di https://example.ac.kr/apply. Anda tidak dapat mendaftar setelah batas waktu.\n\nHubungi: intl@example.ac.kr, 041-000-1234"
+  },
+  {
+   "source": "vi",
+   "target": "id",
+   "notice": "visa",
+   "chrf": 71.8,
+   "seconds": 1.47,
+   "input_tokens": 770,
+   "output_tokens": 133,
+   "tokens_per_s": 90.6,
+   "warnings": [],
+   "output": "Petunjuk Pengajuan Pengesahan Waktu Tinggal D-2\nSiswa dengan status tinggal D-2 harus mengajukan permohonan perpanjangan sebelum masa tinggal berakhir.\n\n- Dokumen yang perlu disiapkan: paspor, kartu pendaftaran orang asing, surat keterangan masih menempuh pendidikan\n- Biaya: 60.000 won\n\nAnda dapat dikenakan denda setelah tanggal berakhir. Fakultas tidak akan mengajukan permohonan atas nama Anda; Anda harus melakukannya sendiri."
+  },
+  {
+   "source": "vi",
+   "target": "zh-CN",
+   "notice": "scholarship",
+   "chrf": 72.3,
+   "seconds": 1.36,
+   "input_tokens": 828,
+   "output_tokens": 118,
+   "tokens_per_s": 86.6,
+   "warnings": [
+    {
+     "type": "number",
+     "value": "01"
+    },
+    {
+     "type": "truncated",
+     "value": "392 → 189 characters"
+    },
+    {
+     "type": "url_added",
+     "value": "https://example.ac.kr/apply提交申请。申请截止后将无法申请。"
+    }
+   ],
+   "output": "国际学生奖学金申请指南\n我们接受国际学生奖学金申请。申请时间为2026年12月1日至2026年12月15日18:00。\n\n- 奖学金金额：500,000韩元\n- 需提交的文件：申请表、成绩单、护照复印件\n\n请在https://example.ac.kr/apply提交申请。申请截止后将无法申请。\n\n联系邮箱：intl@example.ac.kr，电话：041-000-1234"
+  },
+  {
+   "source": "vi",
+   "target": "zh-CN",
+   "notice": "visa",
+   "chrf": 30.4,
+   "seconds": 0.85,
+   "input_tokens": 782,
+   "output_tokens": 75,
+   "tokens_per_s": 88.4,
+   "warnings": [
+    {
+     "type": "truncated",
+     "value": "346 → 111 characters"
+    }
+   ],
+   "output": "D-2签证延期指南\n持有D-2签证的学生必须在签证到期前提交延期申请。\n\n- 需准备的文件：护照、外国人登记卡、在读证明\n- 申请费用：60,000韩元\n\n逾期未提交申请可能会被罚款。学校不会代为提交申请；您需要自行提交。"
+  },
+  {
+   "source": "zh-CN",
+   "target": "ko",
+   "notice": "scholarship",
+   "chrf": 78.3,
+   "seconds": 1.67,
+   "input_tokens": 777,
+   "output_tokens": 148,
+   "tokens_per_s": 88.7,
+   "warnings": [
+    {
+     "type": "url_added",
+     "value": "https://example.ac.kr/apply에서"
+    },
+    {
+     "type": "language",
+     "value": "1 Chinese character(s)"
+    }
+   ],
+   "output": "국제학생 장학금 신청 안내\n국제학생 장학금 신청을 받고 있습니다. 신청 기간은 2026-12-01부터 2026-12-15 18:00까지입니다.\n\n- 장학금 금액 : 500,000원\n- 제출 자료 : 신청서,成績单复印件,护照复印件\n\n신청서는 https://example.ac.kr/apply에서 제출해 주십시오. 마감 후에는 신청이 불가능합니다.\n\n문의 : intl@example.ac.kr, 041-000-1234"
+  },
+  {
+   "source": "zh-CN",
+   "target": "ko",
+   "notice": "visa",
+   "chrf": 65.6,
+   "seconds": 1.4,
+   "input_tokens": 747,
+   "output_tokens": 128,
+   "tokens_per_s": 91.7,
+   "warnings": [],
+   "output": "D-2 체류기간 연장 가이드라인\nD-2 휴학 자격을 가지고 있는 학생은 휴학 기간이 만료되기 전에 연장 신청을 해야 합니다.\n\n- 제출 서류: 여권, 외국인 등록증, 재학 증명서\n- 수수료: 60,000원\n\n만료된 후에는 벌금이 부과될 수 있습니다. 학교에서는 대신 신청하지 않으며, 반드시 본인이 직접 신청해야 합니다."
+  },
+  {
+   "source": "zh-CN",
+   "target": "en",
+   "notice": "scholarship",
+   "chrf": 67.5,
+   "seconds": 1.08,
+   "input_tokens": 751,
+   "output_tokens": 93,
+   "tokens_per_s": 85.9,
+   "warnings": [
+    {
+     "type": "number",
+     "value": "2026"
+    },
+    {
+     "type": "number",
+     "value": "12"
+    },
+    {
+     "type": "number",
+     "value": "01"
+    },
+    {
+     "type": "number",
+     "value": "15"
+    },
+    {
+     "type": "number",
+     "value": "18"
+    },
+    {
+     "type": "number",
+     "value": "00"
+    }
+   ],
+   "output": "International Student Scholarship Application Guide\nScholarship Application for International Students is now open.\n\n- Scholarship Amount: 500,000 Korean Won\n- Required Documents: Application Form, Transcript, Copy of Passport\n\nPlease submit the application form at https://example.ac.kr/apply. Applications received after the deadline will not be accepted.\n\nFor inquiries, contact: intl@example.ac.kr, 041-000-1234"
+  },
+  {
+   "source": "zh-CN",
+   "target": "en",
+   "notice": "visa",
+   "chrf": 62.6,
+   "seconds": 0.94,
+   "input_tokens": 721,
+   "output_tokens": 86,
+   "tokens_per_s": 91.7,
+   "warnings": [],
+   "output": "D-2 Stay Duration Extension Guide\nStudents holding the D-2 stay qualification must apply for an extension before their stay period expires.\n\n- Materials to prepare: passport, alien registration card, certificate of enrollment\n- Application fee: 60,000 Korean won\n\nA fine may be imposed after the expiration date. The school does not process these applications on behalf of students; they must be applied for personally."
+  },
+  {
+   "source": "zh-CN",
+   "target": "id",
+   "notice": "scholarship",
+   "chrf": 62.2,
+   "seconds": 1.97,
+   "input_tokens": 777,
+   "output_tokens": 174,
+   "tokens_per_s": 88.3,
+   "warnings": [
+    {
+     "type": "number",
+     "value": "12"
+    },
+    {
+     "type": "url_added",
+     "value": "https://example.ac.kr/apply。"
+    },
+    {
+     "type": "language",
+     "value": "2 Chinese character(s)"
+    }
+   ],
+   "output": "Pedoman Pemohon Beasiswa untuk Mahasiswa Internasional\nPendaftaran beasiswa untuk mahasiswa internasional saat ini dibuka. Waktu pendaftaran berlangsung dari 01 Desember 2026 hingga 15 Desember 2026 pukul 18:00.\n\n- Besaran bantuan: 500.000 won\n- Dokumen yang perlu disertakan: formulir pendaftaran, bukti nilai akademik, salinan paspor\n\nSilakan提交申请表请访问 https://example.ac.kr/apply。 Waktu pendaftaran berakhir tidak dapat mendaftar lagi.\n\nKonsultasi: intl@example.ac.kr, 041-000-1234"
+  },
+  {
+   "source": "zh-CN",
+   "target": "id",
+   "notice": "visa",
+   "chrf": 52.0,
+   "seconds": 1.64,
+   "input_tokens": 747,
+   "output_tokens": 149,
+   "tokens_per_s": 90.9,
+   "warnings": [],
+   "output": "D-2 Perpanjangan Batas Waktu Berada di Negara\nMahasiswa yang memiliki kualifikasi D-2 harus mengajukan pengpanjangan status sebelum masa tinggal berakhir.\n\n- Persyaratan dokumen: paspor, kartu penduduk asing, bukti bersekolah\n- Biaya administrasi: 60.000 won\n\nJika tidak diajukan sebelum masa berlaku berakhir, dikenakan denda. Perguruan tinggi tidak mewakili pengajuan, harus dilakukan secara pribadi.\n  \nSchool tidak mewakili pengajuan, harus dilakukan secara pribadi."
+  },
+  {
+   "source": "zh-CN",
+   "target": "vi",
+   "notice": "scholarship",
+   "chrf": 57.3,
+   "seconds": 1.73,
+   "input_tokens": 783,
+   "output_tokens": 152,
+   "tokens_per_s": 87.7,
+   "warnings": [],
+   "output": "Hướng dẫn申请国际学生奖学金\nHiện đang nhận hồ sơ học bổng cho sinh viên quốc tế. Thời gian nộp hồ sơ từ 01/12/2026 đến 15/12/2026 18:00.\n\n- Số tiền hỗ trợ: 500.000 won\n- Hồ sơ cần nộp: Đơn xin học bổng, bản sao bảng điểm, bản sao trang hộ chiếu\n\nVui lòng nộp đơn tại https://example.ac.kr/apply. Hồ sơ nộp sau thời hạn không được chấp nhận.\n\nLiên hệ: intl@example.ac.kr, 041-000-1234"
+  },
+  {
+   "source": "zh-CN",
+   "target": "vi",
+   "notice": "visa",
+   "chrf": 55.5,
+   "seconds": 1.21,
+   "input_tokens": 753,
+   "output_tokens": 109,
+   "tokens_per_s": 89.8,
+   "warnings": [],
+   "output": "D-2 Thời gian lưu trú kéo dài hướng dẫn\nHọc sinh có tư cách lưu trú D-2 phải nộp đơn xin gia hạn trước khi thời hạn lưu trú hết hiệu lực.\n\n- Chuẩn bị giấy tờ: hộ chiếu, thẻ cư trú của người nước ngoài, giấy xác nhận học tập\n- Phí dịch vụ: 60.000 won\n\nNếu quá hạn, có thể bị phạt. Trường không thay học sinh nộp đơn, phải nộp đơn trực tiếp bởi bản thân."
+  }
+ ]
+}

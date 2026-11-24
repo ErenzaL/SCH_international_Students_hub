@@ -69,4 +69,5 @@ python scripts/check_sources.py               # live access + extraction test of
 * [docs/architecture.md](docs/architecture.md) – components, trust boundaries, security model
 * [docs/database.md](docs/database.md) – tables, lifecycle, RLS, functions
 * [docs/ingestion.md](docs/ingestion.md) – pipeline, SSRF rules, source registry and verified access results
+* [docs/ollama.md](docs/ollama.md) – local Qwen model (Ollama) on the university server
 * [docs/api-contract.md](docs/api-contract.md) – every endpoint
