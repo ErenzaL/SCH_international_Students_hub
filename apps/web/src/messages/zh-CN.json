@@ -2485,7 +2485,8 @@
           "all": "全部"
         },
         "changedOnly": "仅新增或变更",
-        "empty": "这里没有内容。"
+        "empty": "这里没有内容。",
+        "refresh": "刷新"
       },
       "sources": {
         "checkNow": "手动检查",

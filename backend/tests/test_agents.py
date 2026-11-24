@@ -490,3 +490,42 @@ def test_finished_tasks_are_purged_after_retention(env):
     env.store.update("agent_tasks", dict(created_at=old), {"id": t["id"]})
     assert env.app.state.services.agents.purge_expired() == 1
     assert env.store.select("agent_tasks")[0] == [] and env.store.select("agent_task_events")[0] == []
+
+
+# ------------------------------------------------------------------ cost guard: workspaces are deterministic
+WORKSPACE_TOOLS = [
+    ("scholarship", "scholarship_search", {"limit": 30}), ("scholarship", "opportunity_search", {"limit": 30}),
+    ("career", "career_opportunity_search", {"limit": 30}), ("career", "opportunity_search", {"kind": "job"}),
+    ("events", "event_search", {}), ("topik", "topik_dates", {}),
+    ("academic", "academic_checklist", {"topic": "registration"}), ("academic", "academic_checklist", {"topic": "leave"}),
+    ("academic", "announcement_search", {"category": "university-announcements", "limit": 6}),
+    ("immigration", "visa_checklist", {"topic": "extension"}), ("announcement", "announcement_search", {"limit": 8}),
+    ("support-coordinator", "get_support_request_status", {}),
+]
+
+
+def test_workspace_actions_never_call_the_model(env):
+    """Opening and using the workspaces (lists, checklists, digests, checks, requests) costs no model call: only the
+    chat and an explicit summary / translation request use the LLM. A model is configured so a call would happen."""
+    publish(env)
+    calls: list[str] = []
+    model = ScriptedLLMProvider(lambda system, prompt: calls.append(system[:40]) or "x")
+    svc = env.app.state.services
+    svc.llm = svc.doc_translations.llm = svc.conversations.llm = svc.discovery.llm = model
+    for agent, name, params in WORKSPACE_TOOLS:
+        r = tool(env, agent, name, params, role="student")
+        assert r.status_code == 200, (agent, name, r.text)
+    for agent, task_type in (("events", "event_digest"), ("announcement", "announcement_digest"),
+                             ("scholarship", "scholarship_scan")):
+        t = task(env, agent, task_type)
+        assert get_task(env, t.json()["id"]).json()["status"] == "completed", task_type
+    t = task(env, "support-coordinator", "support_request", {"subject": "[Housing] Contract", "summary": "Need help."})
+    assert env.client.post(f"/api/v1/agent-tasks/{t.json()['id']}/decision", json={"approve": True},
+                           headers=env.auth("student")).status_code == 200
+    assert env.client.get("/api/v1/agents/announcement/monitoring").status_code == 200
+    assert calls == [], calls
+    # control: an explicit summary request does reach the (counting) model
+    a = publish(env)
+    t = task(env, "announcement", "summarize_announcement", {"ref": a["id"], "language": "en"})
+    assert get_task(env, t.json()["id"]).json()["status"] == "completed"
+    assert calls, "the counting model was not reachable: the guard above would prove nothing"

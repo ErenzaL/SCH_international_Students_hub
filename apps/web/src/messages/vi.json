@@ -2485,7 +2485,8 @@
           "all": "Tất cả"
         },
         "changedOnly": "Chỉ mục mới hoặc đã thay đổi",
-        "empty": "Không có gì ở đây."
+        "empty": "Không có gì ở đây.",
+        "refresh": "Làm mới"
       },
       "sources": {
         "checkNow": "Kiểm tra thủ công",

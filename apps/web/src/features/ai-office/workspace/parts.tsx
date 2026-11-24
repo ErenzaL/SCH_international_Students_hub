@@ -450,12 +450,16 @@ export function AdminStrip({ children }: { children: React.ReactNode }) {
 
 // ------------------------------------------------------------------ tasks and activity
 /** The viewer's own tasks of this agent (optionally only some task types), newest first. */
-export function AgentTaskList({ tasks, types, onChanged, limit = 3, title }: {
+export function AgentTaskList({ tasks, types, onChanged, limit = 3, title, startHint = false, hideWhenEmpty = false }: {
   tasks: AgentTask[] | null;
   types?: string[];
   onChanged: () => void;
   limit?: number;
   title: string;
+  /** an action button that starts these tasks is shown just above the list */
+  startHint?: boolean;
+  /** no section at all while the student has no such tasks (desks without a start button) */
+  hideWhenEmpty?: boolean;
 }) {
   const ws = useWorkspace();
   const t = useTranslations("office.agent");
@@ -463,10 +467,11 @@ export function AgentTaskList({ tasks, types, onChanged, limit = 3, title }: {
   const nameOf = (id: string) => ws.agents?.find((a) => a.id === id)?.name ?? id;
   if (!ws.signedIn) return null;
   const shown = (tasks ?? []).filter((x) => !types || types.includes(x.task_type)).slice(0, limit);
+  if (hideWhenEmpty && shown.length === 0) return null;
   return (
     <WorkspaceSection title={title} testId="agent-task-list">
       {tasks === null ? <p className="text-xs text-muted-foreground">{t("loading")}</p>
-        : shown.length === 0 ? <p className="text-xs text-muted-foreground" data-testid="no-tasks">{t("noTasks")} {tWs("noTasksHint")}</p> : (
+        : shown.length === 0 ? <p className="text-xs text-muted-foreground" data-testid="no-tasks">{t("noTasks")}{startHint ? ` ${tWs("noTasksHint")}` : ""}</p> : (
           <ul className="space-y-2">
             {shown.map((task) => <li key={task.id}><TaskCard task={task} nameOf={nameOf} onChanged={onChanged} /></li>)}
           </ul>

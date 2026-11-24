@@ -76,7 +76,7 @@ export function MonitoringWorkspace() {
         {ws.signedIn ? (
           <>
             <AgentActionBar ids={actionIds.filter((id) => !isAdminAction(id))} onDone={() => void reload()} />
-            <AgentTaskList tasks={tasks} types={DIGESTS} limit={1} title={t("latestDigest")}
+            <AgentTaskList startHint tasks={tasks} types={DIGESTS} limit={1} title={t("latestDigest")}
               onChanged={() => { void reload(); ws.onChanged(); }} />
           </>
         ) : <SignInPrompt text={t("signInForDigest")} />}

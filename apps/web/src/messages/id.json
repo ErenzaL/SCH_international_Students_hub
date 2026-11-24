@@ -2485,7 +2485,8 @@
           "all": "Semua"
         },
         "changedOnly": "Hanya yang baru atau berubah",
-        "empty": "Tidak ada apa-apa di sini."
+        "empty": "Tidak ada apa-apa di sini.",
+        "refresh": "Muat ulang"
       },
       "sources": {
         "checkNow": "Pemeriksaan manual",

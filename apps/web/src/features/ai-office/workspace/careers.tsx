@@ -76,7 +76,7 @@ export function CareersWorkspace() {
 
       <Button variant="outline" size="sm" className="min-h-9" onClick={() => ws.openTab("guides")}>{t("openGuides")}</Button>
 
-      <AgentTaskList tasks={tasks} title={t("myResults")} onChanged={() => { void reload(); ws.onChanged(); }} />
+      <AgentTaskList hideWhenEmpty tasks={tasks} title={t("myResults")} onChanged={() => { void reload(); ws.onChanged(); }} />
     </div>
   );
 }

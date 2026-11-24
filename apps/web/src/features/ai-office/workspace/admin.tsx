@@ -42,9 +42,15 @@ function ReviewQueueInner() {
     agentApi.tool(ws.agent.id, "review_candidates", { status, changed_only: changedOnly, limit: 50 }, ws.language));
   const items = data.data?.result.items ?? [];
   return (
-    <ReviewContext.Provider value={{ isAdmin: true, onChanged: () => { data.reload(); ws.onChanged(); } }}>
+    // a reviewed card stays where it is and shows its new status (sent / dismissed); Refresh reloads the queue
+    <ReviewContext.Provider value={{ isAdmin: true, onChanged: ws.onChanged }}>
       <div className="space-y-3" data-testid="review-queue">
-        <p className="text-muted-foreground">{t("intro")}</p>
+        <div className="flex items-start gap-2">
+          <p className="flex-1 text-muted-foreground">{t("intro")}</p>
+          <Button size="sm" variant="outline" className="min-h-9 shrink-0" onClick={data.reload} data-testid="review-refresh">
+            <RotateCcw className="size-3.5" aria-hidden /> {t("refresh")}
+          </Button>
+        </div>
         <FilterChips label={t("filter")} value={status} onChange={setStatus} testId="review-filter"
           options={(["candidate", "imported", "dismissed", "all"] as const).map((id) => ({ id, label: t(`statuses.${id}`) }))} />
         <label className="flex min-h-9 items-center gap-2 text-xs">
@@ -84,7 +90,7 @@ function SourcesAdminInner() {
       <WorkspaceSection title={t("checkNow")}>
         <p className="text-xs text-muted-foreground">{t("checkNowHint")}</p>
         <AgentActionBar ids={checkIds} variant="default" onDone={() => { void reload(); mon.reload(); }} />
-        <AgentTaskList tasks={tasks} types={DISCOVERY_TASKS} limit={1} title={t("latestCheck")}
+        <AgentTaskList startHint tasks={tasks} types={DISCOVERY_TASKS} limit={1} title={t("latestCheck")}
           onChanged={() => { void reload(); ws.onChanged(); mon.reload(); }} />
       </WorkspaceSection>
       <LoadState loading={mon.loading && !mon.data} error={mon.error} onRetry={mon.reload} />

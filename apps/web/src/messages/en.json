@@ -2485,7 +2485,8 @@
           "all": "All"
         },
         "changedOnly": "Only new or changed",
-        "empty": "Nothing here."
+        "empty": "Nothing here.",
+        "refresh": "Refresh"
       },
       "sources": {
         "checkNow": "Manual check",

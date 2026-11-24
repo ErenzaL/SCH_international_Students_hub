@@ -83,7 +83,7 @@ export function EventsWorkspace() {
         {ws.signedIn ? (
           <>
             <AgentActionBar ids={ws.agent.interface?.task_actions ?? []} onDone={() => void reload()} />
-            <AgentTaskList tasks={tasks} types={["event_digest"]} limit={1} title={t("latestDigest")}
+            <AgentTaskList startHint tasks={tasks} types={["event_digest"]} limit={1} title={t("latestDigest")}
               onChanged={() => { void reload(); ws.onChanged(); }} />
           </>
         ) : <SignInPrompt text={t("signInForDigest")} />}

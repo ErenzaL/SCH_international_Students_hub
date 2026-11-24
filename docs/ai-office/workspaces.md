@@ -142,11 +142,28 @@ They live in `workspace/parts.tsx`:
   `DeadlineDisplay`, which uses Korean dates.
 - **Actions and gates:** `AgentActionBar`, `AgentPermissionGate`, `AdminStrip`.
 
+## Empty states and admin tabs
+
+- **Empty states.** Every empty workspace list says why it is empty and offers next steps, for example:
+  - clear the filters or include closed items;
+  - show past events;
+  - open guides or ask this desk in chat;
+  - ask a person through Sumin;
+  - open the official TOPIK site.
+- **Admin tabs.** Admins see Review and Sources in a separate, always-visible "Admin" row.
+- **Review queue.** A card that was just sent to review or dismissed stays in place and shows its new status;
+  Refresh reloads the queue.
+
 ## Mobile and desktop
 
 - **Desktop:** the existing right-hand panel, with the office visible and clickable.
 - **Phones:** a full-screen workspace with a back button. Lists scroll, and controls are at least
   36 px high.
+
+## Production assessment
+
+See [production-assessment.md](production-assessment.md): usefulness by character, end-to-end results, cost and
+performance, limitations and readiness.
 
 ## Screenshots
 

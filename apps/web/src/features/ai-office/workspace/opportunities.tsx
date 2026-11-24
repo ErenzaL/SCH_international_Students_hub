@@ -119,7 +119,7 @@ export function OpportunitiesWorkspace() {
         {ws.signedIn ? (
           <AgentActionBar ids={actionIds.filter((id) => !isAdminAction(id))} onDone={() => void reload()} />
         ) : <SignInPrompt text={t("signInForChecks")} />}
-        <AgentTaskList tasks={tasks} types={["scholarship_scan"]} title={t("recentChecks")} onChanged={() => { void reload(); ws.onChanged(); }} />
+        <AgentTaskList startHint tasks={tasks} types={["scholarship_scan"]} title={t("recentChecks")} onChanged={() => { void reload(); ws.onChanged(); }} />
       </WorkspaceSection>
     </div>
   );
