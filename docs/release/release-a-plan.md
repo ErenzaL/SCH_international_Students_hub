@@ -12,7 +12,8 @@ Not pushed, not deployed.
 | `31bdbf3` | Real-database tests | no |
 | `a55a89e` | First version of this plan and of the title check | no |
 | `945797b` | Verification: Gemini source path, browser review workflow, read-only production checks | no |
-| (last commit) | This plan, checklists, review request | no |
+| `7f7bd13`, `b0d07f8` | This plan, checklists, review request | no |
+| (last commit) | Pull request text, staging test, approval boundaries | no |
 
 The three fixes are separate commits. `7246ff2` and `cb1f350` work alone on `main`; `a7a7035` needs `7246ff2`.
 
@@ -51,7 +52,11 @@ Announcements that are not published yet are prepared from their draft, as befor
 | Web app (identical to `main`): unit tests, typecheck, lint, production build | 240 passed, clean, clean, builds |
 | **Browser** (Chromium, production web build, real API, stand-in login), twice | 23 of 23; the same test fails against `main` |
 | **Gemini path**: the real provider class with a recording client, 14 tests | no pending text, title or attachment in any request |
-| Trial merge into Release B (not kept) | no conflict, 864 passed, 45 skipped |
+| Trial merge into Release B (not kept; before the last commit) | no conflict, 864 passed, 45 skipped |
+| **Staging script** on a local database: real API with its job worker, public key, board import | 14 of 14; the same script on `main`: 5 of 14 |
+| Merge into `main` and `git revert -m 1` (not kept) | same files as Release A, then same files as `main` |
+| Dependency files; `pip-audit`; `npm audit` | identical to `main`; no known vulnerabilities in either |
+| Secret patterns in every added line and commit message | none (own pattern scan; gitleaks was not run) |
 | Not run | hosted Supabase, Render, a real Gemini request, mobile browsers, languages other than English in the admin pages |
 
 Attachment cases: added, replaced, removed; approval; rejection and the same import again; send-back, edit, resubmission; import after
@@ -69,22 +74,17 @@ Release B is an ancestor. The words gpu, ollama, qwen, executor and lease do not
 
 Every box needs a name and a time. **Stop** at the first problem.
 
-**Approvals**
-- [ ] Git author checked by the owner (GitHub → Settings → Emails)
-- [ ] Second-person review done ([request](release-a-review-request.md)); findings resolved
-- [ ] Owner approves: push `release/a-approved-source`
-- [ ] Owner approves: merge to `main`
-- [ ] Owner approves: deploy (merging to `main` **triggers the deployment** through `render-deploy.yml`, if its secrets are set)
+**Approvals**: [boundaries before pushing and before merging](release-a-approvals.md)
 
 **Before**
 - [ ] Production runs `main` `eca1d71` (Render → Deploys); write down the deploy to return to
 - [ ] Backup (`pg_dump`), recommended, stored off the university server
 - [ ] [Both read-only checks](release-a-production-checks.md) run and saved
-- [ ] No import or approval in progress; tell administrators not to approve for 30 minutes
+- [ ] No import or approval in progress (the daily import starts hours later than its planned 05:00 KST); administrators do not approve for 30 minutes
 - [ ] Render environment noted; **no variable changes**
 
 **Deploy**
-- [ ] Push, merge, watch the **API** deploy to the end (the web service needs no new build; a rebuild is harmless)
+- [ ] Merge, watch the **API** deploy to the end (the web service needs no new build; a rebuild is harmless)
 - [ ] `/health` answers; the log shows a clean start, no migration step
 
 **Check (15 minutes)**
@@ -96,37 +96,49 @@ Every box needs a name and a time. **Stop** at the first problem.
 - [ ] One Gemini draft of a published announcement: created, not public
 - [ ] One agent task works; scheduled agents are still off; `AUTO_TRANSLATE_*` unchanged
 
-**Check the fix (with a test source, 10 minutes)**
-- [ ] Publish a test page; change its title and text; import again → public page unchanged, review page shows the changes
-- [ ] Reject → unchanged. Import again, approve → title and text change together
-- [ ] Roll back → the old title returns. Archive the test page
+**Check the fix**: in [staging](release-a-staging.md), not in production (it needs test documents). In production only look: the next notice that
+really changes keeps its public title and attachments until somebody approves it.
 
 **Afterwards**
 - [ ] Both read-only checks again: no new rows
 - [ ] Logs for 30 minutes, then after 24 hours: no new errors; `source_unapproved` / `source_not_public` only where explainable
 - [ ] Tell translators and reviewers: they see the approved text; they are told when an edit is approved
 
-# Rollback checklist
+# Rollback
 
-Roll back when: chat, search, sign-in or approvals fail; approved content disappears; errors repeat. Not for single explainable job failures.
+Steps and reasons: [approvals and rollback](release-a-approvals.md#production-rollback). **Database: nothing to undo.**
 
-- [ ] Render → API → Deploys → the deploy noted above → **Rollback** (about 3 minutes). Automatic deploys off until the cause is known
-- [ ] `/health`, chat, search, one approval
-- [ ] **Database: nothing to do.** No migration; `main` ignores the recorded titles and reads the same rows
-- [ ] Until a fixed release: unapproved titles and attachments can become public again. **Pause scheduled imports** or review before importing
-- [ ] Approvals made meanwhile stay valid. Run both read-only checks and note new rows
-- [ ] In Git: `git revert` of the merge, with a new review. No force-push
+# Known risks
 
-# Remaining risks
+The owner accepts these in writing before the merge.
+
+## Historical titles (known, not repaired)
+
+| | |
+|---|---|
+| What | Before this release an import could replace a public title without approval. **Titles already replaced stay** |
+| Seen by | everybody, until corrected |
+| Find | `supabase/checks/titles_to_review.sql` (read-only; may also list harmless differences) |
+| Correct | separate approval, one row at a time, after a backup. Or: the next approval of that document sets its title |
+| Also | versions replaced before this release have **no recorded title**: a rollback to one restores the text and keeps the current title. The reviewer checks the title after a rollback |
+
+## Attachment lists (known, partly repaired)
+
+| Case | Pages and API | Row that the public key can read | Handling |
+|---|---|---|---|
+| list in the row already wrong, approved list recorded | **approved list** | wrong until the next approval | `attachments_to_review.sql`; nothing to change |
+| very old import, no recorded list | stored list | stored list | compare with the approved text by hand |
+| reviewer removes an attachment only from the **text** of a waiting version | still listed (as before) | still listed | reject instead; the warning names every attachment |
+| import and approval of the same notice in the same second | approved list | previous **approved** list | corrected by the next approval |
+| file behind an approved link is exchanged on the official site | the link is the same | the same | not detectable; as before |
+
+## Other
 
 | Risk | Likelihood | Effect | Handling |
 |---|---|---|---|
 | Not tested on hosted Supabase, Render, live Gemini | — | unknown differences | checks above; rollback takes minutes |
-| Titles that are already wrong stay | possible | one wrong title until corrected | read-only check, separate approval |
-| A reviewer deletes an attachment only from the **text** of a waiting version | low | it is still in the attachment list (as before) | reject instead; the warning names every attachment |
-| An import and an approval of the same notice in the same second | very low | the stored row keeps the previous **approved** list; the page is right | corrected by the next approval |
 | A stop between the version switch and the title update | very low | old approved title for up to about a minute | the job repeats and corrects it |
-| Versions replaced before this release have no recorded title | certain, harmless | a rollback to one keeps the current title | reviewer checks the title after a rollback |
 | Translators no longer see edits in advance | certain | a little later start | they are told at approval |
 | External official pages (discovery) are still summarised before review | existing | for administrators only | not part of this release |
+| `main` has no branch protection | certain | a merge by mistake deploys | [boundaries](release-a-approvals.md); optional: a protection rule |
 | `4461644` changes how test databases are started | certain | test commands differ | docs/setup.md |

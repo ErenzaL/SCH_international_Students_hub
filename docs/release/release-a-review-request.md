@@ -36,6 +36,8 @@ cd backend && python3.11 -m venv .venv && .venv/bin/pip install -r requirements-
 ```
 Then break something on purpose (for example remove `apply_details` from `_run_index`) and see whether a test notices.
 
+Checklist for the reviewer: end of the [pull request text](release-a-pull-request.md). Known risks: [plan](release-a-plan.md#known-risks).
+
 ## Answer
 
 | | |
