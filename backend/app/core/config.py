@@ -198,7 +198,7 @@ class Settings(BaseSettings):
     gpu_worker_max_running: int = 1                  # jobs leased at the same time, all workers together
     gpu_worker_lease_seconds: int = 180              # renewed by the worker; a lost worker's job is re-queued after this
     gpu_worker_job_max_seconds: int = 1800           # a lease is not renewed beyond this
-    gpu_worker_chunk_chars: int = 3000
+    gpu_worker_chunk_chars: int = 1200
     gpu_worker_max_source_chars: int = 12000         # text a summary is made from (longer: partial, labelled)
     gpu_worker_online_hours: int = 24                # no contact for this long: new requests use the server's own model
     gpu_worker_max_queue_hours: int = 48             # a job that waited this long is not left waiting ...

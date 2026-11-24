@@ -6,19 +6,28 @@ import re
 import threading
 from typing import Any
 
+from app.gpu_worker.glossary import terms_in
 from app.services.llm.base import LLMError, LLMResult
-from app.services.translation.quality import local_model_warnings
-from app.services.translation_drafts import preservation_warnings, summarize_document, translate_document
+from app.services.translation.facts import renderings
+from app.services.translation.quality import local_translation_warnings
+from app.services.translation_drafts import LANGUAGE_NAMES, summarize_document, translate_document
 
 log = logging.getLogger("gpu_worker")
 LANGS = {"ko", "en", "id", "vi", "zh-CN"}
 _SOURCE = re.compile(r"<source_text>\n(.*)\n</source_text>", re.S)
+MAX_REPAIRS = 2
 _FACTS = ("url", "email", "phone", "code", "number")
+# the shared prompt's examples turned up in drafts: a small model repeats them as if they were part of the notice
+_EXAMPLES = re.compile(r" \(for example D-2, D-4-1, F-2-7\)")
+HINTS = """
+
+Use exactly these forms wherever the source text contains the item on the left (do not copy this list):
+{pairs}"""
 REPAIR = """
 
-Your previous translation lost or changed these parts of the source: {missing}
-Translate again, completely, into {target} only. Every URL, e-mail address, phone number, code, amount, date and \
-deadline of the source must appear exactly as it is written there."""
+Your previous translation had these problems: {missing}
+Translate the source text again, completely, into {target} only. Keep every line, list item, URL, e-mail address, phone \
+number, code, amount, date and weekday. Do not add anything."""
 
 
 class Cancelled(Exception):
@@ -26,9 +35,10 @@ class Cancelled(Exception):
 
 
 class CheckedModel:
-    """The model plus one repair attempt per call: when a translated part lost a fact (URL, amount, date, code ...) or
-    slipped into another language, it is translated once more with the lost parts named, and the better version is
-    kept. What still differs is flagged by the server's checks; a person reviews every draft."""
+    """The model plus help and control per call. Help: the exact form of every date (with weekday) and amount, and the
+    terms of the glossary that occur in the text. Control: when the result lost something, got a weekday wrong, repeated
+    instructions or slipped into another language, it is translated again with the problems named (at most twice) and the
+    best version is kept. A version that is still in the wrong language is refused (llm_malformed: the job is retried)."""
 
     def __init__(self, llm: Any, source: str, target: str, cancelled: threading.Event, *, repair: bool):
         self.llm, self.source, self.target, self.cancelled, self.repair = llm, source, target, cancelled, repair
@@ -50,26 +60,48 @@ class CheckedModel:
         return r
 
     def _problems(self, src: str, out: str) -> list[str]:
-        lost = [w["value"] for w in preservation_warnings(src, out) if w["type"] in _FACTS]
-        return lost + [w["value"] for w in local_model_warnings(src, out, self.source, self.target)]
+        return [f"{w['value']}" if w["type"] in _FACTS else f"{w['type']}: {w['value']}"
+                for w in local_translation_warnings(src, out, self.source, self.target)]
+
+    def _wrong_language(self, src: str, out: str) -> bool:
+        letters = len(re.findall(r"[^\W\d_]", out)) or 1
+        han, hangul = len(re.findall(r"[\u4e00-\u9fff]", out)), len(re.findall(r"[가-힣]", out))
+        if self.target != "zh-CN" and han / letters > 0.03 and han > 2 * len(re.findall(r"[\u4e00-\u9fff]", src)):
+            return True
+        return self.target != "ko" and hangul / letters > 0.3 and letters > 12
 
     def complete(self, system: str, prompt: str, **kw: Any) -> LLMResult:
-        first = self._call(system, prompt, **kw)
         m = _SOURCE.search(prompt)
         if not self.repair or m is None:
-            return first
-        before = self._problems(m.group(1), first.text)
-        if not before:
-            return first
-        self.repairs += 1
-        from app.services.translation_drafts import LANGUAGE_NAMES
-
-        try:
-            second = self._call(system, prompt + REPAIR.format(missing="; ".join(before[:20]),
-                                                               target=LANGUAGE_NAMES[self.target]), **kw)
-        except LLMError:
-            return first
-        return second if len(self._problems(m.group(1), second.text)) < len(before) else first
+            return self._call(system, prompt, **kw)
+        src = m.group(1)
+        system = _EXAMPLES.sub("", system)
+        # a line like "<title>" looks like a tag to the model (a whole section was dropped after one)
+        clean = re.sub(r"<([^<>\n]{2,80})>", r"[\1]", src)
+        base = prompt.replace(src, clean, 1)
+        if self.source == "ko":
+            pairs = renderings(src, self.target) + terms_in(src, self.target)
+            if pairs:
+                base += HINTS.format(pairs="\n".join(f"- {a} → {b}" for a, b in pairs))
+        best = self._call(system, base, **kw)
+        problems = self._problems(clean, best.text)
+        for _ in range(MAX_REPAIRS):
+            if not problems:
+                break
+            self.repairs += 1
+            try:
+                again = self._call(system, base + REPAIR.format(missing="; ".join(problems[:20]),
+                                                                target=LANGUAGE_NAMES[self.target]), **kw)
+            except LLMError:
+                break
+            found = self._problems(clean, again.text)
+            if len(found) >= len(problems) and not (self._wrong_language(clean, best.text)
+                                                    and not self._wrong_language(clean, again.text)):
+                break
+            best, problems = again, found
+        if self._wrong_language(clean, best.text):
+            raise LLMError("llm_malformed", "The model answered in the wrong language.", transient=True)
+        return best
 
 
 def check_job(job: Any) -> dict[str, Any]:

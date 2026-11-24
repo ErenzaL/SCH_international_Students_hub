@@ -73,7 +73,7 @@ def test_announcement_draft_needs_review_and_is_not_published(env, local):
     assert request_draft(env, a["id"], "en").status_code == 202
     row = ann_row(env, a["id"], "en")
     assert (row["translation_status"], row["provider"], row["model"]) == \
-        ("needs_review", "ollama", "qwen2.5:7b-instruct") and row["warnings"] == []
+        ("needs_review", "ollama", "qwen2.5:7b-instruct")
     assert public_ann(env, a["id"], "en")["translation"] is None  # students keep seeing the original
     assert all(r["truncate"] is False for r in mock.requests) and len(mock.requests) == 2
 

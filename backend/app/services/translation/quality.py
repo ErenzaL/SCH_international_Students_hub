@@ -68,6 +68,38 @@ def validate_translation(original: str, translated: str, source: str, target: st
 
 
 _HAN = re.compile(r"[\u4e00-\u9fff]")
+# instructions of the prompts that a small model may repeat as if they were part of the notice
+_LEAK = re.compile(r"source_?text|exactly as (?:it is )?written|copied? exactly|D-2, D-4-1|output only|直接翻译|不会添加|以下是翻译|"
+                   r"use exactly these forms|previous translation", re.I)
+_ITEM = re.compile(r"^\s*(?:#{1,4}\s|\*{1,2}\S|>|[-*•■▣▶▸○◦∘ㅇ※·⇓|①-⑳Ⅰ-Ⅹ]|\d{1,2}\s*[.)]|[가-하A-Za-z]\s*[.)])", re.M)
+_ASCII_URL = re.compile(r"https?://[\x21-\x7e]+")
+
+
+def local_translation_warnings(original: str, translated: str, source: str, target: str) -> list[dict[str, Any]]:
+    """All checks for a FULL translation made by a local model: the shared checks, minus flags for dates, amounts and
+    times that are there in another form ("December 1"), plus what small local models get wrong: weekdays, missing list
+    items, instructions repeated in the text. Their drafts are always reviewed, so this decides what a reviewer sees."""
+    from app.services.translation.facts import explained_numbers, wrong_weekdays
+
+    # a URL directly followed by Chinese or Korean text is not a new URL
+    spaced = lambda t: _ASCII_URL.sub(lambda m: m[0].rstrip(".,;:)]") + " ", t)  # noqa: E731
+    out = validate_translation(spaced(original), spaced(translated), source, target)
+    if source == "ko" and target in ("en", "id", "vi", "zh-CN"):
+        ok_src, ok_new, missing = explained_numbers(original, translated, target)
+        out = [w for w in out if not (w["type"] == "number" and w["value"] in ok_src)
+               and not (w["type"] == "number_added" and w["value"] in ok_new)]
+        out += [{"type": "number", "value": m} for m in missing]
+        out += [{"type": "number", "value": w} for w in wrong_weekdays(original, translated, target)]
+        # added headings and merged line breaks change the look, not the content: lost list items do
+        out = [w for w in out if w["type"] not in ("headings", "missing_sections")]
+        o, t = len(_ITEM.findall(original)), len(_ITEM.findall(translated))
+        if t < o - 1:
+            out.append({"type": "missing_sections", "value": f"{o} → {t} list items"})
+        if target == "zh-CN":       # Chinese needs about 0.55 characters per Korean character
+            out = [w for w in out if w["type"] != "truncated" or len(translated) < 0.4 * len(original)]
+    if _LEAK.search(translated) and not _LEAK.search(original):
+        out.append({"type": "placeholder", "value": _LEAK.search(translated).group(0)[:40]})  # type: ignore[union-attr]
+    return out + local_model_warnings(original, translated, source, target)
 _HANGUL = re.compile(r"[가-힣]")
 
 

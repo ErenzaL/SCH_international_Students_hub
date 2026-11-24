@@ -22,10 +22,22 @@ from app.gpu_worker.config import Config, ConfigError, check_hub_url, read_token
 from app.gpu_worker.hub import CredentialRejected, Hub, HubError
 from app.gpu_worker.runner import Worker
 from app.services.llm.ollama import OllamaProvider
-from tests.test_auto_translation import FakeTranslator
+from tests.test_auto_translation import FakeTranslator as KoreanEnglishFake
 from tests.test_gpu_worker import KO, claim, gpu, job_row, new_worker, public, publish, request, row
 
 _ = gpu      # fixture
+WORDS = {"English": "notice", "Indonesian": "pengumuman", "Vietnamese": "thông báo", "Chinese": "通知"}
+
+
+class FakeTranslator(KoreanEnglishFake):
+    """Every Korean word becomes one word of the target language; everything else is copied."""
+
+    def __call__(self, system: str, prompt: str) -> str:
+        self.calls += 1
+        src = re.search(r"<source_text>\n(.*?)\n</source_text>", prompt, re.S).group(1)  # type: ignore[union-attr]
+        word = next(w for lang, w in WORDS.items() if lang in re.search(r"into ([A-Z]\w+(?: \w+)?)", prompt).group(1))  # type: ignore[union-attr]
+        out = re.sub(r"[가-힣]+", f" {word} ", src)
+        return self.mutate(out) if self.mutate else out
 MODEL = "qwen2.5:7b-instruct"
 BACKEND = Path(__file__).resolve().parents[2]
 
@@ -112,13 +124,13 @@ def test_lost_facts_are_repaired_once(gpu, make):
 
     def forgetful(system: str, prompt: str) -> str:
         out = fake(system, prompt)
-        return out if "Your previous translation lost" in prompt else out.replace("2026-12-01", "soon")
+        return out if "Your previous translation had these problems" in prompt else out.replace("2026-12-01", "soon")
 
     w, ollama, _ = make(forgetful)
     assert w.step() == "completed"
     t = row(gpu, a["id"])
     assert "2026-12-01" in t["body"] and t["warnings"] == []
-    repair = [p for p in ollama.prompts if "previous translation lost" in p]
+    repair = [p for p in ollama.prompts if "previous translation had" in p]
     assert len(repair) == 1 and "2026" in repair[0]
 
 

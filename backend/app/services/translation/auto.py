@@ -31,7 +31,7 @@ from app.repositories.base import Query, Store, get_one
 from app.services.gpu_routing import gpu_executor
 from app.services.ingestion.errors import IngestionError
 from app.services.llm.base import LLMError, LLMProvider
-from app.services.translation.quality import is_high_risk, local_model_warnings, validate_translation
+from app.services.translation.quality import is_high_risk, local_translation_warnings, validate_translation
 from app.services.translation_drafts import chunk_text, translate_document
 
 log = logging.getLogger("app.translation")
@@ -293,9 +293,8 @@ class AnnouncementAutoTranslator:
         require_not_touched_since(row, job, work["force"])
         if self.human_touched(row) and not work["force"]:
             raise IngestionError("human_draft_exists", "A person edited this translation meanwhile; discarded.")
-        warnings = validate_translation(f"{orig['title']}\n{orig['body']}", f"{title}\n{body}", src, lang)
-        if provider == "ollama":
-            warnings += local_model_warnings(f"{orig['title']}\n{orig['body']}", f"{title}\n{body}", src, lang)
+        check = local_translation_warnings if provider == "ollama" else validate_translation
+        warnings = check(f"{orig['title']}\n{orig['body']}", f"{title}\n{body}", src, lang)
         # drafts of local models are never 'machine_draft' (which may be shown to students)
         status = "needs_review" if warnings or always_review or provider == "ollama" else "machine_draft"
         row = self.store.update("announcement_translations", dict(

@@ -34,6 +34,7 @@ from app.services.translation.auto import (
 from app.services.translation.quality import (
     is_high_risk,
     local_model_warnings,
+    local_translation_warnings,
     validate_summary,
     validate_translation,
 )
@@ -479,10 +480,12 @@ class DocumentTranslationService:
         title = d["title"]
         original = f"{d['title']}\n{body}"
         translated = f"{out['title']}\n{out['body']}"
-        checks = validate_summary(original, out["body"], lang) if summary else \
-            validate_translation(original, translated, src, lang)
-        if out["provider"] == "ollama":
-            checks += local_model_warnings(original, translated, src, lang)
+        local = out["provider"] == "ollama"
+        if summary:
+            checks = validate_summary(original, out["body"], lang)
+            checks += local_model_warnings(original, translated, src, lang) if local else []
+        else:
+            checks = (local_translation_warnings if local else validate_translation)(original, translated, src, lang)
         # re-check: the original or the human state may have changed while the model was working
         t = get_one(self.store, "document_translations", id=t["id"])
         d = get_one(self.store, "source_documents", id=d["id"])

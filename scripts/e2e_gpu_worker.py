@@ -9,6 +9,7 @@ offline, cancel, pause, rotation, revocation, human approval as the only way to 
 from __future__ import annotations
 
 import argparse
+import atexit
 import json
 import os
 import signal
@@ -73,6 +74,7 @@ class Env:
         self.token, self.log = self.dir / "token", self.dir / "worker.log"
         self.worker_python = worker_python
         self.server: uvicorn.Server | None = None
+        self.rss, self.cpu, self.wall = 0, 0.0, 0.0
 
     def up(self) -> None:
         self.server = uvicorn.Server(uvicorn.Config(self.app, host="127.0.0.1", port=self.port, log_level="warning",
@@ -98,11 +100,27 @@ class Env:
         e = {"PATH": os.environ["PATH"], "HOME": str(self.dir), "GPU_WORKER_HUB_URL": self.url,
              "GPU_WORKER_TOKEN_FILE": str(self.token), "GPU_WORKER_IDLE_MIN_SECONDS": "5",
              "GPU_WORKER_IDLE_MAX_SECONDS": "5"} | env
-        return subprocess.Popen([self.worker_python, "-m", "app.gpu_worker", *args], cwd=BACKEND, env=e,
+        p = subprocess.Popen([self.worker_python, "-m", "app.gpu_worker", *args], cwd=BACKEND, env=e,
                                 stdout=self.log.open("a"), stderr=subprocess.STDOUT)
+        atexit.register(lambda: p.poll() is None and p.terminate())
+        return p
 
     def drain(self) -> int:
-        return self.worker("--drain").wait(600)
+        p = self.worker("--drain")
+        ticks, hz = 0.0, os.sysconf("SC_CLK_TCK")
+        t0 = time.time()
+        while p.poll() is None:
+            try:
+                rss = next(int(x.split()[1]) for x in Path(f"/proc/{p.pid}/status").read_text().splitlines() if x.startswith("VmRSS"))
+                f = Path(f"/proc/{p.pid}/stat").read_text().rsplit(")", 1)[1].split()
+                ticks = (int(f[11]) + int(f[12])) / hz
+                self.rss = max(self.rss, rss)
+            except (OSError, StopIteration, ValueError):
+                break
+            time.sleep(0.2)
+        rc = p.wait(600)
+        self.cpu, self.wall = self.cpu + ticks, self.wall + time.time() - t0
+        return rc
 
     def publish(self, title: str, body: str) -> str:
         r = self.api("POST", "/admin/announcements", json=dict(
@@ -148,6 +166,9 @@ def main() -> int:
     w = e.api("POST", "/admin/gpu/workers", json=dict(name="school-e2e")).json()
     e.save_token(w["token"])
     tokens = [w["token"]]
+    r = e.api("POST", "/admin/gpu/jobs/queue-missing", json=dict(dry_run=False))
+    check("nothing is queued before a worker was ever seen", r.status_code == 409, r.json()["error"]["code"])
+    check("first contact", e.drain() == 0 and e.api("GET", "/admin/gpu/status", "admin").json()["available"])
 
     # 1. drafts in every language
     ids = [e.publish(*n) for n in NOTICES]
@@ -220,11 +241,12 @@ def main() -> int:
     # 8. pause / resume
     url = f"/admin/gpu/workers/{w['id']}"
     e.api("PATCH", url, json=dict(status="paused"))
-    jid = e.request(third, "en")
-    time.sleep(8)
-    paused = e.job(jid)["status"] == "queued"
+    time.sleep(6)
+    r = e.api("POST", f"/admin/announcements/{third}/translations/en/machine-translate")
+    check("paused and no other provider: refused, not parked", r.status_code == 409, r.json()["error"]["code"])
     e.api("PATCH", url, json=dict(status="active"))
-    check("pause and resume", paused and e.wait(lambda: e.job(jid)["status"] == "succeeded", 60))
+    jid = e.request(third, "en")
+    check("resume", e.wait(lambda: e.job(jid)["status"] == "succeeded", 60))
     # 9. rotation without restart, then revocation
     new = e.api("POST", url + "/rotate", json=dict(grace_minutes=5)).json()["token"]
     tokens.append(new)
@@ -238,7 +260,8 @@ def main() -> int:
     secrets = tokens + [n[1] for n in NOTICES] + [r["body"] for r in e.store.t["announcement_translations"] if r["body"]]
     check("worker log has no token and no content", not any(s in log for s in secrets) and "status=succeeded" in log)
     st = e.api("GET", "/admin/gpu/status", "admin").json()
-    print("\nmetrics:", json.dumps(st["last_24h"]))
+    print(f"\nworker process: peak RSS {e.rss / 1024:.0f} MiB, CPU {e.cpu:.1f} s in {e.wall:.0f} s ({100 * e.cpu / e.wall:.1f} %)")
+    print("metrics:", json.dumps(st["last_24h"]))
     listening = subprocess.run(["ss", "-ltn"], capture_output=True, text=True).stdout
     check("Ollama listens on loopback only", "127.0.0.1:11434" in listening and "0.0.0.0:11434" not in listening and "*:11434" not in listening)
     print("\nexample drafts:")
