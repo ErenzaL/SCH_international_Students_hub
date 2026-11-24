@@ -131,6 +131,21 @@ J.visa = async () => {
   await ctx.close();
 };
 
+J.chats = async () => {   // every desk that chats, in its own or the student's language, with Qwen and the approved guide
+  const q = { en: "What is the fee for extending a D-2 stay?", ko: "D-2 체류기간 연장 수수료는 얼마인가요?", id: "Berapa biaya perpanjangan izin tinggal D-2?", vi: "Lệ phí gia hạn lưu trú D-2 là bao nhiêu?", "zh-CN": "D-2 延长居留的手续费是多少？" };
+  const desks = [["reception", "en"], ["supporter-ko", "ko"], ["supporter-en", "en"], ["supporter-id", "id"], ["supporter-vi", "vi"], ["supporter-zh", "zh-CN"], ["academic", "en"], ["topik", "ko"], ["opportunities", "id"], ["events", "vi"], ["career", "zh-CN"], ["supporter-lead", "en"]];
+  const { page, ctx } = await context("student2");
+  for (const [id, l] of desks) {
+    await lang(page, id.startsWith("supporter-") && id !== "supporter-lead" ? "en" : l);
+    await desk(page, id);
+    const t = page.getByTestId("office-panel").getByRole("tab", { name: /^(Chat|채팅|Obrolan|Trò chuyện|聊天|대화|对话)$/ });
+    if (await t.count()) await t.first().click();
+    const a = await ask(page, q[l], 60);
+    check(`${id} answers in ${l} with the right fee`, a && /71[,.]?000/.test(a), a);
+  }
+  await ctx.close();
+};
+
 J.career = async () => {   // Daniel: live board -> candidate -> approval -> visible
   const { page, ctx } = await context("admin");
   const cat = (await api("admin", "GET", "/admin/discovery/catalog")).data.items.find((x) => x.name.includes("취업·아르바이트 공지"));
@@ -341,6 +356,37 @@ J.office = async () => {   // all 14 characters, languages, phone, keyboard
   await k.page.keyboard.press("Escape");
   check("keyboard: Escape closes it", await k.page.getByTestId("office-panel").waitFor({ state: "detached", timeout: 10000 }).then(() => true, () => false));
   await k.ctx.close();
+};
+
+J.autonomy = async () => {   // dev_stack --schedules: nobody clicks "check"; the scheduler hook does (development only)
+  if (!info.schedules) { console.log("SKIP  dev_stack runs without --schedules"); return; }
+  const due = async (secret) => { const r = await fetch(API + "/internal/sync/run-due", { method: "POST", headers: { "x-cron-secret": secret } }); return { status: r.status, data: await r.json() }; };
+  const publicBefore = (await api(null, "GET", "/knowledge/documents?page_size=100")).data.items.map((d) => d.id);
+  check("the scheduler hook needs its secret", (await due("wrong")).status === 403);
+  check("with the server switch on, nothing runs until an administrator enables a schedule", (await due(info.cron)).data.agent_schedules.queued === 0);
+  const cat = (await api("admin", "GET", "/admin/discovery/catalog")).data.items.filter((x) => ["SCH 국제교육교류처 유학생 공지사항", "순천향대학교 학사공지", "Study in Korea 학생비자 및 체류자격"].includes(x.name));
+  for (const c of cat) await api("admin", "POST", "/admin/discovery/sources", { agent_id: c.agent_id, name: c.name, kind: c.kind, url: c.url, category: c.category, language: c.language, config: { ...c.config, ...(c.kind === "page" ? {} : { max_items: 3 }) } });
+  const { page, ctx } = await context("admin");
+  await page.goto(`${WEB}/admin/agents`);
+  await page.getByRole("tab", { name: "Schedules" }).click();
+  for (const s of ["schedule-announcement-announcement_discovery", "schedule-academic-guidance_discovery", "schedule-immigration-guidance_discovery"]) {
+    await page.getByTestId(s).getByRole("switch").click();
+    await page.getByTestId(s).locator("[aria-checked=true]").waitFor({ timeout: 10000 });
+  }
+  const r = await due(info.cron);
+  check("three enabled schedules are queued", r.data.agent_schedules.queued === 3, JSON.stringify(r.data));
+  const done = await until(async () => { const t = (await api("admin", "GET", "/admin/agent-operations/tasks")).data.items.filter((x) => x.requested === "schedule"); return t.length === 3 && t.every((x) => x.status === "completed") ? t : null; }, 150);
+  check("Robo, Joon and Yuna checked the LIVE websites on their own", done, JSON.stringify((await api("admin", "GET", "/admin/agent-operations/tasks")).data.items.map((x) => [x.agent_name, x.status, x.error_code])));
+  for (const x of done ?? []) console.log(`      ${x.agent_name}: ${x.result_count} read, ${x.new_count} new`);
+  check("administrators were notified about candidates", JSON.stringify((await api("admin", "GET", "/admin/notifications")).data).includes("official notices to review"));
+  check("a second hook call does nothing (interval, no duplicates)", (await due(info.cron)).data.agent_schedules.queued === 0);
+  const after = (await api(null, "GET", "/knowledge/documents?page_size=100")).data.items.map((d) => d.id);
+  check("nothing became public on its own", after.every((id) => publicBefore.includes(id)), JSON.stringify([publicBefore.length, after.length]));
+  await page.reload();
+  await page.getByRole("tab", { name: "Tasks" }).click();
+  check("the admin page shows who started them", (await page.getByText("by a schedule").first().waitFor({ timeout: 10000 }).then(() => page.getByText("by a schedule").count())) === 3);
+  await shot(page, "admin-tasks");
+  await ctx.close();
 };
 
 fs.mkdirSync(OUT, { recursive: true });

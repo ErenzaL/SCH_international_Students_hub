@@ -5,7 +5,7 @@ its job worker, local Qwen (Ollama), and a stand-in for Supabase sign-in. Loopba
     cd backend && .venv/bin/python ../scripts/dev_stack.py --info /tmp/stack.json [--llm ollama|none] [--embedding e5_onnx|hash]
     # web: NEXT_PUBLIC_API_URL=http://127.0.0.1:8051 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:8052 NEXT_PUBLIC_SUPABASE_ANON_KEY=any
 
-Official websites are fetched for real (allowlist, robots.txt) unless --offline. Schedules stay off; the GPU worker endpoints are on.
+Official websites are fetched for real (allowlist, robots.txt) unless --offline. Schedules stay off without --schedules; the GPU worker endpoints are on.
 The info file (0600) holds the made-up accounts and the password of this run.
 """
 from __future__ import annotations
@@ -35,6 +35,7 @@ ap.add_argument("--info", required=True)
 ap.add_argument("--llm", choices=["ollama", "none"], default="ollama")
 ap.add_argument("--embedding", choices=["e5_onnx", "hash"], default="e5_onnx")
 ap.add_argument("--offline", action="store_true")
+ap.add_argument("--schedules", action="store_true", help="agent schedules may run (an administrator still enables each one)")
 a = ap.parse_args()
 REST, SECRET, PSQL = os.environ["SCH_IT_REST_URL"], os.environ["SCH_IT_JWT_SECRET"], os.environ["SCH_IT_PSQL"]
 
@@ -54,6 +55,7 @@ from app.repositories.supabase_store import SupabaseStore  # noqa: E402
 from app.services.ingestion.fetcher import GuardedFetcher  # noqa: E402
 
 PASSWORD = secrets.token_urlsafe(16)
+CRON = secrets.token_urlsafe(32)
 WEB = [f"http://127.0.0.1:{a.web}", f"http://localhost:{a.web}"]
 
 
@@ -78,7 +80,7 @@ def token(uid: str, hours: int = 4, role: str = "authenticated") -> str:
 settings = Settings(_env_file=None, environment="development", supabase_url=REST, supabase_jwt_secret=SECRET,  # type: ignore[call-arg]
                     supabase_service_role_key=jwt.encode({"role": "service_role", "exp": int(time.time()) + 24 * 3600}, SECRET, algorithm="HS256"),
                     llm_provider=a.llm, background_llm_provider="none", embedding_provider=a.embedding, job_execution="worker",
-                    cors_allowed_origins=",".join(WEB), gpu_worker_enabled=True, agent_schedules_enabled=False, retrieval_min_similarity=0.80 if a.embedding != "hash" else 0.0,
+                    cors_allowed_origins=",".join(WEB), gpu_worker_enabled=True, agent_schedules_enabled=a.schedules, cron_secret=CRON, retrieval_min_similarity=0.80 if a.embedding != "hash" else 0.0,
                     board_request_delay_seconds=1.0, rate_limit_search_per_minute=600, rate_limit_ingest_per_minute=600, rate_limit_public_per_minute=3000,
                     rate_limit_chat_user_per_minute=120, rate_limit_chat_anonymous_global_per_minute=120, agent_tool_runs_per_minute=300)
 fetcher = None
@@ -135,7 +137,7 @@ def proxy(path: str, request: Request) -> Response:
 
 fd = os.open(a.info, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
 with os.fdopen(fd, "w") as f:
-    json.dump(dict(password=PASSWORD, users=users, api=f"http://127.0.0.1:{a.api}", auth=f"http://127.0.0.1:{a.auth}", web=WEB[0],
+    json.dump(dict(password=PASSWORD, cron=CRON, schedules=a.schedules, users=users, api=f"http://127.0.0.1:{a.api}", auth=f"http://127.0.0.1:{a.auth}", web=WEB[0],
                    tokens={n: token(u) for n, u in users.items()}), f)
 threading.Thread(target=lambda: uvicorn.run(auth, host="127.0.0.1", port=a.auth, log_level="warning"), daemon=True).start()
 uvicorn.run(app, host="127.0.0.1", port=a.api, log_level="warning")
