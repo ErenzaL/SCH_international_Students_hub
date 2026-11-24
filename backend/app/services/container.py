@@ -13,6 +13,7 @@ from app.services.discovery.service import DiscoveryService
 from app.services.document_translations import DocumentTranslationService
 from app.services.domains import DomainPolicy
 from app.services.embeddings.base import EmbeddingProvider
+from app.services.gpu_worker import GpuWorkerService
 from app.services.indexing import IndexingService
 from app.services.ingestion.fetcher import GuardedFetcher
 from app.services.ingestion.pipeline import IngestionService
@@ -62,6 +63,7 @@ class Services:
     announcement_translator: AnnouncementAutoTranslator
     discovery: DiscoveryService = None  # type: ignore[assignment]
     agents: AgentTaskService = None  # type: ignore[assignment]  # set right after construction (needs Services)
+    gpu: GpuWorkerService = None  # type: ignore[assignment]  # set right after construction (needs Services)
     #: per-day attempt budget of background AI work (the chatbot's quota reserve)
     background_budget: DailyBudget | None = None
 
@@ -114,5 +116,6 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     services.discovery = discovery
     services.background_budget = background_budget
     services.agents = jobs.agents = AgentTaskService(services)
+    services.gpu = GpuWorkerService(services)
     services.agents.worker_id = jobs.worker_id
     return services

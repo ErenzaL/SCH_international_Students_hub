@@ -45,6 +45,8 @@ class JobRunner:
 
     # ----------------------------------------------------------- enqueue
     def enqueue(self, job: dict[str, Any], background: BackgroundTasks | None = None) -> None:
+        if job.get("executor") == "gpu":
+            return                      # waits for a GPU worker (never run in this process)
         if self.inline:
             if background is not None:
                 background.add_task(self.ingestion.run_job, job["id"])

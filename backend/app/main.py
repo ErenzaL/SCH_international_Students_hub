@@ -17,6 +17,7 @@ from app.api import (
     admin_system,
     agents,
     document_translations,
+    gpu_worker,
     health,
     public,
     support,
@@ -87,7 +88,8 @@ def create_app(settings: Settings | None = None, *, store: Store | None = None, 
     install_error_handlers(app)
     for r in (health.router, public.router, admin_sources.router, admin_documents.router,
               admin_announcements.router, admin_system.router, admin_intake.router, admin_knowledge.router,
-              admin_knowledge.internal, support.router, document_translations.router, agents.router):
+              admin_knowledge.internal, support.router, document_translations.router, agents.router,
+              gpu_worker.router, gpu_worker.admin):
         app.include_router(r)
     return app
 

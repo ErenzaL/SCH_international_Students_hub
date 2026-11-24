@@ -189,6 +189,18 @@ class Settings(BaseSettings):
     ollama_queue_timeout_seconds: float = 30.0       # waiting for a free slot, interactive calls
     ollama_job_queue_timeout_seconds: float = 300.0  # ... jobs
     ollama_request_deadline_seconds: float = 120.0   # interactive calls: no retry starts after this much time
+    # GPU worker on the university server (docs/gpu-worker.md). OFF: no endpoint exists and nothing is routed to it.
+    # When on, these translation jobs wait for the worker instead of using the API's own model. Its output is always
+    # stored as 'needs_review' (never shown to students). Needs migration 0016.
+    gpu_worker_enabled: bool = False
+    gpu_worker_job_types: str = "translate_announcement,translate_document"
+    gpu_worker_models: str = "qwen2.5:7b-instruct"   # models whose results are accepted
+    gpu_worker_max_running: int = 1                  # jobs leased at the same time, all workers together
+    gpu_worker_lease_seconds: int = 180              # renewed by the worker; a lost worker's job is re-queued after this
+    gpu_worker_job_max_seconds: int = 1800           # a lease is not renewed beyond this
+    gpu_worker_chunk_chars: int = 3000
+    gpu_worker_max_source_chars: int = 12000         # text a summary is made from (longer: partial, labelled)
+    gpu_worker_token_days: int = 90                  # validity of a new or rotated credential
     llm_temperature: float | None = None     # None = the model's default (recommended for Gemini 3 models)
     llm_answer_max_tokens: int = 2048        # answer generation output cap (thinking tokens count separately)
     llm_request_timeout_seconds: float = 30.0   # per attempt (assistant answers); translation jobs use llm_timeout
