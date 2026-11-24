@@ -238,7 +238,7 @@ class GpuWorkerService:
             title, body, summary = work["orig"]["title"], work["orig"]["body"], False
         else:
             title, body = work["d"]["title"], work["body"]
-            summary = self.svc.doc_translations.is_summary(body)
+            summary = self.svc.doc_translations.is_summary(body, work["summary"])
         task = dict(kind=kind, mode="summarize" if summary else "translate", source_language=work["src"],
                     target_language=work["lang"], title=title, body=body)
         fingerprint = hashlib.sha256(json.dumps(task, sort_keys=True, ensure_ascii=False).encode()).hexdigest()

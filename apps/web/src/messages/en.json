@@ -2956,7 +2956,8 @@
         "supportIntro": "Support requests that wait in your languages: number, language, age. The student's words are shown only to the person who accepts the request.",
         "waiting": "Waiting ({count})",
         "supportEmpty": "No request is waiting.",
-        "openInbox": "Open the support inbox"
+        "openInbox": "Open the support inbox",
+        "summary": "Request a summary"
       }
     }
   }

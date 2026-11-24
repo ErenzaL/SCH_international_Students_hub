@@ -2956,7 +2956,8 @@
         "supportIntro": "您所负责语言中等待的求助：编号、语言、时间。学生所写内容仅对接手的人显示。",
         "waiting": "等待中（{count}）",
         "supportEmpty": "没有等待的请求。",
-        "openInbox": "打开支持收件箱"
+        "openInbox": "打开支持收件箱",
+        "summary": "请求摘要"
       }
     }
   }

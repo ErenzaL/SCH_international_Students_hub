@@ -136,6 +136,23 @@ def test_a_supporter_requests_a_draft_for_the_gpu_worker_and_nothing_becomes_pub
         task_type="lookup", params=dict(tool="request_translation_draft", params={}))).status_code == 403
 
 
+def test_a_supporter_requests_a_summary_of_an_approved_document(env):
+    from tests.test_gpu_worker import claim
+    from tests.test_retrieval import make_doc
+
+    env.settings.gpu_worker_enabled = True
+    env.worker = new_worker(env)
+    doc = make_doc(env, "기숙사 안내", "기숙사 입사 신청은 12월 18일까지 종합정보시스템에서 합니다. 결핵 검사 결과서를 제출해야 합니다.", language="ko")
+    doc_id = doc["document_id"]
+    assign(env, "supporter", "vi")
+    r = tool(env, "supporter-vi", "request_translation_draft", {"document_id": doc_id, "summary": True}, "supporter")
+    assert r.status_code == 200 and r.json()["result"]["items"][0]["executor"] == "gpu", r.text
+    job = claim(env)
+    assert "summarize" in str(job)
+    a = publish(env)
+    assert tool(env, "supporter-vi", "request_translation_draft", {"announcement_id": a["id"], "summary": True}, "supporter").status_code == 422
+
+
 def test_without_a_model_or_worker_drafts_are_refused(env):
     a = publish(env)
     assign(env, "supporter", "vi")

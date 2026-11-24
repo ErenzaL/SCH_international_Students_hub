@@ -353,6 +353,7 @@ class QueueParams(P):
 class DraftParams(P):
     announcement_id: Text | None = None
     document_id: Text | None = None
+    summary: bool = False          # documents only: a labelled summary for review instead of a full translation
 
 
 class SupportQueueParams(P):
@@ -747,9 +748,11 @@ def request_translation_draft(ctx: ToolContext, p: DraftParams) -> dict[str, Any
     assert ctx.user is not None
     lang = ctx.agent.fixed_language or ctx.language
     if p.document_id:
-        out = ctx.svc.doc_translations.request_drafts(p.document_id, [lang], ctx.user)[0]
+        out = ctx.svc.doc_translations.request_drafts(p.document_id, [lang], ctx.user, summary=p.summary)[0]
         job_id, status = out["job_id"], out["status"]
     else:
+        if p.summary:
+            raise ValidationFailed("Announcements are translated in full.")
         perms = ctx.svc.translations.permissions(ctx.user, lang)
         if not (perms["can_edit"] or perms["can_review"]):
             raise Forbidden("You are not assigned to translations in this language.")

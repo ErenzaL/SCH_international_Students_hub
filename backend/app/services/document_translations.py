@@ -350,7 +350,8 @@ class DocumentTranslationService:
 
     # ------------------------------------------------------------- AI drafts
     def request_drafts(self, document_id: str, languages: list[str], user: AuthUser, background: Any = None,
-                       force: bool = False) -> list[dict[str, Any]]:
+                       force: bool = False, summary: bool = False) -> list[dict[str, Any]]:
+        """``summary``: a labelled summary instead of a full translation (long documents are always summarized)."""
         if not self.can_generate:
             raise InvalidState("AI translation drafts need an LLM provider (set LLM_PROVIDER and an API key). "
                                "Translations can still be written by hand.", code="llm_disabled")
@@ -364,14 +365,14 @@ class DocumentTranslationService:
                 raise Forbidden(f"You are not assigned to {LANG_NAMES.get(lang, lang)} translations.")
         out = []
         for lang in langs:
-            job = self._queue(d, s, v, lang, user.id, force=force)
+            job = self._queue(d, s, v, lang, user.id, force=force, summary=summary)
             out.append(dict(language=lang, job_id=job["id"], status=job["status"]))
             if job.get("_new"):
                 self.jobs.enqueue(job, background)
         return out
 
     def _queue(self, d: dict[str, Any], s: dict[str, Any], v: dict[str, Any], lang: str, actor_id: str | None,
-               force: bool) -> dict[str, Any]:
+               force: bool, summary: bool = False) -> dict[str, Any]:
         t = self._current(d["id"], v["id"], lang)
         if t is None:
             raise NotFound("No translation task for this language.")
@@ -385,7 +386,8 @@ class DocumentTranslationService:
         executor = gpu_executor(self.store, self.settings, "translate_document")
         try:
             job = self.ingestion.create_job(s, "manual", actor_id, payload=dict(
-                document_id=d["id"], version_id=v["id"], translation_id=t["id"], language=lang, force=force),
+                document_id=d["id"], version_id=v["id"], translation_id=t["id"], language=lang, force=force,
+                **({"summary": True} if summary else {})),
                 job_type="translate_document", executor=executor)
         except DuplicateError:          # queued concurrently (unique index): use that job
             existing = self._open_job(t["id"])
@@ -431,10 +433,13 @@ class DocumentTranslationService:
                         message="Already translated from exactly this version; nothing to do.")
         else:
             finished = None
-        return dict(t=t, d=d, v=v, lang=lang, src=src, body=body, finished=finished, force=bool(p.get("force")))
+        return dict(t=t, d=d, v=v, lang=lang, src=src, body=body, finished=finished, force=bool(p.get("force")),
+                    summary=p.get("summary") is True)
 
-    def is_summary(self, body: str) -> bool:
-        """Long documents get a translated title and a summary instead of a full translation."""
+    def is_summary(self, body: str, requested: bool = False) -> bool:
+        """Long documents get a translated title and a summary instead of a full translation; so does a job that asks for it."""
+        if requested:
+            return True
         if len(body) > self.settings.translation_full_max_chars:
             return True
         from app.services.translation_drafts import chunk_text as parts_of
@@ -450,7 +455,7 @@ class DocumentTranslationService:
         if daily_budget_exceeded(self.store, self.settings, job["id"]):
             raise IngestionError("translation_daily_limit", "Today's machine-translation budget is used up; the job "
                                                             "continues tomorrow.")
-        summary = self.is_summary(body)
+        summary = self.is_summary(body, work["summary"])
         event(job["id"], "translate", f"{'Summarizing' if summary else 'Translating'} v{v['version_number']} from "
                                       f"{LANG_NAMES.get(src, src)} into {LANG_NAMES[lang]} with "
                                       f"{self.llm.name}:{self.llm.model}.")

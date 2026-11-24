@@ -89,12 +89,12 @@ function TranslationQueue() {
   const result = data.data?.result;
   const draftTool = ws.agent.tools.find((x) => x.name === "request_translation_draft");
 
-  async function draft(item: ResultItem) {
+  async function draft(item: ResultItem, summary = false) {
     setBusy(item.id ?? "");
     setNotice(null);
     try {
       const r = await agentApi.tool(ws.agent.id, "request_translation_draft",
-        item.content_kind === "announcement" ? { announcement_id: item.ref } : { document_id: item.ref }, ws.language);
+        item.content_kind === "announcement" ? { announcement_id: item.ref } : { document_id: item.ref, ...(summary ? { summary: true } : {}) }, ws.language);
       setNotice({ ok: true, text: r.result.items[0]?.executor === "gpu" ? t("queuedGpu") : t("queued") });
       data.reload();
     } catch (e) {
@@ -131,6 +131,11 @@ function TranslationQueue() {
                     {i.status === "todo" && (
                       <Button size="sm" variant="ghost" className="min-h-9" disabled={!draftTool?.available || busy !== null} onClick={() => void draft(i)} data-testid="request-draft">
                         {busy === i.id && <Loader2 className="size-4 animate-spin" aria-hidden />} {t("draft")}
+                      </Button>
+                    )}
+                    {i.status === "todo" && i.content_kind === "document" && (
+                      <Button size="sm" variant="ghost" className="min-h-9" disabled={!draftTool?.available || busy !== null} onClick={() => void draft(i, true)} data-testid="request-summary">
+                        {t("summary")}
                       </Button>
                     )}
                   </div>

@@ -2956,7 +2956,8 @@
         "supportIntro": "Yêu cầu đang chờ bằng ngôn ngữ của bạn: số, ngôn ngữ, thời gian. Nội dung của sinh viên chỉ hiển thị cho người nhận xử lý.",
         "waiting": "Đang chờ ({count})",
         "supportEmpty": "Không có yêu cầu nào đang chờ.",
-        "openInbox": "Mở hộp thư hỗ trợ"
+        "openInbox": "Mở hộp thư hỗ trợ",
+        "summary": "Yêu cầu tóm tắt"
       }
     }
   }

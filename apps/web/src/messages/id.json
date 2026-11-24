@@ -2956,7 +2956,8 @@
         "supportIntro": "Permintaan yang menunggu dalam bahasa Anda: nomor, bahasa, waktu. Isi dari mahasiswa hanya terlihat oleh orang yang menerimanya.",
         "waiting": "Menunggu ({count})",
         "supportEmpty": "Tidak ada permintaan yang menunggu.",
-        "openInbox": "Buka kotak masuk dukungan"
+        "openInbox": "Buka kotak masuk dukungan",
+        "summary": "Minta ringkasan"
       }
     }
   }
