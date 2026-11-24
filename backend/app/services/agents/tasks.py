@@ -175,7 +175,7 @@ class AgentTaskService:
             if s["agent_id"] != agent.id:
                 continue
             state = "active" if s["enabled"] and self.settings.agent_schedules_enabled else \
-                "off_on_server" if s["enabled"] else "disabled"
+                "off_on_server" if s["enabled"] and admin else "disabled"     # server settings: admins only
             row = dict(task_type=s["task_type"], state=state, interval_minutes=s.get("interval_minutes"),
                        last_run_at=s.get("last_run_at"), last_success_at=s.get("last_success_at"),
                        next_run_at=s.get("next_run_at") if state == "active" else None)
@@ -187,11 +187,12 @@ class AgentTaskService:
         successes = [s["last_success_at"] for s in sources if s.get("last_success_at")]
         out: dict[str, Any] = dict(
             agent_id=agent.id, supported=agent.id in DISCOVERY_AGENTS, sources=src_out, schedules=scheds,
-            schedules_enabled_on_server=self.settings.agent_schedules_enabled,
             checking=agent.id in self.monitoring_activity(),
             last_checked_at=max(checks) if checks else None, last_success_at=max(successes) if successes else None)
-        if admin and agent.id in DISCOVERY_AGENTS:
-            out["candidates_waiting"] = len(self.svc.discovery.candidates(agent_id=agent.id, limit=200))
+        if admin:
+            out["schedules_enabled_on_server"] = self.settings.agent_schedules_enabled
+            if agent.id in DISCOVERY_AGENTS:
+                out["candidates_waiting"] = len(self.svc.discovery.candidates(agent_id=agent.id, limit=200))
         return out
 
     def agent_states(self, user: AuthUser | None) -> dict[str, dict[str, Any]]:

@@ -2697,6 +2697,26 @@
         "reviewed_discoveries": "직원이 검토·승인한 공식 웹사이트 공지",
         "support_tickets": "내가 보낸 지원 요청",
         "agent_tasks": "이 데스크에 맡긴 내 작업"
+      },
+      "adminTabs": "관리자",
+      "next": {
+        "askInChat": "{name}에게 대화로 묻기",
+        "askPerson": "사람에게 묻기 (Sumin)",
+        "clearFilters": "필터 지우기",
+        "clearSearch": "검색 지우기",
+        "includeClosed": "마감된 항목 포함",
+        "scholarshipGuides": "장학금 안내 자료",
+        "showPast": "지난 행사 보기",
+        "showUpcoming": "예정 행사 보기",
+        "allAnnouncements": "전체 공지",
+        "employmentGuides": "취업 안내 자료",
+        "careerNotices": "대학 공지",
+        "guides": "안내 자료",
+        "officialTopik": "TOPIK 공식 사이트",
+        "knowledgeCenter": "지식 센터",
+        "newRequest": "요청 작성하기",
+        "runCheck": "수동 확인 실행",
+        "noTasksHint": "위의 버튼으로 시작하면 결과가 여기에 보관돼요."
       }
     }
   }

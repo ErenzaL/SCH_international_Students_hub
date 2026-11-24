@@ -120,7 +120,7 @@ const reviewedItem = { kind: "discovered", id: "r1", title: "2027 Global Korea S
 const candidate = { ...reviewedItem, id: "c1", title: "UNREVIEWED candidate notice", href: "https://sgee.sch.ac.kr/x",
   official_url: undefined, reliability: "external_unverified", review_status: "candidate" };
 const monitoring = (extra: object = {}) => ({
-  agent_id: "announcement", supported: true, checking: false, schedules_enabled_on_server: false,
+  agent_id: "announcement", supported: true, checking: false,
   last_checked_at: "2026-11-24T01:00:00Z", last_success_at: "2026-11-24T01:00:00Z",
   sources: [{ name: "SCH 국제교류처 공지", url: "https://sgee.sch.ac.kr/notice", kind: "sch_board", health: "ok",
     last_checked_at: "2026-11-24T01:00:00Z", last_success_at: "2026-11-24T01:00:00Z" },
@@ -128,7 +128,7 @@ const monitoring = (extra: object = {}) => ({
     last_checked_at: "2026-11-23T01:00:00Z", last_success_at: null }],
   schedules: [{ task_type: "announcement_discovery", state: "disabled", interval_minutes: 720, last_run_at: null,
     last_success_at: null, next_run_at: null }],
-  ...(role === "admin" ? { candidates_waiting: 3 } : {}), ...extra });
+  ...(role === "admin" ? { candidates_waiting: 3, schedules_enabled_on_server: false } : {}), ...extra });
 
 let tasks: Record<string, unknown>[] = [];
 let events: object[] = [];
@@ -277,6 +277,7 @@ describe("character-specific workspaces", () => {
     // students: no admin strip, no admin tabs, no admin action
     expect(within(panel).queryByTestId("admin-strip")).toBeNull();
     expect(within(panel).queryByTestId("tab-review")).toBeNull();
+    expect(within(panel).queryByTestId("admin-tabs")).toBeNull();
     expect(within(panel).queryByTestId("action-check_official_sources")).toBeNull();
     expect(panel.textContent).not.toContain("UNREVIEWED");
     // filter: programs only
@@ -292,6 +293,10 @@ describe("character-specific workspaces", () => {
     expect(list.textContent).not.toContain("UNREVIEWED");
     expect(within(panel).getByTestId("admin-unreviewed").textContent).toContain("1 unreviewed item");
     expect(within(panel).getByTestId("action-check_official_sources")).toBeInTheDocument();
+    // admin tools have their own always-visible row, separate from the student tabs
+    const adminRow = within(panel).getByTestId("admin-tabs");
+    expect(within(adminRow).getByTestId("tab-review")).toBeInTheDocument();
+    expect(within(adminRow).getByTestId("tab-sources")).toBeInTheDocument();
     await user.click(within(panel).getByTestId("tab-review"));
     const queue = await within(panel).findByTestId("review-queue");
     await waitFor(() => expect(queue.textContent).toContain("UNREVIEWED candidate notice"));
@@ -345,8 +350,16 @@ describe("character-specific workspaces", () => {
 
   it("Mia says clearly when nothing is published", async () => {
     events = [];
-    const { panel } = await open("events");
-    expect(await within(panel).findByTestId("desk-empty")).toHaveTextContent("No upcoming event is published right now.");
+    const { user, panel } = await open("events");
+    const empty = await within(panel).findByTestId("desk-empty");
+    expect(empty).toHaveTextContent("No upcoming event is published right now.");
+    // and what to do next
+    const next = within(empty).getByTestId("next-steps");
+    expect(within(next).getByRole("link", { name: "All announcements" })).toHaveAttribute("href", "/announcements");
+    await user.click(within(next).getByRole("button", { name: "Show past events" }));
+    expect(within(panel).getByRole("button", { name: /Past/ })).toHaveAttribute("aria-pressed", "true");
+    await user.click(within(panel).getByRole("button", { name: "Ask Mia in chat" }));
+    expect(within(panel).getByTestId("tab-chat")).toHaveAttribute("aria-selected", "true");
   });
 
   it("Daniel states that external job search is not connected and invents nothing", async () => {
@@ -356,6 +369,10 @@ describe("character-specific workspaces", () => {
     expect(panel.textContent).toContain("No career notice is published right now.");
     expect(within(panel).queryAllByTestId("opportunity-card")).toHaveLength(0);
     expect(panel.textContent).toContain("check part-time work permission");
+    // every empty list offers a next step: guides, chat, or a person through Sumin
+    const steps = within(panel).getAllByTestId("next-steps").map((x) => x.textContent);
+    expect(steps.join(" ")).toContain("Employment guides");
+    expect(steps.join(" ")).toContain("Ask a person (Sumin)");
   });
 
   it("Yuna runs a checklist with quoted sources and keeps the chat one tab away", async () => {

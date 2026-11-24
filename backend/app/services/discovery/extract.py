@@ -84,6 +84,11 @@ def eligibility_lines(text: str, limit: int = 5) -> list[str]:
     return out
 
 
+#: site services whose names contain an "apply" word but are never the notice's application
+SITE_FUNCTION_TEXT = re.compile(r"홍보\s*신청|광고\s*신청|로그인|회원\s*가입|사이트\s*맵|증명서\s*발급|"
+                                r"\blog\s*in\b|\bsign\s*(?:in|up)\b|\bsitemap\b|\bsubscribe\b", re.IGNORECASE)
+
+
 def application_links(links: list[dict[str, str]], attachments: list[dict[str, str]] | None = None,
                       limit: int = 6) -> list[dict[str, str]]:
     out: list[dict[str, str]] = []
@@ -92,6 +97,8 @@ def application_links(links: list[dict[str, str]], attachments: list[dict[str, s
         url = str(link.get("url") or link.get("href") or "")
         text = str(link.get("text") or link.get("name") or "")
         if not url.startswith(("https://", "http://")) or url in seen:
+            continue
+        if SITE_FUNCTION_TEXT.search(text):          # "홍보신청", "로그인" ... are site services, not applications
             continue
         if APPLY_TEXT.search(text) or APPLY_URL.search(url):
             seen.add(url)

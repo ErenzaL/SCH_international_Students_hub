@@ -13,6 +13,7 @@ import { agentApi, type ResultItem, type ToolResult } from "@/features/ai-office
 import { useWorkspace } from "@/features/ai-office/workspace/context";
 import {
   AnnouncementCard, DeadlineDisplay, EmptyState, LoadState, Notes, SourceCitation, ToolResultList, WorkspaceSection,
+  useCommonNextSteps,
 } from "@/features/ai-office/workspace/parts";
 import { api, ApiError } from "@/lib/api";
 import { useApi } from "@/lib/use-api";
@@ -31,6 +32,8 @@ function ProcedurePicker({ intro }: { intro: string }) {
   const tActions = useTranslations("office.agent.actions");
   const tAgent = useTranslations("office.agent");
   const topics = useTopics();
+  const tNext = useTranslations("office.ws.next");
+  const common = useCommonNextSteps();
   const [open, setOpen] = useState<string | null>(null);
   const [result, setResult] = useState<ToolResult | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -58,7 +61,7 @@ function ProcedurePicker({ intro }: { intro: string }) {
           <ArrowLeft className="size-4" aria-hidden /> {t("otherTopics")}
         </Button>
         <h3 className="text-base font-bold">{tActions(open)}</h3>
-        {result.items.length === 0 ? <><EmptyState>{t("noGuide")}</EmptyState><Notes notes={result.notes} /></>
+        {result.items.length === 0 ? <><EmptyState next={[...common.askChat, common.human]}>{t("noGuide")}</EmptyState><Notes notes={result.notes} /></>
           : <ToolResultList result={result} />}
         {ws.askInChat && (
           <Button size="sm" variant="outline" className="min-h-9" onClick={() => ws.askInChat?.(tActions(open))}>
@@ -71,7 +74,7 @@ function ProcedurePicker({ intro }: { intro: string }) {
   return (
     <WorkspaceSection title={t("title")} icon={<ClipboardList className="size-4" />} testId="procedure-topics">
       <p className="text-xs text-muted-foreground">{intro}</p>
-      {topics.length === 0 ? <EmptyState>{t("noTopics")}</EmptyState> : (
+      {topics.length === 0 ? <EmptyState next={[...common.askChat, { label: tNext("guides"), onClick: () => ws.openTab("guides") }]}>{t("noTopics")}</EmptyState> : (
         <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {topics.map((a) => (
             <li key={a.id}>
@@ -116,6 +119,7 @@ export function ProceduresWorkspace() {
   const ws = useWorkspace();
   const t = useTranslations("office.ws.academic");
   const locale = useLocale();
+  const tNext = useTranslations("office.ws.next");
   const notices = useApi(`ws-academic-notices:${locale}`, async () => (await api.get<Page<AnnouncementSummary>>(
     "/api/v1/announcements", { category: "university-announcements", page_size: 3, display_language: locale })).items);
   return (
@@ -124,7 +128,7 @@ export function ProceduresWorkspace() {
       <WorkspaceSection title={t("noticesTitle")} testId="academic-notices"
         action={<Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => ws.openTab("notices")}>{t("allNotices")}</Button>}>
         <LoadState loading={notices.loading && !notices.data} error={notices.error} onRetry={notices.reload} />
-        {notices.data && (notices.data.length === 0 ? <EmptyState>{t("noNotices")}</EmptyState> : (
+        {notices.data && (notices.data.length === 0 ? <EmptyState next={[{ label: tNext("allAnnouncements"), href: "/announcements" }]}>{t("noNotices")}</EmptyState> : (
           <ul className="space-y-2">{notices.data.map((a) => <li key={a.id}><AnnouncementCard a={a} compact /></li>)}</ul>
         ))}
       </WorkspaceSection>
@@ -139,6 +143,8 @@ export function ProceduresWorkspace() {
 export function TopikWorkspace() {
   const ws = useWorkspace();
   const t = useTranslations("office.ws.topik");
+  const tNext = useTranslations("office.ws.next");
+  const common = useCommonNextSteps();
   const data = useApi(`ws-topik:${ws.agent.id}:${ws.language}`, () => agentApi.tool(ws.agent.id, "topik_dates", {}, ws.language));
   const items = data.data?.result.items ?? [];
   const notices = items.filter((i) => i.kind === "announcement");
@@ -150,12 +156,16 @@ export function TopikWorkspace() {
       {data.data && (
         <>
           <WorkspaceSection title={t("datesTitle")} testId="topik-dates">
-            {notices.length === 0 ? <EmptyState>{t("noNotices")}</EmptyState> : (
+            {notices.length === 0 ? (
+              <EmptyState next={[{ label: tNext("officialTopik"), href: "https://www.topik.go.kr" }, ...common.askChat]}>
+                {t("noNotices")}
+              </EmptyState>
+            ) : (
               <ul className="space-y-2">{notices.map((n) => <li key={n.id}><TopikNotice item={n} /></li>)}</ul>
             )}
           </WorkspaceSection>
           <WorkspaceSection title={t("resourcesTitle")} testId="topik-resources">
-            {guides.length === 0 ? <EmptyState>{t("noResources")}</EmptyState> : (
+            {guides.length === 0 ? <EmptyState next={[{ label: tNext("knowledgeCenter"), href: "/knowledge?category=topik-korean" }]}>{t("noResources")}</EmptyState> : (
               <ul className="space-y-1.5">
                 {guides.map((g, i) => (
                   <li key={`${g.href}-${i}`} className="flex flex-wrap items-center gap-1.5 text-sm">

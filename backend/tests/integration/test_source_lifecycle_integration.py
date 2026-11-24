@@ -45,8 +45,11 @@ def delete(it: IT, sid: str, title: str, role: str = "super_admin", destructive:
 
 def test_source_delete_lifecycle_against_real_database(it: IT):
     c, a = it.client, it.auth("admin")
-    url = f"{ARTICLE_URL}?it={uuid.uuid4().hex[:8]}"
-    it.pages[url] = ARTICLE_HTML.encode() if isinstance(ARTICLE_HTML, str) else ARTICLE_HTML
+    ref = uuid.uuid4().hex[:8]
+    url = f"{ARTICLE_URL}?it={ref}"
+    # a term only this run's document contains (the shared database keeps documents with the same text from earlier runs)
+    it.pages[url] = ARTICLE_HTML.replace("Registration happens at the immigration office.",
+                                         f"Registration happens at the immigration office (itref{ref}).").encode()
     title = f"IT source {uuid.uuid4().hex[:6]}"
     src = make_source(it, title, url)
     sid = src["id"]
@@ -54,7 +57,7 @@ def test_source_delete_lifecycle_against_real_database(it: IT):
     job = c.get(f"/api/v1/admin/ingestion-jobs/{job_id}", headers=a).json()
     assert job["status"] == "succeeded", job
     assert c.post(f"/api/v1/admin/versions/{job['version_id']}/approve", headers=a, json={}).status_code == 202
-    q = "alien registration immigration office"
+    q = f"itref{ref} alien registration immigration office"
     assert any(h["document_id"] == job["document_id"] for h in hits(it, q))
 
     chk = c.get(f"/api/v1/admin/sources/{src['id']}/deletion-check", headers=a).json()

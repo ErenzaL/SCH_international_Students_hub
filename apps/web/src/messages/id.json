@@ -2697,6 +2697,26 @@
         "reviewed_discoveries": "Pengumuman situs resmi yang ditinjau dan disetujui staf",
         "support_tickets": "Permintaan dukungan Anda sendiri",
         "agent_tasks": "Tugas Anda di meja ini"
+      },
+      "adminTabs": "Admin",
+      "next": {
+        "askInChat": "Tanya {name} lewat chat",
+        "askPerson": "Tanya manusia (Sumin)",
+        "clearFilters": "Hapus filter",
+        "clearSearch": "Hapus pencarian",
+        "includeClosed": "Sertakan yang ditutup",
+        "scholarshipGuides": "Panduan beasiswa",
+        "showPast": "Lihat acara lampau",
+        "showUpcoming": "Lihat acara mendatang",
+        "allAnnouncements": "Semua pengumuman",
+        "employmentGuides": "Panduan kerja",
+        "careerNotices": "Pengumuman universitas",
+        "guides": "Panduan",
+        "officialTopik": "Situs resmi TOPIK",
+        "knowledgeCenter": "Pusat Informasi",
+        "newRequest": "Tulis permintaan",
+        "runCheck": "Jalankan pemeriksaan manual",
+        "noTasksHint": "Gunakan tombol di atas untuk memulai; hasilnya disimpan di sini."
       }
     }
   }

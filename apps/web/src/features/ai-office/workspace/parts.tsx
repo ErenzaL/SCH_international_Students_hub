@@ -151,8 +151,45 @@ export function WorkspaceSection({ title, icon, action, children, testId }: {
   );
 }
 
-export function EmptyState({ children }: { children: React.ReactNode }) {
-  return <p className="rounded-xl bg-muted/60 p-3 text-sm text-muted-foreground" data-testid="desk-empty">{children}</p>;
+export interface NextStep {
+  label: string;
+  /** an in-app action (switch tab, open another desk, change a filter) */
+  onClick?: () => void;
+  /** a page of the Hub or an official site */
+  href?: string;
+}
+
+/** An empty result that says why it is empty AND what the student can do next. */
+export function EmptyState({ children, next = [] }: { children: React.ReactNode; next?: NextStep[] }) {
+  return (
+    <div className="space-y-2 rounded-xl bg-muted/60 p-3 text-sm text-muted-foreground" data-testid="desk-empty">
+      <p>{children}</p>
+      {next.length > 0 && (
+        <div className="flex flex-wrap gap-1.5" data-testid="next-steps">
+          {next.map((n) => n.href ? (
+            /^https?:\/\//.test(n.href)
+              ? <a key={n.label} href={n.href} target="_blank" rel="noopener noreferrer" className={NEXT_CLS}>{n.label} <ExternalLink className="size-3" aria-hidden /></a>
+              : <Link key={n.label} href={n.href} className={NEXT_CLS}>{n.label}</Link>
+          ) : (
+            <button key={n.label} type="button" onClick={n.onClick} className={NEXT_CLS}>{n.label}</button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const NEXT_CLS = "inline-flex min-h-9 items-center gap-1 rounded-full bg-background px-3 text-xs font-semibold text-primary ring-1 ring-primary/30 hover:bg-primary/5";
+
+/** Next steps every desk can offer: ask this desk in chat (when it has one) and reach a person through Sumin. */
+export function useCommonNextSteps(): { askChat: NextStep[]; human: NextStep } {
+  const ws = useWorkspace();
+  const t = useTranslations("office.ws.next");
+  const hasChat = ws.agent.interface?.tabs.includes("chat");
+  return {
+    askChat: hasChat ? [{ label: t("askInChat", { name: ws.agent.name }), onClick: () => ws.openTab("chat") }] : [],
+    human: { label: t("askPerson"), onClick: () => ws.onSelect("supporter-lead") },
+  };
 }
 
 export function LoadState({ loading, error, onRetry }: { loading: boolean; error: unknown; onRetry: () => void }) {
@@ -422,13 +459,14 @@ export function AgentTaskList({ tasks, types, onChanged, limit = 3, title }: {
 }) {
   const ws = useWorkspace();
   const t = useTranslations("office.agent");
+  const tWs = useTranslations("office.ws.next");
   const nameOf = (id: string) => ws.agents?.find((a) => a.id === id)?.name ?? id;
   if (!ws.signedIn) return null;
   const shown = (tasks ?? []).filter((x) => !types || types.includes(x.task_type)).slice(0, limit);
   return (
     <WorkspaceSection title={title} testId="agent-task-list">
       {tasks === null ? <p className="text-xs text-muted-foreground">{t("loading")}</p>
-        : shown.length === 0 ? <p className="text-xs text-muted-foreground">{t("noTasks")}</p> : (
+        : shown.length === 0 ? <p className="text-xs text-muted-foreground" data-testid="no-tasks">{t("noTasks")} {tWs("noTasksHint")}</p> : (
           <ul className="space-y-2">
             {shown.map((task) => <li key={task.id}><TaskCard task={task} nameOf={nameOf} onChanged={onChanged} /></li>)}
           </ul>

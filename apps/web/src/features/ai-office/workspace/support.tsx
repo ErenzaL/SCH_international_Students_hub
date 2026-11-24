@@ -197,6 +197,7 @@ function MyRequests() {
   const ws = useWorkspace();
   const t = useTranslations("office.ws.support");
   const tAgent = useTranslations("office.agent");
+  const tNext = useTranslations("office.ws.next");
   const data = useApi(`ws-requests:${ws.agent.id}`, () =>
     agentApi.tool(ws.agent.id, "get_support_request_status", { limit: 20 }, ws.language));
   const items = data.data?.result.items ?? [];
@@ -204,7 +205,7 @@ function MyRequests() {
     <div className="space-y-3" data-testid="ws-requests">
       <WorkspaceSection title={t("historyTitle")} action={<Button size="sm" variant="ghost" className="h-8 text-xs" onClick={data.reload}>{t("refresh")}</Button>}>
         <LoadState loading={data.loading && !data.data} error={data.error} onRetry={data.reload} />
-        {data.data && (items.length === 0 ? <EmptyState>{t("noRequests")}</EmptyState> : (
+        {data.data && (items.length === 0 ? <EmptyState next={[{ label: tNext("newRequest"), onClick: () => ws.openTab("request") }]}>{t("noRequests")}</EmptyState> : (
           <ul className="space-y-1.5">
             {items.map((r) => (
               <li key={r.id}>

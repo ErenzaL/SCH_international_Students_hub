@@ -37,6 +37,7 @@ function ReviewQueueInner() {
   const t = useTranslations("office.ws.review");
   const [status, setStatus] = useState<"candidate" | "imported" | "dismissed" | "all">("candidate");
   const [changedOnly, setChangedOnly] = useState(false);
+  const tNext = useTranslations("office.ws.next");
   const data = useApi(`ws-review:${ws.agent.id}:${status}:${changedOnly}`, () =>
     agentApi.tool(ws.agent.id, "review_candidates", { status, changed_only: changedOnly, limit: 50 }, ws.language));
   const items = data.data?.result.items ?? [];
@@ -51,7 +52,7 @@ function ReviewQueueInner() {
           {t("changedOnly")}
         </label>
         <LoadState loading={data.loading && !data.data} error={data.error} onRetry={data.reload} />
-        {data.data && (items.length === 0 ? <EmptyState>{t("empty")}</EmptyState> : (
+        {data.data && (items.length === 0 ? <EmptyState next={[{ label: tNext("runCheck"), onClick: () => ws.openTab("sources") }]}>{t("empty")}</EmptyState> : (
           <ul className="space-y-1.5">
             {items.map((item) => <li key={item.id}><AgentResultCard item={item} /></li>)}
           </ul>
@@ -90,7 +91,7 @@ function SourcesAdminInner() {
       {mon.data && (
         <>
           <WorkspaceSection title={t("schedules")} testId="schedules-admin">
-            {!mon.data.schedules_enabled_on_server && (
+            {mon.data.schedules_enabled_on_server === false && (
               <p className="rounded-lg bg-amber-50 p-2 text-xs text-amber-950 dark:bg-amber-950/30 dark:text-amber-100" data-testid="server-switch-off">
                 {t("serverOff")}
               </p>

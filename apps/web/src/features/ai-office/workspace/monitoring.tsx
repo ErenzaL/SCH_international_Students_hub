@@ -35,6 +35,7 @@ export function MonitoringWorkspace() {
     (await api.get<Page<AnnouncementSummary>>("/api/v1/announcements", { page_size: 5, display_language: locale })).items);
   const { tasks, reload } = useAgentTasks(ws.agent, ws.signedIn, ws.onChanged);
   const status = mon.data;
+  const tNext = useTranslations("office.ws.next");
   const checking = running || Boolean(status?.checking);
   const actionIds = ws.agent.interface?.task_actions ?? [];
   const isAdminAction = (id: string) => ws.agent.actions.some((a) => a.id === id && a.admin_only);
@@ -84,7 +85,7 @@ export function MonitoringWorkspace() {
       <WorkspaceSection title={t("recentTitle")} testId="recent-announcements"
         action={<Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => ws.openTab("notices")}>{t("allNotices")}</Button>}>
         <LoadState loading={recent.loading && !recent.data} error={recent.error} onRetry={recent.reload} />
-        {recent.data && (recent.data.length === 0 ? <EmptyState>{t("noRecent")}</EmptyState> : (
+        {recent.data && (recent.data.length === 0 ? <EmptyState next={[{ label: tNext("allAnnouncements"), href: "/announcements" }]}>{t("noRecent")}</EmptyState> : (
           <ul className="space-y-2">{recent.data.map((a) => <li key={a.id}><AnnouncementCard a={a} compact /></li>)}</ul>
         ))}
       </WorkspaceSection>
@@ -109,9 +110,10 @@ function SourcesPublic({ status }: { status: MonitoringStatus }) {
   const t = useTranslations("office.ws.mon");
   const tKinds = useTranslations("office.ws.sources.kinds");
   const tAgent = useTranslations("office.agent");
+  const tNext = useTranslations("office.ws.next");
   return (
     <WorkspaceSection title={t("sourcesTitle", { count: status.sources.length })} testId="monitored-sources">
-      {status.sources.length === 0 ? <EmptyState>{t("noSources")}</EmptyState> : (
+      {status.sources.length === 0 ? <EmptyState next={[{ label: tNext("allAnnouncements"), href: "/announcements" }]}>{t("noSources")}</EmptyState> : (
         <ul className="space-y-1.5">
           {status.sources.map((s) => (
             <li key={s.url} className="rounded-xl border border-border px-3 py-2 text-xs" data-testid="monitored-source">

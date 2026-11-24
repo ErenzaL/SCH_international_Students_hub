@@ -15,7 +15,7 @@ import { fmt } from "@/features/ai-office/agent-work";
 import { useWorkspace } from "@/features/ai-office/workspace/context";
 import {
   AdminStrip, AgentActionBar, AgentTaskList, EmptyState, FilterChips, LoadState, Notes, OpportunityCard, SignInPrompt,
-  WorkspaceSection, daysUntil,
+  WorkspaceSection, daysUntil, useCommonNextSteps,
 } from "@/features/ai-office/workspace/parts";
 import { useApi } from "@/lib/use-api";
 
@@ -46,6 +46,8 @@ export function OpportunitiesWorkspace() {
     agentApi.tool(ws.agent.id, "opportunity_search", { ...base, include_closed: showClosed }, ws.language));
   const monitor = useApi(`ws-mon:${ws.agent.id}`, () => agentApi.monitoring(ws.agent.id));
   const { tasks, reload } = useAgentTasks(ws.agent, ws.signedIn, ws.onChanged);
+  const tNext = useTranslations("office.ws.next");
+  const common = useCommonNextSteps();
 
   const officialAll = official.data?.result.items ?? [];
   // admins receive unreviewed candidates from the same tool: those belong to the Review tab, never to this list
@@ -83,7 +85,13 @@ export function OpportunitiesWorkspace() {
           ? <span className="text-[11px] text-muted-foreground" data-testid="opp-last-checked">{t("lastChecked", { when: fmt(monitor.data.last_checked_at) })}</span>
           : null}>
         <LoadState loading={loading} error={hub.error ?? official.error} onRetry={() => { hub.reload(); official.reload(); }} />
-        {!loading && !hub.error && (items.length === 0 ? <EmptyState>{q || kind !== "all" ? t("noMatch") : t("empty")}</EmptyState> : (
+        {!loading && !hub.error && (items.length === 0 ? <EmptyState next={q || kind !== "all" || !showClosed ? [
+          ...(q || kind !== "all" ? [{ label: tNext("clearFilters"), onClick: () => { setQ(""); setDraft(""); setKind("all"); } }] : []),
+          ...(!showClosed ? [{ label: tNext("includeClosed"), onClick: () => setShowClosed(true) }] : []),
+          ...common.askChat] : [
+          { label: tNext("scholarshipGuides"), href: "/knowledge?category=scholarships" }, ...common.askChat, common.human]}>
+          {q || kind !== "all" ? t("noMatch") : t("empty")}
+        </EmptyState> : (
           <ul className="space-y-2">
             {items.map((item, i) => <li key={`${item.href ?? item.id}-${i}`}><OpportunityCard item={item} /></li>)}
           </ul>

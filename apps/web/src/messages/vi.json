@@ -2697,6 +2697,26 @@
         "reviewed_discoveries": "Thông báo từ trang chính thức đã được nhân viên duyệt",
         "support_tickets": "Yêu cầu hỗ trợ của bạn",
         "agent_tasks": "Công việc của bạn tại bàn này"
+      },
+      "adminTabs": "Quản trị",
+      "next": {
+        "askInChat": "Hỏi {name} qua trò chuyện",
+        "askPerson": "Hỏi người thật (Sumin)",
+        "clearFilters": "Xóa bộ lọc",
+        "clearSearch": "Xóa tìm kiếm",
+        "includeClosed": "Gồm cả mục đã đóng",
+        "scholarshipGuides": "Hướng dẫn học bổng",
+        "showPast": "Xem sự kiện đã qua",
+        "showUpcoming": "Xem sự kiện sắp tới",
+        "allAnnouncements": "Tất cả thông báo",
+        "employmentGuides": "Hướng dẫn việc làm",
+        "careerNotices": "Thông báo của trường",
+        "guides": "Hướng dẫn",
+        "officialTopik": "Trang chính thức TOPIK",
+        "knowledgeCenter": "Trung tâm thông tin",
+        "newRequest": "Viết yêu cầu",
+        "runCheck": "Chạy kiểm tra thủ công",
+        "noTasksHint": "Dùng nút phía trên để bắt đầu; kết quả được lưu ở đây."
       }
     }
   }

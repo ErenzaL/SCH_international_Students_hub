@@ -123,17 +123,20 @@ export function OfficePanel({ c, minimized, onClose, onMinimize, onRestore, onSe
           </>
         )} />
       {tabs.length > 1 && (
-        <div role="tablist" aria-label={t("tabsLabel")} className="flex gap-1 overflow-x-auto border-b border-border px-2 py-1.5">
-          {tabs.map((id) => (
-            <button key={id} type="button" role="tab" aria-selected={tab === id} data-testid={`tab-${id}`}
-              onClick={() => setChosen(id)}
-              className={cn("min-h-9 shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold",
-                tab === id ? "bg-[#3D6A8C] text-white" : "text-[#4B5D73] hover:bg-muted dark:text-foreground",
-                ADMIN_TABS.has(id) && tab !== id && "text-violet-800 dark:text-violet-300")}>
-              {ADMIN_TABS.has(id) && <Lock className="mr-1 inline size-3" aria-hidden />}
-              {t(`tabs.${id}`)}
-            </button>
-          ))}
+        <div role="tablist" aria-label={t("tabsLabel")} className="border-b border-border px-2 py-1.5" data-testid="panel-tabs">
+          {/* phones scroll the tabs sideways; desktop wraps them so every tab stays visible */}
+          <div className="flex gap-1 overflow-x-auto md:flex-wrap md:overflow-visible">
+            {tabs.filter((id) => !ADMIN_TABS.has(id)).map((id) => <TabButton key={id} id={id} selected={tab === id} onSelect={setChosen} />)}
+          </div>
+          {/* admins: the review and source tools always have their own visible row (the API checks the role again) */}
+          {tabs.some((id) => ADMIN_TABS.has(id)) && (
+            <div className="mt-1 flex items-center gap-1 border-t border-dashed border-violet-200 pt-1 dark:border-violet-900" data-testid="admin-tabs">
+              <span className="flex items-center gap-1 px-1 text-[10px] font-bold uppercase tracking-wide text-violet-800 dark:text-violet-300">
+                <Lock className="size-3" aria-hidden /> {t("ws.adminTabs")}
+              </span>
+              {tabs.filter((id) => ADMIN_TABS.has(id)).map((id) => <TabButton key={id} id={id} selected={tab === id} onSelect={setChosen} admin />)}
+            </div>
+          )}
         </div>
       )}
       {tab === "chat" ? (
@@ -179,6 +182,24 @@ export function OfficePanel({ c, minimized, onClose, onMinimize, onRestore, onSe
 }
 
 const ADMIN_TABS = new Set<PanelTab>(["review", "sources"]);
+
+function TabButton({ id, selected, onSelect, admin = false }: {
+  id: PanelTab;
+  selected: boolean;
+  onSelect: (id: PanelTab) => void;
+  admin?: boolean;
+}) {
+  const t = useTranslations("office");
+  return (
+    <button type="button" role="tab" aria-selected={selected} data-testid={`tab-${id}`} onClick={() => onSelect(id)}
+      className={cn("min-h-9 shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold",
+        selected ? (admin ? "bg-violet-700 text-white" : "bg-[#3D6A8C] text-white")
+          : admin ? "text-violet-800 hover:bg-violet-50 dark:text-violet-300 dark:hover:bg-violet-950/40"
+            : "text-[#4B5D73] hover:bg-muted dark:text-foreground")}>
+      {t(`tabs.${id}`)}
+    </button>
+  );
+}
 
 export { Portrait };
 

@@ -2697,6 +2697,26 @@
         "reviewed_discoveries": "Official-website notices reviewed and approved by staff",
         "support_tickets": "Your own support requests",
         "agent_tasks": "Your own tasks with this desk"
+      },
+      "adminTabs": "Admin",
+      "next": {
+        "askInChat": "Ask {name} in chat",
+        "askPerson": "Ask a person (Sumin)",
+        "clearFilters": "Clear filters",
+        "clearSearch": "Clear search",
+        "includeClosed": "Include closed ones",
+        "scholarshipGuides": "Scholarship guides",
+        "showPast": "Show past events",
+        "showUpcoming": "Show upcoming events",
+        "allAnnouncements": "All announcements",
+        "employmentGuides": "Employment guides",
+        "careerNotices": "University announcements",
+        "guides": "Guides",
+        "officialTopik": "Official TOPIK site",
+        "knowledgeCenter": "Knowledge Center",
+        "newRequest": "Write a request",
+        "runCheck": "Run a manual check",
+        "noTasksHint": "Use the button above to start one; the result is kept here."
       }
     }
   }

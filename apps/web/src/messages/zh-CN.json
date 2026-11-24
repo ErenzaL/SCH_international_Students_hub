@@ -2697,6 +2697,26 @@
         "reviewed_discoveries": "经工作人员审核批准的官方网站公告",
         "support_tickets": "你自己的支持请求",
         "agent_tasks": "你在此服务台的任务"
+      },
+      "adminTabs": "管理员",
+      "next": {
+        "askInChat": "在对话中询问 {name}",
+        "askPerson": "询问真人（Sumin）",
+        "clearFilters": "清除筛选",
+        "clearSearch": "清除搜索",
+        "includeClosed": "包括已截止的",
+        "scholarshipGuides": "奖学金指南",
+        "showPast": "查看已结束的活动",
+        "showUpcoming": "查看即将开始的活动",
+        "allAnnouncements": "全部公告",
+        "employmentGuides": "就业指南",
+        "careerNotices": "学校公告",
+        "guides": "指南",
+        "officialTopik": "TOPIK 官方网站",
+        "knowledgeCenter": "知识中心",
+        "newRequest": "填写请求",
+        "runCheck": "运行手动检查",
+        "noTasksHint": "使用上方按钮开始；结果会保存在这里。"
       }
     }
   }

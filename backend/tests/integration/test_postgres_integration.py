@@ -49,7 +49,11 @@ class IT:
         self.settings = Settings(_env_file=None, supabase_url=REST, supabase_service_role_key=service_key,
                                  supabase_jwt_secret=SECRET, embedding_provider="hash",
                                  rate_limit_search_per_minute=1000, rate_limit_ingest_per_minute=1000,
-                                 rate_limit_public_per_minute=1000, job_execution="inline")
+                                 rate_limit_public_per_minute=1000, job_execution="inline",
+                                 # the scratch database is shared by repeated runs: the per-day machine-translation
+                                 # budget (a cost guard, covered by tests/test_auto_translation.py) must not make
+                                 # workflow tests depend on how often they ran today
+                                 translation_daily_job_limit=100_000)
         self.pages: dict[str, bytes] = {}
 
         def handler(req: httpx.Request) -> httpx.Response:
@@ -91,7 +95,9 @@ def test_end_to_end_against_real_database(it: IT):
     # seeded reference data + sample test data are visible through the real DB
     cats = c.get("/api/v1/categories").json()["items"]
     assert len(cats) == 11 and cats[0]["document_count"] is not None
-    sample = [x for x in c.get("/api/v1/announcements").json()["items"] if x["is_test_data"]]
+    # searched by title: repeated runs publish newer announcements that push the seed off the first page
+    sample = [x for x in c.get("/api/v1/announcements", params={"q": "SAMPLE - TEST DATA"}).json()["items"]
+              if x["is_test_data"]]
     assert sample and sample[0]["title"].startswith("[SAMPLE - TEST DATA]")
 
     # roles come from public.profiles
@@ -103,7 +109,9 @@ def test_end_to_end_against_real_database(it: IT):
 
     # register a source (unique url) -> duplicate maps to 409 through the unique index
     url = f"{ARTICLE_URL}?it={suffix}"
-    html = ARTICLE_HTML.replace("Visa and Stay", f"Visa and Stay {suffix}")
+    # a term only this run's document contains: earlier runs left documents with the same text in a shared database
+    html = ARTICLE_HTML.replace("Visa and Stay", f"Visa and Stay {suffix}").replace(
+        "Registration happens at the immigration office.", f"Registration happens at the immigration office (itref{suffix}).")
     it.pages[url] = html.encode()
     body = dict(title=f"IT source {suffix}", original_url=url, organization="Study in Korea (IT)", source_type="website",
                 authority_type="official_government", scope="national", category="visa-immigration", language="en")
@@ -121,7 +129,7 @@ def test_end_to_end_against_real_database(it: IT):
                     f"and extensions.vector_dims(embedding) = 384")
     assert job["statistics"]["chunk_count"] >= 1 and int(sql(embedded_sql)) == 0
     assert c.get("/api/v1/knowledge/documents", params={"q": f"Visa and Stay {suffix}"}).json()["total"] == 0  # pending => private
-    first = c.post("/api/v1/knowledge/search", json=dict(query="alien registration immigration"))
+    first = c.post("/api/v1/knowledge/search", json=dict(query=f"itref{suffix} alien registration immigration"))
     assert [r for r in first.json()["results"] if r["version_id"] == job["version_id"]] == []
 
     # DB-level authorization: a student actor id is refused inside the SQL function itself
@@ -133,7 +141,8 @@ def test_end_to_end_against_real_database(it: IT):
     assert ok.status_code == 202 and ok.json()["verification_status"] == "approved", ok.text
     assert int(sql(embedded_sql)) == job["statistics"]["chunk_count"]  # vector(384) rows written by the index job
     for mode in ("hybrid", "vector", "keyword"):
-        res = c.post("/api/v1/knowledge/search", json=dict(query="alien registration immigration office", mode=mode, top_k=20)).json()
+        res = c.post("/api/v1/knowledge/search", json=dict(query=f"itref{suffix} alien registration immigration office",
+                                                           mode=mode, top_k=20)).json()
         hit = [r for r in res["results"] if r["version_id"] == job["version_id"]]
         assert hit, (mode, res)
         assert hit[0]["source_url"] == url and hit[0]["organization"] == "Study in Korea (IT)"

@@ -80,6 +80,7 @@
    "category": "academic-life",
    "language": "ko",
    "config": {
+    "content_selector": "div.schedule-board",
     "max_items": 10
    },
    "validated_2026_11_24": {
@@ -192,6 +193,7 @@
    "category": "scholarships",
    "language": "ko",
    "config": {
+    "content_selector": "main#contents",
     "max_items": 10
    },
    "validated_2026_11_24": {

@@ -84,3 +84,7 @@ def test_discovery_round_trip_through_the_real_store(it: IT):
                    f"on d.id = v.document_id where d.source_id = '{ks}'").splitlines()[-1]
     assert statuses == "pending_review"
     assert sql(f"select status from discovered_items where id = '{sch['id']}'").splitlines()[-1] == "imported"
+
+    # clean up: the source points at a board name that only exists in this test's mock network; a later manual check
+    # in a shared database must never send it to the real site
+    assert it.client.delete(f"/api/v1/admin/discovery/sources/{src['id']}", headers=it.auth("admin")).status_code == 204

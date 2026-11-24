@@ -13,7 +13,7 @@ import { agentApi, useAgentTasks } from "@/features/ai-office/agent-api";
 import { useWorkspace } from "@/features/ai-office/workspace/context";
 import { byDeadline } from "@/features/ai-office/workspace/opportunities";
 import {
-  AgentTaskList, EmptyState, LoadState, Notes, OpportunityCard, WorkspaceSection,
+  AgentTaskList, EmptyState, LoadState, Notes, OpportunityCard, WorkspaceSection, useCommonNextSteps,
 } from "@/features/ai-office/workspace/parts";
 import { useApi } from "@/lib/use-api";
 
@@ -30,6 +30,9 @@ export function CareersWorkspace() {
     agentApi.tool(ws.agent.id, "opportunity_search", { ...base, kind: "job", limit: 20 }, ws.language));
   const { tasks, reload } = useAgentTasks(ws.agent, ws.signedIn, ws.onChanged);
   const external = ws.agent.tools.find((x) => x.name === "official_web_search");
+  const tNext = useTranslations("office.ws.next");
+  const common = useCommonNextSteps();
+  const guides = { label: tNext("employmentGuides"), onClick: () => ws.openTab("guides") };
   const notices = [...(hub.data?.result.items ?? [])].sort(byDeadline);
   // only reviewed + approved postings (admins also receive unreviewed candidates: those stay in review)
   const postings = (jobs.data?.result.items ?? []).filter((i) => i.reliability === "verified");
@@ -50,7 +53,8 @@ export function CareersWorkspace() {
 
       <WorkspaceSection title={t("noticesTitle", { count: notices.length })} testId="career-notices">
         <LoadState loading={hub.loading && !hub.data} error={hub.error} onRetry={hub.reload} />
-        {hub.data && (notices.length === 0 ? <EmptyState>{q ? t("noMatch") : t("noNotices")}</EmptyState> : (
+        {hub.data && (notices.length === 0 ? <EmptyState next={[...(q ? [{ label: tNext("clearSearch"), onClick: () => { setQ(""); setDraft(""); } }] : []),
+          guides, ...common.askChat]}>{q ? t("noMatch") : t("noNotices")}</EmptyState> : (
           <ul className="space-y-2">{notices.map((item, i) => <li key={`${item.href}-${i}`}><OpportunityCard item={item} /></li>)}</ul>
         ))}
         <Notes notes={hub.data?.result.notes.filter((n) => n !== "nothing_published") ?? []} />
@@ -58,7 +62,8 @@ export function CareersWorkspace() {
 
       <WorkspaceSection title={t("postingsTitle", { count: postings.length })} testId="career-postings">
         <LoadState loading={jobs.loading && !jobs.data} error={jobs.error} onRetry={jobs.reload} />
-        {jobs.data && (postings.length === 0 ? <EmptyState>{t("noPostings")}</EmptyState> : (
+        {jobs.data && (postings.length === 0 ? <EmptyState next={[{ label: tNext("careerNotices"), href: "/announcements" },
+          common.human]}>{t("noPostings")}</EmptyState> : (
           <ul className="space-y-2">{postings.map((item) => <li key={item.id}><OpportunityCard item={item} /></li>)}</ul>
         ))}
       </WorkspaceSection>

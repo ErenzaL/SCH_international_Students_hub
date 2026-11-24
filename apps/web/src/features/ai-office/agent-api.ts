@@ -105,10 +105,11 @@ export interface MonitoringStatus {
   supported: boolean;
   sources: MonitoredSource[];
   schedules: MonitoredSchedule[];
-  schedules_enabled_on_server: boolean;
   checking: boolean;
   last_checked_at: string | null;
   last_success_at: string | null;
+  // admins only
+  schedules_enabled_on_server?: boolean;
   candidates_waiting?: number;
 }
 

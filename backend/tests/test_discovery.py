@@ -600,6 +600,11 @@ def test_scheduled_runs_never_duplicate_and_failures_alert(env):
         s for s in env.store.select("agent_schedules")[0] if s["id"] == sched["id"])["last_error"].startswith("internal_error")
 
 
+PUBLIC_MONITORING_KEYS = {"agent_id", "supported", "sources", "schedules", "checking", "last_checked_at",
+                          "last_success_at"}
+PUBLIC_SCHEDULE_KEYS = {"task_type", "state", "interval_minutes", "last_run_at", "last_success_at", "next_run_at"}
+
+
 def test_monitoring_status_is_public_but_sanitised(env):
     board(env, NOTICES)
     admin_source(env)
@@ -609,9 +614,13 @@ def test_monitoring_status_is_public_but_sanitised(env):
     assert [s["health"] for s in pub["sources"]] == ["not_checked"]
     assert all(s["state"] == "disabled" and s["next_run_at"] is None for s in pub["schedules"])
     run_task(env, "announcement", "announcement_discovery")
-    for role in (None, "student"):
+    for role in (None, "student", "supporter"):
         out = env.client.get("/api/v1/agents/announcement/monitoring",
                              headers=env.auth(role) if role else {}).json()
+        # exact allowlists: anything added later must be a deliberate decision
+        assert set(out) == PUBLIC_MONITORING_KEYS, set(out) ^ PUBLIC_MONITORING_KEYS
+        assert all(set(s) == PUBLIC_SCHEDULE_KEYS for s in out["schedules"])
+        assert all(s["state"] in ("active", "disabled") for s in out["schedules"])
         src = out["sources"][0]
         assert set(src) == {"name", "url", "kind", "health", "last_checked_at", "last_success_at"}
         assert src["health"] == "ok" and out["last_checked_at"]
@@ -619,6 +628,14 @@ def test_monitoring_status_is_public_but_sanitised(env):
         assert all("id" not in s and "params" not in s and "last_error" not in s for s in out["schedules"])
     admin = env.client.get("/api/v1/agents/announcement/monitoring", headers=env.auth("admin")).json()
     assert admin["candidates_waiting"] >= 1 and admin["sources"][0]["consecutive_failures"] == 0
+    assert admin["schedules_enabled_on_server"] is False
+    # a schedule enabled while the server switch is off: admins see why it does not run, everyone else "disabled"
+    sched = next(s for s in admin["schedules"] if s["task_type"] == "announcement_discovery")
+    env.client.patch(f"/api/v1/admin/agent-schedules/{sched['id']}", headers=env.auth("admin"), json={"enabled": True})
+    assert next(s for s in env.client.get("/api/v1/agents/announcement/monitoring", headers=env.auth("admin")).json()
+                ["schedules"] if s["task_type"] == "announcement_discovery")["state"] == "off_on_server"
+    assert next(s for s in env.client.get("/api/v1/agents/announcement/monitoring").json()["schedules"]
+                if s["task_type"] == "announcement_discovery")["state"] == "disabled"
     assert all("id" in s and "enabled" in s for s in admin["schedules"])
     # a disabled source is not shown publicly; a failing one shows only "attention"
     env.client.patch(f"/api/v1/admin/discovery/sources/{sid}", headers=env.auth("admin"), json={"enabled": False})
@@ -628,3 +645,49 @@ def test_monitoring_status_is_public_but_sanitised(env):
     assert env.client.get("/api/v1/agents/nobody/monitoring").status_code == 404
     visa = env.client.get("/api/v1/agents/immigration/monitoring").json()
     assert visa["supported"] is False and visa["sources"] == [] and visa["schedules"] == []
+
+
+CALENDAR_URL = "https://home.sch.ac.kr/sch/05/010000.jsp"
+# the structure of the live academic-calendar page (2026-11-24): the site menu in <header><nav id="gnb2"> contains a
+# "홍보신청" (promotion request) link; the calendar is in div#sub_contents > div.schedule-board
+CALENDAR_HTML = """<html><body id="item_body"><div id="wrap" class="sub">
+<header><section><div id="gnb2"><nav><ul><li class="menu_depth1"><div class="menu_depth2"><ul>
+  <li class="menu_depth3"><a href="/sch/01/040100.jsp">대학홍보</a><ul><li><a href="/sch/01/040900.jsp">홍보신청</a></li></ul></li>
+</ul></div></li></ul></nav></div></section></header>
+<div id="sub_contents"><div id="board_wrap"><div class="jwxe_root schedule-board">
+  <a href="?year=2025">이전년도 보기</a><a href="?month=1">1월</a>
+  <div class="info"><div class="section month_1 active"><div class="list"><dl><dt>01.05(월) ~ 01.09(금)</dt>
+  <dd>2027학년도 1학기 수강신청 기간</dd></dl></div></div></div>
+</div></div></div>
+<footer><a href="/sch/apply.jsp">입학 신청</a></footer></div></body></html>"""
+
+
+def test_navigation_and_promotional_links_are_never_application_links(env):
+    from app.services.discovery.connectors import anchors
+    from app.services.discovery.extract import application_links
+
+    # no selector: the known content region is used and menus / footers are skipped
+    links = anchors(CALENDAR_HTML, CALENDAR_URL)
+    texts = [x["text"] for x in links]
+    assert "홍보신청" not in texts and "대학홍보" not in texts and "입학 신청" not in texts
+    assert "1월" in texts
+    # even when a page has no content region at all, links inside nav / header / footer / menus are skipped
+    bare = CALENDAR_HTML.replace('id="sub_contents"', 'id="x"').replace('schedule-board', 'x')
+    assert {x["text"] for x in anchors(bare, CALENDAR_URL)} >= {"1월"}
+    assert not {"홍보신청", "입학 신청"} & {x["text"] for x in anchors(bare, CALENDAR_URL)}
+    # site services that contain an "apply" word are not applications even inside content
+    assert application_links([{"text": "홍보신청", "href": "https://home.sch.ac.kr/a"},
+                              {"text": "로그인", "href": "https://home.sch.ac.kr/login"},
+                              {"text": "온라인 신청", "href": "https://forms.gle/x"}]) == [
+        dict(url="https://forms.gle/x", text="온라인 신청", kind="link")]
+
+
+def test_watched_page_uses_its_content_selector(env):
+    env.page(CALENDAR_URL, CALENDAR_HTML)
+    admin_source(env, name="순천향대학교 학사일정", kind="page", url=CALENDAR_URL,
+                 config={"content_selector": "div.schedule-board", "max_items": 10})
+    run_task(env, "announcement", "announcement_discovery")
+    items = env.client.get("/api/v1/admin/discovery/items", headers=env.auth("admin")).json()["items"]
+    cal = next(i for i in items if i["url"] == CALENDAR_URL)
+    assert cal["application_links"] == []
+    assert "수강신청 기간" in cal["excerpt"] and "대학홍보" not in cal["excerpt"]

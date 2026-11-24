@@ -13,7 +13,7 @@ import { useAgentTasks } from "@/features/ai-office/agent-api";
 import { useWorkspace } from "@/features/ai-office/workspace/context";
 import {
   AgentActionBar, AgentTaskList, AnnouncementCard, DeadlineDisplay, EmptyState, FilterChips, LoadState, SignInPrompt,
-  SourceCitation, WorkspaceSection, todayKst,
+  SourceCitation, WorkspaceSection, todayKst, useCommonNextSteps,
 } from "@/features/ai-office/workspace/parts";
 import { api } from "@/lib/api";
 import { useApi } from "@/lib/use-api";
@@ -47,6 +47,8 @@ export function EventsWorkspace() {
     return splitEvents(pages.flatMap((p) => p.items));
   });
   const { tasks, reload } = useAgentTasks(ws.agent, ws.signedIn, ws.onChanged);
+  const tNext = useTranslations("office.ws.next");
+  const common = useCommonNextSteps();
 
   if (open) return <EventDetail id={open} onBack={() => setOpen(null)} />;
 
@@ -67,7 +69,12 @@ export function EventsWorkspace() {
       )}
       <WorkspaceSection title={when === "upcoming" ? t("upcomingTitle") : t("pastTitle")} testId="events-list">
         <LoadState loading={data.loading && !data.data} error={data.error} onRetry={data.reload} />
-        {data.data && (shown.length === 0 ? <EmptyState>{when === "upcoming" ? t("noUpcoming") : t("noPast")}</EmptyState> : (
+        {data.data && (shown.length === 0 ? <EmptyState next={[
+          when === "upcoming" ? { label: tNext("showPast"), onClick: () => { setWhen("past"); setCategory("all"); } }
+            : { label: tNext("showUpcoming"), onClick: () => { setWhen("upcoming"); setCategory("all"); } },
+          { label: tNext("allAnnouncements"), href: "/announcements" }, ...common.askChat]}>
+          {when === "upcoming" ? t("noUpcoming") : t("noPast")}
+        </EmptyState> : (
           <ul className="space-y-2">{shown.map((a) => <li key={a.id}><AnnouncementCard a={a} onOpen={setOpen} /></li>)}</ul>
         ))}
         <p className="text-xs text-muted-foreground">{t("registrationNote")}</p>

@@ -65,7 +65,9 @@ def test_discovery_and_schedule_admin_endpoints(it: IT, role: str, expect: int):
     assert it.client.get("/api/v1/admin/discovery/sources", headers=it.auth(role)).status_code == expect
     assert it.client.get("/api/v1/admin/discovery/items", headers=it.auth(role)).status_code == expect
     assert it.client.get("/api/v1/admin/agent-schedules", headers=it.auth(role)).status_code == expect
-    r = task(it, role, "announcement", "announcement_discovery")
+    # scoped to a source that does not exist: the permission is what is tested, and the real sources a shared
+    # database may hold are never checked through this test's mock network
+    r = task(it, role, "announcement", "announcement_discovery", {"source_ids": ["00000000-0000-0000-0000-000000000000"]})
     assert r.status_code == (201 if expect == 200 else 403)
     r = it.client.post("/api/v1/agents/scholarship/tools", headers=it.auth(role), json=dict(tool="review_candidates"))
     assert r.status_code == expect
@@ -159,7 +161,11 @@ def test_workspace_interfaces_monitoring_and_discoveries_respect_roles(it: IT, r
     mon = it.client.get("/api/v1/agents/announcement/monitoring", headers=headers)
     assert mon.status_code == 200
     body = mon.json()
-    assert ("candidates_waiting" in body) is admin
+    assert ("candidates_waiting" in body) is admin and ("schedules_enabled_on_server" in body) is admin
+    if not admin:
+        assert set(body) == {"agent_id", "supported", "sources", "schedules", "checking", "last_checked_at",
+                             "last_success_at"}
+        assert all(s["state"] in ("active", "disabled") for s in body["schedules"])
     assert all(("last_error" in s and "id" in s) is admin for s in body["sources"])
     assert all(("params" in s) is admin for s in body["schedules"])
     # unreviewed discoveries never reach non-admins (whatever the database holds)

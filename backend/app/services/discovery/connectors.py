@@ -81,15 +81,38 @@ def _date(text: str | None) -> str | None:
         return None
 
 
-CONTENT_ROOTS = "main, article, .board_contents, .board_view, #contents, #content, .content, .view_td"
+CONTENT_ROOTS = ("main, article, .board_contents, .board_view, #contents, #content, #sub_contents, .content, "
+                 ".view_td")
+#: site chrome around the content: links inside it (menus, quick links, banners, footers) are never the notice's links
+CHROME_TAGS = {"nav", "header", "footer", "aside"}
+CHROME_ROLES = {"navigation", "banner", "contentinfo", "menu", "menubar", "search"}
+CHROME_NAMES = re.compile(r"(?:^|[-_])(?:gnb\d*|lnb|snb|tnb|nav|navi|navigation|menu|menu_depth\d*|quick|quickmenu|sitemap|"
+                          r"breadcrumb|location|util|banner|popup|footer|header|skip|family|sns|share)(?:$|[-_\d])",
+                          re.IGNORECASE)
+
+
+def in_chrome(el: Any, root: Any) -> bool:
+    """Whether a link sits in navigation / site chrome between itself and the content root."""
+    for p in el.parents:
+        if p is root or p is None or p.name in ("body", "html", "[document]"):
+            return False
+        if p.name in CHROME_TAGS or str(p.get("role") or "").lower() in CHROME_ROLES:
+            return True
+        names = [str(p.get("id") or ""), *(p.get("class") or [])]
+        if any(CHROME_NAMES.search(n) for n in names if n):
+            return True
+    return False
 
 
 def anchors(html: str, base: str, limit: int = 200, root_selector: str | None = None) -> list[dict[str, str]]:
-    """http(s) links of the page's main content (the whole body when there is no main region), as plain data."""
+    """http(s) links of the page's main content (the admin's content selector, else a known content region, else
+    the body), as plain data. Links in navigation, menus, banners or footers are never included."""
     soup = BeautifulSoup(html, "lxml")
     root = (soup.select_one(root_selector) if root_selector else None) or soup.select_one(CONTENT_ROOTS) or soup.body or soup
     out: list[dict[str, str]] = []
     for a in root.select("a[href]"):
+        if in_chrome(a, root):
+            continue
         url = urljoin(base, str(a["href"]))
         if url.startswith(("https://", "http://")):
             out.append({"text": re.sub(r"\s+", " ", a.get_text(" ", strip=True))[:200], "href": url[:1000]})
@@ -313,18 +336,30 @@ class Connectors:
 
     # ------------------------------------------------------------------------------- single page
     def _page(self, source: dict[str, Any]) -> ConnectorResult:
+        cfg = source.get("config") or {}
         res = self._get(source["url"], source.get("language"))
         if res.content_type == "application/pdf":
             text = self._pdf_text(res.content, res.url)
             entry = Entry(key=canonical(source["url"]), url=res.url, title=source["name"], published_on=None, text=text)
         else:
             html = decode_html(res.content)
-            doc = extract_html(res.content, res.url, res.encoding, 1)
+            soup = BeautifulSoup(html, "lxml")
+            body = soup.select_one(cfg["content_selector"]) if cfg.get("content_selector") else None
+            # only the part the admin named (a calendar, a program description), never menus or site buttons
+            doc = extract_html(str(body) if body is not None else res.content, res.url,
+                               None if body is not None else res.encoding, 1)
             # buttons that only show a message ("접수 기간이 아닙니다") are part of what the page says
-            notes = re.findall(r"showNotificationModal\('([^']{1,200})'\)", html)
+            notes = re.findall(r"showNotificationModal\('([^']{1,200})'\)", str(body) if body is not None else html)
             text = normalize_text(doc.text + ("\n\n" + "\n".join(dict.fromkeys(notes)) if notes else ""))
             # a watched page is named by the admin (page <title>s are site chrome) and has no reliable publication
             # date: what matters is whether its content changed
             entry = Entry(key=canonical(source["url"]), url=res.url, title=source["name"], published_on=None,
-                          text=text[:MAX_TEXT], links=anchors(html, res.url), flags=["watched_page"])
+                          text=text[:MAX_TEXT], links=anchors(html, res.url, root_selector=cfg.get("content_selector")),
+                          flags=["watched_page"])
+            if cfg.get("attachment_selector"):
+                box = soup.select_one(cfg["attachment_selector"])
+                if box is not None:
+                    entry.attachments = [{"name": a.get_text(" ", strip=True)[:300], "url": urljoin(res.url, str(a["href"]))}
+                                         for a in box.select("a[href]") if a.get_text(strip=True)
+                                         and urljoin(res.url, str(a["href"])).startswith(("https://", "http://"))][:10]
         return ConnectorResult([entry], entry.content_hash, 1)
