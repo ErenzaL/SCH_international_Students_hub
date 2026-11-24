@@ -644,7 +644,8 @@ def test_monitoring_status_is_public_but_sanitised(env):
                               headers=env.auth("admin")).json()["sources"]) == 1
     assert env.client.get("/api/v1/agents/nobody/monitoring").status_code == 404
     visa = env.client.get("/api/v1/agents/immigration/monitoring").json()
-    assert visa["supported"] is False and visa["sources"] == [] and visa["schedules"] == []
+    assert visa["supported"] is True and visa["sources"] == [] and all(x["state"] == "disabled" for x in visa["schedules"])
+    assert env.client.get("/api/v1/agents/reception/monitoring").json()["supported"] is False
 
 
 CALENDAR_URL = "https://home.sch.ac.kr/sch/05/010000.jsp"

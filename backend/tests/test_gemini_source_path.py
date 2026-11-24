@@ -140,7 +140,8 @@ def test_every_call_to_the_model_is_known():
         "services/translation/auto.py": 1,         # announcements: approved public text only
         "services/document_translations.py": 2,    # documents: approved public version only
         "services/agents/tools.py": 2,             # public announcement / document; text the student typed
-        "services/assistant/engine.py": 2,         # question rewrite; answer from searchable (approved) chunks
+        # question rewrite; answer from searchable (approved) chunks; the local model's second look at the cited passages
+        "services/assistant/engine.py": 3,
         "services/assistant/handoff.py": 1,        # the student's own conversation
         "services/discovery/service.py": 1,        # external official pages for administrators, not Hub content
     }

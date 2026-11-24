@@ -250,6 +250,8 @@ class Settings(BaseSettings):
     agent_tool_runs_per_minute: int = 30           # instant tool runs per user / client IP
     agent_task_timeout_seconds: int = 180          # a task that runs longer fails (checked between steps)
     agent_task_retention_days: int = 30            # finished tasks (and their step log) are deleted afterwards
+    # size limit of the database plan (free plan: 500 MB); only for the admin storage warnings
+    database_limit_mb: int = 500
     # master switch for scheduled agents. Even when true, each schedule runs only after an admin enables it.
     agent_schedules_enabled: bool = False
     # official-source discovery (Phase 3): polite, bounded checks of admin-configured official pages

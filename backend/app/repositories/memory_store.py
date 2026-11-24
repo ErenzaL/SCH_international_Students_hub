@@ -23,14 +23,14 @@ TABLES = (
     "notification_reads", "support_agent_status", "ai_conversations", "ai_messages", "support_tickets",
     "support_ticket_messages", "support_ticket_assignments", "user_notifications", "translation_revisions",
     "document_suppressions", "document_translations", "document_translation_revisions",
-    "agent_tasks", "agent_task_events", "agent_schedules", "discovery_sources", "discovered_items", "gpu_workers",
+    "agent_tasks", "agent_task_events", "agent_schedules", "discovery_sources", "discovered_items", "gpu_workers", "agent_controls",
 )
 NO_ID = {"agent_task_events", "categories", "profiles", "supporter_languages", "audit_log", "ingestion_events", "allowed_source_domains",
          "admin_notifications", "notification_reads", "support_agent_status", "support_ticket_assignments",
          "user_notifications", "translation_revisions", "document_suppressions", "document_translation_revisions"}
 SEQ_ID = {"agent_task_events", "audit_log", "ingestion_events", "admin_notifications", "support_ticket_assignments", "user_notifications",
           "translation_revisions", "document_suppressions", "document_translation_revisions"}
-HAS_UPDATED_AT = {"agent_tasks", "agent_schedules", "discovery_sources", "discovered_items", "knowledge_sources", "source_documents", "announcements", "announcement_translations",
+HAS_UPDATED_AT = {"agent_controls", "agent_tasks", "agent_schedules", "discovery_sources", "discovered_items", "knowledge_sources", "source_documents", "announcements", "announcement_translations",
                   "ai_conversations", "support_tickets", "profiles", "document_translations"}
 
 
@@ -85,6 +85,7 @@ class MemoryStore:
                                    started_at=None, completed_at=None, job_type="ingest", attempts=0, max_attempts=3,
                                    run_after=now_iso(), heartbeat_at=None, locked_by=None, source_title=None,
                                    executor="local", lease_token=None, lease_expires_at=None, cancel_requested=False),
+            "agent_controls": dict(paused=False, note=None, updated_by=None),
             "gpu_workers": dict(status="active", previous_token_hash=None, previous_valid_until=None, last_seen_at=None,
                                 created_by=None, rotated_at=None, revoked_at=None),
             "announcements": dict(publication_status="draft", original_language="ko", source_type="manual_text",
@@ -794,6 +795,13 @@ class MemoryStore:
                  lease_expires_at=(now + timedelta(seconds=max(p_lease_seconds, 30))).isoformat())
         return [j]
 
+    def _rpc_storage_overview(self) -> list[Row]:
+        """Mirror of public.storage_overview (0017): rough sizes of the in-memory rows."""
+        out = [dict(table_name=t, total_bytes=sum(len(str(r)) for r in rows), table_bytes=None, index_bytes=None, row_estimate=len(rows))
+               for t, rows in self.t.items()]
+        return [*out, dict(table_name="(database)", total_bytes=sum(r["total_bytes"] for r in out), table_bytes=None, index_bytes=None,
+                           row_estimate=None)]
+
     def _rpc_claim_agent_task(self, p_worker: str, p_stale_seconds: int = 300) -> list[Row]:
         """Mirror of public.claim_agent_task (migration 0014)."""
         now = datetime.now(UTC)
@@ -808,7 +816,8 @@ class MemoryStore:
                     else:
                         j.update(status="failed", locked_by=None, error_code="interrupted", completed_at=now_iso(),
                                  error_message="The worker stopped while this task was running and the retry limit was reached.")
-            queued = sorted((j for j in self.t["agent_tasks"] if j["status"] == "queued"
+            paused = {c["agent_id"] for c in self.t["agent_controls"] if c["paused"]}      # migration 0017
+            queued = sorted((j for j in self.t["agent_tasks"] if j["status"] == "queued" and j["agent_id"] not in paused
                              and datetime.fromisoformat(j["run_after"]) <= now), key=lambda j: j["created_at"])
             if not queued:
                 return []
@@ -1247,6 +1256,12 @@ def seed_categories(store: MemoryStore) -> None:
     # migration 0015: official-source monitoring, disabled
     for agent_id, task_type, minutes in (("announcement", "announcement_discovery", 720),
                                          ("scholarship", "opportunity_discovery", 1440)):
+        store.insert("agent_schedules", dict(agent_id=agent_id, task_type=task_type, interval_minutes=minutes, params=dict(
+            max_items_per_source=10, max_sources=5, notify_admins=True, summarize_new=False, review="admin")))
+    # migration 0017: monitoring of the other desks, disabled
+    for agent_id, task_type, minutes in (("immigration", "guidance_discovery", 2880), ("academic", "guidance_discovery", 1440),
+                                         ("topik", "guidance_discovery", 2880), ("events", "event_discovery", 1440),
+                                         ("career", "opportunity_discovery", 1440)):
         store.insert("agent_schedules", dict(agent_id=agent_id, task_type=task_type, interval_minutes=minutes, params=dict(
             max_items_per_source=10, max_sources=5, notify_admins=True, summarize_new=False, review="admin")))
 

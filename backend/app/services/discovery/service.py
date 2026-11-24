@@ -40,6 +40,12 @@ def _norm_title(t: str) -> str:
     return re.sub(r"[\W_]+", "", t.lower())
 
 
+def _desk(agent_id: str) -> str:
+    from app.services.agents.registry import AGENTS
+
+    return AGENTS[agent_id].character_id if agent_id in AGENTS else "guide-bot"
+
+
 def authority_for(url: str) -> tuple[str, str]:
     host = (urlsplit(url).hostname or "").lower()
     if host.endswith("sch.ac.kr"):
@@ -299,7 +305,7 @@ class DiscoveryService:
                    published_on=it.get("published_on"), category=it.get("category"),
                    opportunity_kind=it.get("opportunity_kind"), open_status=it["open_status"],
                    open_reason=f.get("open_reason"), next_deadline=f.get("next_deadline"),
-                   deadline=f.get("next_deadline"), deadlines=f.get("deadlines") or [],
+                   deadline=f.get("next_deadline"), event_date=f.get("event_date"), deadlines=f.get("deadlines") or [],
                    eligibility=f.get("eligibility") or [], application_links=f.get("application_links") or [],
                    flags=f.get("flags") or [], change=it["change"], first_seen_at=it["first_seen_at"],
                    last_seen_at=it["last_seen_at"], last_checked_at=src.get("last_checked_at"),
@@ -319,7 +325,7 @@ class DiscoveryService:
 
     def opportunities(self, *, q: str | None = None, kinds: list[str] | None = None, include_closed: bool = False,
                       limit: int = 20, approved_documents: Callable[[list[str]], dict[str, str]] | None = None,
-                      reviewed_only: bool = True) -> list[dict[str, Any]]:
+                      reviewed_only: bool = True, agent_id: str | None = None) -> list[dict[str, Any]]:
         """Official items classified as opportunities, never dismissed ones or duplicates.
 
         An item an admin sent to review whose Knowledge Center version has since been approved is shown as verified,
@@ -327,9 +333,15 @@ class DiscoveryService:
         ``reviewed_only`` (everyone but admins) ONLY such items are returned; admins also get the unreviewed
         candidates, labelled unverified (official site, not reviewed by staff)."""
         statuses = ["imported"] if reviewed_only else ["candidate", "imported"]
+        in_: dict[str, list[Any]] = {"status": statuses}
+        if kinds:
+            in_["opportunity_kind"] = kinds
+        if agent_id:
+            in_["source_id"] = [s["id"] for s in self.list_sources(agent_id)]
+            if not in_["source_id"]:
+                return []
         rows, _ = self.store.select("discovered_items", Query(
-            in_={"opportunity_kind": kinds or ["scholarship", "competition", "program", "job"], "status": statuses},
-            is_null={"duplicate_of": True}, order=[("last_changed_at", True)], limit=200))
+            in_=in_, is_null={"duplicate_of": True}, order=[("last_changed_at", True)], limit=200))
         imported = sorted({r["imported_source_id"] for r in rows if r.get("imported_source_id")})
         approved = approved_documents(imported) if approved_documents and imported else {}
         if reviewed_only:
@@ -426,7 +438,7 @@ class DiscoveryService:
         self.notifications.notify(
             "discovery_candidates", f"{new} new and {updated} changed official notices to review ({agent_id})",
             "Found by the AI Office monitoring. Nothing is published until an admin reviews it.",
-            link="/ai-office?desk=" + ("guide-bot" if agent_id == "announcement" else "opportunities"))
+            link="/ai-office?desk=" + _desk(agent_id))
 
     def purge(self) -> int:
         """Dismissed candidates that have not been seen for 90 days are removed."""

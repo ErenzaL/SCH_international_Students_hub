@@ -9,6 +9,7 @@ import pytest
 from app.repositories.base import Query
 from app.services.agents.registry import AGENTS, CHARACTER_TO_AGENT
 from app.services.agents.router import plan_request
+from app.services.agents.tasks import DISCOVERY_AGENTS
 from app.services.agents.tools import TOOLS, extract_dates
 from app.services.llm.base import LLMError, ScriptedLLMProvider
 from tests.test_announcements import create
@@ -56,7 +57,10 @@ def test_every_office_character_maps_to_one_registered_agent():
     assert AGENTS["supporter-vi"].fixed_language == "vi" and AGENTS["supporter-zh"].fixed_language == "zh-CN"
     # specialists cannot write; only the coordinator can create (approved) support requests
     writers = [a.id for a in AGENTS.values() if any(TOOLS[t].writes for t in a.allowed_tools)]
-    assert writers == ["support-coordinator"]
+    assert writers == [f"supporter-{x}" for x in ("ko", "en", "id", "vi", "zh")] + ["support-coordinator"]
+    # ... and the supporters' only write is a machine DRAFT that staff request for review
+    assert {t for a in AGENTS.values() if a.id.startswith("supporter-") for t in a.allowed_tools if TOOLS[t].writes} == {"request_translation_draft"}
+    assert TOOLS["request_translation_draft"].roles == ("supporter", "admin", "super_admin")
 
 
 EXPECTED_INTERFACES = {
@@ -83,8 +87,8 @@ def test_every_agent_has_a_role_specific_interface(env):
             assert set(ui["task_actions"]) <= {x["id"] for x in items[agent_id]["actions"]}
             # admin tabs and admin actions only for admins (the endpoints check the role again)
             admin_tabs = {"review", "sources"} & set(ui["tabs"])
-            assert bool(admin_tabs) == (role == "admin" and kind in ("DISCOVERY", "MONITORING")
-                                        and agent_id in ("scholarship", "announcement")), (agent_id, role)
+            assert bool(admin_tabs) == (role == "admin" and agent_id in DISCOVERY_AGENTS), (agent_id, role)
+            assert ("queue" in ui["tabs"]) == (role == "admin" and (agent_id.startswith("supporter-") or agent_id == "support-coordinator"))
             if role != "admin":
                 assert "check_official_sources" not in ui["task_actions"]
     # only Hana and the language supporters are chat-first
@@ -469,7 +473,7 @@ def cron(env):  # type: ignore[no-untyped-def]
 def test_schedules_are_disabled_by_default_and_need_both_switches(env):
     env.settings.cron_secret = "s3cret-value"
     s = env.client.get("/api/v1/admin/agent-schedules", headers=env.auth("admin")).json()
-    assert s["globally_enabled"] is False and len(s["items"]) == 6 and not any(x["enabled"] for x in s["items"])
+    assert s["globally_enabled"] is False and len(s["items"]) == 11 and not any(x["enabled"] for x in s["items"])
     assert env.client.get("/api/v1/admin/agent-schedules", headers=env.auth("student")).status_code == 403
     assert cron(env).json()["agent_schedules"] == dict(enabled=False, queued=0)
     events = next(x for x in s["items"] if x["agent_id"] == "events")

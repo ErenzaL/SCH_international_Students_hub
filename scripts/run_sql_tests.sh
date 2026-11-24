@@ -14,4 +14,5 @@ $PSQL -q -c "drop database if exists \"$DB\"" -c "create database \"$DB\""
 for f in scripts/local_supabase_shim.sql supabase/migrations/*.sql supabase/seed.sql; do
   echo "applying $f"; $PSQL -q -v ON_ERROR_STOP=1 -d "$DB" -f "$f"
 done
+export PGOPTIONS="${PGOPTIONS:-} -c client_min_messages=warning"
 for t in supabase/tests/behavior_test*.sql; do $PSQL -q -t -A -d "$DB" -f "$t" | tail -1; done

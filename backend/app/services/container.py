@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from app.core.config import Settings
 from app.core.rate_limit import DailyBudget
 from app.repositories.base import FileStorage, Store
+from app.services.agents.operations import AgentOperations
 from app.services.agents.tasks import AgentTaskService
 from app.services.announcements import AnnouncementService
 from app.services.conversations import ConversationService
@@ -63,6 +64,7 @@ class Services:
     announcement_translator: AnnouncementAutoTranslator
     discovery: DiscoveryService = None  # type: ignore[assignment]
     agents: AgentTaskService = None  # type: ignore[assignment]  # set right after construction (needs Services)
+    operations: AgentOperations = None  # type: ignore[assignment]
     gpu: GpuWorkerService = None  # type: ignore[assignment]  # set right after construction (needs Services)
     #: per-day attempt budget of background AI work (the chatbot's quota reserve)
     background_budget: DailyBudget | None = None
@@ -117,5 +119,6 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     services.background_budget = background_budget
     services.agents = jobs.agents = AgentTaskService(services)
     services.gpu = jobs.gpu = GpuWorkerService(services)
+    services.operations = AgentOperations(services)
     services.agents.worker_id = jobs.worker_id
     return services
