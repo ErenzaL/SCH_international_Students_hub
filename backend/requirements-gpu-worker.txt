@@ -1,0 +1,2 @@
+httpx>=0.27
+# GPU worker on the university server (python -m app.gpu_worker): nothing else is needed, in particular no database client
