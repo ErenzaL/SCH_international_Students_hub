@@ -2463,7 +2463,9 @@
         "llm_background_budget": "오늘의 요약·번역 AI 사용량을 모두 썼어요 (대화는 계속 이용할 수 있어요). 내일 다시 시도하거나 원문을 확인하세요.",
         "check_running": "이 공식 웹사이트 확인이 이미 진행 중이에요. 끝나면 결과가 여기에 표시돼요.",
         "agent_paused": "관리자가 이 데스크를 일시 중지했습니다.",
-        "staff_only": "글로벌 서포터와 관리자만 사용할 수 있습니다."
+        "staff_only": "글로벌 서포터와 관리자만 사용할 수 있습니다.",
+        "api_key_missing": "제공 기관의 API 키가 없습니다.",
+        "api_key_invalid": "API 키가 유효하지 않습니다."
       },
       "tools": {
         "rag_search": "승인된 안내 검색",
@@ -2693,7 +2695,9 @@
         "kinds": {
           "sch_board": "대학 게시판",
           "listing": "목록 페이지",
-          "page": "단일 페이지"
+          "page": "단일 페이지",
+          "saramin_api": "사람인(공식 API)",
+          "data_go_kr_jobs": "공공기관 채용(공식 API)"
         },
         "failures": "연속 실패 {count}회",
         "disable": "끄기",

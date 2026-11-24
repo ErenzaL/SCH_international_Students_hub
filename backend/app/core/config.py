@@ -255,6 +255,9 @@ class Settings(BaseSettings):
     # master switch for scheduled agents. Even when true, each schedule runs only after an admin enables it.
     agent_schedules_enabled: bool = False
     # official-source discovery (Phase 3): polite, bounded checks of admin-configured official pages
+    # official recruitment APIs (app/services/discovery/job_apis.py); empty = the source is shown as blocked
+    saramin_access_key: str = Field(default="", repr=False)
+    data_go_kr_service_key: str = Field(default="", repr=False)
     discovery_max_items: int = 10                   # items read per source per check (hard cap 30)
     discovery_max_sources: int = 10                 # sources per task
     discovery_min_check_interval_seconds: int = 600 # a manual re-check sooner than this reuses the last results

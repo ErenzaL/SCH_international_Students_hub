@@ -2463,7 +2463,9 @@
         "llm_background_budget": "今天用于摘要和翻译的 AI 额度已用完（对话仍可使用）。请明天再试或阅读原文。",
         "check_running": "这些官方网站的检查正在进行中，完成后结果会显示在这里。",
         "agent_paused": "该服务台已被管理员暂停。",
-        "staff_only": "仅限全球支持者和管理员使用。"
+        "staff_only": "仅限全球支持者和管理员使用。",
+        "api_key_missing": "缺少提供方的 API 密钥。",
+        "api_key_invalid": "API 密钥无效。"
       },
       "tools": {
         "rag_search": "搜索已审核指南",
@@ -2693,7 +2695,9 @@
         "kinds": {
           "sch_board": "大学公告栏",
           "listing": "列表页面",
-          "page": "单个页面"
+          "page": "单个页面",
+          "saramin_api": "Saramin（官方 API）",
+          "data_go_kr_jobs": "公共机构（官方 API）"
         },
         "failures": "连续失败 {count} 次",
         "disable": "停用",

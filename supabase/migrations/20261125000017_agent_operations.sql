@@ -1,7 +1,7 @@
 -- =============================================================================
 -- 0017  Agent operations. ADDITIVE; nothing is enabled.
 --   * official sources and (disabled) schedules for the other desks: immigration, academic, topik, events, career;
---   * 'event' as a kind of a discovered item;
+--   * 'event' as a kind of a discovered item; two official recruitment APIs as kinds of a source (keys stay in the API's environment);
 --   * agent_controls: an admin can pause a desk (its tasks wait, nothing new is started);
 --   * storage_overview(): sizes of the Hub's tables, service role only.
 -- Independent of 0016. The application works without this migration (the new desks then have no sources).
@@ -10,6 +10,9 @@
 alter table public.discovery_sources drop constraint if exists discovery_sources_agent_id_check;
 alter table public.discovery_sources add constraint discovery_sources_agent_id_check
   check (agent_id in ('announcement', 'scholarship', 'career', 'events', 'immigration', 'academic', 'topik'));
+alter table public.discovery_sources drop constraint if exists discovery_sources_kind_check;
+alter table public.discovery_sources add constraint discovery_sources_kind_check
+  check (kind in ('sch_board', 'listing', 'page', 'saramin_api', 'data_go_kr_jobs'));
 alter table public.discovered_items drop constraint if exists discovered_items_opportunity_kind_check;
 alter table public.discovered_items add constraint discovered_items_opportunity_kind_check
   check (opportunity_kind in ('scholarship', 'competition', 'program', 'job', 'event'));

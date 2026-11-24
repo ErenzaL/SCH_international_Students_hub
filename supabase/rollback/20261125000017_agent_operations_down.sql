@@ -5,7 +5,9 @@ delete from public.agent_tasks where task_type in ('guidance_discovery', 'event_
    or (agent_id = 'career' and task_type = 'opportunity_discovery');
 delete from public.agent_schedules where task_type in ('guidance_discovery', 'event_discovery')
    or (agent_id = 'career' and task_type = 'opportunity_discovery');
-delete from public.discovery_sources where agent_id in ('immigration', 'academic', 'topik');
+delete from public.discovery_sources where agent_id in ('immigration', 'academic', 'topik') or kind in ('saramin_api', 'data_go_kr_jobs');
+alter table public.discovery_sources drop constraint if exists discovery_sources_kind_check;
+alter table public.discovery_sources add constraint discovery_sources_kind_check check (kind in ('sch_board', 'listing', 'page'));
 update public.discovered_items set opportunity_kind = 'program' where opportunity_kind = 'event';
 alter table public.discovered_items drop constraint if exists discovered_items_opportunity_kind_check;
 alter table public.discovered_items add constraint discovered_items_opportunity_kind_check

@@ -2463,7 +2463,9 @@
         "llm_background_budget": "Today's AI budget for summaries and translations is used up (the chat keeps working). Try again tomorrow or read the original.",
         "check_running": "A check of these official websites is already running. Its result will appear here when it finishes.",
         "agent_paused": "This desk is paused by an administrator.",
-        "staff_only": "Only Global Supporters and administrators can use this."
+        "staff_only": "Only Global Supporters and administrators can use this.",
+        "api_key_missing": "An API key from the provider is missing.",
+        "api_key_invalid": "The API key was not accepted."
       },
       "tools": {
         "rag_search": "Search approved guides",
@@ -2693,7 +2695,9 @@
         "kinds": {
           "sch_board": "University board",
           "listing": "List page",
-          "page": "Single page"
+          "page": "Single page",
+          "saramin_api": "Saramin (official API)",
+          "data_go_kr_jobs": "Public institutions (official API)"
         },
         "failures": "{count, plural, one {# failed check} other {# failed checks}} in a row",
         "disable": "Disable",

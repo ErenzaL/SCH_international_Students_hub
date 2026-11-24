@@ -2463,7 +2463,9 @@
         "llm_background_budget": "Kuota AI hari ini untuk ringkasan dan terjemahan sudah habis (chat tetap berfungsi). Coba lagi besok atau baca teks aslinya.",
         "check_running": "Pemeriksaan situs resmi ini sedang berjalan. Hasilnya akan muncul di sini setelah selesai.",
         "agent_paused": "Meja ini dijeda oleh administrator.",
-        "staff_only": "Hanya Global Supporter dan administrator yang dapat memakai ini."
+        "staff_only": "Hanya Global Supporter dan administrator yang dapat memakai ini.",
+        "api_key_missing": "Kunci API dari penyedia belum ada.",
+        "api_key_invalid": "Kunci API tidak diterima."
       },
       "tools": {
         "rag_search": "Cari panduan yang disetujui",
@@ -2693,7 +2695,9 @@
         "kinds": {
           "sch_board": "Papan universitas",
           "listing": "Halaman daftar",
-          "page": "Satu halaman"
+          "page": "Satu halaman",
+          "saramin_api": "Saramin (API resmi)",
+          "data_go_kr_jobs": "Lembaga publik (API resmi)"
         },
         "failures": "{count} kali gagal berturut-turut",
         "disable": "Nonaktifkan",

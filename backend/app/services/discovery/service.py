@@ -21,12 +21,13 @@ from app.core.config import Settings
 from app.core.errors import AppError, Conflict, InvalidState, NotFound, ValidationFailed
 from app.repositories.base import Query, Store, get_one
 from app.services.announcements import today_kst
-from app.services.discovery.connectors import Connectors, Entry, canonical, validate_config
+from app.services.discovery.connectors import API_KINDS, Connectors, Entry, canonical, validate_config
 from app.services.discovery.extract import analyse
+from app.services.discovery.job_apis import HOME
 from app.services.ingestion.errors import ExtractionError, FetchError
 
 log = logging.getLogger("app.discovery")
-BLOCKED = {"robots_disallowed", "http_401", "http_403", "http_406", "http_429"}
+BLOCKED = {"api_key_missing", "api_key_invalid", "robots_disallowed", "http_401", "http_403", "http_406", "http_429"}
 MAX_FAILURES = 5          # a source failing this many times in a row is skipped by scheduled checks
 EXCERPT = 6000
 
@@ -63,6 +64,7 @@ class DiscoveryService:
         self.notifications = notifications
         self.connectors = Connectors(fetcher, delay_seconds=settings.board_request_delay_seconds,
                                      default_items=settings.discovery_max_items)
+        self.connectors.settings = settings
         self.sources_service: Any = None     # SourceService (send to review)
         self.ingestion: Any = None
         self.jobs: Any = None
@@ -86,7 +88,10 @@ class DiscoveryService:
         return validate_url_syntax(url, self.domains.domains())    # allowlist (env + admin-managed) + syntax rules
 
     def create_source(self, admin_id: str, data: dict[str, Any]) -> dict[str, Any]:
-        url = self._validate_url(data["url"])
+        # the two official APIs have fixed addresses; everything else must be on the allowlist
+        url = HOME[data["kind"]] if data["kind"] in API_KINDS else self._validate_url(data["url"])
+        if data["kind"] in API_KINDS and data["agent_id"] != "career":
+            raise ValidationFailed("Recruitment APIs belong to the career desk.")
         config = validate_config(data["kind"], url, data.get("config") or {})
         row = dict(agent_id=data["agent_id"], name=data["name"].strip(), kind=data["kind"], url=url, config=config,
                    category=data.get("category"), language=data.get("language") or "ko",
@@ -411,6 +416,8 @@ class DiscoveryService:
             raise InvalidState("This item has no page of its own on the official site (it opens through a script). "
                                "Add it manually from the original notice.")
         src = get_one(self.store, "discovery_sources", id=it["source_id"]) or {}
+        if "api_item" in ((it.get("extracted") or {}).get("flags") or []):
+            return self._api_item_to_review(admin_id, it, src)
         authority, scope = authority_for(it["url"])
         category = it.get("category") or src.get("category") or "university-announcements"
         existing = get_one(self.store, "knowledge_sources", original_url=self._validate_url(it["url"]))
@@ -431,6 +438,22 @@ class DiscoveryService:
         self._audit(admin_id, "discovered_item.send_to_review", item_id,
                     dict(knowledge_source_id=ks["id"], job_id=job["id"] if job else None))
         return dict(item=self.view(row, admin=True), knowledge_source_id=ks["id"], job_id=job["id"] if job else None)
+
+    def _api_item_to_review(self, admin_id: str, it: dict[str, Any], src: dict[str, Any]) -> dict[str, Any]:
+        """A posting from an official API: its few facts and the link become a pending_review text (the page itself is never
+        fetched). It leaves search on its deadline."""
+        facts = it.get("extracted") or {}
+        ks = self.sources_service.create(dict(
+            title=it["title"][:200], original_url=None, organization=(src.get("name") or "Official API")[:200], source_type="manual_text",
+            authority_type="other", scope="national", category="employment-internships", language="ko", sync_frequency="manual", is_active=True), admin_id)
+        job = self.ingestion.ingest_text(ks, title=it["title"][:200], text=it.get("text_excerpt") or it["title"], requested_by=admin_id, external_id=it["item_key"][:200])
+        if job.get("version_id") and facts.get("next_deadline"):
+            end = datetime.fromisoformat(f"{facts['next_deadline']}T23:59:59+09:00").astimezone(UTC).isoformat()
+            self.store.update("document_versions", {"valid_until": end}, {"id": job["version_id"], "verification_status": "pending_review"})
+        row = self.store.update("discovered_items", dict(status="imported", imported_source_id=ks["id"], reviewed_by=admin_id, reviewed_at=now_iso()),
+                                {"id": it["id"]})[0]
+        self._audit(admin_id, "discovered_item.send_to_review", it["id"], dict(knowledge_source_id=ks["id"], job_id=job["id"], api_item=True))
+        return dict(item=self.view(row, admin=True), knowledge_source_id=ks["id"], job_id=job["id"])
 
     def notify_new(self, agent_id: str, new: int, updated: int) -> None:
         if self.notifications is None or not (new or updated):

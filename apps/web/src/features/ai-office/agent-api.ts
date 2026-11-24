@@ -76,7 +76,7 @@ export interface AgentInfo {
 export interface MonitoredSource {
   name: string;
   url: string;
-  kind: "sch_board" | "listing" | "page";
+  kind: "sch_board" | "listing" | "page" | "saramin_api" | "data_go_kr_jobs";
   health: "ok" | "attention" | "not_checked";
   last_checked_at: string | null;
   last_success_at: string | null;
