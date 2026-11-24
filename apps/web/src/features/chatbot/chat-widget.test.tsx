@@ -203,3 +203,56 @@ describe("ChatWidget on phones", () => {
   });
 });
 
+
+describe("AI assistant launcher", () => {
+  it("says it is an AI assistant and introduces itself in a bubble at intervals, a few times per visit", async () => {
+    vi.useFakeTimers();
+    try {
+      const { NUDGE } = await import("@/features/chatbot/chat-widget");
+      renderWithIntl(<ChatWidget />);
+      expect(screen.getByTestId("chat-launcher")).toHaveTextContent("AI assistant");
+      expect(screen.queryByTestId("assistant-nudge")).toBeNull();
+      act(() => { vi.advanceTimersByTime(NUDGE.firstMs); });
+      expect(screen.getByTestId("assistant-nudge")).toHaveTextContent("I'm the SCH AI assistant");
+      act(() => { vi.advanceTimersByTime(NUDGE.showMs); });
+      expect(screen.queryByTestId("assistant-nudge")).toBeNull();
+      act(() => { vi.advanceTimersByTime(NUDGE.everyMs - NUDGE.showMs); });
+      expect(screen.getByTestId("assistant-nudge")).toHaveTextContent("visas, dormitories or scholarships");
+      // closing a bubble stops it for the rest of the visit
+      act(() => { screen.getByTestId("assistant-nudge-close").click(); });
+      act(() => { vi.advanceTimersByTime(NUDGE.everyMs * 3); });
+      expect(screen.queryByTestId("assistant-nudge")).toBeNull();
+      expect(sessionStorage.getItem("sch-assistant-nudge")).toBe("done");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("stops after the per-visit maximum and opens the chat when the bubble is clicked", async () => {
+    vi.useFakeTimers();
+    try {
+      const { NUDGE } = await import("@/features/chatbot/chat-widget");
+      renderWithIntl(<ChatWidget />);
+      let seen = 0;
+      act(() => { vi.advanceTimersByTime(NUDGE.firstMs); });
+      for (let i = 0; i < NUDGE.maxPerSession + 2; i++) {
+        if (screen.queryByTestId("assistant-nudge")) seen += 1;
+        act(() => { vi.advanceTimersByTime(NUDGE.everyMs); });
+      }
+      expect(seen).toBe(NUDGE.maxPerSession);
+    } finally {
+      vi.useRealTimers();
+    }
+    sessionStorage.clear();
+    vi.useFakeTimers();
+    try {
+      const { NUDGE } = await import("@/features/chatbot/chat-widget");
+      renderWithIntl(<ChatWidget />);
+      act(() => { vi.advanceTimersByTime(NUDGE.firstMs); });
+      act(() => { screen.getAllByTestId("assistant-nudge")[0].querySelector("button")!.click(); });
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});

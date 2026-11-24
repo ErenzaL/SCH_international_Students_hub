@@ -456,7 +456,15 @@
     "supportLanguage": "Bahasa dukungan pilihan",
     "chooseLanguage": "Pilih bahasa…",
     "supportLanguageHelp": "Digunakan untuk situs web, asisten AI, dan untuk mengarahkan permintaan dukungan Anda ke Global Supporter yang menggunakan bahasa tersebut. Anda dapat mengubahnya nanti di Pengaturan akun.",
-    "displayName": "Nama tampilan (opsional)"
+    "displayName": "Nama tampilan (opsional)",
+    "audienceLabel": "Siapa yang masuk",
+    "studentTab": "Mahasiswa",
+    "staffTab": "Staf",
+    "staffTitle": "Masuk sebagai staf",
+    "studentNote": "Masuk untuk menyimpan percakapan, mengirim permintaan ke Global Supporter, dan memantau tugas Anda. Akun baru adalah akun mahasiswa.",
+    "staffNote": "Untuk administrator dan Global Supporter. Gunakan akun yang telah diberi akses staf oleh super admin.",
+    "staffNoSignup": "Akun staf tidak dapat dibuat di sini. Akses diberikan oleh super admin ke akun yang sudah ada; hubungi super admin jika Anda membutuhkannya.",
+    "notStaff": "Akun ini tidak memiliki akses staf. Minta super admin untuk memberikannya, atau masuk sebagai mahasiswa."
   },
   "admin": {
     "title": "Administrasi",
@@ -1840,7 +1848,12 @@
       "rateLimited": "Anda mengirim pesan terlalu cepat. Mohon tunggu sebentar lalu coba lagi.",
       "network": "Koneksi terputus sebelum jawaban selesai. Silakan coba lagi.",
       "generic": "Asisten tidak dapat menjawab saat ini. Silakan coba lagi sebentar lagi."
-    }
+    },
+    "launcherLabel": "Asisten AI",
+    "nudge1": "Halo! Saya asisten AI SCH. Tanyakan apa saja tentang kehidupan mahasiswa di Korea.",
+    "nudge2": "Ada pertanyaan tentang visa, asrama, atau beasiswa? Saya menjawab dari sumber resmi, dalam bahasa Anda.",
+    "nudge3": "Bingung mulai dari mana? Tanyakan saja — saya menunjukkan sumber setiap jawaban.",
+    "nudgeDismiss": "Sembunyikan pesan ini"
   },
   "office": {
     "title": "Kantor Layanan AI SCH",

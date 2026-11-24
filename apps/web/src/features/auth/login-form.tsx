@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Database, Loader2 } from "lucide-react";
+import { Database, GraduationCap, Loader2, ShieldCheck } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,14 +17,27 @@ import { buildSignupMetadata } from "@/lib/signup";
 import type { LanguageCode, Me } from "@/types/api";
 
 /** Only allow same-site relative redirects (prevents open redirects). */
-export function safeNextPath(next: string | undefined | null): string {
-  if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return "/admin";
+export function safeNextPath(next: string | undefined | null, fallback = "/admin"): string {
+  if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return fallback;
   return next;
 }
 
-export function LoginForm({ next }: { next?: string }) {
+export type Audience = "student" | "staff";
+
+/** Staff sign-in when asked for (?as=staff) or when an admin page sent the visitor here. */
+export function initialAudience(as: string | undefined, next: string | undefined): Audience {
+  return as === "staff" || (as !== "student" && (next ?? "").startsWith("/admin")) ? "staff" : "student";
+}
+
+/**
+ * Two ways in: students sign in or create an account (every new account is a student); staff (admins, Global
+ * Supporters) only sign in - staff access is granted by a super admin to an existing account, never created here.
+ * The split is presentation: roles come from the database and every staff page and API checks them again.
+ */
+export function LoginForm({ next, as }: { next?: string; as?: string }) {
   const t = useTranslations("auth");
   const router = useRouter();
+  const [audience, setAudience] = useState<Audience>(initialAudience(as, next));
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -59,23 +72,31 @@ export function LoginForm({ next }: { next?: string }) {
     setInfo(null);
     if (!email.includes("@")) return setError(t("errorEmail"));
     if (password.length < 8) return setError(t("errorPassword"));
-    const meta = mode === "signup" ? buildSignupMetadata(language, displayName) : null;
-    if (mode === "signup" && !meta) return setError(t("errorLanguage"));
+    const signup = mode === "signup" && audience === "student";
+    const meta = signup ? buildSignupMetadata(language, displayName) : null;
+    if (signup && !meta) return setError(t("errorLanguage"));
     const sb = getSupabaseBrowserClient();
     if (!sb) return;
     setBusy(true);
     try {
-      if (mode === "signin") {
+      if (!signup) {
         const { error: err } = await sb.auth.signInWithPassword({ email, password });
         if (err) throw err;
         // signed in: the profile's preferred language becomes the default on this device too
+        let me: Me | null = null;
         try {
-          const me = await api.get<Me>("/api/v1/me");
+          me = await api.get<Me>("/api/v1/me");
           if (me.preferred_language_confirmed && LOCALES.includes(me.preferred_language)) saveLocalePreference(me.preferred_language);
         } catch {
           /* keep the current site language if the profile cannot be read */
         }
-        router.push(safeNextPath(next));
+        if (audience === "staff" && !me?.is_staff) {
+          // no staff role granted to this account: do not leave it signed in on the staff side
+          await sb.auth.signOut();
+          setError(me ? t("notStaff") : t("errorGeneric"));
+          return;
+        }
+        router.push(safeNextPath(next, audience === "staff" ? "/admin" : "/"));
         router.refresh();
       } else {
         // only the language + optional display name are sent; roles are always assigned server-side
@@ -96,11 +117,31 @@ export function LoginForm({ next }: { next?: string }) {
     }
   }
 
+  const switchTo = (a: Audience) => {
+    setAudience(a);
+    setMode("signin");
+    setError(null);
+    setInfo(null);
+  };
+  const signupMode = audience === "student" && mode === "signup";
+
   return (
     <Card>
+      <div role="tablist" aria-label={t("audienceLabel")} className="grid grid-cols-2 gap-1 border-b border-border p-1.5">
+        {([["student", GraduationCap], ["staff", ShieldCheck]] as const).map(([id, Icon]) => (
+          <button key={id} type="button" role="tab" aria-selected={audience === id} data-testid={`login-${id}`}
+            onClick={() => switchTo(id)}
+            className={`flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-semibold transition-colors ${
+              audience === id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>
+            <Icon className="size-4" aria-hidden /> {t(id === "student" ? "studentTab" : "staffTab")}
+          </button>
+        ))}
+      </div>
       <CardHeader>
-        <CardTitle className="text-xl">{mode === "signin" ? t("signInTitle") : t("signUpTitle")}</CardTitle>
-        <CardDescription>{t("roleNote")}</CardDescription>
+        <CardTitle className="text-xl">
+          {audience === "staff" ? t("staffTitle") : signupMode ? t("signUpTitle") : t("signInTitle")}
+        </CardTitle>
+        <CardDescription>{audience === "staff" ? t("staffNote") : t("studentNote")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
@@ -120,13 +161,13 @@ export function LoginForm({ next }: { next?: string }) {
             <Input
               id="password"
               type="password"
-              autoComplete={mode === "signin" ? "current-password" : "new-password"}
+              autoComplete={signupMode ? "new-password" : "current-password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-          {mode === "signup" && (
+          {signupMode && (
             <>
               <div className="space-y-1.5">
                 <Label htmlFor="signup-language">
@@ -160,9 +201,14 @@ export function LoginForm({ next }: { next?: string }) {
           {info && <Alert variant="success">{info}</Alert>}
           <Button type="submit" className="w-full" disabled={busy}>
             {busy && <Loader2 className="animate-spin" />}
-            {mode === "signin" ? t("signIn") : t("signUp")}
+            {signupMode ? t("signUp") : t("signIn")}
           </Button>
         </form>
+        {audience === "staff" ? (
+          <p className="mt-4 rounded-md bg-muted/60 p-3 text-center text-xs text-muted-foreground" data-testid="staff-no-signup">
+            {t("staffNoSignup")}
+          </p>
+        ) : (
         <p className="mt-4 text-center text-sm text-muted-foreground">
           {mode === "signin" ? t("noAccount") : t("haveAccount")}{" "}
           <button
@@ -177,6 +223,7 @@ export function LoginForm({ next }: { next?: string }) {
             {mode === "signin" ? t("signUp") : t("signIn")}
           </button>
         </p>
+        )}
       </CardContent>
     </Card>
   );

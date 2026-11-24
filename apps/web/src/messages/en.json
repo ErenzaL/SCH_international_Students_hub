@@ -456,7 +456,15 @@
     "supportLanguage": "Preferred support language",
     "chooseLanguage": "Choose a language…",
     "supportLanguageHelp": "Used for the website, the AI assistant and for routing your support requests to Global Supporters who speak it. You can change it later in Account settings.",
-    "displayName": "Display name (optional)"
+    "displayName": "Display name (optional)",
+    "audienceLabel": "Who is signing in",
+    "studentTab": "Student",
+    "staffTab": "Staff",
+    "staffTitle": "Staff sign in",
+    "studentNote": "Sign in to keep your conversations, send requests to Global Supporters and follow your tasks. New accounts are student accounts.",
+    "staffNote": "For administrators and Global Supporters. Use the account a super admin granted staff access to.",
+    "staffNoSignup": "Staff accounts cannot be created here. Access is granted by a super admin to an existing account; ask your super admin if you need it.",
+    "notStaff": "This account has no staff access. Ask a super admin to grant it, or sign in as a student."
   },
   "admin": {
     "title": "Administration",
@@ -1840,7 +1848,12 @@
       "rateLimited": "You're sending messages a little too quickly. Please wait a moment and try again.",
       "network": "The connection was interrupted before the answer finished. Please try again.",
       "generic": "The assistant couldn't answer right now. Please try again in a moment."
-    }
+    },
+    "launcherLabel": "AI assistant",
+    "nudge1": "Hi! I'm the SCH AI assistant. Ask me anything about student life in Korea.",
+    "nudge2": "Questions about visas, dormitories or scholarships? I answer from official sources, in your language.",
+    "nudge3": "Not sure where to start? Ask me — I show the source of every answer.",
+    "nudgeDismiss": "Hide this message"
   },
   "office": {
     "title": "SCH AI Support Office",

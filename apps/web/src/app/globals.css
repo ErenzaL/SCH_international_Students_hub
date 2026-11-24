@@ -91,8 +91,12 @@ body {
 .office-pop {
   animation: office-pop 0.22s ease-out both;
 }
+/* the AI assistant's introduction bubble next to the chat button */
+.chat-nudge {
+  animation: office-pop 0.25s ease-out both;
+}
 @media (prefers-reduced-motion: reduce) {
-  .office-bob, .office-pop {
+  .office-bob, .office-pop, .chat-nudge {
     animation: none !important;
   }
 }

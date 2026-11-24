@@ -456,7 +456,15 @@
     "supportLanguage": "Ngôn ngữ hỗ trợ ưu tiên",
     "chooseLanguage": "Chọn ngôn ngữ…",
     "supportLanguageHelp": "Dùng cho trang web, trợ lý AI và để chuyển yêu cầu hỗ trợ của bạn đến Global Supporter nói ngôn ngữ đó. Bạn có thể đổi sau trong Cài đặt tài khoản.",
-    "displayName": "Tên hiển thị (không bắt buộc)"
+    "displayName": "Tên hiển thị (không bắt buộc)",
+    "audienceLabel": "Ai đang đăng nhập",
+    "studentTab": "Sinh viên",
+    "staffTab": "Nhân viên",
+    "staffTitle": "Đăng nhập nhân viên",
+    "studentNote": "Đăng nhập để lưu cuộc trò chuyện, gửi yêu cầu tới Global Supporter và theo dõi công việc. Tài khoản mới là tài khoản sinh viên.",
+    "staffNote": "Dành cho quản trị viên và Global Supporter. Dùng tài khoản đã được super admin cấp quyền nhân viên.",
+    "staffNoSignup": "Không thể tạo tài khoản nhân viên tại đây. Quyền do super admin cấp cho một tài khoản có sẵn; hãy liên hệ super admin nếu bạn cần.",
+    "notStaff": "Tài khoản này không có quyền nhân viên. Hãy nhờ super admin cấp quyền, hoặc đăng nhập với tư cách sinh viên."
   },
   "admin": {
     "title": "Quản trị",
@@ -1840,7 +1848,12 @@
       "rateLimited": "Bạn đang gửi tin nhắn hơi nhanh. Vui lòng đợi một chút rồi thử lại.",
       "network": "Kết nối bị gián đoạn trước khi câu trả lời hoàn tất. Vui lòng thử lại.",
       "generic": "Trợ lý hiện không thể trả lời. Vui lòng thử lại sau ít phút."
-    }
+    },
+    "launcherLabel": "Trợ lý AI",
+    "nudge1": "Xin chào! Mình là trợ lý AI của SCH. Hãy hỏi mình bất cứ điều gì về cuộc sống du học ở Hàn Quốc.",
+    "nudge2": "Bạn có câu hỏi về visa, ký túc xá hay học bổng? Mình trả lời từ nguồn chính thức, bằng ngôn ngữ của bạn.",
+    "nudge3": "Chưa biết bắt đầu từ đâu? Cứ hỏi mình — mình luôn cho biết nguồn của mỗi câu trả lời.",
+    "nudgeDismiss": "Ẩn tin nhắn này"
   },
   "office": {
     "title": "Văn phòng hỗ trợ AI SCH",

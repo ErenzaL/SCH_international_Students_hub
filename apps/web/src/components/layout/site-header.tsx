@@ -15,12 +15,12 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <button
               type="button"
-              className="rounded-md p-2 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden"
+              className="rounded-md p-2 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
               aria-label={t("menu")}
             >
               <Menu className="size-5" />
@@ -34,10 +34,11 @@ export function SiteHeader() {
           </DialogContent>
         </Dialog>
 
-        <Link href="/" className="rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <Link href="/" className="shrink-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <Logo />
         </Link>
-        <div className="ml-4 hidden md:block">
+        {/* the full menu needs ~1000 px; below that the menu button opens it */}
+        <div className="ml-2 hidden lg:block">
           <MainNav />
         </div>
         <div className="ml-auto flex items-center gap-2">

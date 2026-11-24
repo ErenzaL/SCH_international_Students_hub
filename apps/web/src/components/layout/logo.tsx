@@ -11,9 +11,9 @@ export function Logo() {
       >
         SCH
       </span>
-      <span className="hidden flex-col leading-tight sm:flex">
-        <span className="text-sm font-semibold text-primary">{t("name")}</span>
-        <span className="text-[11px] text-muted-foreground">{t("unofficial")}</span>
+      {/* the name: on phones (beside the menu button) and from 1280 px; between, the full menu needs the room */}
+      <span className="hidden whitespace-nowrap text-sm font-semibold leading-tight text-primary sm:inline lg:hidden xl:inline">
+        {t("name")}
       </span>
     </span>
   );

@@ -6,10 +6,10 @@
  * the visitor to sign in. The answer language follows the site language (or the language the student writes in).
  * The conversation itself (state + view) is shared with the AI Office: `useAssistantChat` + `ChatBody`.
  */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { History, MessageCircle, Minus, Plus, X } from "lucide-react";
+import { History, MessageCircle, Minus, Plus, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatBody } from "@/features/chatbot/chat-body";
 import { OPEN_CHAT_EVENT, type OpenChatDetail } from "@/features/chatbot/open-chat";
@@ -90,15 +90,22 @@ function ChatWidgetInner() {
             {chat.busy ? t("answering") : t("minimizedLabel")}
           </button>
         )}
+        {!minimized && <AssistantNudge onOpen={() => { setOpen(true); setMinimized(false); }} />}
         <button
           type="button"
           aria-label={t("open")}
           aria-expanded={false}
           onClick={() => { setOpen(true); setMinimized(false); }}
-          className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transition hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/40"
+          className="relative flex h-14 items-center gap-2 rounded-full bg-primary px-4 text-primary-foreground shadow-xl transition hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/40"
           data-testid="chat-launcher"
         >
           <MessageCircle className="size-6" aria-hidden />
+          {/* says what it is: an AI assistant (not a person) */}
+          <span className="flex items-center gap-1 text-sm font-bold" aria-hidden>
+            <Sparkles className="size-4" />
+            <span className="sm:hidden">AI</span>
+            <span className="hidden sm:inline">{t("launcherLabel")}</span>
+          </span>
         </button>
       </div>
     );
@@ -128,6 +135,77 @@ function ChatWidgetInner() {
       <ChatBody chat={chat} welcome={t("welcome")} examples={[t("example1"), t("example2"), t("example3")]}
         onNavigate={closeOnPhone} />
     </section>
+  );
+}
+
+/** When the introduction bubble appears: first after a short pause, then again at intervals, a few times per visit. */
+export const NUDGE = { firstMs: 3000, showMs: 8000, everyMs: 45000, maxPerSession: 4 } as const;
+const NUDGE_KEY = "sch-assistant-nudge";
+const NUDGE_MESSAGES = ["nudge1", "nudge2", "nudge3"] as const;
+
+/**
+ * A speech bubble next to the launcher that introduces the AI assistant ("Hi! I'm the SCH AI assistant ..."),
+ * rotating a few short messages. It stops for good once the student opens the chat or closes a bubble, and
+ * appears at most NUDGE.maxPerSession times per browser session (sessionStorage).
+ */
+function AssistantNudge({ onOpen }: { onOpen: () => void }) {
+  const t = useTranslations("chatbot");
+  const [shown, setShown] = useState<number | null>(null);      // index of the message on screen
+  const count = useRef(0);
+
+  const stopForGood = useCallback(() => {
+    try {
+      sessionStorage.setItem(NUDGE_KEY, "done");
+    } catch {
+      /* storage unavailable: the bubble simply stops for this page */
+    }
+    count.current = NUDGE.maxPerSession;
+    setShown(null);
+  }, []);
+
+  useEffect(() => {
+    let state: { count?: number; done?: boolean } = {};
+    try {
+      const raw = sessionStorage.getItem(NUDGE_KEY);
+      state = raw === "done" ? { done: true } : { count: Number(raw) || 0 };
+    } catch {
+      /* no storage: count in memory only */
+    }
+    if (state.done) return;
+    count.current = state.count ?? 0;
+    const timers: number[] = [];
+    const showNext = () => {
+      if (count.current >= NUDGE.maxPerSession) return;
+      const i = count.current % NUDGE_MESSAGES.length;
+      count.current += 1;
+      try {
+        sessionStorage.setItem(NUDGE_KEY, String(count.current));
+      } catch {
+        /* ignore */
+      }
+      setShown(i);
+      timers.push(window.setTimeout(() => setShown(null), NUDGE.showMs));
+      timers.push(window.setTimeout(showNext, NUDGE.everyMs));
+    };
+    timers.push(window.setTimeout(showNext, NUDGE.firstMs));
+    return () => timers.forEach((id) => window.clearTimeout(id));
+  }, []);
+
+  if (shown === null) return null;
+  return (
+    <div className="chat-nudge relative mr-1 max-w-[min(280px,calc(100vw-10rem))]" data-testid="assistant-nudge">
+      <button type="button" onClick={() => { stopForGood(); onOpen(); }}
+        className="block rounded-2xl rounded-br-sm bg-card px-4 py-3 pr-8 text-left text-sm leading-snug text-card-foreground shadow-xl ring-1 ring-border hover:bg-muted">
+        <span className="mb-0.5 flex items-center gap-1 text-xs font-bold text-primary">
+          <Sparkles className="size-3.5" aria-hidden /> {t("launcherLabel")}
+        </span>
+        {t(NUDGE_MESSAGES[shown])}
+      </button>
+      <button type="button" aria-label={t("nudgeDismiss")} onClick={stopForGood} data-testid="assistant-nudge-close"
+        className="absolute right-1.5 top-1.5 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground">
+        <X className="size-3.5" aria-hidden />
+      </button>
+    </div>
   );
 }
 
