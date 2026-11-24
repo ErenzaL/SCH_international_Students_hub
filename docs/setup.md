@@ -84,10 +84,16 @@ EMBEDDING_PROVIDER=e5 python scripts/demo_pipeline.py   # offline demo with real
 ```
 
 **Integration test (real SupabaseStore → PostgREST → PostgreSQL)** – optional, no Docker needed:
-install `postgresql@18`, `pgvector`, `postgrest` (Homebrew), load `scripts/local_supabase_shim.sql`, the migrations
-and seed into a scratch DB, start PostgREST with the same JWT secret as the test, run
-`python scripts/dev_rest_proxy.py`, then
-`SCH_IT_REST_URL=http://127.0.0.1:54331 SCH_IT_PSQL="psql -h localhost -p 54329 -U postgres -d hub -q -t -A" pytest tests/integration`.
+install PostgreSQL with pgvector and PostgREST in user space, then
+
+```bash
+PG_BIN=/path/to/pg/bin POSTGREST=/path/to/postgrest PYTHON=backend/.venv/bin/python scripts/scratch_db.sh start /tmp/my-scratch
+source /tmp/my-scratch/env && (cd backend && .venv/bin/python -m pytest -q tests/integration)
+scripts/scratch_db.sh stop /tmp/my-scratch      # deletes it
+```
+
+The database has no TCP listener (private Unix socket); the REST proxy on 127.0.0.1 needs a key made for this run. Do not
+start test databases by hand on a shared machine: `trust` on TCP makes every local account a superuser.
 
 ## 8. Deploy to Render (not done automatically)
 
