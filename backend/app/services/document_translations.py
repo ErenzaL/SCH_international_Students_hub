@@ -28,6 +28,7 @@ from app.services.translation.auto import (
     automation_state,
     daily_budget_exceeded,
     public_machine_allowed,
+    require_not_touched_since,
 )
 from app.services.translation.quality import is_high_risk, validate_summary, validate_translation
 from app.services.translation_drafts import (
@@ -54,6 +55,7 @@ class DocumentTranslationService:
         self.settings = settings
         self.ingestion: Any = None   # set by the container (IngestionService) - creates the durable jobs
         self.jobs: Any = None        # JobRunner
+        self.public: Any = None      # PublicService: what students can see right now
 
     # ------------------------------------------------------------ eligibility
     @staticmethod
@@ -382,6 +384,15 @@ class DocumentTranslationService:
         self.ingestion.event(job["id"], "queued", f"{LANG_NAMES[lang]} AI draft queued for v{v['version_number']}.")
         return {**job, "_new": True}
 
+    def require_approved(self, document_id: str, version_id: str) -> None:
+        """Every provider: only the approved, current version of a public document is translated (and stored)."""
+        try:
+            _d, _s, v = self.public._public_doc(document_id)
+        except NotFound as exc:
+            raise IngestionError("source_not_public", "The original is not public.") from exc
+        if v["id"] != version_id:
+            raise IngestionError("source_changed", "The original changed; nothing was written.")
+
     def run_job(self, job: dict[str, Any], heartbeat: Any, event: Any) -> dict[str, Any]:
         """Executed by the ingestion worker (job_type translate_document). Raises IngestionError on failure."""
         p = job.get("payload") or {}
@@ -396,8 +407,10 @@ class DocumentTranslationService:
         if t["translation_status"] in HUMAN_STATES and not p.get("force"):
             raise IngestionError("human_draft_exists", "A person edited this translation meanwhile; the AI draft "
                                                        "was not written.")
+        self.require_approved(d["id"], v["id"])
+        require_not_touched_since(t, job, bool(p.get("force")))
         lang = t["language_code"]
-        src = d.get("language") or "ko"
+        title, src = d["title"], d.get("language") or "ko"
         body = v["extracted_text"] or ""
         if t["translation_status"] in ("machine_draft", "needs_review") and t.get("provider") \
                 and t["source_content_hash"] == v["content_hash"] and not p.get("force"):
@@ -436,8 +449,10 @@ class DocumentTranslationService:
         # re-check: the original or the human state may have changed while the model was working
         t = get_one(self.store, "document_translations", id=t["id"])
         d = get_one(self.store, "source_documents", id=d["id"])
-        if not t or not d or d.get("current_version_id") != t["version_id"] or t.get("is_outdated"):
+        if not t or not d or d.get("current_version_id") != t["version_id"] or t.get("is_outdated") or d["title"] != title:
             raise IngestionError("source_changed", "The original changed while the draft was generated; discarded.")
+        self.require_approved(d["id"], v["id"])
+        require_not_touched_since(t, job, bool(p.get("force")))
         if t["translation_status"] in HUMAN_STATES and not p.get("force"):
             raise IngestionError("human_draft_exists", "A person edited this translation meanwhile; draft discarded.")
         out["warnings"] = checks

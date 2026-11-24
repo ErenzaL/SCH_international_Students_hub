@@ -94,6 +94,7 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     translations.auto = ingestion.announcement_translator = ann_auto
     public = PublicService(store, announcements, storage)
     public.announcement_translator = ann_auto
+    ann_auto.public = doc_translations.public = public
     rag_health = RagHealthService(store, embedder.model_id, notifications)
     ingestion.rag_health = announcements.rag_health = rag_health
     services = Services(

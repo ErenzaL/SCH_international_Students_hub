@@ -609,6 +609,7 @@ class IngestionService:
                                                     f"{sync['created']} new review task(s).")
             except Exception:  # noqa: BLE001
                 log.exception("translation sync failed for document %s", v["document_id"])
+        self._announcement_changed(v["document_id"])
         if self.notifications and (health is None or health["ok"]):
             hidden = (health or {}).get("hidden_reason")
             self.notifications.notify("version_activated",
@@ -619,6 +620,17 @@ class IngestionService:
                                       link=f"/admin/documents/{v['document_id']}")
         return dict(outcome="activated", document_id=v["document_id"], version_id=vid, changed=True,
                     message=f"v{v['version_number']} indexed ({total} chunks) and activated.")
+
+    def _announcement_changed(self, document_id: str) -> None:
+        """An approved edit of a published announcement: its translations are outdated and the language teams are told
+        (they work from the approved text, so they have not seen the edit before). Never blocks the activation."""
+        reviews = getattr(self.announcement_translator, "reviews", None)
+        ann = get_one(self.store, "announcements", document_id=document_id) if reviews is not None else None
+        if ann and ann["publication_status"] == "published":
+            try:
+                reviews.on_original_published(ann["id"], None)
+            except Exception:  # noqa: BLE001
+                log.exception("translation tasks not updated for announcement %s", ann["id"])
 
     def _verify_searchable(self, jid: str, vid: str, stats: dict[str, Any]) -> dict[str, Any] | None:
         """After activation: confirm students can actually find the version (searchable_chunks view + current

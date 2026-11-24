@@ -48,6 +48,14 @@ def auto_languages(settings: Settings) -> list[str]:
     return [x for x in (s.strip() for s in settings.auto_translate_languages.split(",")) if x in SUPPORTED]
 
 
+def require_not_touched_since(row: dict[str, Any], job: dict[str, Any], forced: bool) -> None:
+    """"Replace the person's draft" was decided for the draft of that moment, not for work done while the job waited."""
+    touched = [datetime.fromisoformat(x) for x in (row.get("last_edited_at"), row.get("reviewed_at")) if x]
+    if forced and touched and max(touched) > datetime.fromisoformat(job["created_at"]):
+        raise IngestionError("human_draft_exists", "A person worked on this translation after the request; nothing was "
+                                                   "replaced.")
+
+
 def daily_budget_exceeded(store: Store, settings: Settings, job_id: str) -> bool:
     """True when today's (UTC) translation job budget is used up (this job excluded)."""
     start = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
@@ -100,6 +108,7 @@ class AnnouncementAutoTranslator:
         self.notes = notes
         self.ingestion: Any = None    # IngestionService (creates the durable jobs, logs events)
         self.jobs: Any = None         # JobRunner
+        self.public: Any = None       # PublicService: what students can see right now
         self.reviews: Any = None      # TranslationReviewService (original text + hash, reviewer lists)
 
     # ------------------------------------------------------------------ rows
@@ -203,6 +212,16 @@ class AnnouncementAutoTranslator:
             neq={"id": exclude}, limit=5))
         return next((r for r in rows if self.machine_made(r)), None)
 
+    def require_approved(self, announcement_id: str, orig: dict[str, Any]) -> None:
+        """Every provider: only text that is approved and public right now is translated (and stored)."""
+        try:
+            public = self.public.get_announcement(announcement_id)
+        except NotFound as exc:
+            raise IngestionError("source_not_public", "The original is not public.") from exc
+        if public["body"] != orig["body"] or public["title"] != orig["title"]:
+            raise IngestionError("source_unapproved", "The announcement has an unapproved change; request the "
+                                                      "translation again after it is approved.")
+
     def run_job(self, job: dict[str, Any], heartbeat: Any, event: Any) -> dict[str, Any]:
         p = job.get("payload") or {}
         row = get_one(self.store, "announcement_translations", id=p.get("translation_id"))
@@ -212,6 +231,8 @@ class AnnouncementAutoTranslator:
         if a is None or a["publication_status"] != "published":
             raise IngestionError("source_changed", "The announcement is no longer published; nothing was translated.")
         orig = self.reviews.original(a["id"])
+        self.require_approved(a["id"], orig)
+        require_not_touched_since(row, job, bool(p.get("force")))
         lang, src = row["language_code"], a["original_language"]
         if self.human_touched(row) and not p.get("force"):
             raise IngestionError("human_draft_exists", "A person edited this translation; the machine translation "
@@ -243,6 +264,8 @@ class AnnouncementAutoTranslator:
         row = get_one(self.store, "announcement_translations", id=row["id"])
         if row is None or self.reviews.original(a["id"])["content_hash"] != orig["content_hash"]:
             raise IngestionError("source_changed", "The announcement changed while it was translated; discarded.")
+        self.require_approved(a["id"], orig)
+        require_not_touched_since(row, job, bool(p.get("force")))
         if self.human_touched(row) and not p.get("force"):
             raise IngestionError("human_draft_exists", "A person edited this translation meanwhile; discarded.")
         warnings = validate_translation(f"{orig['title']}\n{orig['body']}", f"{title}\n{body}", src, lang)

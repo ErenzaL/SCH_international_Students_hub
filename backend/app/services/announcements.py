@@ -93,6 +93,13 @@ class AnnouncementService:
                 return v
         return versions[0] if versions else None
 
+    def approved_version(self, document_id: str) -> dict[str, Any] | None:
+        """The version students see (never an edit that waits for approval)."""
+        doc = get_one(self.store, "source_documents", id=document_id)
+        v = get_one(self.store, "document_versions", id=doc["current_version_id"]) \
+            if doc and doc.get("current_version_id") else None
+        return v if v and v["verification_status"] == "approved" else None
+
     def _translations(self, announcement_id: str, public: bool = False) -> list[dict[str, Any]]:
         eq: dict[str, Any] = {"announcement_id": announcement_id}
         if public:
