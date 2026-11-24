@@ -116,6 +116,6 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     services.discovery = discovery
     services.background_budget = background_budget
     services.agents = jobs.agents = AgentTaskService(services)
-    services.gpu = GpuWorkerService(services)
+    services.gpu = jobs.gpu = GpuWorkerService(services)
     services.agents.worker_id = jobs.worker_id
     return services

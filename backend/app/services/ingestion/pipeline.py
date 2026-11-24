@@ -1018,6 +1018,13 @@ class IngestionService:
                                       severity="warning", entity_type="ingestion_job", entity_id=job["id"],
                                       link=f"/admin/documents/{(job.get('payload') or {}).get('document_id', '')}")
             return
+        if job.get("job_type") == "translate_announcement":
+            p = job.get("payload") or {}
+            self.notifications.notify("translation_failed", f"Translation draft failed ({p.get('language')}): {title}",
+                                      f"{error.message} The original stays published; translate manually or retry.",
+                                      severity="warning", entity_type="ingestion_job", entity_id=job["id"],
+                                      link=f"/admin/translations/{p.get('announcement_id', '')}/{p.get('language', '')}")
+            return
         if job.get("job_type") == "index_version":
             self.notifications.notify("indexing_failed", f"Indexing failed: {title}",
                                       f"{error.message} The previously approved version remains active.",

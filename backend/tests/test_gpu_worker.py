@@ -30,7 +30,12 @@ def gpu(env):  # type: ignore[no-untyped-def]
 def new_worker(env, name="school-gpu"):  # type: ignore[no-untyped-def]
     r = env.client.post("/api/v1/admin/gpu/workers", headers=env.auth("super_admin"), json=dict(name=name))
     assert r.status_code == 201, r.text
+    seen(env, r.json()["id"])
     return r.json()
+
+
+def seen(env, worker_id, when=None):  # type: ignore[no-untyped-def]
+    env.store.update("gpu_workers", {"last_seen_at": (when or datetime.now(UTC)).isoformat()}, {"id": worker_id})
 
 
 def call(env, path, token=None, **body):  # type: ignore[no-untyped-def]
@@ -222,6 +227,155 @@ def gemini_like(env):  # type: ignore[no-untyped-def]
     svc = env.app.state.services
     svc.announcement_translator.llm = svc.doc_translations.llm = p
     return p
+
+
+# ------------------------------------------------------------------- nothing waits forever
+def old(env, jid, hours=49):  # type: ignore[no-untyped-def]
+    env.store.update("ingestion_jobs", {"created_at": (datetime.now(UTC) - timedelta(hours=hours)).isoformat()}, {"id": jid})
+
+
+def sweep(env):  # type: ignore[no-untyped-def]
+    return env.app.state.services.gpu.sweep()
+
+
+def alerts(env):  # type: ignore[no-untyped-def]
+    return [n["title"] for n in env.store.t["admin_notifications"] if n["kind"] == "translation_failed"]
+
+
+def set_worker(env, status):  # type: ignore[no-untyped-def]
+    return env.client.patch(f"/api/v1/admin/gpu/workers/{env.worker['id']}", headers=env.auth("super_admin"), json=dict(status=status))
+
+
+@pytest.mark.parametrize("state", ["never_seen", "offline", "paused", "revoked", "expired", "type_off"])
+def test_without_a_usable_worker_requests_use_the_own_model(gpu, state):
+    gemini_like(gpu)
+    if state == "never_seen":
+        gpu.store.update("gpu_workers", {"last_seen_at": None}, {"id": gpu.worker["id"]})
+    elif state == "offline":
+        seen(gpu, gpu.worker["id"], datetime.now(UTC) - timedelta(hours=25))
+    elif state == "expired":
+        gpu.store.update("gpu_workers", {"expires_at": (datetime.now(UTC) - timedelta(seconds=1)).isoformat()}, {"id": gpu.worker["id"]})
+    elif state == "type_off":
+        gpu.settings.gpu_worker_job_types = "translate_document"
+    else:
+        set_worker(gpu, state)
+    a = publish(gpu)
+    jid = request(gpu, a["id"])
+    assert job_row(gpu, jid)["executor"] == "local" and job_row(gpu, jid)["status"] == "succeeded"
+    if state != "type_off":
+        r = gpu.client.post("/api/v1/admin/gpu/jobs/queue-missing", headers=gpu.auth("admin"), json=dict(dry_run=False))
+        assert r.json()["error"]["code"] == "gpu_worker_unavailable"
+
+
+def test_without_any_provider_the_request_is_refused_not_parked(gpu):
+    set_worker(gpu, "revoked")
+    a = publish(gpu)
+    r = gpu.client.post(f"/api/v1/admin/announcements/{a['id']}/translations/en/machine-translate", headers=gpu.auth("super_admin"))
+    assert r.status_code == 409 and r.json()["error"]["code"] == "llm_disabled"
+
+
+def test_jobs_nobody_fetches_fail_visibly_and_can_be_requested_again(gpu):
+    a = publish(gpu)
+    young, aged = request(gpu, a["id"], "en"), request(gpu, a["id"], "vi")
+    old(gpu, aged)
+    set_worker(gpu, "revoked")
+    assert sweep(gpu) == dict(expired_leases=0, failed=1, rerouted=0)
+    assert job_row(gpu, aged)["error_code"] == "gpu_worker_unavailable" and job_row(gpu, young)["status"] == "queued"
+    assert "Translations were not fetched by the GPU worker" in alerts(gpu) and "No GPU worker is available" in alerts(gpu)
+    n = len(alerts(gpu))
+    sweep(gpu)
+    assert len(alerts(gpu)) == n                                     # no alert storm
+    gemini_like(gpu)
+    assert job_row(gpu, request(gpu, a["id"], "vi"))["status"] == "succeeded"     # not blocked by the old job
+
+
+def test_expired_jobs_can_go_to_the_own_model_if_configured(gpu):
+    a = publish(gpu)
+    jid = request(gpu, a["id"])
+    old(gpu, jid)
+    gpu.settings.gpu_worker_on_expiry = "local"
+    assert sweep(gpu)["failed"] == 1                                 # no own model configured: fails instead of waiting
+    jid = request(gpu, a["id"])
+    old(gpu, jid)
+    gemini_like(gpu)
+    assert sweep(gpu)["rerouted"] == 1 and job_row(gpu, jid)["executor"] == "local"
+    assert gpu.app.state.services.ingestion.run_job(jid)["status"] == "succeeded"
+    assert row(gpu, a["id"])["provider"] == "scripted"
+
+
+def test_disabling_the_feature_releases_every_open_job(gpu):
+    a = publish(gpu)
+    running = request(gpu, a["id"], "en")
+    queued = request(gpu, a["id"], "vi")
+    job = claim(gpu)
+    gpu.settings.gpu_worker_enabled = False
+    assert sweep(gpu)["failed"] == 2
+    assert {job_row(gpu, j)["error_code"] for j in (running, queued)} == {"gpu_worker_unavailable"}
+    gemini_like(gpu)
+    assert job_row(gpu, request(gpu, a["id"], "en"))["status"] == "succeeded"
+    gpu.settings.gpu_worker_enabled = True               # switched on again: the old lease is worthless
+    assert done(gpu, job).json()["error"]["code"] == "lease_lost"
+
+
+def test_a_dead_workers_lease_ends_without_any_other_worker(gpu):
+    a = publish(gpu)
+    jid = request(gpu, a["id"])
+    claim(gpu)
+    expire(gpu, jid)
+    assert sweep(gpu)["expired_leases"] == 1 and job_row(gpu, jid)["status"] == "queued"
+
+
+def test_a_job_stuck_while_its_result_was_stored_is_released(gpu):
+    a = publish(gpu)
+    jid = request(gpu, a["id"])
+    claim(gpu)
+    gpu.store.update("ingestion_jobs", {"locked_by": f"gpu-submit:{gpu.worker['id']}"}, {"id": jid})     # API crashed here
+    expire(gpu, jid)
+    sweep(gpu)
+    assert job_row(gpu, jid)["status"] == "queued" and claim(gpu)["id"] == jid
+
+
+def test_sweep_without_the_migration_is_silent_and_stops(env):
+    svc, calls = env.app.state.services, []
+
+    def broken(table, *a, **k):  # type: ignore[no-untyped-def]
+        calls.append(table)
+        raise RuntimeError("column ingestion_jobs.executor does not exist")
+
+    real, env.store.select = env.store.select, broken
+    svc.gpu.sweep()
+    svc.gpu.sweep()
+    env.store.select = real
+    assert calls == ["ingestion_jobs"]
+
+
+def test_the_job_worker_loop_sweeps_and_survives_errors(gpu):
+    jobs = gpu.app.state.services.jobs
+    calls = []
+    jobs.gpu = type("G", (), {"sweep": lambda self: calls.append(1)})()
+    jobs._sweep_gpu()
+    jobs._sweep_gpu()
+    assert calls == [1]
+
+
+def test_waiting_gpu_jobs_do_not_hold_back_scheduled_agents(gpu):
+    a = publish(gpu)
+    request(gpu, a["id"])
+    agents = gpu.app.state.services.agents
+    assert agents._content_work_pending() is False
+    claim(gpu)
+    assert agents._content_work_pending() is False
+    gpu.store.insert("ingestion_jobs", dict(source_id=gpu.store.t["knowledge_sources"][0]["id"], job_type="ingest"))
+    assert agents._content_work_pending() is True
+
+
+def test_failed_announcement_translation_has_its_own_alert(gpu):
+    a = publish(gpu)
+    jid = request(gpu, a["id"])
+    job = claim(gpu)
+    call(gpu, f"/jobs/{jid}/fail", lease_token=job["lease_token"], code="llm_context")
+    assert any(t.startswith("Translation draft failed (en)") for t in alerts(gpu))
+    assert not any(n["title"].startswith("Sync failed") for n in gpu.store.t["admin_notifications"])
 
 
 # ------------------------------------------------------------------------------ results

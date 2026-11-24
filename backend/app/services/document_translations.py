@@ -20,6 +20,7 @@ from app.core.errors import DuplicateError, Forbidden, InvalidState, NotFound, V
 from app.repositories.base import Query, Store, get_many, get_one
 from app.security.auth import AuthUser
 from app.security.permissions import has_perm, languages_with
+from app.services.gpu_routing import gpu_executor
 from app.services.ingestion.errors import IngestionError
 from app.services.llm.base import LLMError, LLMProvider
 from app.services.notifications import UserNotificationService
@@ -27,7 +28,6 @@ from app.services.translation.auto import (
     auto_languages,
     automation_state,
     daily_budget_exceeded,
-    gpu_executor,
     public_machine_allowed,
     require_not_touched_since,
 )
@@ -65,7 +65,7 @@ class DocumentTranslationService:
 
     @property
     def can_generate(self) -> bool:
-        return self.llm.enabled or gpu_executor(self.settings, "translate_document") is not None
+        return self.llm.enabled or gpu_executor(self.store, self.settings, "translate_document") is not None
 
     # ------------------------------------------------------------ eligibility
     @staticmethod
@@ -381,17 +381,19 @@ class DocumentTranslationService:
         open_job = self._open_job(t["id"])
         if open_job:
             return open_job
+        executor = gpu_executor(self.store, self.settings, "translate_document")
         try:
             job = self.ingestion.create_job(s, "manual", actor_id, payload=dict(
                 document_id=d["id"], version_id=v["id"], translation_id=t["id"], language=lang, force=force),
-                job_type="translate_document", executor=gpu_executor(self.settings, "translate_document"))
+                job_type="translate_document", executor=executor)
         except DuplicateError:          # queued concurrently (unique index): use that job
             existing = self._open_job(t["id"])
             if existing is None:
                 raise
             return existing
         self._audit("document_translation.draft_requested", d["id"], actor_id, language=lang, job_id=job["id"])
-        self.ingestion.event(job["id"], "queued", f"{LANG_NAMES[lang]} AI draft queued for v{v['version_number']}.")
+        self.ingestion.event(job["id"], "queued", f"{LANG_NAMES[lang]} AI draft queued for v{v['version_number']}"
+                                                 f"{' (GPU worker)' if executor else ''}.")
         return {**job, "_new": True}
 
     def require_approved(self, document_id: str, version_id: str) -> None:
@@ -491,7 +493,8 @@ class DocumentTranslationService:
         if t["translation_status"] in HUMAN_STATES and not work["force"]:
             raise IngestionError("human_draft_exists", "A person edited this translation meanwhile; draft discarded.")
         out["warnings"] = checks
-        status = "needs_review" if checks or always_review else "machine_draft"
+        # drafts of local models are never 'machine_draft' (which may be shown to students)
+        status = "needs_review" if checks or always_review or out["provider"] == "ollama" else "machine_draft"
         t = self.store.update("document_translations", dict(
             title=out["title"], body=out["body"], headings=out["headings"], translation_status=status,
             scope="summary" if summary else "full",

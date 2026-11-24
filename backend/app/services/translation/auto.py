@@ -28,6 +28,7 @@ from typing import Any
 from app.core.config import Settings
 from app.core.errors import DuplicateError, Forbidden, InvalidState, NotFound
 from app.repositories.base import Query, Store, get_one
+from app.services.gpu_routing import gpu_executor
 from app.services.ingestion.errors import IngestionError
 from app.services.llm.base import LLMError, LLMProvider
 from app.services.translation.quality import is_high_risk, local_model_warnings, validate_translation
@@ -46,12 +47,6 @@ def now() -> str:
 
 def auto_languages(settings: Settings) -> list[str]:
     return [x for x in (s.strip() for s in settings.auto_translate_languages.split(",")) if x in SUPPORTED]
-
-
-def gpu_executor(settings: Settings, job_type: str) -> str | None:
-    """'gpu' when jobs of this type are left to the GPU worker."""
-    types = [x.strip() for x in settings.gpu_worker_job_types.split(",")]
-    return "gpu" if settings.gpu_worker_enabled and job_type in TRANSLATION_JOB_TYPES and job_type in types else None
 
 
 def require_not_touched_since(row: dict[str, Any], job: dict[str, Any], forced: bool) -> None:
@@ -121,7 +116,7 @@ class AnnouncementAutoTranslator:
 
     @property
     def can_generate(self) -> bool:
-        return self.llm.enabled or gpu_executor(self.settings, "translate_announcement") is not None
+        return self.llm.enabled or gpu_executor(self.store, self.settings, "translate_announcement") is not None
 
     # ------------------------------------------------------------------ rows
     @staticmethod
@@ -182,17 +177,19 @@ class AnnouncementAutoTranslator:
         existing = self.open_job(row["id"])
         if existing:
             return existing
+        executor = gpu_executor(self.store, self.settings, "translate_announcement")
         try:
             job = self.ingestion.create_job(self._source(a), "manual", actor_id, job_type="translate_announcement",
                                             payload=dict(announcement_id=announcement_id, translation_id=row["id"],
                                                          language=language, force=force),
-                                            executor=gpu_executor(self.settings, "translate_announcement"))
+                                            executor=executor)
         except DuplicateError:          # queued concurrently (unique index): use that job
             existing = self.open_job(row["id"])
             if existing is None:
                 raise
             return existing
-        self.ingestion.event(job["id"], "queued", f"Machine translation into {language} queued for the announcement.")
+        self.ingestion.event(job["id"], "queued", f"Machine translation into {language} queued for the announcement"
+                                                 f"{' (GPU worker)' if executor else ''}.")
         self.store.insert("audit_log", dict(action="translation.machine_requested", entity_type="announcement",
                                             entity_id=announcement_id, actor_id=actor_id,
                                             details={"language": language, "job_id": job["id"]}))
@@ -299,7 +296,8 @@ class AnnouncementAutoTranslator:
         warnings = validate_translation(f"{orig['title']}\n{orig['body']}", f"{title}\n{body}", src, lang)
         if provider == "ollama":
             warnings += local_model_warnings(f"{orig['title']}\n{orig['body']}", f"{title}\n{body}", src, lang)
-        status = "needs_review" if warnings or always_review else "machine_draft"
+        # drafts of local models are never 'machine_draft' (which may be shown to students)
+        status = "needs_review" if warnings or always_review or provider == "ollama" else "machine_draft"
         row = self.store.update("announcement_translations", dict(
             title=title, body=body, translation_status=status, source_content_hash=orig["content_hash"],
             is_outdated=False, provider=provider, model=model, generated_at=now(), warnings=warnings,

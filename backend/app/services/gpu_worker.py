@@ -28,6 +28,7 @@ from typing import Any
 
 from app.core.errors import Conflict, DuplicateError, InvalidState, NotAuthenticated, NotFound
 from app.repositories.base import Query, get_one
+from app.services.gpu_routing import available_workers, routed_types
 from app.services.ingestion.errors import IngestionError
 
 log = logging.getLogger("app.gpu")
@@ -67,6 +68,8 @@ class GpuWorkerService:
         self.svc = services
         self.store = services.store
         self.settings = services.settings
+        self._alerted: datetime | None = None
+        self._no_schema = False         # feature off and migration 0016 not applied: nothing to sweep
 
     def require_enabled(self) -> None:
         if not self.settings.gpu_worker_enabled:
@@ -162,11 +165,10 @@ class GpuWorkerService:
         s = self.settings
         if worker["status"] == "paused":
             return dict(state="paused", job=None)
-        types = [x.strip() for x in s.gpu_worker_job_types.split(",") if x.strip()]
         for _ in range(10):      # jobs that turn out to need nothing are finished here and the next one is tried
             rows = self.store.rpc("claim_gpu_job", dict(
                 p_worker=worker["id"], p_lease_token=lease_token, p_lease_seconds=s.gpu_worker_lease_seconds,
-                p_job_types=types, p_max_running=s.gpu_worker_max_running))
+                p_job_types=routed_types(s), p_max_running=s.gpu_worker_max_running))
             rows = [rows] if isinstance(rows, dict) else [r for r in rows or [] if r and r.get("id")]
             if not rows:
                 return dict(state="idle", job=None)
@@ -218,33 +220,17 @@ class GpuWorkerService:
             raise IngestionError("source_deleted", "The source was deleted.")
         if not source["is_active"]:
             raise IngestionError("source_inactive", "The source is disabled.")
-        try:
-            if job["job_type"] == "translate_announcement":
-                work = self.svc.announcement_translator.prepare(job)
-                public = self.svc.public.get_announcement(work["a"]["id"])
-                # an edit that waits for approval is the "original" for translators, but it is not public yet
-                if public["body"] != work["orig"]["body"] or public["title"] != work["orig"]["title"]:
-                    raise IngestionError("source_unapproved", "The announcement has an unapproved change; request the "
-                                                              "translation again after it is approved.")
-                kind, row = "announcement", work["row"]
-            elif job["job_type"] == "translate_document":
-                work = self.svc.doc_translations.prepare(job)
-                self.svc.public._public_doc(work["d"]["id"])
-                kind, row = "document", work["t"]
-            else:
-                raise IngestionError("not_permitted", "This job type is not available to GPU workers.")
-        except NotFound as exc:
-            raise IngestionError("source_not_public", "The original is not public.") from exc
+        # both check that the text is approved and public right now (the same rules as for every other provider)
+        if job["job_type"] == "translate_announcement":
+            return "announcement", self.svc.announcement_translator.prepare(job)
+        if job["job_type"] != "translate_document":
+            raise IngestionError("not_permitted", "This job type is not available to GPU workers.")
+        work = self.svc.doc_translations.prepare(job)
         # stricter than the API's own model: never replace anything a reviewer has already handled
-        if kind == "document" and not work["force"] and (row.get("human_edited") or row["translation_status"] in
-                                                         ("changes_requested", "rejected")):
+        row = work["t"]
+        if not work["force"] and (row.get("human_edited") or row["translation_status"] in ("changes_requested", "rejected")):
             raise IngestionError("human_draft_exists", "A person has worked on this translation; nothing was replaced.")
-        # "replace the person's draft" was decided for the draft of that moment, not for work done while the job waited
-        touched = [x for x in (_time(row.get("last_edited_at")), _time(row.get("reviewed_at"))) if x]
-        if work["force"] and touched and max(touched) > datetime.fromisoformat(job["created_at"]):
-            raise IngestionError("human_draft_exists", "A person worked on this translation after the request; "
-                                                       "nothing was replaced.")
-        return kind, work
+        return "document", work
 
     def _input(self, kind: str, work: dict[str, Any]) -> dict[str, Any]:
         s = self.settings
@@ -415,8 +401,76 @@ class GpuWorkerService:
                                             actor_id=actor_id, details={"status": status}))
         return dict(id=job_id, status=status)
 
+    def sweep(self) -> dict[str, int]:
+        """No job waits forever, whatever happened to the worker. Never raises.
+
+        * lost leases are re-queued (or failed after the attempt limit);
+        * worker enabled: a job that waited longer than GPU_WORKER_MAX_QUEUE_HOURS fails visibly, or goes to the
+          server's own model (GPU_WORKER_ON_EXPIRY=local, only if one is configured);
+        * worker disabled: the same for every open GPU job, at once."""
+        out = dict(expired_leases=0, failed=0, rerouted=0)
+        if self._no_schema:
+            return out
+        try:
+            enabled = self.settings.gpu_worker_enabled
+            if enabled:
+                out["expired_leases"] = int(self.store.rpc("expire_gpu_leases", {}) or 0)
+            cutoff = (utcnow() - timedelta(hours=self.settings.gpu_worker_max_queue_hours)).isoformat()
+            rows, _ = self.store.select("ingestion_jobs", Query(
+                eq={"executor": "gpu"}, in_={"status": ["queued"] if enabled else ["queued", "running"]},
+                lt={"created_at": cutoff} if enabled else {}, order=[("created_at", False)], limit=200))
+            local = self.settings.gpu_worker_on_expiry.strip().lower() == "local" and self.svc.doc_translations.llm.enabled
+            reason = "No GPU worker fetched this job in time." if enabled else "The GPU worker is switched off."
+            for j in rows:
+                eq = dict(id=j["id"], executor="gpu", status=j["status"], attempts=j["attempts"])
+                if local:
+                    if self.store.update("ingestion_jobs", dict(
+                            executor="local", status="queued", locked_by=None, lease_token=None, lease_expires_at=None,
+                            run_after=utcnow().isoformat(), cancel_requested=False), eq):
+                        out["rerouted"] += 1
+                        self.svc.ingestion.event(j["id"], "reroute", f"{reason} Using the server's own model.",
+                                                 level="warning")
+                elif self.store.update("ingestion_jobs", dict(
+                        status="failed", completed_at=utcnow().isoformat(), locked_by=None, lease_token=None,
+                        lease_expires_at=None, error_code="gpu_worker_unavailable",
+                        error_message=f"{reason} Request the translation again."), eq):
+                    out["failed"] += 1
+                    self.svc.ingestion.event(j["id"], "finish", f"{reason} Request the translation again.", level="error")
+            if out["rerouted"]:
+                self.svc.jobs.kick()
+            if out["failed"] or out["rerouted"]:
+                log.warning("gpu sweep failed=%d rerouted=%d", out["failed"], out["rerouted"])
+                self.svc.notifications.notify(
+                    "translation_failed", "Translations were not fetched by the GPU worker",
+                    f"{reason} {out['failed']} failed (request them again), {out['rerouted']} given to the server's own model.",
+                    severity="warning", link="/admin/translations")
+            if enabled:
+                self._alert_if_offline()
+        except Exception as exc:  # noqa: BLE001 - housekeeping must never stop the job worker
+            if not self.settings.gpu_worker_enabled:
+                self._no_schema = True
+                log.info("gpu sweep skipped (%s)", type(exc).__name__)
+            else:
+                log.exception("gpu sweep failed")
+        return out
+
+    def _alert_if_offline(self) -> None:
+        if available_workers(self.store, self.settings):
+            return
+        now = utcnow()
+        if self._alerted is not None and now - self._alerted < timedelta(hours=24):
+            return
+        _rows, waiting = self.store.select("ingestion_jobs", Query(eq={"executor": "gpu", "status": "queued"}, cols="id",
+                                                                   limit=1), count=True)
+        if waiting:
+            self._alerted = now
+            self.svc.notifications.notify(
+                "translation_failed", "No GPU worker is available",
+                f"{waiting} translation job(s) wait for it. They end after {self.settings.gpu_worker_max_queue_hours} hours; "
+                "new requests use the server's own model.", severity="warning", link="/admin/translations")
+
     def status(self) -> dict[str, Any]:
-        self.store.rpc("expire_gpu_leases", {})
+        self.sweep()
         workers, _ = self.store.select("gpu_workers", Query(order=[("created_at", False)]))
         since = (utcnow() - timedelta(days=1)).isoformat()
 
@@ -439,13 +493,15 @@ class GpuWorkerService:
             cols="id,job_type,status,attempts,max_attempts,created_at,run_after,lease_expires_at,cancel_requested,"
                  "error_code,payload"))
         return dict(
-            enabled=self.settings.gpu_worker_enabled, workers=[self.worker_view(w) for w in workers],
+            enabled=self.settings.gpu_worker_enabled, available=bool(available_workers(self.store, self.settings)),
+            routed_job_types=routed_types(self.settings), workers=[self.worker_view(w) for w in workers],
             queue=dict(queued=count("queued"), running=count("running")),
             last_24h=dict(
                 succeeded=sum(j["status"] == "succeeded" for j in done), failed=errors,
                 average_seconds=round(sum(g["duration_ms"] for g in timed) / len(timed) / 1000, 1) if timed else None,
                 input_tokens=sum(g.get("input_tokens", 0) for g in gpu),
                 output_tokens=sum(g.get("output_tokens", 0) for g in gpu)),
+            oldest_queued_at=next((j["created_at"] for j in open_jobs if j["status"] == "queued"), None),
             jobs=[{k: v for k, v in j.items() if k != "payload"} | {"language": (j.get("payload") or {}).get("language")}
                   for j in open_jobs])
 
@@ -453,10 +509,10 @@ class GpuWorkerService:
                       dry_run: bool) -> dict[str, Any]:
         """Queue missing or outdated translations of published content (announcements first)."""
         from app.services.translation import backfill
-        from app.services.translation.auto import SUPPORTED, gpu_executor
+        from app.services.translation.auto import SUPPORTED
 
         for k in kinds:
-            if gpu_executor(self.settings, f"translate_{k}") is None:
+            if f"translate_{k}" not in routed_types(self.settings):
                 raise InvalidState(f"GPU jobs of type translate_{k} are not enabled.")
         langs = languages or list(SUPPORTED)
         items = [i for i in backfill.plan(self.svc, langs)["items"] if i["kind"] in kinds and not i["queued"]
@@ -464,6 +520,8 @@ class GpuWorkerService:
         if dry_run:
             return dict(dry_run=True, missing=len(items), queued=[],
                         next=[{k: i[k] for k in ("kind", "id", "language", "mode", "chars")} for i in items[:limit]])
+        if not available_workers(self.store, self.settings):
+            raise InvalidState("No GPU worker contacted the server recently; start it first.", code="gpu_worker_unavailable")
         queued = backfill.apply(self.svc, limit, langs, kinds=kinds)
         self.store.insert("audit_log", dict(action="gpu_job.queue_missing", entity_type="ingestion_job",
                                             actor_id=actor_id, details=dict(queued=len(queued), languages=langs)))

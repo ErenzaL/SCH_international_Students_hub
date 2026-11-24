@@ -15,6 +15,7 @@ import logging
 import os
 import socket
 import threading
+import time
 import uuid
 from typing import Any
 
@@ -37,6 +38,8 @@ class JobRunner:
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
         self._agent_thread: threading.Thread | None = None
+        self.gpu: Any = None             # GpuWorkerService: expired leases / jobs nobody fetched
+        self._gpu_swept: float | None = None
         self.agents: Any = None          # AgentTaskService: agent tasks share this worker (one at a time)
 
     @property
@@ -112,9 +115,18 @@ class JobRunner:
                 first = False
             except Exception:  # noqa: BLE001 - keep the worker alive; the job row records failures
                 log.exception("job worker iteration failed")
+            self._sweep_gpu()
             self._wake.wait(self.settings.job_poll_seconds)
             self._wake.clear()
         log.info("job worker %s stopped", self.worker_id)
+
+    def _sweep_gpu(self) -> None:
+        """Jobs left to a GPU worker can never wait forever: checked every 5 minutes (hourly while it is disabled)."""
+        every = 300 if self.settings.gpu_worker_enabled else 3600
+        if self.gpu is None or (self._gpu_swept is not None and time.monotonic() - self._gpu_swept < every):
+            return
+        self._gpu_swept = time.monotonic()
+        self.gpu.sweep()
 
     def _agent_loop(self) -> None:
         log.info("agent task worker %s started", self.worker_id)

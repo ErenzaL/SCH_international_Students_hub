@@ -200,6 +200,9 @@ class Settings(BaseSettings):
     gpu_worker_job_max_seconds: int = 1800           # a lease is not renewed beyond this
     gpu_worker_chunk_chars: int = 3000
     gpu_worker_max_source_chars: int = 12000         # text a summary is made from (longer: partial, labelled)
+    gpu_worker_online_hours: int = 24                # no contact for this long: new requests use the server's own model
+    gpu_worker_max_queue_hours: int = 48             # a job that waited this long is not left waiting ...
+    gpu_worker_on_expiry: str = "fail"               # ... "fail": visible failure + alert | "local": server's own model
     gpu_worker_token_days: int = 90                  # validity of a new or rotated credential
     llm_temperature: float | None = None     # None = the model's default (recommended for Gemini 3 models)
     llm_answer_max_tokens: int = 2048        # answer generation output cap (thinking tokens count separately)

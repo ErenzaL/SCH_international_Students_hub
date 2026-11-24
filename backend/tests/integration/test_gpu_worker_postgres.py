@@ -19,6 +19,7 @@ def it() -> IT:
     svc = it.app.state.services
     admin = it.users["admin"]
     it.worker = svc.gpu.create_worker(f"it-{uuid.uuid4().hex[:8]}", admin)  # type: ignore[attr-defined]
+    call(it, "/claim", lease_token=str(uuid.uuid4()))            # a worker is available once it contacted the API
     return it
 
 
@@ -77,3 +78,108 @@ def test_lease_expiry_release_cancel_and_revocation(it: IT):
     it.app.state.services.gpu.set_status(it.worker["id"], "revoked", it.users["admin"])  # type: ignore[attr-defined]
     assert call(it, "/claim", lease_token=str(uuid.uuid4())).status_code == 401
     assert sql(f"select status from public.ingestion_jobs where id = '{jid}'") == "queued"
+
+
+def test_mixed_workload_in_worker_mode(it: IT):
+    """The API's real worker threads keep ingesting, indexing, translating and running agent tasks while GPU jobs wait
+    and run; nobody takes the other's jobs."""
+    import time
+
+    from app.services.llm.base import ScriptedLLMProvider
+    from tests.test_auto_translation import FakeTranslator
+
+    sql("update public.ingestion_jobs set status = 'failed' where executor = 'gpu' and status in ('queued', 'running')")
+    svc = it.app.state.services
+    worker = svc.gpu.create_worker(f"mix-{uuid.uuid4().hex[:8]}", it.users["admin"])
+    it.worker = worker  # type: ignore[attr-defined]
+    call(it, "/claim", lease_token=str(uuid.uuid4()))
+    aid = publish(it)
+    gpu_jobs = [request(it, aid, lang) for lang in ("en", "vi", "id")]                # older than everything below
+    running = claim(it)
+    it.settings.job_execution, it.settings.job_poll_seconds = "worker", 0.2
+    svc.doc_translations.llm = svc.announcement_translator.llm = ScriptedLLMProvider(FakeTranslator(), model="own-1")
+    a = it.auth("admin")
+    try:
+        svc.jobs.start()
+        src = it.client.post("/api/v1/admin/sources", headers=a, json=dict(
+            title=f"mix {uuid.uuid4().hex[:6]}", organization="SCH", source_type="manual_text",
+            authority_type="official_university", scope="university", category="academic-life", language="ko")).json()
+        job = it.client.post(f"/api/v1/admin/sources/{src['id']}/submit-text", headers=a, json=dict(
+            title="기숙사 안내", text=f"입사일은 2027-02-24입니다. 학생증을 가져오세요. {uuid.uuid4().hex}", authorized_by_supporter=True)).json()
+        assert it.client.post(f"/api/v1/admin/versions/{job['version_id']}/approve", headers=a, json={}).status_code == 202
+        it.settings.gpu_worker_job_types = "translate_announcement"      # documents stay with the API's own model
+        task = it.client.post("/api/v1/agents/announcement/tasks", headers=it.auth("student"), json=dict(
+            task_type="announcement_digest", params={}))
+        assert task.status_code == 201, task.text
+
+        def finished(query: str) -> bool:
+            return sql(query) == "0"
+
+        end = time.time() + 30
+        local_open = (f"select count(*) from public.ingestion_jobs where source_id = '{src['id']}' "
+                      "and status in ('queued', 'running')")
+        while time.time() < end and not finished(local_open):
+            time.sleep(0.2)
+        assert finished(local_open)
+        r = it.client.post(f"/api/v1/admin/documents/{job['document_id']}/translations/drafts", headers=it.auth("super_admin")
+                           if "super_admin" in it.users else a, json=dict(languages=["en"]))
+        assert r.status_code == 202, r.text
+        end = time.time() + 30
+        while time.time() < end and not (finished(local_open) and finished(
+                f"select count(*) from public.agent_tasks where id = '{task.json()['id']}' and status not in ('completed')")):
+            time.sleep(0.2)
+        assert sql(f"select status from public.agent_tasks where id = '{task.json()['id']}'") == "completed"
+        assert sql(f"select string_agg(distinct job_type || ':' || status, ',' order by job_type || ':' || status) from public.ingestion_jobs "
+                   f"where source_id = '{src['id']}'") == "index_version:succeeded,ingest:succeeded,translate_document:succeeded"
+        assert sql(f"select provider || ':' || model from public.document_translations where document_id = '{job['document_id']}' "
+                   f"and language_code = 'en'") == "scripted:own-1"
+        states = sql("select string_agg(status || ':' || coalesce(split_part(locked_by, ':', 1), '-'), ',' order by created_at) "
+                     f"from public.ingestion_jobs where id in ({','.join(repr(j) for j in gpu_jobs)})")
+        assert states == "running:gpu,queued:-,queued:-"
+        assert done(it, running).json()["status"] == "succeeded"
+        svc.gpu.sweep()
+    finally:
+        svc.jobs.stop()
+        it.settings.job_execution = "inline"
+        it.settings.gpu_worker_job_types = "translate_announcement,translate_document"
+
+
+def test_parallel_claims_never_share_a_job(it: IT):
+    from collections import Counter
+    from concurrent.futures import ThreadPoolExecutor
+
+    svc = it.app.state.services
+    sql("update public.ingestion_jobs set status = 'failed' where status in ('queued', 'running')")
+    sid = sql("select id from public.knowledge_sources limit 1")
+    for executor, kind in (("local", "ocr_intake"), ("gpu", "translate_document")):
+        sql(f"insert into public.ingestion_jobs (source_id, job_type, executor, payload) select '{sid}', '{kind}', '{executor}', "
+            f"jsonb_build_object('translation_id', 'p-{executor}-' || g) from generate_series(1, 40) g")
+
+    def local(_n: int) -> str | None:
+        rows = svc.store.rpc("claim_ingestion_job", dict(p_worker="w", p_stale_seconds=600))
+        rows = [rows] if isinstance(rows, dict) else rows or []
+        return rows[0]["id"] + "|" + rows[0]["executor"] if rows and rows[0].get("id") else None
+
+    def gpu(_n: int) -> str | None:
+        rows = svc.store.rpc("claim_gpu_job", dict(p_worker=it.worker["id"], p_lease_token=str(uuid.uuid4()), p_lease_seconds=60,  # type: ignore[attr-defined]
+                                                   p_job_types=["translate_document"], p_max_running=1000))
+        rows = [rows] if isinstance(rows, dict) else rows or []
+        return rows[0]["id"] + "|" + rows[0]["executor"] if rows and rows[0].get("id") else None
+
+    with ThreadPoolExecutor(12) as pool:
+        got = [f.result() for pair in [(pool.submit(local, i), pool.submit(gpu, i)) for i in range(60)] for f in pair]
+    got = [g for g in got if g]
+    assert max(Counter(got).values()) == 1 and Counter(g.split("|")[1] for g in got) == {"local": 40, "gpu": 40}
+    sql("update public.ingestion_jobs set status = 'failed' where status in ('queued', 'running')")
+
+
+def test_sweep_and_routing_on_the_real_database(it: IT):
+    svc = it.app.state.services
+    aid = publish(it)
+    jid = request(it, aid, "zh-CN")
+    sql(f"update public.ingestion_jobs set created_at = now() - interval '3 days' where id = '{jid}'")
+    assert svc.gpu.sweep()["failed"] == 1
+    assert sql(f"select status || ':' || error_code from public.ingestion_jobs where id = '{jid}'") == "failed:gpu_worker_unavailable"
+    sql("update public.gpu_workers set last_seen_at = now() - interval '2 days'")
+    jid = request(it, aid, "zh-CN")
+    assert sql(f"select executor from public.ingestion_jobs where id = '{jid}'") == "local"

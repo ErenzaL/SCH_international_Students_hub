@@ -700,10 +700,12 @@ class AgentTaskService:
     def _content_work_pending(self) -> bool:
         """Documents are being ingested / indexed / translated (or wait for the worker) right now."""
         now = now_iso()
-        rows, _ = self.store.select("ingestion_jobs", Query(eq={"status": "running"}, cols="id", limit=1))
+        # jobs of the GPU worker use no capacity of this server and may wait for hours
+        own = {"executor": "local"} if self.settings.gpu_worker_enabled else {}
+        rows, _ = self.store.select("ingestion_jobs", Query(eq={"status": "running", **own}, cols="id", limit=1))
         if rows:
             return True
-        rows, _ = self.store.select("ingestion_jobs", Query(eq={"status": "queued"}, lte={"run_after": now},
+        rows, _ = self.store.select("ingestion_jobs", Query(eq={"status": "queued", **own}, lte={"run_after": now},
                                                             cols="id", limit=1))
         return bool(rows)
 
