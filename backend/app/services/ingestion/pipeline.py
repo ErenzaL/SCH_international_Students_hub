@@ -28,7 +28,7 @@ from app.core.errors import AppError, Conflict, DuplicateError, InvalidState, No
 from app.models.domain import ExtractedDocument
 from app.repositories.base import FileStorage, Query, Store, get_one
 from app.security.url_guard import canonicalize_url
-from app.services import document_titles
+from app.services import document_attachments, document_titles
 from app.services.indexing import IndexingService
 from app.services.ingestion.errors import ExtractionError, FetchError, IngestionError
 from app.services.ingestion.extractors_files import (
@@ -567,6 +567,7 @@ class IngestionService:
         doc = get_one(self.store, "source_documents", id=v["document_id"]) or {}
         if v["verification_status"] == "approved" and doc.get("current_version_id") == v["id"]:
             document_titles.apply_title(self.store, v["id"])     # an earlier attempt stopped right after the switch
+            document_attachments.apply_details(self.store, v["id"])
             return dict(outcome="activated", document_id=v["document_id"], version_id=v["id"], changed=False,
                         message=f"v{v['version_number']} is already active.")
         if v["verification_status"] != "pending_review":
@@ -603,6 +604,7 @@ class IngestionService:
             code = "not_indexed" if "not_indexed" in exc.message else exc.code
             raise IngestionError(code, exc.message) from exc
         new_title = document_titles.apply_title(self.store, vid)
+        document_attachments.apply_details(self.store, vid)
         doc = doc | ({"title": new_title} if new_title else {})
         self.event(jid, "activate", f"v{v['version_number']} is now the active version."
                                     f"{' The title changed with it.' if new_title else ''}")
@@ -879,8 +881,10 @@ class IngestionService:
             # a published title only changes with the approved version (document_titles.py)
             if extracted.title and doc["title"] != extracted.title[:500] and not doc.get("current_version_id"):
                 patch["title"] = extracted.title[:500]
-            if metadata and metadata != (doc.get("metadata") or {}):
-                patch["metadata"] = metadata
+            if metadata:      # the public details of a published notice only change with it as well (document_attachments.py)
+                kept = document_attachments.imported(doc, metadata)
+                if kept != (doc.get("metadata") or {}):
+                    patch["metadata"] = kept
             detected = detect_language(extracted.text)
             if detected and detected != doc.get("language") and not doc.get("current_version_id"):
                 patch["language"] = detected   # nothing approved yet: correct the original language silently
