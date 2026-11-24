@@ -75,6 +75,11 @@ export function AgentStatus({ agent }: { agent: AgentInfo | undefined }) {
   return (
     <span className="flex flex-wrap items-center gap-1" data-testid="agent-status">
       <StateBadge state={agent.state} compact />
+      {agent.paused && (
+        <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground" data-testid="agent-paused">
+          {t("paused")}
+        </span>
+      )}
       {agent.monitoring_check_running && (
         <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-1.5 py-0.5 text-[11px] font-semibold text-sky-900"
           data-testid="checking-sources">

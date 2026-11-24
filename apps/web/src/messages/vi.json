@@ -481,7 +481,9 @@
       "submissions": "Nội dung tôi đã gửi",
       "ragSync": "Đồng bộ RAG",
       "support": "Hộp thư hỗ trợ",
-      "languageTeams": "Nhóm ngôn ngữ"
+      "languageTeams": "Nhóm ngôn ngữ",
+      "agents": "Tác nhân AI",
+      "gpuWorker": "Máy GPU"
     },
     "notConfiguredTitle": "Xác thực chưa được cấu hình",
     "notConfiguredBody": "Khu vực quản trị cần Supabase Auth và API của backend.",
@@ -1648,6 +1650,151 @@
       "outdatedVersions": "Lỗi thời (bản gốc trước đây)",
       "emptyBody": "Hiện không có gì cần dịch trong các ngôn ngữ của bạn.",
       "fromOriginal": "Từ bản gốc {language}, phiên bản {version}"
+    },
+    "agents": {
+      "title": "Vận hành AI Office",
+      "subtitle": "14 bàn đã thực sự làm gì, việc đang chờ và việc thất bại.",
+      "tabs": {
+        "desks": "Bàn",
+        "tasks": "Nhiệm vụ",
+        "schedules": "Lịch",
+        "storage": "Lưu trữ"
+      },
+      "privacy": "Nội dung và kết quả của sinh viên không bao giờ hiển thị ở đây.",
+      "schedulesOffTitle": "Kiểm tra tự động đang tắt trên máy chủ",
+      "schedulesOff": "Không có gì chạy theo lịch (AGENT_SCHEDULES_ENABLED tắt). Quản trị viên vẫn có thể bắt đầu kiểm tra tại bàn.",
+      "schedulesHelp": "Lịch chỉ chạy khi bật ở đây VÀ bật trong cài đặt máy chủ. Kết quả luôn chờ quản trị viên.",
+      "serverOn": "Kiểm tra tự động đang bật",
+      "queues": "Hàng chờ",
+      "queue": {
+        "agent_tasks": "Nhiệm vụ tác nhân",
+        "jobs": "Tài liệu và bản dịch",
+        "gpu_jobs": "Máy GPU"
+      },
+      "queueLine": "{queued} chờ, {running} đang chạy, {failed} lỗi (7 ngày)",
+      "oldest": "lâu nhất: {minutes} phút",
+      "stuck": "Hàng chờ bị kẹt.",
+      "needsMigration": "Cần di trú cơ sở dữ liệu.",
+      "storageMissing": "Áp dụng di trú 0017 để xem kích thước.",
+      "refresh": "Làm mới",
+      "desk": "Bàn",
+      "task": "Nhiệm vụ",
+      "tasks7d": "Nhiệm vụ (7 ngày)",
+      "lastSuccess": "Thành công gần nhất",
+      "lastFailure": "lỗi {when} {code}",
+      "sources": "Nguồn chính thức",
+      "sourcesLine": "{enabled}/{total} đang bật",
+      "failing": "{count} lỗi",
+      "schedules": "Lịch",
+      "actions": "Hành động",
+      "paused": "Tạm dừng",
+      "pause": "Tạm dừng",
+      "resume": "Tiếp tục",
+      "open": "Mở bàn",
+      "tools": "{count} công cụ",
+      "toolsOff": "tắt: {names}",
+      "noTasks": "Không có nhiệm vụ.",
+      "on": "bật",
+      "off": "tắt",
+      "statusFilter": "Trạng thái",
+      "all": "Tất cả",
+      "status": {
+        "queued": "đang chờ",
+        "running": "đang chạy",
+        "awaiting_approval": "chờ xác nhận",
+        "completed": "hoàn thành",
+        "failed": "thất bại",
+        "cancelled": "đã hủy"
+      },
+      "by": {
+        "schedule": "theo lịch",
+        "administrator": "bởi quản trị viên",
+        "student": "bởi người dùng"
+      },
+      "result": "Kết quả",
+      "counts": "tìm thấy {count}, mới {fresh}, thay đổi {changed}",
+      "created": "Tạo lúc",
+      "attempts": "lần {n}/{max}",
+      "rerun": "Chạy lại",
+      "cancel": "Hủy",
+      "interval": "Khoảng cách",
+      "hours": "giờ",
+      "lastRun": "Lần chạy cuối",
+      "state": "Trạng thái",
+      "save": "Lưu",
+      "storageLine": "Cơ sở dữ liệu: {used} / {limit} ({pct} %)",
+      "storageHelp": "Cảnh báo được gửi ở 70 % và 90 %. Không có gì bị xóa tự động.",
+      "table": "Bảng",
+      "size": "Kích thước",
+      "indexes": "trong đó chỉ mục",
+      "rows": "Số dòng (ước tính)",
+      "rows30d": "Mới trong 30 ngày",
+      "taskTypes": {
+        "announcement_digest": "Tổng hợp thông báo",
+        "scholarship_scan": "Kiểm tra học bổng",
+        "event_digest": "Tổng hợp sự kiện",
+        "career_scan": "Kiểm tra nghề nghiệp",
+        "announcement_discovery": "Kiểm tra thông báo chính thức",
+        "opportunity_discovery": "Kiểm tra cơ hội chính thức",
+        "guidance_discovery": "Kiểm tra hướng dẫn chính thức",
+        "event_discovery": "Kiểm tra sự kiện chính thức",
+        "support_request": "Yêu cầu hỗ trợ",
+        "lookup": "Tra cứu",
+        "delegated_search": "Tra cứu ủy quyền",
+        "summarize_announcement": "Tóm tắt",
+        "explain_document": "Giải thích tài liệu",
+        "visa_checklist": "Danh sách visa",
+        "academic_checklist": "Danh sách học vụ",
+        "topik_dates": "Lịch TOPIK"
+      }
+    },
+    "gpu": {
+      "title": "Máy GPU",
+      "subtitle": "Máy GPU của trường tạo bản nháp dịch. Máy tự kết nối tới Hub; không có gì kết nối vào máy và máy không thể công bố nội dung.",
+      "refresh": "Làm mới",
+      "offTitle": "Máy GPU đang tắt",
+      "off": "GPU_WORKER_ENABLED đang tắt trên máy chủ này. Bản dịch dùng mô hình của máy chủ.",
+      "tokenTitle": "Token của {name} (chỉ hiển thị lần này)",
+      "tokenBody": "Lưu trên máy GPU trong tệp chỉ tài khoản của bạn đọc được. Không lưu ở đây.",
+      "copy": "Sao chép",
+      "copied": "Đã sao chép",
+      "hide": "Ẩn",
+      "available": "Có máy đang kết nối",
+      "unavailable": "Chưa có máy kết nối",
+      "availableHint": "Bản nháp mới chuyển tới GPU: {types}",
+      "unavailableHint": "Bản nháp mới dùng mô hình của máy chủ.",
+      "queue": "Hàng chờ",
+      "queueLine": "{queued} chờ, {running} đang chạy",
+      "last24h": "24 giờ qua",
+      "doneLine": "{ok} xong, {failed} lỗi",
+      "average": "trung bình {seconds} giây",
+      "workers": "Máy",
+      "noWorkers": "Chưa có máy nào.",
+      "name": "Tên",
+      "state": "Trạng thái",
+      "lastSeen": "Liên hệ gần nhất",
+      "expires": "Token hết hạn",
+      "actions": "Hành động",
+      "never": "chưa bao giờ",
+      "expired": "hết hạn",
+      "status": {
+        "active": "hoạt động",
+        "paused": "tạm dừng",
+        "revoked": "đã thu hồi"
+      },
+      "pause": "Tạm dừng",
+      "resume": "Tiếp tục",
+      "rotate": "Token mới",
+      "revoke": "Thu hồi",
+      "confirmRevoke": "Thu hồi vĩnh viễn",
+      "newName": "Tên máy mới",
+      "create": "Tạo",
+      "superOnly": "Chỉ quản trị viên cấp cao quản lý token.",
+      "jobs": "Việc đang mở",
+      "noJobs": "Không có việc nào.",
+      "job": "Việc",
+      "created": "Tạo lúc",
+      "cancel": "Hủy"
     }
   },
   "account": {
@@ -2025,7 +2172,10 @@
       "review": "Duyệt",
       "sources": "Nguồn",
       "request": "Yêu cầu mới",
-      "requests": "Yêu cầu của tôi"
+      "requests": "Yêu cầu của tôi",
+      "updates": "Cập nhật",
+      "terms": "Thuật ngữ",
+      "queue": "Hàng chờ"
     },
     "lists": {
       "guidesTitle": "Hướng dẫn đã được duyệt trong Trung tâm kiến thức",
@@ -2170,7 +2320,12 @@
         "review_queue": "Hàng chờ duyệt (admin)",
         "official_jobs": "Việc làm trên trang chính thức",
         "leave_of_absence": "Bảo lưu & học lại",
-        "graduation": "Điều kiện tốt nghiệp"
+        "graduation": "Điều kiện tốt nghiệp",
+        "deadlines": "Hạn chót sắp tới",
+        "translation_queue": "Hàng chờ duyệt bản dịch",
+        "official_updates": "Cập nhật chính thức đã xem xét",
+        "official_events": "Sự kiện trên trang web chính thức",
+        "support_queue": "Yêu cầu hỗ trợ đang chờ"
       },
       "notes": {
         "no_match": "Không có nguồn đã duyệt nào trong Hub phù hợp.",
@@ -2202,7 +2357,14 @@
         "no_candidates": "Không có thông báo nào chờ duyệt.",
         "official_reviewed": "Từ trang chính thức, đã được nhân viên duyệt và phê duyệt trong Trung tâm thông tin.",
         "no_reviewed_discoveries": "Chưa có thông báo nào từ trang chính thức được duyệt và phê duyệt.",
-        "reviewed_closed_hidden": "Có cơ hội đã duyệt từ trang chính thức nhưng đều đã đóng. Chọn gồm cả mục đã đóng để xem."
+        "reviewed_closed_hidden": "Có cơ hội đã duyệt từ trang chính thức nhưng đều đã đóng. Chọn gồm cả mục đã đóng để xem.",
+        "no_deadlines": "Chưa có hạn chót nào được công bố.",
+        "no_reviewed_updates": "Chưa có cập nhật nào được xem xét.",
+        "terms_draft": "Danh sách thuật ngữ nháp, chưa xác nhận.",
+        "no_terms": "Không tìm thấy thuật ngữ.",
+        "queue_empty": "Không có mục đang chờ.",
+        "not_your_language": "Bạn không được phân công cho ngôn ngữ này.",
+        "draft_needs_review": "Bản nháp chờ người duyệt trước khi công bố."
       },
       "reliability": {
         "verified": "Nguồn đã duyệt",
@@ -2243,7 +2405,9 @@
         "lookup": "Tra cứu",
         "delegated_search": "Tìm kiếm bởi chuyên viên",
         "announcement_discovery": "Kiểm tra thông báo chính thức",
-        "opportunity_discovery": "Kiểm tra cơ hội chính thức"
+        "opportunity_discovery": "Kiểm tra cơ hội chính thức",
+        "guidance_discovery": "Kiểm tra trang hướng dẫn chính thức",
+        "event_discovery": "Kiểm tra trang sự kiện chính thức"
       },
       "status": {
         "queued": "Đang chờ",
@@ -2297,7 +2461,9 @@
         "http_403": "Trang từ chối truy cập.",
         "http_503": "Trang tạm thời không khả dụng.",
         "llm_background_budget": "Hạn mức AI hôm nay cho tóm tắt và dịch đã hết (trò chuyện vẫn hoạt động). Hãy thử lại vào ngày mai hoặc đọc bản gốc.",
-        "check_running": "Việc kiểm tra các trang chính thức này đang chạy. Kết quả sẽ hiện ở đây khi xong."
+        "check_running": "Việc kiểm tra các trang chính thức này đang chạy. Kết quả sẽ hiện ở đây khi xong.",
+        "agent_paused": "Bàn này đang bị quản trị viên tạm dừng.",
+        "staff_only": "Chỉ Global Supporter và quản trị viên mới dùng được."
       },
       "tools": {
         "rag_search": "Tìm hướng dẫn đã duyệt",
@@ -2322,7 +2488,13 @@
         "official_web_search": "Tìm kiếm web",
         "official_source_check": "Kiểm tra trang chính thức ngay",
         "opportunity_search": "Cơ hội từ trang chính thức",
-        "review_candidates": "Thông báo chờ duyệt"
+        "review_candidates": "Thông báo chờ duyệt",
+        "upcoming_deadlines": "Hạn chót sắp tới",
+        "official_updates": "Cập nhật chính thức đã xem xét",
+        "terminology_lookup": "Thuật ngữ hành chính",
+        "translation_review_queue": "Hàng chờ duyệt bản dịch (nhân viên)",
+        "request_translation_draft": "Yêu cầu bản nháp dịch (nhân viên)",
+        "support_queue": "Yêu cầu đang chờ (nhân viên)"
       },
       "flags": {
         "unavailable": "không khả dụng",
@@ -2381,7 +2553,8 @@
         "scholarship": "Học bổng",
         "competition": "Cuộc thi",
         "program": "Chương trình",
-        "job": "Việc làm"
+        "job": "Việc làm",
+        "event": "Sự kiện"
       },
       "itemFlags": {
         "missing_deadline": "không thấy hạn chót",
@@ -2430,7 +2603,8 @@
       },
       "status": {
         "checkingSources": "Đang kiểm tra trang chính thức",
-        "awaiting": "{count} mục chờ bạn"
+        "awaiting": "{count} mục chờ bạn",
+        "paused": "Tạm dừng"
       },
       "source": {
         "hub": "Đã duyệt trên Hub",
@@ -2705,7 +2879,10 @@
         "request_preview": "Xem trước khi gửi",
         "explicit_confirmation": "Chỉ gửi sau khi bạn xác nhận",
         "own_request_history": "Lịch sử yêu cầu của bạn",
-        "request_status": "Trạng thái yêu cầu"
+        "request_status": "Trạng thái yêu cầu",
+        "terminology": "Thuật ngữ hành chính bằng năm ngôn ngữ (nháp)",
+        "review_queue": "Hàng chờ duyệt bản dịch (nhân viên)",
+        "official_monitoring": "Kiểm tra trang web chính thức; nhân viên xem xét kết quả"
       },
       "dataSources": {
         "rag": "Tài liệu Hub đã duyệt (câu trả lời có nguồn)",
@@ -2714,7 +2891,9 @@
         "discovery_sources": "Trang chính thức của trường được cho phép",
         "reviewed_discoveries": "Thông báo từ trang chính thức đã được nhân viên duyệt",
         "support_tickets": "Yêu cầu hỗ trợ của bạn",
-        "agent_tasks": "Công việc của bạn tại bàn này"
+        "agent_tasks": "Công việc của bạn tại bàn này",
+        "term_list": "Danh sách thuật ngữ hành chính (nháp)",
+        "translation_tasks": "Nhiệm vụ dịch của ngôn ngữ bạn phụ trách (nhân viên)"
       },
       "adminTabs": "Quản trị",
       "next": {
@@ -2735,6 +2914,49 @@
         "newRequest": "Viết yêu cầu",
         "runCheck": "Chạy kiểm tra thủ công",
         "noTasksHint": "Dùng nút phía trên để bắt đầu; kết quả được lưu ở đây."
+      },
+      "updates": {
+        "intro": "Nội dung từ các trang web chính thức của bàn này. Sinh viên chỉ thấy mục đã được nhân viên xem xét và duyệt.",
+        "listTitle": "Cập nhật đã được xem xét",
+        "empty": "Chưa có cập nhật nào được xem xét.",
+        "checks": "Lần kiểm tra"
+      },
+      "terms": {
+        "intro": "Tìm thuật ngữ hành chính trong văn bản và xem bằng cả năm ngôn ngữ.",
+        "label": "Từ hoặc văn bản",
+        "search": "Tìm thuật ngữ",
+        "none": "Không tìm thấy thuật ngữ nào trong danh sách.",
+        "draft": "Danh sách thuật ngữ nháp: chưa được người bản ngữ và phòng quốc tế xác nhận.",
+        "error": "Không tìm được. Vui lòng thử lại."
+      },
+      "queue": {
+        "intro": "Các bản dịch của ngôn ngữ này đang chờ người xem. Bản nháp không được công bố trước khi người duyệt chấp thuận.",
+        "counts": "Số lượng theo trạng thái",
+        "empty": "Không có mục nào đang chờ.",
+        "notYours": "Bạn không được phân công cho ngôn ngữ này.",
+        "open": "Mở",
+        "draft": "Yêu cầu bản nháp",
+        "queued": "Đã đưa bản nháp vào hàng chờ; bản nháp sẽ chờ duyệt.",
+        "queuedGpu": "Đã gửi bản nháp tới GPU của trường; bản nháp sẽ chờ duyệt.",
+        "noModel": "Hiện chưa thể yêu cầu bản nháp: chưa có mô hình dịch hoặc GPU kết nối.",
+        "error": "Không thực hiện được. Vui lòng thử lại.",
+        "kinds": {
+          "announcement": "Thông báo",
+          "document": "Tài liệu hướng dẫn"
+        },
+        "status": {
+          "todo": "chưa bắt đầu",
+          "machine_draft": "bản nháp máy",
+          "draft": "bản nháp",
+          "needs_review": "cần xem xét",
+          "in_review": "đang duyệt",
+          "changes_requested": "yêu cầu chỉnh sửa",
+          "outdated": "đã cũ"
+        },
+        "supportIntro": "Yêu cầu đang chờ bằng ngôn ngữ của bạn: số, ngôn ngữ, thời gian. Nội dung của sinh viên chỉ hiển thị cho người nhận xử lý.",
+        "waiting": "Đang chờ ({count})",
+        "supportEmpty": "Không có yêu cầu nào đang chờ.",
+        "openInbox": "Mở hộp thư hỗ trợ"
       }
     }
   }

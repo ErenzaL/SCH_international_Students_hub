@@ -481,7 +481,9 @@
       "submissions": "我的提交",
       "ragSync": "RAG 同步",
       "support": "支持收件箱",
-      "languageTeams": "语言团队"
+      "languageTeams": "语言团队",
+      "agents": "智能体",
+      "gpuWorker": "GPU 工作机"
     },
     "notConfiguredTitle": "身份验证尚未配置",
     "notConfiguredBody": "管理区域需要 Supabase Auth 和后端 API。",
@@ -1648,6 +1650,151 @@
       "outdatedVersions": "已过时（之前的原文）",
       "emptyBody": "您负责的语言目前没有需要翻译的内容。",
       "fromOriginal": "译自{language}原文，第 {version} 版"
+    },
+    "agents": {
+      "title": "AI 办公室运维",
+      "subtitle": "14 个服务台实际完成、等待和失败的任务。",
+      "tabs": {
+        "desks": "服务台",
+        "tasks": "任务",
+        "schedules": "计划",
+        "storage": "存储"
+      },
+      "privacy": "此处不会显示学生的输入和结果。",
+      "schedulesOffTitle": "服务器已关闭自动检查",
+      "schedulesOff": "没有计划任务运行（AGENT_SCHEDULES_ENABLED 已关闭）。管理员仍可在服务台手动检查。",
+      "schedulesHelp": "只有此处与服务器设置都开启时计划才会运行。发现的内容始终等待管理员审核。",
+      "serverOn": "自动检查已开启",
+      "queues": "队列",
+      "queue": {
+        "agent_tasks": "智能体任务",
+        "jobs": "文档与翻译",
+        "gpu_jobs": "GPU 工作机"
+      },
+      "queueLine": "等待 {queued}，运行 {running}，失败 {failed}（7天）",
+      "oldest": "最久：{minutes} 分钟",
+      "stuck": "队列已卡住。",
+      "needsMigration": "需要数据库迁移。",
+      "storageMissing": "应用迁移 0017 后可查看大小。",
+      "refresh": "刷新",
+      "desk": "服务台",
+      "task": "任务",
+      "tasks7d": "任务（7天）",
+      "lastSuccess": "最近成功",
+      "lastFailure": "失败 {when} {code}",
+      "sources": "官方来源",
+      "sourcesLine": "{enabled}/{total} 启用",
+      "failing": "{count} 个出错",
+      "schedules": "计划",
+      "actions": "操作",
+      "paused": "已暂停",
+      "pause": "暂停",
+      "resume": "恢复",
+      "open": "打开服务台",
+      "tools": "{count} 个工具",
+      "toolsOff": "关闭：{names}",
+      "noTasks": "没有任务。",
+      "on": "开",
+      "off": "关",
+      "statusFilter": "状态",
+      "all": "全部",
+      "status": {
+        "queued": "等待",
+        "running": "运行中",
+        "awaiting_approval": "等待确认",
+        "completed": "已完成",
+        "failed": "失败",
+        "cancelled": "已取消"
+      },
+      "by": {
+        "schedule": "由计划",
+        "administrator": "由管理员",
+        "student": "由用户"
+      },
+      "result": "结果",
+      "counts": "发现 {count}，新增 {fresh}，变更 {changed}",
+      "created": "创建时间",
+      "attempts": "第 {n}/{max} 次",
+      "rerun": "重新运行",
+      "cancel": "取消",
+      "interval": "间隔",
+      "hours": "小时",
+      "lastRun": "上次运行",
+      "state": "状态",
+      "save": "保存",
+      "storageLine": "数据库：{used} / {limit}（{pct} %）",
+      "storageHelp": "达到 70 % 和 90 % 时会发送提醒。不会自动删除任何内容。",
+      "table": "表",
+      "size": "大小",
+      "indexes": "其中索引",
+      "rows": "行数（估计）",
+      "rows30d": "30 天新增",
+      "taskTypes": {
+        "announcement_digest": "公告摘要",
+        "scholarship_scan": "奖学金检查",
+        "event_digest": "活动摘要",
+        "career_scan": "职业信息检查",
+        "announcement_discovery": "官方公告检查",
+        "opportunity_discovery": "官方机会检查",
+        "guidance_discovery": "官方指南检查",
+        "event_discovery": "官方活动检查",
+        "support_request": "求助",
+        "lookup": "查询",
+        "delegated_search": "委托查询",
+        "summarize_announcement": "摘要",
+        "explain_document": "文档说明",
+        "visa_checklist": "签证清单",
+        "academic_checklist": "学务清单",
+        "topik_dates": "TOPIK 日期"
+      }
+    },
+    "gpu": {
+      "title": "GPU 工作机",
+      "subtitle": "大学 GPU 计算机生成译文草稿。它主动连接平台；外部不会连接它，它也不能发布任何内容。",
+      "refresh": "刷新",
+      "offTitle": "GPU 工作机已关闭",
+      "off": "此服务器的 GPU_WORKER_ENABLED 已关闭。翻译使用服务器自身的模型。",
+      "tokenTitle": "{name} 的令牌（仅此次显示）",
+      "tokenBody": "请保存在 GPU 计算机上仅您的账户可读的文件中。此处不会保存。",
+      "copy": "复制",
+      "copied": "已复制",
+      "hide": "隐藏",
+      "available": "有工作机已连接",
+      "unavailable": "没有工作机连接",
+      "availableHint": "新草稿将发送至 GPU：{types}",
+      "unavailableHint": "新草稿使用服务器自身的模型。",
+      "queue": "队列",
+      "queueLine": "等待 {queued}，运行 {running}",
+      "last24h": "最近 24 小时",
+      "doneLine": "完成 {ok}，失败 {failed}",
+      "average": "平均 {seconds} 秒",
+      "workers": "工作机",
+      "noWorkers": "尚未创建工作机。",
+      "name": "名称",
+      "state": "状态",
+      "lastSeen": "最近联系",
+      "expires": "令牌到期",
+      "actions": "操作",
+      "never": "从未",
+      "expired": "已过期",
+      "status": {
+        "active": "启用",
+        "paused": "已暂停",
+        "revoked": "已吊销"
+      },
+      "pause": "暂停",
+      "resume": "恢复",
+      "rotate": "新令牌",
+      "revoke": "吊销",
+      "confirmRevoke": "永久吊销",
+      "newName": "新工作机名称",
+      "create": "创建",
+      "superOnly": "仅超级管理员可管理令牌。",
+      "jobs": "进行中的任务",
+      "noJobs": "没有进行中的任务。",
+      "job": "任务",
+      "created": "创建时间",
+      "cancel": "取消"
     }
   },
   "account": {
@@ -2025,7 +2172,10 @@
       "review": "审核",
       "sources": "来源",
       "request": "新请求",
-      "requests": "我的请求"
+      "requests": "我的请求",
+      "updates": "更新",
+      "terms": "术语",
+      "queue": "队列"
     },
     "lists": {
       "guidesTitle": "知识中心中已审核的指南",
@@ -2170,7 +2320,12 @@
         "review_queue": "审核队列（管理员）",
         "official_jobs": "官方网站上的招聘",
         "leave_of_absence": "休学与复学",
-        "graduation": "毕业要求"
+        "graduation": "毕业要求",
+        "deadlines": "即将截止",
+        "translation_queue": "译文审核队列",
+        "official_updates": "已审核的官方更新",
+        "official_events": "官方网站上的活动",
+        "support_queue": "等待中的求助"
       },
       "notes": {
         "no_match": "Hub中没有匹配的已审核资料。",
@@ -2202,7 +2357,14 @@
         "no_candidates": "没有等待审核的通知。",
         "official_reviewed": "来自官方网站，已由工作人员审核并在知识中心批准。",
         "no_reviewed_discoveries": "官方网站上的公告尚无经审核批准的内容。",
-        "reviewed_closed_hidden": "有经审核的官方网站机会，但都已截止。勾选包括已截止的即可查看。"
+        "reviewed_closed_hidden": "有经审核的官方网站机会，但都已截止。勾选包括已截止的即可查看。",
+        "no_deadlines": "没有已发布的即将到来的截止日期。",
+        "no_reviewed_updates": "暂无已审核的更新。",
+        "terms_draft": "术语表草稿，尚未确认。",
+        "no_terms": "未找到术语。",
+        "queue_empty": "没有等待的内容。",
+        "not_your_language": "您未被分配到该语言。",
+        "draft_needs_review": "草稿须经审核后才会公开。"
       },
       "reliability": {
         "verified": "已审核来源",
@@ -2243,7 +2405,9 @@
         "lookup": "查询",
         "delegated_search": "专员搜索",
         "announcement_discovery": "官方通知检查",
-        "opportunity_discovery": "官方机会检查"
+        "opportunity_discovery": "官方机会检查",
+        "guidance_discovery": "检查官方指南网站",
+        "event_discovery": "检查官方活动网站"
       },
       "status": {
         "queued": "排队中",
@@ -2297,7 +2461,9 @@
         "http_403": "网站拒绝访问。",
         "http_503": "网站暂时不可用。",
         "llm_background_budget": "今天用于摘要和翻译的 AI 额度已用完（对话仍可使用）。请明天再试或阅读原文。",
-        "check_running": "这些官方网站的检查正在进行中，完成后结果会显示在这里。"
+        "check_running": "这些官方网站的检查正在进行中，完成后结果会显示在这里。",
+        "agent_paused": "该服务台已被管理员暂停。",
+        "staff_only": "仅限全球支持者和管理员使用。"
       },
       "tools": {
         "rag_search": "搜索已审核指南",
@@ -2322,7 +2488,13 @@
         "official_web_search": "网页搜索",
         "official_source_check": "立即检查官方网站",
         "opportunity_search": "官方网站上的机会",
-        "review_candidates": "待审核的通知"
+        "review_candidates": "待审核的通知",
+        "upcoming_deadlines": "即将截止",
+        "official_updates": "已审核的官方更新",
+        "terminology_lookup": "行政术语",
+        "translation_review_queue": "译文审核队列（工作人员）",
+        "request_translation_draft": "请求译文草稿（工作人员）",
+        "support_queue": "等待中的求助（工作人员）"
       },
       "flags": {
         "unavailable": "不可用",
@@ -2381,7 +2553,8 @@
         "scholarship": "奖学金",
         "competition": "比赛",
         "program": "项目",
-        "job": "招聘"
+        "job": "招聘",
+        "event": "活动"
       },
       "itemFlags": {
         "missing_deadline": "未找到截止日期",
@@ -2430,7 +2603,8 @@
       },
       "status": {
         "checkingSources": "正在检查官方网站",
-        "awaiting": "{count} 项等待你确认"
+        "awaiting": "{count} 项等待你确认",
+        "paused": "已暂停"
       },
       "source": {
         "hub": "Hub已批准",
@@ -2705,7 +2879,10 @@
         "request_preview": "发送前预览",
         "explicit_confirmation": "只有在你确认后才发送",
         "own_request_history": "你的请求记录",
-        "request_status": "请求状态"
+        "request_status": "请求状态",
+        "terminology": "五种语言的行政术语（草稿）",
+        "review_queue": "译文审核队列（工作人员）",
+        "official_monitoring": "检查官方网站；结果由工作人员审核"
       },
       "dataSources": {
         "rag": "已批准的Hub文档（附来源的回答）",
@@ -2714,7 +2891,9 @@
         "discovery_sources": "允许访问的大学官方网站",
         "reviewed_discoveries": "经工作人员审核批准的官方网站公告",
         "support_tickets": "你自己的支持请求",
-        "agent_tasks": "你在此服务台的任务"
+        "agent_tasks": "你在此服务台的任务",
+        "term_list": "行政术语表（草稿）",
+        "translation_tasks": "您所负责语言的翻译任务（工作人员）"
       },
       "adminTabs": "管理员",
       "next": {
@@ -2735,6 +2914,49 @@
         "newRequest": "填写请求",
         "runCheck": "运行手动检查",
         "noTasksHint": "使用上方按钮开始；结果会保存在这里。"
+      },
+      "updates": {
+        "intro": "该服务台所关注的官方网站发布的内容。学生只能看到工作人员审核通过的条目。",
+        "listTitle": "已审核的更新",
+        "empty": "暂无已审核的更新。",
+        "checks": "检查记录"
+      },
+      "terms": {
+        "intro": "查找文本中的行政术语，并以五种语言显示。",
+        "label": "词语或文本",
+        "search": "查找术语",
+        "none": "未找到列表中的术语。",
+        "draft": "术语表草稿：尚未经母语者和国际处确认。",
+        "error": "查询失败，请重试。"
+      },
+      "queue": {
+        "intro": "等待人工处理的该语言译文。草稿在审核通过之前不会公开。",
+        "counts": "按状态统计",
+        "empty": "没有等待处理的内容。",
+        "notYours": "您未被分配到该语言。",
+        "open": "打开",
+        "draft": "请求草稿",
+        "queued": "草稿已排队，完成后等待审核。",
+        "queuedGpu": "草稿已提交至大学 GPU 队列，完成后等待审核。",
+        "noModel": "暂时无法请求草稿：没有连接翻译模型或 GPU。",
+        "error": "操作失败，请重试。",
+        "kinds": {
+          "announcement": "公告",
+          "document": "指南"
+        },
+        "status": {
+          "todo": "未开始",
+          "machine_draft": "机器草稿",
+          "draft": "草稿",
+          "needs_review": "需要审核",
+          "in_review": "审核中",
+          "changes_requested": "要求修改",
+          "outdated": "已过期"
+        },
+        "supportIntro": "您所负责语言中等待的求助：编号、语言、时间。学生所写内容仅对接手的人显示。",
+        "waiting": "等待中（{count}）",
+        "supportEmpty": "没有等待的请求。",
+        "openInbox": "打开支持收件箱"
       }
     }
   }

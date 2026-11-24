@@ -181,7 +181,7 @@ export function OfficePanel({ c, minimized, onClose, onMinimize, onRestore, onSe
   );
 }
 
-const ADMIN_TABS = new Set<PanelTab>(["review", "sources"]);
+const ADMIN_TABS = new Set<PanelTab>(["review", "sources", "queue"]);
 
 function TabButton({ id, selected, onSelect, admin = false }: {
   id: PanelTab;

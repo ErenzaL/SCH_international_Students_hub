@@ -27,6 +27,8 @@ export const ADMIN_NAV = [
   { href: "/admin/translations", key: "translations", icon: "Languages", roles: ["admin", "super_admin", "supporter"] },
   { href: "/admin/review", key: "review", icon: "ClipboardCheck", roles: ["admin", "super_admin"] },
   { href: "/admin/rag-sync", key: "ragSync", icon: "Activity", roles: ["admin", "super_admin"] },
+  { href: "/admin/agents", key: "agents", icon: "Bot", roles: ["admin", "super_admin"] },
+  { href: "/admin/gpu-worker", key: "gpuWorker", icon: "Cpu", roles: ["admin", "super_admin"] },
   { href: "/admin/users", key: "users", icon: "Users", roles: ["admin", "super_admin"] },
   { href: "/admin/language-teams", key: "languageTeams", icon: "UsersRound", roles: ["admin", "super_admin", "supporter"] },
   { href: "/admin/settings", key: "settings", icon: "Settings", roles: ["admin", "super_admin"] },

@@ -65,7 +65,8 @@ export interface AgentTask {
 
 export type PanelTab = "chat" | "work" | "guides" | "notices" | "events" | "opportunities" | "desks" | "help" | "support" | "about"
   // role-specific workspaces (the backend registry offers them per agent and viewer: AgentInterface.tabs)
-  | "checklists" | "procedures" | "topik" | "careers" | "monitoring" | "review" | "sources" | "request" | "requests";
+  | "checklists" | "procedures" | "topik" | "careers" | "monitoring" | "review" | "sources" | "request" | "requests"
+  | "updates" | "terms" | "queue";
 
 const read = (id: string, tool: ToolId, extra: Partial<AgentCapability> = {}): AgentCapability =>
   ({ id, tool, status: "available", access: "read", requiresConfirmation: false, ...extra });
