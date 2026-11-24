@@ -34,10 +34,12 @@ from typing import Any
 
 from app.core.config import Settings
 from app.repositories.base import Query
-from app.services.assistant.evidence import EvidenceChecker, EvidenceConfig
+from app.services.assistant.evidence import EvidenceChecker, EvidenceConfig, quantity_kind
 from app.services.assistant.prompts import META_MARKER, load_system_prompt
 from app.services.assistant.texts import NATIVE_NAMES, t
+from app.services.language_detect import detect_language
 from app.services.llm.base import LLMError, LLMProvider, NullLLMProvider
+from app.services.retrieval import families
 from app.services.retrieval.query_analysis import code_matches, find_codes, normalize_codes, token_set
 from app.services.retrieval.rerank import Reranker, build_reranker
 from app.services.retrieval.service import RetrievalService
@@ -137,7 +139,7 @@ today: {today} (Korea time)
 <sources>
 {sources}
 </sources>
-
+{notes}
 {history}{interpreted}<question>
 {question}
 </question>"""
@@ -225,7 +227,7 @@ class AssistantEngine:
         return [question], info
 
     # ------------------------------------------------------------------ retrieval
-    def _retrieve(self, queries: list[str], top_k: int = 10) -> dict[str, Any]:
+    def _retrieve(self, queries: list[str], top_k: int = 10, *, bridge: bool = True) -> dict[str, Any]:
         """Hybrid search for each query, reciprocal-rank fusion across queries (only approved current originals).
 
         Each search may return up to 5 passages of one document (evidence selection trims later), and the best
@@ -233,7 +235,7 @@ class AssistantEngine:
         fused: dict[str, tuple[float, dict[str, Any]]] = {}
         mode, warning = "hybrid", None
         for q in queries:
-            res = self.retrieval.search(q, top_k=top_k, max_per_document=5)
+            res = self.retrieval.search(q, top_k=top_k, max_per_document=5, bridge=bridge)
             mode = res["retrieval"]["mode"]
             warning = warning or res["retrieval"].get("warning")
             for rank, h in enumerate(res["results"], 1):
@@ -287,6 +289,12 @@ class AssistantEngine:
                 except ValueError:
                     pass
             pool.append(h)
+        # editions and copies of one notice among the passages of ALL query variants: the newest edition answers, unless
+        # the question names the older year (families.py); the others stay in the Knowledge Center, not in this answer
+        pool = families.annotate([{k: v for k, v in h.items() if k not in ("superseded_by", "superseded_by_title", "copy_of")}
+                                  for h in pool], question)
+        current = [h for h in pool if not (h.get("superseded_by") or h.get("copy_of"))]
+        pool = current or pool
         if codes:
             def about_other_code(h: dict[str, Any]) -> bool:
                 present = find_codes(normalize_codes(f"{h.get('heading') or ''} {h.get('passage') or ''}"))
@@ -338,6 +346,7 @@ class AssistantEngine:
                     document_title=first.get("document_title"), heading=first.get("heading"),
                     source_url=first.get("source_url"), organization=first.get("organization"),
                     authority_type=first.get("authority_type"), verified_at=first.get("verified_at"),
+                    source_published_at=first.get("source_published_at"), deadline=_deadline(src),
                     language=first.get("language"), is_stale=any(p.get("is_stale") for p in src["passages"]),
                     page=first.get("page"), source_type=first.get("source_type"))
 
@@ -371,9 +380,13 @@ class AssistantEngine:
             meta.append(f"valid until: {str(first['valid_until'])[:10]}")
         if any(p.get("is_stale") for p in src["passages"]):
             meta.append("may be outdated")
+        dl = _deadline(src)
+        if dl:
+            meta.append(f"deadline {dl['date']}: " + ("ALREADY PASSED" if dl["passed"] else "still open"))
+        meta = [_untagged(m) for m in meta]
         parts = []
         for p in src["passages"]:
-            text = re.sub(r"\s+", " ", p.get("passage") or "").strip()[:PASSAGE_LIMIT]
+            text = _untagged(re.sub(r"\s+", " ", p.get("passage") or "").strip()[:PASSAGE_LIMIT])
             section = f' section="{_attr(p["heading"])}"' if p.get("heading") else ""
             parts.append(f"<passage{section}>{text}</passage>")
         return f"[{n}] ({'; '.join(meta)})\n" + "\n".join(parts)
@@ -402,7 +415,9 @@ class AssistantEngine:
         emit("status", {"stage": "searching"})
         ai_ok = self.llm.enabled and self.budget()
         queries, qinfo = self._queries(question, history, use_llm=ai_ok)
-        found = self._retrieve(queries, top_k=self.settings.rerank_top_n if self.reranker.enabled else 10)
+        # the model's rewrite already searches in Korean and English; the glossary bridge is for turns without it
+        found = self._retrieve(queries, top_k=self.settings.rerank_top_n if self.reranker.enabled else 10,
+                               bridge=not qinfo["rewritten"])
         codes = find_codes(normalize_codes(qinfo.get("standalone") or question))
         hits, rerank_info = self._rerank(qinfo.get("standalone") or question, found["hits"])
         sources = self._select(hits, codes, " ".join(filter(None, [question, qinfo.get("standalone")])),
@@ -451,6 +466,9 @@ class AssistantEngine:
                 if _leaks_prompt(checked, self.prompt.text):
                     # the instructions are confidential (system prompt, section 8): never shown, whatever was asked
                     out["generation"] = gen | {"answer_generation": "fallback", "fallback_reason": "prompt_leak"}
+                    generation_failed = True
+                elif sources and _wrong_language(checked, lang):
+                    out["generation"] = gen | {"answer_generation": "fallback", "fallback_reason": "wrong_language"}
                     generation_failed = True
                 elif sources and ev != "none" and not _citations(checked, len(sources)):
                     out["generation"] = gen | {"answer_generation": "fallback",
@@ -538,7 +556,8 @@ class AssistantEngine:
         today = datetime.now(UTC).astimezone(_KST).date().isoformat()
         language = LANGUAGE_NAMES.get(lang, NATIVE_NAMES.get(lang, lang))
         blocks = "\n\n".join(self._source_block(i, s) for i, s in enumerate(sources, 1))
-        prompt = ANSWER_PROMPT.format(language=language, today=today,
+        notes = _notes(question, standalone, sources)
+        prompt = ANSWER_PROMPT.format(language=language, today=today, notes=notes,
                                       sources=blocks or "(no approved source matched this question)",
                                       history=hist, interpreted=interpreted, question=question[:4000])
         if getattr(self.llm, "needs_format_reminder", False):
@@ -546,7 +565,15 @@ class AssistantEngine:
         system = self.prompt.text      # identical for the primary and the fallback model
         # the student never sees [n] markers or the assessment block, not even while the answer streams
         streamer = _MetaHoldback(_MarkerFilter(lambda text: emit("delta", {"text": text})).feed)
-        res = self.llm.stream(system, prompt, streamer.feed, max_tokens=self.settings.llm_answer_max_tokens)
+
+        def ask(text: str, feed: Callable[[str], None]) -> Any:
+            return self.llm.stream(system, text, feed, max_tokens=self.settings.llm_answer_max_tokens)
+
+        res = ask(prompt, streamer.feed)
+        if sources and _wrong_language(res.text.partition(META)[0], lang):
+            # one bounded retry; a partly streamed text is replaced by the final message on the client
+            log.warning("answer not in the requested language (%s); asking once more", lang)
+            res = ask(prompt + f"\n\nImportant: write the whole answer in {language}.", lambda _t: None)
         body, _, tail = res.text.partition(META)
         meta: dict[str, Any] = {}
         try:
@@ -564,6 +591,62 @@ class AssistantEngine:
                  r.get("mode"), gen.get("answer_generation"), gen.get("fallback_reason", "-"), out["offer_handoff"],
                  ",".join(out["handoff_reasons"]) or "-", out["latency_ms"])
         return out
+
+
+# ---------------------------------------------------------------------------- evidence notes
+#: tags the request is built from: text inside a source can never open or close one of them
+_CONTROL_TAG = re.compile(r"</?\s*(?:sources?|passage|runtime_context|notes?|conversation|interpreted_question|question|"
+                          r"latest_message|system)\b[^<>]{0,200}>", re.I)
+
+
+def _untagged(text: str) -> str:
+    return _CONTROL_TAG.sub(" ", (text or "").replace(META, " "))
+
+
+def _deadline(src: dict[str, Any]) -> dict[str, Any] | None:
+    first = src["passages"][0]
+    try:
+        return families.deadline_status(first.get("document_title") or "", [p.get("passage") or "" for p in src["passages"]],
+                                        first.get("source_published_at"), datetime.now(UTC).astimezone(_KST).date())
+    except Exception:  # noqa: BLE001 - an unreadable date never costs an answer
+        return None
+
+
+def _notes(question: str, standalone: str | None, sources: list[dict[str, Any]]) -> str:
+    """Facts about the sources the application knows and the model cannot see: passed deadlines, and different figures for
+    the kind of quantity that was asked. Empty (and the prompt unchanged) when there is nothing to say."""
+    notes = []
+    numbers = {s["document_id"]: i for i, s in enumerate(sources, 1)}
+    passed = [str(i) for i, s in enumerate(sources, 1) if (_deadline(s) or {}).get("passed")]
+    if passed:
+        notes.append(f"The deadline stated in source {', '.join(passed)} has passed: say so and give the date; never describe "
+                     "it as open or current.")
+    q = f"{question} {standalone or ''}"
+    units = {"hours": {"hours"}, "money": {"won"}, "duration": {"days", "months"}}.get(quantity_kind(q) or "", set())
+    for c in EvidenceChecker.conflicts(sources):
+        if c["unit"] in units:
+            vals = "; ".join(f"source {numbers[d]}: {', '.join(v)}" for d, v in c["values"].items() if d in numbers)
+            notes.append(f"Sources state different figures ({c['unit']}: {vals}). They may describe different cases. Check which one "
+                         "answers the question; if they really disagree, prefer the newer official source and say that they differ.")
+    return "\n<notes>\n" + "\n".join(f"- {n}" for n in notes[:4]) + "\n</notes>\n" if notes else ""
+
+
+def _wrong_language(text: str, lang: str) -> bool:
+    """True only when the text is clearly in another language (Korean terms inside another language are normal)."""
+    body = re.sub(r"\([^)]{0,80}\)|https?://\S+|\[\d+\]", " ", text or "")
+    hangul, han = len(re.findall(r"[가-힣]", body)), len(re.findall(r"[一-鿿]", body))
+    latin = len(re.findall(r"[A-Za-zÀ-ɏḀ-ỿ]", body)) / 2.5        # a Korean or Chinese character is about a half word
+    total = hangul + han + latin
+    if total < 40:
+        return False
+    if lang == "ko":
+        return hangul / total < 0.3
+    if lang == "zh-CN":
+        return han / total < 0.35
+    if (hangul + han) / total > 0.45:
+        return True
+    found = detect_language(body, min_letters=80)
+    return found in ("en", "id", "vi") and found != lang
 
 
 # ---------------------------------------------------------------------------- answer checks

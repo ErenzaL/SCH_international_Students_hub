@@ -15,12 +15,16 @@ from __future__ import annotations
 
 import logging
 import re
+import threading
+from collections import OrderedDict
 from typing import Any
 
 from app.core.config import Settings
 from app.core.errors import EmbeddingUnavailable
 from app.repositories.base import Store
 from app.services.embeddings.base import EmbeddingError, EmbeddingProvider
+from app.services.retrieval import families
+from app.services.retrieval.bridge import bridge_queries
 from app.services.retrieval.query_analysis import (
     analyze,
     code_matches,
@@ -37,6 +41,7 @@ _KO_PARTICLES = ("에서는", "으로는", "에서", "으로", "에는", "에게
 _STOP = {"the", "a", "an", "of", "to", "for", "and", "or", "in", "on", "is", "are", "how", "do", "i", "my", "what", "can",
          "yang", "dan", "di", "ke", "untuk", "dengan", "apa", "bagaimana", "saya"}
 MAX_TOKENS = 12
+QUERY_CACHE = 256
 # exact identifiers students search for: visa types (D-2, D-2-2, E-7, F-2-7), TOPIK levels, acronyms (ARC, NHIS)
 # ASCII-only boundaries so "D-2签证" / "D-2비자" (identifier glued to CJK text) still match
 _IDENT = re.compile(r"(?<![A-Za-z0-9-])([A-Za-z]-\d{1,2}(?:-\d{1,2})?|TOPIK\s?(?:I{1,3}|[1-6])(?:\s?급)?|[A-Z]{2,6})(?![A-Za-z0-9-])")
@@ -91,23 +96,35 @@ class RetrievalService:
         self.store = store
         self.embedder = embedder
         self.settings = settings
+        self._cache: OrderedDict[tuple[str, str], list[float]] = OrderedDict()
+        self._cache_lock = threading.Lock()
 
     def search(self, query: str, *, language: str | None = None, category: str | None = None, top_k: int = 5,
                mode: str = "hybrid", scope: str | None = None, authority: list[str] | None = None,
-               max_per_document: int | None = None) -> dict[str, Any]:
+               max_per_document: int | None = None, bridge: bool = True) -> dict[str, Any]:
         top_k = min(max(top_k, 1), 20)
         if mode == "hybrid" and self.settings.retrieval_fusion != "weighted":
             mode = "hybrid_legacy"
         if mode == "hybrid":
             return self._search_weighted(query, category=category, top_k=top_k, scope=scope, authority=authority,
-                                         max_per_document=max_per_document)
+                                         max_per_document=max_per_document, bridge=bridge)
         return self._search_sql(query, category=category, top_k=top_k, mode="hybrid" if mode == "hybrid_legacy" else mode,
                                 scope=scope, authority=authority, label=mode)
 
     # ----------------------------------------------------------- shared helpers
     def _embed(self, query: str, *, required: bool) -> tuple[list[float] | None, str | None]:
+        key = (self.embedder.model_id, query)
+        with self._cache_lock:
+            if key in self._cache:
+                self._cache.move_to_end(key)
+                return self._cache[key], None
         try:
-            return self.embedder.embed_query(query), None
+            vec = self.embedder.embed_query(query)
+            with self._cache_lock:        # question vectors only (about 12 KB each), never results: those must stay current
+                self._cache[key] = vec
+                while len(self._cache) > QUERY_CACHE:
+                    self._cache.popitem(last=False)
+            return vec, None
         except EmbeddingError as exc:
             if required:
                 raise EmbeddingUnavailable(f"Vector search is unavailable: {exc}") from exc
@@ -133,6 +150,7 @@ class RetrievalService:
             verified_at=r.get("verified_at"), language=r["language"], source_id=r.get("source_id"),
             source_type=r.get("source_type"), valid_until=r.get("valid_until"),
             exact_match=bool(r.get("exact_match")),
+            **{k: r[k] for k in ("superseded_by", "superseded_by_title", "copy_of") if r.get(k)},
             **stale_info(r.get("verified_at"), r.get("category"), r.get("stale_after_days")), **extra,
         )
 
@@ -166,7 +184,8 @@ class RetrievalService:
 
     # ---------------------------------------------------------- weighted fusion
     def _search_weighted(self, query: str, *, category: str | None, top_k: int, scope: str | None,
-                         authority: list[str] | None, max_per_document: int | None = None) -> dict[str, Any]:
+                         authority: list[str] | None, max_per_document: int | None = None,
+                         bridge: bool = True) -> dict[str, Any]:
         s = self.settings
         qa = analyze(query)
         pool = max(top_k * 3, min(max(s.retrieval_candidate_pool, top_k), 50))
@@ -177,6 +196,13 @@ class RetrievalService:
         kw_rows = self._rpc(embedding=None, tokens=qa.keyword_tokens, exact=qa.exact_terms, mode="keyword", **common) \
             if (qa.keyword_tokens or qa.exact_terms) else []
         mode = "hybrid" if embedding is not None else "keyword"
+        # the question's glossary concepts in official Korean and English (bridge.py): extra, weaker dense queries
+        bridges = bridge_queries(qa) if bridge and embedding is not None and s.retrieval_bridge_weight > 0 else []
+        bridge_rows = []
+        for b in bridges:
+            vec, _w = self._embed(b, required=False)
+            if vec is not None:
+                bridge_rows.append(self._rpc(embedding=vec, tokens=None, exact=None, mode="vector", **common))
 
         cands: dict[str, dict[str, Any]] = {}
         for r in vec_rows:
@@ -184,6 +210,12 @@ class RetrievalService:
         for r in kw_rows:
             c = cands.setdefault(r["chunk_id"], dict(r, similarity=None))
             c["keyword_rank"], c["exact_match"] = r.get("keyword_rank"), bool(r.get("exact_match"))
+        bridge_rank: dict[str, float] = {}       # best reciprocal rank in any bridge query
+        for rows in bridge_rows:
+            for i, r in enumerate(rows, 1):
+                cid = r["chunk_id"]
+                cands.setdefault(cid, dict(r, similarity=None, keyword_rank=None, exact_match=False, bridged=r.get("similarity")))
+                bridge_rank[cid] = max(bridge_rank.get(cid, 0.0), 1.0 / (60.0 + i))
         if not cands:
             return self._response(query, [], mode, warning, qa.exact_terms)
 
@@ -211,13 +243,14 @@ class RetrievalService:
             # the code itself is one of the weighted terms, so a passage that merely mentions "D-2" does not reach
             # 0.5 coverage on its own when the question asks about something else as well
             strong_lex = coverage >= 0.5
-            if sim is None and not strong_lex:
+            if sim is None and not strong_lex and not (cid in bridge_rank and coverage > 0):
                 continue          # keyword-only overlap on weak/broad words is not evidence
             if sim is not None and min_sim and sim < min_sim and not strong_lex:
                 continue          # semantic-only match below the evidence threshold
             score = s.retrieval_vector_weight / (k + vec_rank[cid]) if cid in vec_rank else 0.0
             if cid in lex_rank:
                 score += s.retrieval_keyword_weight * coverage / (k + lex_rank[cid])
+            score += s.retrieval_bridge_weight * bridge_rank.get(cid, 0.0)
             if exact and qa.codes:
                 score += s.retrieval_keyword_weight / (k + 1)
             mismatch = bool(qa.codes) and bool(codes_here) and not code_matches(qa.codes, codes_here)
@@ -230,6 +263,12 @@ class RetrievalService:
             scored.append((score, row, dict(lexical_coverage=round(coverage, 3), matched_terms=matched,
                                             code_mismatch=mismatch)))
         scored.sort(key=lambda x: (-x[0], str(x[1].get("document_title") or ""), str(x[1].get("passage") or "")[:80]))
+
+        # an older edition or a copy of a notice never ranks above its newer edition / original (families.py)
+        marked = {id(r): m for (_s, r, _x), m in zip(scored, families.annotate([r for _s, r, _x in scored], query), strict=True)}
+        scored = [(sc, marked[id(r)], x) for sc, r, x in scored]
+        scored = [t for t in scored if not (t[1].get("superseded_by") or t[1].get("copy_of"))] + \
+            [t for t in scored if t[1].get("superseded_by") or t[1].get("copy_of")]
 
         results: list[dict[str, Any]] = []
         per_doc: dict[str, int] = {}

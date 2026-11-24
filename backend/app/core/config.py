@@ -71,6 +71,7 @@ class Settings(BaseSettings):
     retrieval_fusion: str = "weighted"
     retrieval_vector_weight: float = 1.0
     retrieval_keyword_weight: float = 0.35
+    retrieval_bridge_weight: float = 0.75     # extra Korean/English concept queries (retrieval/bridge.py); 0 = off
     retrieval_candidate_pool: int = 30        # candidates fetched per leg before fusion
     retrieval_max_chunks_per_document: int = 3
     # a passage that names a different visa/status code (E-7, F-2-R ...) but not the one asked about is demoted
