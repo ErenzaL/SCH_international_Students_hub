@@ -481,7 +481,9 @@
       "submissions": "Kiriman Saya",
       "ragSync": "Sinkronisasi RAG",
       "support": "Kotak masuk dukungan",
-      "languageTeams": "Tim bahasa"
+      "languageTeams": "Tim bahasa",
+      "agents": "Agen",
+      "gpuWorker": "Pekerja GPU"
     },
     "notConfiguredTitle": "Autentikasi belum dikonfigurasi",
     "notConfiguredBody": "Area admin memerlukan Supabase Auth dan API backend.",
@@ -1648,6 +1650,178 @@
       "outdatedVersions": "Usang (teks asli sebelumnya)",
       "emptyBody": "Saat ini tidak ada yang perlu diterjemahkan dalam bahasa Anda.",
       "fromOriginal": "Dari teks asli berbahasa {language}, versi {version}"
+    },
+    "agents": {
+      "title": "Operasi AI Office",
+      "subtitle": "Apa yang benar-benar dikerjakan 14 meja, yang menunggu, dan yang gagal.",
+      "tabs": {
+        "desks": "Meja",
+        "tasks": "Tugas",
+        "schedules": "Jadwal",
+        "storage": "Penyimpanan",
+        "sources": "Sumber"
+      },
+      "privacy": "Parameter dan hasil milik mahasiswa tidak pernah ditampilkan di sini.",
+      "schedulesOffTitle": "Pemeriksaan otomatis dimatikan di server",
+      "schedulesOff": "Tidak ada yang berjalan terjadwal (AGENT_SCHEDULES_ENABLED mati). Administrator tetap bisa memulai pemeriksaan di meja.",
+      "schedulesHelp": "Jadwal berjalan hanya bila aktif di sini DAN di pengaturan server. Temuan selalu menunggu administrator.",
+      "serverOn": "Pemeriksaan otomatis aktif",
+      "queues": "Antrean",
+      "queue": {
+        "agent_tasks": "Tugas agen",
+        "jobs": "Dokumen dan terjemahan",
+        "gpu_jobs": "Pekerja GPU"
+      },
+      "queueLine": "{queued} menunggu, {running} berjalan, {failed} gagal (7 hari)",
+      "oldest": "terlama: {minutes} mnt",
+      "stuck": "Antrean ini macet.",
+      "needsMigration": "Perlu migrasi basis data.",
+      "storageMissing": "Terapkan migrasi 0017 untuk melihat ukuran.",
+      "refresh": "Muat ulang",
+      "desk": "Meja",
+      "task": "Tugas",
+      "tasks7d": "Tugas (7 hari)",
+      "lastSuccess": "Sukses terakhir",
+      "lastFailure": "gagal {when} {code}",
+      "sources": "Sumber resmi",
+      "sourcesLine": "{enabled} dari {total} aktif",
+      "failing": "{count} gagal",
+      "schedules": "Jadwal",
+      "actions": "Tindakan",
+      "paused": "Dijeda",
+      "pause": "Jeda",
+      "resume": "Lanjutkan",
+      "open": "Buka meja",
+      "tools": "{count} alat",
+      "toolsOff": "mati: {names}",
+      "noTasks": "Tidak ada tugas.",
+      "on": "aktif",
+      "off": "mati",
+      "statusFilter": "Status",
+      "all": "Semua",
+      "status": {
+        "queued": "menunggu",
+        "running": "berjalan",
+        "awaiting_approval": "menunggu konfirmasi",
+        "completed": "selesai",
+        "failed": "gagal",
+        "cancelled": "dibatalkan"
+      },
+      "by": {
+        "schedule": "oleh jadwal",
+        "administrator": "oleh administrator",
+        "student": "oleh pengguna"
+      },
+      "result": "Hasil",
+      "counts": "{count} ditemukan, {fresh} baru, {changed} berubah",
+      "created": "Dibuat",
+      "attempts": "percobaan {n} dari {max}",
+      "rerun": "Jalankan lagi",
+      "cancel": "Batalkan",
+      "interval": "Interval",
+      "hours": "jam",
+      "lastRun": "Terakhir berjalan",
+      "state": "Status",
+      "save": "Simpan",
+      "storageLine": "Basis data: {used} dari {limit} ({pct} %)",
+      "storageHelp": "Peringatan dikirim pada 70 % dan 90 %. Tidak ada yang dihapus otomatis.",
+      "table": "Tabel",
+      "size": "Ukuran",
+      "indexes": "di antaranya indeks",
+      "rows": "Baris (perkiraan)",
+      "rows30d": "Baru dalam 30 hari",
+      "taskTypes": {
+        "announcement_digest": "Ringkasan pengumuman",
+        "scholarship_scan": "Cek beasiswa",
+        "event_digest": "Ringkasan acara",
+        "career_scan": "Cek karier",
+        "announcement_discovery": "Cek pengumuman resmi",
+        "opportunity_discovery": "Cek peluang resmi",
+        "guidance_discovery": "Cek panduan resmi",
+        "event_discovery": "Cek acara resmi",
+        "support_request": "Permintaan dukungan",
+        "lookup": "Pencarian",
+        "delegated_search": "Pencarian terdelegasi",
+        "summarize_announcement": "Ringkasan",
+        "explain_document": "Penjelasan dokumen",
+        "visa_checklist": "Daftar periksa visa",
+        "academic_checklist": "Daftar periksa akademik",
+        "topik_dates": "Jadwal TOPIK"
+      },
+      "sourcesHelp": "Situs resmi yang diperiksa meja. Temuan selalu menunggu administrator; mahasiswa hanya melihat yang sudah ditinjau dan disetujui.",
+      "sourcesActive": "Situs yang dipantau",
+      "sourcesNone": "Belum ada situs yang dipantau.",
+      "source": "Sumber",
+      "prepared": "Sumber resmi yang disiapkan ({count})",
+      "preparedHelp": "Sudah diperiksa di situs langsung. Tidak dipantau sebelum Anda menambahkannya.",
+      "checkedOn": "diperiksa {date}",
+      "keyMissing": "perlu {key} di layanan API",
+      "keySet": "{key} sudah diatur",
+      "add": "Tambah",
+      "turnOn": "Aktifkan",
+      "turnOff": "Matikan",
+      "reset": "Reset kegagalan",
+      "remove": "Hapus",
+      "confirmDelete": "Hapus beserta kandidatnya",
+      "custom": "Tambah halaman resmi lain",
+      "customHelp": "Domain harus ada di daftar domain yang diizinkan (Admin → Pengaturan). Halaman yang melarang akses otomatis di robots.txt tidak pernah dibaca.",
+      "kind": "Jenis",
+      "kinds": {
+        "page": "Satu halaman",
+        "listing": "Daftar pengumuman (perlu selector)",
+        "sch_board": "Papan pengumuman SCH"
+      },
+      "category": "Kategori",
+      "config": "Pengaturan (JSON, opsional)",
+      "configBad": "JSON tidak valid."
+    },
+    "gpu": {
+      "title": "Pekerja GPU",
+      "subtitle": "Komputer GPU universitas membuat draf terjemahan. Ia terhubung ke Hub; tidak ada yang terhubung kepadanya dan ia tidak bisa menerbitkan apa pun.",
+      "refresh": "Muat ulang",
+      "offTitle": "Pekerja GPU dimatikan",
+      "off": "GPU_WORKER_ENABLED mati di server ini. Terjemahan memakai model server.",
+      "tokenTitle": "Token {name} (hanya ditampilkan sekarang)",
+      "tokenBody": "Simpan di komputer GPU dalam berkas yang hanya bisa dibaca akun Anda. Tidak disimpan di sini.",
+      "copy": "Salin",
+      "copied": "Tersalin",
+      "hide": "Sembunyikan",
+      "available": "Pekerja terhubung",
+      "unavailable": "Tidak ada pekerja terhubung",
+      "availableHint": "Draf baru dikirim ke GPU: {types}",
+      "unavailableHint": "Draf baru memakai model server.",
+      "queue": "Antrean",
+      "queueLine": "{queued} menunggu, {running} berjalan",
+      "last24h": "24 jam terakhir",
+      "doneLine": "{ok} selesai, {failed} gagal",
+      "average": "rata-rata {seconds} dtk",
+      "workers": "Pekerja",
+      "noWorkers": "Belum ada pekerja.",
+      "name": "Nama",
+      "state": "Status",
+      "lastSeen": "Kontak terakhir",
+      "expires": "Token kedaluwarsa",
+      "actions": "Tindakan",
+      "never": "belum pernah",
+      "expired": "kedaluwarsa",
+      "status": {
+        "active": "aktif",
+        "paused": "dijeda",
+        "revoked": "dicabut"
+      },
+      "pause": "Jeda",
+      "resume": "Lanjutkan",
+      "rotate": "Token baru",
+      "revoke": "Cabut",
+      "confirmRevoke": "Cabut permanen",
+      "newName": "Nama pekerja baru",
+      "create": "Buat",
+      "superOnly": "Hanya super administrator yang mengelola token.",
+      "jobs": "Pekerjaan terbuka",
+      "noJobs": "Tidak ada pekerjaan terbuka.",
+      "job": "Pekerjaan",
+      "created": "Dibuat",
+      "cancel": "Batalkan"
     }
   },
   "account": {
@@ -2025,7 +2199,10 @@
       "review": "Tinjauan",
       "sources": "Sumber",
       "request": "Permintaan baru",
-      "requests": "Permintaan saya"
+      "requests": "Permintaan saya",
+      "updates": "Pembaruan",
+      "terms": "Istilah",
+      "queue": "Antrean"
     },
     "lists": {
       "guidesTitle": "Panduan yang disetujui di Pusat Pengetahuan",
@@ -2170,7 +2347,12 @@
         "review_queue": "Antrean tinjauan (admin)",
         "official_jobs": "Lowongan di situs resmi",
         "leave_of_absence": "Cuti & kembali kuliah",
-        "graduation": "Syarat kelulusan"
+        "graduation": "Syarat kelulusan",
+        "deadlines": "Tenggat terdekat",
+        "translation_queue": "Antrean tinjauan terjemahan",
+        "official_updates": "Pembaruan resmi yang ditinjau",
+        "official_events": "Acara di situs resmi",
+        "support_queue": "Permintaan dukungan yang menunggu"
       },
       "notes": {
         "no_match": "Tidak ada sumber yang disetujui di Hub yang cocok.",
@@ -2202,7 +2384,14 @@
         "no_candidates": "Tidak ada pengumuman yang menunggu tinjauan.",
         "official_reviewed": "Dari situs resmi, ditinjau staf dan disetujui di Pusat Informasi.",
         "no_reviewed_discoveries": "Belum ada pengumuman dari situs resmi yang ditinjau dan disetujui.",
-        "reviewed_closed_hidden": "Ada peluang dari situs resmi yang sudah ditinjau, tetapi semuanya sudah ditutup. Sertakan yang ditutup untuk melihatnya."
+        "reviewed_closed_hidden": "Ada peluang dari situs resmi yang sudah ditinjau, tetapi semuanya sudah ditutup. Sertakan yang ditutup untuk melihatnya.",
+        "no_deadlines": "Tidak ada tenggat yang diterbitkan.",
+        "no_reviewed_updates": "Belum ada pembaruan yang ditinjau.",
+        "terms_draft": "Daftar istilah draf, belum dikonfirmasi.",
+        "no_terms": "Tidak ada istilah yang ditemukan.",
+        "queue_empty": "Tidak ada yang menunggu.",
+        "not_your_language": "Anda tidak ditugaskan untuk bahasa ini.",
+        "draft_needs_review": "Draf menunggu peninjau sebelum dipublikasikan."
       },
       "reliability": {
         "verified": "Sumber disetujui",
@@ -2243,7 +2432,9 @@
         "lookup": "Pencarian",
         "delegated_search": "Pencarian oleh spesialis",
         "announcement_discovery": "Pemeriksaan pengumuman resmi",
-        "opportunity_discovery": "Pemeriksaan peluang resmi"
+        "opportunity_discovery": "Pemeriksaan peluang resmi",
+        "guidance_discovery": "Periksa situs panduan resmi",
+        "event_discovery": "Periksa situs acara resmi"
       },
       "status": {
         "queued": "Dalam antrean",
@@ -2297,7 +2488,11 @@
         "http_403": "Situs menolak akses.",
         "http_503": "Situs sedang tidak tersedia.",
         "llm_background_budget": "Kuota AI hari ini untuk ringkasan dan terjemahan sudah habis (chat tetap berfungsi). Coba lagi besok atau baca teks aslinya.",
-        "check_running": "Pemeriksaan situs resmi ini sedang berjalan. Hasilnya akan muncul di sini setelah selesai."
+        "check_running": "Pemeriksaan situs resmi ini sedang berjalan. Hasilnya akan muncul di sini setelah selesai.",
+        "agent_paused": "Meja ini dijeda oleh administrator.",
+        "staff_only": "Hanya Global Supporter dan administrator yang dapat memakai ini.",
+        "api_key_missing": "Kunci API dari penyedia belum ada.",
+        "api_key_invalid": "Kunci API tidak diterima."
       },
       "tools": {
         "rag_search": "Cari panduan yang disetujui",
@@ -2322,7 +2517,13 @@
         "official_web_search": "Pencarian web",
         "official_source_check": "Periksa situs resmi sekarang",
         "opportunity_search": "Peluang dari situs resmi",
-        "review_candidates": "Pengumuman menunggu tinjauan"
+        "review_candidates": "Pengumuman menunggu tinjauan",
+        "upcoming_deadlines": "Tenggat terdekat",
+        "official_updates": "Pembaruan resmi yang ditinjau",
+        "terminology_lookup": "Istilah administrasi",
+        "translation_review_queue": "Antrean tinjauan terjemahan (staf)",
+        "request_translation_draft": "Minta draf terjemahan (staf)",
+        "support_queue": "Permintaan yang menunggu (staf)"
       },
       "flags": {
         "unavailable": "tidak tersedia",
@@ -2381,7 +2582,8 @@
         "scholarship": "Beasiswa",
         "competition": "Kompetisi",
         "program": "Program",
-        "job": "Lowongan"
+        "job": "Lowongan",
+        "event": "Acara"
       },
       "itemFlags": {
         "missing_deadline": "tenggat tidak ditemukan",
@@ -2430,7 +2632,8 @@
       },
       "status": {
         "checkingSources": "Memeriksa situs resmi",
-        "awaiting": "{count} menunggu Anda"
+        "awaiting": "{count} menunggu Anda",
+        "paused": "Dijeda"
       },
       "source": {
         "hub": "Disetujui di Hub",
@@ -2514,12 +2717,14 @@
         "noSchedules": "Meja ini tidak punya jadwal.",
         "sources": "Sumber ({count})",
         "noSources": "Belum ada sumber.",
-        "addSources": "Sumber baru ditambahkan oleh administrator melalui API admin setelah disetujui.",
+        "addSources": "Tambah atau hapus sumber di Admin → Agen → Sumber.",
         "disabled": "Nonaktif",
         "kinds": {
           "sch_board": "Papan universitas",
           "listing": "Halaman daftar",
-          "page": "Satu halaman"
+          "page": "Satu halaman",
+          "saramin_api": "Saramin (API resmi)",
+          "data_go_kr_jobs": "Lembaga publik (API resmi)"
         },
         "failures": "{count} kali gagal berturut-turut",
         "disable": "Nonaktifkan",
@@ -2705,7 +2910,10 @@
         "request_preview": "Pratinjau sebelum dikirim",
         "explicit_confirmation": "Dikirim hanya setelah Anda konfirmasi",
         "own_request_history": "Riwayat permintaan Anda",
-        "request_status": "Status permintaan"
+        "request_status": "Status permintaan",
+        "terminology": "Istilah administrasi dalam lima bahasa (draf)",
+        "review_queue": "Antrean tinjauan terjemahan (staf)",
+        "official_monitoring": "Memeriksa situs resmi; hasilnya ditinjau staf"
       },
       "dataSources": {
         "rag": "Dokumen Hub yang disetujui (jawaban dengan sumber)",
@@ -2714,7 +2922,9 @@
         "discovery_sources": "Situs resmi universitas yang diizinkan",
         "reviewed_discoveries": "Pengumuman situs resmi yang ditinjau dan disetujui staf",
         "support_tickets": "Permintaan dukungan Anda sendiri",
-        "agent_tasks": "Tugas Anda di meja ini"
+        "agent_tasks": "Tugas Anda di meja ini",
+        "term_list": "Daftar istilah administrasi (draf)",
+        "translation_tasks": "Tugas terjemahan bahasa Anda (staf)"
       },
       "adminTabs": "Admin",
       "next": {
@@ -2735,7 +2945,55 @@
         "newRequest": "Tulis permintaan",
         "runCheck": "Jalankan pemeriksaan manual",
         "noTasksHint": "Gunakan tombol di atas untuk memulai; hasilnya disimpan di sini."
-      }
+      },
+      "updates": {
+        "intro": "Yang diterbitkan situs resmi meja ini. Mahasiswa hanya melihat butir yang sudah ditinjau dan disetujui staf.",
+        "listTitle": "Pembaruan yang sudah ditinjau",
+        "empty": "Belum ada pembaruan yang ditinjau.",
+        "checks": "Pemeriksaan"
+      },
+      "terms": {
+        "intro": "Temukan istilah administrasi dalam teks dan lihat dalam lima bahasa.",
+        "label": "Kata atau teks",
+        "search": "Cari istilah",
+        "none": "Tidak ada istilah dari daftar yang ditemukan.",
+        "draft": "Daftar istilah draf: belum dikonfirmasi penutur asli dan kantor internasional.",
+        "error": "Pencarian gagal. Silakan coba lagi."
+      },
+      "queue": {
+        "intro": "Terjemahan bahasa ini yang menunggu orang. Draf tidak pernah publik sebelum disetujui peninjau.",
+        "counts": "Jumlah per status",
+        "empty": "Tidak ada yang menunggu.",
+        "notYours": "Anda tidak ditugaskan untuk bahasa ini.",
+        "open": "Buka",
+        "draft": "Minta draf",
+        "queued": "Draf masuk antrean dan akan menunggu peninjauan.",
+        "queuedGpu": "Draf masuk antrean GPU universitas dan akan menunggu peninjauan.",
+        "noModel": "Draf belum bisa diminta: tidak ada model terjemahan atau GPU yang terhubung.",
+        "error": "Gagal. Silakan coba lagi.",
+        "kinds": {
+          "announcement": "Pengumuman",
+          "document": "Panduan"
+        },
+        "status": {
+          "todo": "belum dimulai",
+          "machine_draft": "draf mesin",
+          "draft": "draf",
+          "needs_review": "perlu ditinjau",
+          "in_review": "sedang ditinjau",
+          "changes_requested": "perlu perubahan",
+          "outdated": "usang"
+        },
+        "supportIntro": "Permintaan yang menunggu dalam bahasa Anda: nomor, bahasa, waktu. Isi dari mahasiswa hanya terlihat oleh orang yang menerimanya.",
+        "waiting": "Menunggu ({count})",
+        "supportEmpty": "Tidak ada permintaan yang menunggu.",
+        "openInbox": "Buka kotak masuk dukungan",
+        "summary": "Minta ringkasan"
+      },
+      "staffTabs": "Staf"
     }
+  },
+  "staging": {
+    "banner": "Salinan staging untuk pengujian. Hanya data uji; tidak resmi dan tidak sampai ke mahasiswa."
   }
 }

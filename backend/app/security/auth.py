@@ -136,6 +136,10 @@ def get_current_user(
     profile = get_one(store, "profiles", id=claims["sub"])  # role always comes from the DB, never from the token
     if profile is None:
         raise Forbidden("No profile exists for this account.", code="no_profile")
+    return user_from_profile(store, profile, claims.get("email"))
+
+
+def user_from_profile(store: Store, profile: dict[str, Any], email: str | None = None) -> AuthUser:
     langs: list[str] = []
     perms: dict[str, dict[str, bool]] = {}
     # language permissions only count while the user holds a staff role (a demotion revokes them at once)
@@ -148,7 +152,7 @@ def get_current_user(
         langs = sorted(perms)
     return AuthUser(
         id=profile["id"],
-        email=profile.get("email") or claims.get("email"),
+        email=profile.get("email") or email,
         role=profile["role"],
         display_name=profile.get("display_name"),
         preferred_language=profile.get("preferred_language") or "en",

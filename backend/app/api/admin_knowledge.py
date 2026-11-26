@@ -135,8 +135,10 @@ def run_due(x_cron_secret: str | None = Header(default=None), svc: Services = De
         queued.append(job["id"])
         svc.jobs.enqueue(job)
     svc.jobs.kick()  # also drains queued indexing jobs / pending retries (the instance may just have woken up)
+    svc.gpu.sweep()   # jobs left to a GPU worker that nobody fetched
     purged = svc.support.purge_expired()  # retention policy for private student data
     purged["agent_tasks"] = svc.agents.purge_expired()
     purged["discovered_items"] = svc.discovery.purge()
+    alerts = svc.operations.alert()           # storage threshold, stuck queues: notifications only
     agents = svc.agents.run_due_schedules()   # no-op unless AGENT_SCHEDULES_ENABLED and an admin enabled a schedule
-    return dict(queued=len(queued), skipped=len(skipped), job_ids=queued, purged=purged, agent_schedules=agents)
+    return dict(queued=len(queued), skipped=len(skipped), job_ids=queued, purged=purged, agent_schedules=agents, alerts=alerts)

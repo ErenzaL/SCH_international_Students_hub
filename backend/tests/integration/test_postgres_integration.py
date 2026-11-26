@@ -31,7 +31,11 @@ from tests.conftest import ARTICLE_HTML, ARTICLE_URL, PUBLIC_IP
 
 REST = os.environ.get("SCH_IT_REST_URL")
 PSQL = os.environ.get("SCH_IT_PSQL")
-SECRET = os.environ.get("SCH_IT_JWT_SECRET", "unit-test-secret-unit-test-secret-1234")
+# no default: a well-known secret would let every account of a shared machine use the test database through PostgREST
+SECRET = os.environ.get("SCH_IT_JWT_SECRET", "")
+ANON_KEY = os.environ.get("SCH_IT_ANON_KEY", "anon")
+if REST and PSQL and len(SECRET) < 32:
+    raise RuntimeError("SCH_IT_JWT_SECRET must be a random value of at least 32 characters (scripts/scratch_db.sh sets it)")
 pytestmark = pytest.mark.skipif(not (REST and PSQL), reason="set SCH_IT_REST_URL and SCH_IT_PSQL to run")
 
 

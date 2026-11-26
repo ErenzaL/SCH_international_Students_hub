@@ -21,12 +21,14 @@ from app.core.config import Settings
 from app.core.errors import AppError, Conflict, InvalidState, NotFound, ValidationFailed
 from app.repositories.base import Query, Store, get_one
 from app.services.announcements import today_kst
-from app.services.discovery.connectors import Connectors, Entry, canonical, validate_config
+from app.services.discovery.connectors import API_KINDS, Connectors, Entry, canonical, validate_config
 from app.services.discovery.extract import analyse
+from app.services.discovery.job_apis import HOME
 from app.services.ingestion.errors import ExtractionError, FetchError
+from app.services.ingestion.notice_reader import config_for
 
 log = logging.getLogger("app.discovery")
-BLOCKED = {"robots_disallowed", "http_401", "http_403", "http_406", "http_429"}
+BLOCKED = {"api_key_missing", "api_key_invalid", "robots_disallowed", "http_401", "http_403", "http_406", "http_429"}
 MAX_FAILURES = 5          # a source failing this many times in a row is skipped by scheduled checks
 EXCERPT = 6000
 
@@ -38,6 +40,12 @@ def now_iso() -> str:
 def _norm_title(t: str) -> str:
     t = re.sub(r"^\s*(\[[^\]]{1,20}\]\s*)+", "", t)          # [홍보] [공모전] prefixes differ between boards
     return re.sub(r"[\W_]+", "", t.lower())
+
+
+def _desk(agent_id: str) -> str:
+    from app.services.agents.registry import AGENTS
+
+    return AGENTS[agent_id].character_id if agent_id in AGENTS else "guide-bot"
 
 
 def authority_for(url: str) -> tuple[str, str]:
@@ -57,6 +65,7 @@ class DiscoveryService:
         self.notifications = notifications
         self.connectors = Connectors(fetcher, delay_seconds=settings.board_request_delay_seconds,
                                      default_items=settings.discovery_max_items)
+        self.connectors.settings = settings
         self.sources_service: Any = None     # SourceService (send to review)
         self.ingestion: Any = None
         self.jobs: Any = None
@@ -67,6 +76,21 @@ class DiscoveryService:
         rows, _ = self.store.select("discovery_sources", Query(eq={"agent_id": agent_id} if agent_id else {},
                                                                order=[("created_at", False)]))
         return rows
+
+    def catalog(self) -> list[dict[str, Any]]:
+        import json
+        from pathlib import Path
+
+        entries = json.loads((Path(__file__).parent / "catalog.json").read_text(encoding="utf-8"))["sources"]
+        have = {(s["agent_id"], s["url"]) for s in self.list_sources()}
+        out = []
+        for e in entries:
+            need = e.get("needs")
+            out.append(dict({k: e[k] for k in ("agent_id", "name", "kind", "url", "category", "language", "config")},
+                            recommended_interval_minutes=e["recommended_interval_minutes"], validated=e.get("validated") or {},
+                            added=(e["agent_id"], e["url"]) in have, needs=need,
+                            ready=not need or bool(getattr(self.settings, need.lower(), ""))))
+        return out
 
     def get_source(self, source_id: str) -> dict[str, Any]:
         s = get_one(self.store, "discovery_sources", id=source_id)
@@ -80,7 +104,10 @@ class DiscoveryService:
         return validate_url_syntax(url, self.domains.domains())    # allowlist (env + admin-managed) + syntax rules
 
     def create_source(self, admin_id: str, data: dict[str, Any]) -> dict[str, Any]:
-        url = self._validate_url(data["url"])
+        # the two official APIs have fixed addresses; everything else must be on the allowlist
+        url = HOME[data["kind"]] if data["kind"] in API_KINDS else self._validate_url(data["url"])
+        if data["kind"] in API_KINDS and data["agent_id"] != "career":
+            raise ValidationFailed("Recruitment APIs belong to the career desk.")
         config = validate_config(data["kind"], url, data.get("config") or {})
         row = dict(agent_id=data["agent_id"], name=data["name"].strip(), kind=data["kind"], url=url, config=config,
                    category=data.get("category"), language=data.get("language") or "ko",
@@ -299,7 +326,7 @@ class DiscoveryService:
                    published_on=it.get("published_on"), category=it.get("category"),
                    opportunity_kind=it.get("opportunity_kind"), open_status=it["open_status"],
                    open_reason=f.get("open_reason"), next_deadline=f.get("next_deadline"),
-                   deadline=f.get("next_deadline"), deadlines=f.get("deadlines") or [],
+                   deadline=f.get("next_deadline"), event_date=f.get("event_date"), deadlines=f.get("deadlines") or [],
                    eligibility=f.get("eligibility") or [], application_links=f.get("application_links") or [],
                    flags=f.get("flags") or [], change=it["change"], first_seen_at=it["first_seen_at"],
                    last_seen_at=it["last_seen_at"], last_checked_at=src.get("last_checked_at"),
@@ -319,7 +346,7 @@ class DiscoveryService:
 
     def opportunities(self, *, q: str | None = None, kinds: list[str] | None = None, include_closed: bool = False,
                       limit: int = 20, approved_documents: Callable[[list[str]], dict[str, str]] | None = None,
-                      reviewed_only: bool = True) -> list[dict[str, Any]]:
+                      reviewed_only: bool = True, agent_id: str | None = None) -> list[dict[str, Any]]:
         """Official items classified as opportunities, never dismissed ones or duplicates.
 
         An item an admin sent to review whose Knowledge Center version has since been approved is shown as verified,
@@ -327,9 +354,15 @@ class DiscoveryService:
         ``reviewed_only`` (everyone but admins) ONLY such items are returned; admins also get the unreviewed
         candidates, labelled unverified (official site, not reviewed by staff)."""
         statuses = ["imported"] if reviewed_only else ["candidate", "imported"]
+        in_: dict[str, list[Any]] = {"status": statuses}
+        if kinds:
+            in_["opportunity_kind"] = kinds
+        if agent_id:
+            in_["source_id"] = [s["id"] for s in self.list_sources(agent_id)]
+            if not in_["source_id"]:
+                return []
         rows, _ = self.store.select("discovered_items", Query(
-            in_={"opportunity_kind": kinds or ["scholarship", "competition", "program", "job"], "status": statuses},
-            is_null={"duplicate_of": True}, order=[("last_changed_at", True)], limit=200))
+            in_=in_, is_null={"duplicate_of": True}, order=[("last_changed_at", True)], limit=200))
         imported = sorted({r["imported_source_id"] for r in rows if r.get("imported_source_id")})
         approved = approved_documents(imported) if approved_documents and imported else {}
         if reviewed_only:
@@ -399,6 +432,8 @@ class DiscoveryService:
             raise InvalidState("This item has no page of its own on the official site (it opens through a script). "
                                "Add it manually from the original notice.")
         src = get_one(self.store, "discovery_sources", id=it["source_id"]) or {}
+        if "api_item" in ((it.get("extracted") or {}).get("flags") or []):
+            return self._api_item_to_review(admin_id, it, src)
         authority, scope = authority_for(it["url"])
         category = it.get("category") or src.get("category") or "university-announcements"
         existing = get_one(self.store, "knowledge_sources", original_url=self._validate_url(it["url"]))
@@ -408,7 +443,8 @@ class DiscoveryService:
             ks = self.sources_service.create(dict(
                 title=it["title"][:200], original_url=it["url"], organization=(src.get("name") or "Official source")[:200],
                 source_type="website", authority_type=authority, scope=scope, category=category,
-                language=it.get("language") or "ko", sync_frequency="manual", is_active=True), admin_id)
+                language=it.get("language") or "ko", sync_frequency="manual", is_active=True,
+                config=config_for(src.get("kind") or "", src.get("config") or {}, it)), admin_id)
         job = None
         if not self.ingestion.has_open_job(ks["id"]):
             job = self.ingestion.create_job(ks, "manual", admin_id)
@@ -420,13 +456,29 @@ class DiscoveryService:
                     dict(knowledge_source_id=ks["id"], job_id=job["id"] if job else None))
         return dict(item=self.view(row, admin=True), knowledge_source_id=ks["id"], job_id=job["id"] if job else None)
 
+    def _api_item_to_review(self, admin_id: str, it: dict[str, Any], src: dict[str, Any]) -> dict[str, Any]:
+        """A posting from an official API: its few facts and the link become a pending_review text (the page itself is never
+        fetched). It leaves search on its deadline."""
+        facts = it.get("extracted") or {}
+        ks = self.sources_service.create(dict(
+            title=it["title"][:200], original_url=None, organization=(src.get("name") or "Official API")[:200], source_type="manual_text",
+            authority_type="other", scope="national", category="employment-internships", language="ko", sync_frequency="manual", is_active=True), admin_id)
+        job = self.ingestion.ingest_text(ks, title=it["title"][:200], text=it.get("text_excerpt") or it["title"], requested_by=admin_id, external_id=it["item_key"][:200])
+        if job.get("version_id") and facts.get("next_deadline"):
+            end = datetime.fromisoformat(f"{facts['next_deadline']}T23:59:59+09:00").astimezone(UTC).isoformat()
+            self.store.update("document_versions", {"valid_until": end}, {"id": job["version_id"], "verification_status": "pending_review"})
+        row = self.store.update("discovered_items", dict(status="imported", imported_source_id=ks["id"], reviewed_by=admin_id, reviewed_at=now_iso()),
+                                {"id": it["id"]})[0]
+        self._audit(admin_id, "discovered_item.send_to_review", it["id"], dict(knowledge_source_id=ks["id"], job_id=job["id"], api_item=True))
+        return dict(item=self.view(row, admin=True), knowledge_source_id=ks["id"], job_id=job["id"])
+
     def notify_new(self, agent_id: str, new: int, updated: int) -> None:
         if self.notifications is None or not (new or updated):
             return
         self.notifications.notify(
             "discovery_candidates", f"{new} new and {updated} changed official notices to review ({agent_id})",
             "Found by the AI Office monitoring. Nothing is published until an admin reviews it.",
-            link="/ai-office?desk=" + ("guide-bot" if agent_id == "announcement" else "opportunities"))
+            link="/ai-office?desk=" + _desk(agent_id))
 
     def purge(self) -> int:
         """Dismissed candidates that have not been seen for 90 days are removed."""

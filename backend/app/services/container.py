@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from app.core.config import Settings
 from app.core.rate_limit import DailyBudget
 from app.repositories.base import FileStorage, Store
+from app.services.agents.operations import AgentOperations
 from app.services.agents.tasks import AgentTaskService
 from app.services.announcements import AnnouncementService
 from app.services.conversations import ConversationService
@@ -13,6 +14,7 @@ from app.services.discovery.service import DiscoveryService
 from app.services.document_translations import DocumentTranslationService
 from app.services.domains import DomainPolicy
 from app.services.embeddings.base import EmbeddingProvider
+from app.services.gpu_worker import GpuWorkerService
 from app.services.indexing import IndexingService
 from app.services.ingestion.fetcher import GuardedFetcher
 from app.services.ingestion.pipeline import IngestionService
@@ -62,6 +64,8 @@ class Services:
     announcement_translator: AnnouncementAutoTranslator
     discovery: DiscoveryService = None  # type: ignore[assignment]
     agents: AgentTaskService = None  # type: ignore[assignment]  # set right after construction (needs Services)
+    operations: AgentOperations = None  # type: ignore[assignment]
+    gpu: GpuWorkerService = None  # type: ignore[assignment]  # set right after construction (needs Services)
     #: per-day attempt budget of background AI work (the chatbot's quota reserve)
     background_budget: DailyBudget | None = None
 
@@ -94,6 +98,7 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     translations.auto = ingestion.announcement_translator = ann_auto
     public = PublicService(store, announcements, storage)
     public.announcement_translator = ann_auto
+    ann_auto.public = doc_translations.public = public
     rag_health = RagHealthService(store, embedder.model_id, notifications)
     ingestion.rag_health = announcements.rag_health = rag_health
     services = Services(
@@ -113,5 +118,7 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     services.discovery = discovery
     services.background_budget = background_budget
     services.agents = jobs.agents = AgentTaskService(services)
+    services.gpu = jobs.gpu = GpuWorkerService(services)
+    services.operations = AgentOperations(services)
     services.agents.worker_id = jobs.worker_id
     return services

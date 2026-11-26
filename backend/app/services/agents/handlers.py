@@ -195,4 +195,6 @@ HANDLERS: dict[str, Handler] = {
     "delegated_search": delegated,
     "announcement_discovery": discovery,
     "opportunity_discovery": discovery,
+    "guidance_discovery": discovery,
+    "event_discovery": discovery,
 }

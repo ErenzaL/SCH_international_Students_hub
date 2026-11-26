@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { ChatWidget } from "@/features/chatbot/chat-widget";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { HideOnFullscreen } from "@/components/layout/fullscreen-route";
+import { SITE_ENV, StagingBanner } from "@/components/layout/staging-banner";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -12,6 +13,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: { default: t("name"), template: `%s · ${t("name")}` },
     description: t("description"),
+    // a staging copy must never appear in search results
+    ...(SITE_ENV === "staging" ? { robots: { index: false, follow: false } } : {}),
   };
 }
 
@@ -28,6 +31,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           >
             {nav("skipToContent")}
           </a>
+          <StagingBanner />
           <HideOnFullscreen><SiteHeader /></HideOnFullscreen>
           <main id="main" className="flex-1">
             {children}

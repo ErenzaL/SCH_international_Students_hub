@@ -13,6 +13,8 @@ import { useWorkspace } from "@/features/ai-office/workspace/context";
 import { EventsWorkspace } from "@/features/ai-office/workspace/events";
 import { MonitoringWorkspace } from "@/features/ai-office/workspace/monitoring";
 import { OpportunitiesWorkspace } from "@/features/ai-office/workspace/opportunities";
+import { QueueWorkspace, TermsWorkspace } from "@/features/ai-office/workspace/staff";
+import { UpdatesWorkspace } from "@/features/ai-office/workspace/updates";
 import { ChecklistsWorkspace, ProceduresWorkspace, TopikWorkspace } from "@/features/ai-office/workspace/services";
 import { MyRequestsWorkspace, SupportRequestWorkspace } from "@/features/ai-office/workspace/support";
 import { WorkspaceSection } from "@/features/ai-office/workspace/parts";
@@ -29,6 +31,9 @@ export const WORKSPACE_VIEWS: Partial<Record<PanelTab, () => React.ReactElement>
   requests: MyRequestsWorkspace,
   review: ReviewQueue,
   sources: SourcesAdmin,
+  updates: UpdatesWorkspace,
+  terms: TermsWorkspace,
+  queue: QueueWorkspace,
   about: AboutAgent,
 };
 

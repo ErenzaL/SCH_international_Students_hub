@@ -330,6 +330,37 @@ class StatusParams(P):
     limit: int = Field(10, ge=1, le=30)
 
 
+class UpcomingParams(P):
+    days: int = Field(30, ge=1, le=180)
+    category: Text | None = None
+    limit: int = Field(12, ge=1, le=30)
+
+
+class UpdatesParams(P):
+    limit: int = Field(12, ge=1, le=30)
+    include_closed: bool = True
+
+
+class TermParams(P):
+    text: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=2000)]
+
+
+class QueueParams(P):
+    status: Literal["todo", "machine_draft", "needs_review", "in_review", "changes_requested"] | None = None
+    limit: int = Field(20, ge=1, le=50)
+
+
+class DraftParams(P):
+    announcement_id: Text | None = None
+    document_id: Text | None = None
+    summary: bool = False          # documents only: a labelled summary for review instead of a full translation
+
+
+class SupportQueueParams(P):
+    language: Lang | None = None
+    limit: int = Field(20, ge=1, le=50)
+
+
 class TaskStatusParams(P):
     task_id: Text
 
@@ -624,12 +655,138 @@ def agent_task_status(ctx: ToolContext, p: TaskStatusParams) -> dict[str, Any]:
     return result("get_agent_task_status", [ctx.svc.agents.get(ctx.user, p.task_id, with_events=False)])
 
 
+def upcoming_deadlines(ctx: ToolContext, p: UpcomingParams) -> dict[str, Any]:
+    """Deadlines and event dates that are still ahead: dates of published announcements, and deadlines quoted in reviewed
+    official items. Soonest first."""
+    today = today_kst()
+    end = date.fromordinal(today.toordinal() + p.days).isoformat()
+    items: list[dict[str, Any]] = []
+    for a in _announcements(ctx.svc, category=p.category, size=100, language=ctx.language):
+        when = [d for d in (a.get("deadline"), a.get("event_date")) if d and today.isoformat() <= d <= end]
+        if when:
+            items.append(_ann_item(a) | dict(next_date=min(when)))
+    for i in ctx.svc.discovery.opportunities(kinds=None, limit=100, approved_documents=ctx.svc.public.approved_documents_for_sources):
+        d = i.get("next_deadline")
+        if d and today.isoformat() <= d <= end and (p.category is None or i.get("category") == p.category):
+            items.append(i | dict(next_date=d))
+    items = _dedupe(sorted(items, key=lambda i: (i["next_date"], i["title"])))[: p.limit]
+    return result("upcoming_deadlines", items, notes=["dates_quoted"] if items else ["no_deadlines"])
+
+
+def official_updates(ctx: ToolContext, p: UpdatesParams) -> dict[str, Any]:
+    """What this desk's official sources published: students see only items an admin reviewed and the Knowledge Center
+    approved; admins also see waiting candidates (labelled)."""
+    staff = ctx.user is not None and ctx.user.is_admin
+    items = ctx.svc.discovery.opportunities(kinds=None, include_closed=p.include_closed, limit=p.limit, agent_id=ctx.agent.id,
+                                            approved_documents=ctx.svc.public.approved_documents_for_sources,
+                                            reviewed_only=not staff)
+    sources = [s for s in ctx.svc.discovery.list_sources(ctx.agent.id) if s["enabled"]]
+    notes = ["no_sources"] if not sources else ["no_reviewed_updates"] if not items else \
+        ["official_unreviewed" if any(i["reliability"] != VERIFIED for i in items) else "official_reviewed"]
+    return result("official_updates", items, notes=notes,
+                  sources=[dict(name=s["name"], url=s["url"], last_checked_at=s.get("last_checked_at"),
+                                status=s.get("last_status")) for s in sources])
+
+
+def terminology_lookup(ctx: ToolContext, p: TermParams) -> dict[str, Any]:
+    """Administrative terms found in a text (any of the five languages), in all five languages. A draft term list."""
+    from app.gpu_worker.glossary import TERMS
+
+    items = []
+    low = p.text.lower()
+    for row in TERMS:
+        hit = re.search(row[0], p.text)
+        if not hit:
+            hit = next((x for x in row[1:] if len(x) > 2 and re.split(r" \(|（", x)[0].lower() in low), None)
+        if hit:
+            ko = re.sub(r"\(\?[!=<].*?\)|\\\\s\*|\\\\", "", row[0]).split("|")[0]
+            items.append(dict(kind="term", title=ko, terms={"ko": ko, "en": row[1], "id": row[2], "vi": row[3], "zh-CN": row[4]},
+                              reliability=None))
+        if len(items) >= 15:
+            break
+    return result("terminology_lookup", items, notes=["terms_draft"] if items else ["no_terms"])
+
+
+def translation_review_queue(ctx: ToolContext, p: QueueParams) -> dict[str, Any]:
+    """Translations of this supporter's language that wait for a person. Only the caller's own language permissions count."""
+    from app.security.permissions import languages_with
+
+    assert ctx.user is not None
+    lang = ctx.agent.fixed_language or ctx.language
+    mine = set(languages_with(ctx.user, "support")) | set(languages_with(ctx.user, "review"))
+    if lang not in mine:
+        return result("translation_review_queue", [], notes=["not_your_language"], counts={}, language=lang)
+    svc = ctx.svc
+    open_states = {"todo", "machine_draft", "draft", "in_review", "changes_requested", "needs_review"}
+    anns, _ = svc.translations.tasks(ctx.user, p.status, lang, None, 1, 100)
+    docs, _ = svc.doc_translations.tasks(ctx.user, status=p.status, language=lang, outdated=None, page=1, size=100)
+    items: list[dict[str, Any]] = []
+    counts: dict[str, int] = {}
+    for t, kind in [*((a, "announcement") for a in anns), *((d, "document") for d in docs)]:
+        st = t["translation_status"]
+        if st not in open_states and not t.get("is_outdated"):
+            continue
+        if kind == "document" and not t.get("document_live", True):
+            continue
+        counts["outdated" if t.get("is_outdated") else st] = counts.get("outdated" if t.get("is_outdated") else st, 0) + 1
+        ref = t["announcement_id"] if kind == "announcement" else t["document_id"]
+        items.append(dict(kind="translation_task", id=t["id"], title=t.get("announcement_title") or t.get("document_title") or "",
+                          content_kind=kind, ref=ref, status=st, outdated=bool(t.get("is_outdated")), updated_at=t.get("updated_at"),
+                          can_review=bool(t.get("can_can_review") or t.get("can_review")),
+                          href=f"/admin/translations/{ref}/{lang}" if kind == "announcement" else f"/admin/translations/documents/{ref}/{lang}",
+                          reliability=None))
+    rank = {"in_review": 0, "needs_review": 1, "machine_draft": 2, "draft": 3, "changes_requested": 4, "todo": 5}
+    items.sort(key=lambda i: (rank.get(i["status"], 9), str(i["updated_at"] or "")))
+    return result("translation_review_queue", items[: p.limit], notes=[] if items else ["queue_empty"], counts=counts, language=lang)
+
+
+def request_translation_draft(ctx: ToolContext, p: DraftParams) -> dict[str, Any]:
+    """Queue one machine DRAFT in this supporter's language (the durable translation queue: GPU worker when one is connected,
+    else the server's model). Every rule of the admin page applies; a draft never becomes public without a reviewer."""
+    if (p.announcement_id is None) == (p.document_id is None):
+        raise ValidationFailed("Give exactly one of announcement_id or document_id.")
+    assert ctx.user is not None
+    lang = ctx.agent.fixed_language or ctx.language
+    if p.document_id:
+        out = ctx.svc.doc_translations.request_drafts(p.document_id, [lang], ctx.user, summary=p.summary)[0]
+        job_id, status = out["job_id"], out["status"]
+    else:
+        if p.summary:
+            raise ValidationFailed("Announcements are translated in full.")
+        perms = ctx.svc.translations.permissions(ctx.user, lang)
+        if not (perms["can_edit"] or perms["can_review"]):
+            raise Forbidden("You are not assigned to translations in this language.")
+        job = ctx.svc.announcement_translator.queue(p.announcement_id or "", lang, ctx.user.id)
+        job_id, status = job["id"], job["status"]
+    job = get_one(ctx.svc.store, "ingestion_jobs", id=job_id) or {}
+    item = dict(kind="translation_job", id=job_id, title=lang, status=status, executor=job.get("executor") or "local", reliability=None,
+                href="/admin/translations")
+    return result("request_translation_draft", [item], notes=["draft_needs_review"])
+
+
+def support_queue(ctx: ToolContext, p: SupportQueueParams) -> dict[str, Any]:
+    """Waiting requests in the caller's languages: number, language, age, priority. Never the student's text."""
+    from app.security.permissions import languages_with
+
+    assert ctx.user is not None
+    if p.language and p.language not in languages_with(ctx.user, "support"):
+        raise ToolDenied("You are not assigned to support in this language.")
+    rows, total = ctx.svc.support.inbox(ctx.user, "queue", p.language, 1, p.limit)
+    items = [dict(kind="ticket", id=r["id"], ticket_number=r["ticket_number"], status=r["status"], title=f"#{r['ticket_number']}",
+                  language=r["language"], priority=r["priority"], created_at=r["created_at"], escalated=r["escalated"],
+                  href=f"/admin/support/{r['id']}" if r["can_open"] else "/admin/support", reliability=None) for r in rows]
+    return result("support_queue", items, notes=[] if items else ["queue_empty"], counts=ctx.svc.support.counts(ctx.user), total=total)
+
+
 def web_search(ctx: ToolContext, p: WebSearchParams) -> dict[str, Any]:  # pragma: no cover - never available
     raise ToolUnavailable("No web search provider is configured.")
 
 
 # =========================================================================== official-source discovery (Phase 3)
 ADMIN = ("super_admin", "admin")
+STAFF = ("supporter", "admin", "super_admin")
+#: what each discovery desk shows as opportunities
+DESK_KINDS = {"career": ["job"], "events": ["event", "program"], "scholarship": ["scholarship", "competition", "program"]}
 
 
 class SourceCheckParams(P):
@@ -641,7 +798,7 @@ class SourceCheckParams(P):
 
 class OpportunityParams(P):
     q: Text | None = None
-    kind: Literal["scholarship", "competition", "program", "job"] | None = None
+    kind: Literal["scholarship", "competition", "program", "job", "event"] | None = None
     include_closed: bool = False
     limit: int = Field(12, ge=1, le=30)
 
@@ -673,7 +830,7 @@ def official_source_check(ctx: ToolContext, p: SourceCheckParams) -> dict[str, A
 
 
 def opportunity_search(ctx: ToolContext, p: OpportunityParams) -> dict[str, Any]:
-    kinds = [p.kind] if p.kind else (["job"] if ctx.agent.id == "career" else ["scholarship", "competition", "program"])
+    kinds = [p.kind] if p.kind else DESK_KINDS.get(ctx.agent.id, DESK_KINDS["scholarship"])
     staff = ctx.user is not None and ctx.user.is_admin
     # students and visitors: only discoveries an admin reviewed and the Knowledge Center approved
     items = ctx.svc.discovery.opportunities(q=p.q, kinds=kinds, include_closed=p.include_closed, limit=p.limit,
@@ -700,6 +857,12 @@ def review_candidates(ctx: ToolContext, p: CandidateParams) -> dict[str, Any]:
     items = ctx.svc.discovery.candidates(agent_id=ctx.agent.id, status=p.status, changed_only=p.changed_only,
                                          limit=p.limit)
     return result("review_candidates", items, notes=[] if items else ["no_candidates"])
+
+
+def _drafts_available(svc: Services) -> str | None:
+    if svc.doc_translations.can_generate or svc.announcement_translator.can_generate:
+        return None
+    return "No translation model is configured and no GPU worker is connected."
 
 
 def _llm_available(svc: Services) -> str | None:
@@ -745,6 +908,16 @@ TOOLS: dict[str, Tool] = {t.name: t for t in [
          OpportunityParams, opportunity_search),
     Tool("review_candidates", "Discovered official notices waiting for an admin's review.", CandidateParams,
          review_candidates, roles=ADMIN),
+    Tool("upcoming_deadlines", "Deadlines and event dates that are still ahead, from published and reviewed content.", UpcomingParams,
+         upcoming_deadlines),
+    Tool("official_updates", "Reviewed items found on this desk's official websites.", UpdatesParams, official_updates),
+    Tool("terminology_lookup", "Administrative terms in five languages (draft term list).", TermParams, terminology_lookup),
+    Tool("translation_review_queue", "Translations in this language that wait for a person.", QueueParams,
+         translation_review_queue, requires_auth=True, roles=STAFF),
+    Tool("request_translation_draft", "Queue a machine draft for review in this language.", DraftParams,
+         request_translation_draft, requires_auth=True, writes=True, roles=STAFF, availability=lambda svc: _drafts_available(svc)),
+    Tool("support_queue", "Waiting support requests in your languages (no private text).", SupportQueueParams, support_queue,
+         requires_auth=True, roles=STAFF),
     Tool("official_web_search", "Search the open web for official pages.", WebSearchParams, web_search,
          availability=lambda svc: "No web search provider is configured. Agents use the Hub's approved content and "
                                   "allowlisted official pages only."),
@@ -757,16 +930,21 @@ class ToolRegistry:
     def __init__(self, tools: dict[str, Tool] | None = None):
         self.tools = tools or TOOLS
 
-    def describe(self, svc: Services, agent: AgentDefinition) -> list[dict[str, Any]]:
+    def describe(self, svc: Services, agent: AgentDefinition, known: dict[str, str | None] | None = None) -> list[dict[str, Any]]:
+        """``known``: availability already looked up for other agents (some checks read the database)."""
+        known = {} if known is None else known
         out = []
         for name in sorted(agent.allowed_tools):
             t = self.tools.get(name)
             if t is None:
                 continue
-            reason = t.unavailable_reason(svc)
+            if name not in known:
+                known[name] = t.unavailable_reason(svc)
+            reason = known[name]
             out.append(dict(name=name, description=t.description, available=reason is None, unavailable_reason=reason,
                             requires_sign_in=t.requires_auth, background=t.background, uses_ai=t.uses_llm,
-                            needs_approval=t.needs_approval, admin_only=t.roles is not None))
+                            needs_approval=t.needs_approval,
+                            admin_only=t.roles is not None and "supporter" not in t.roles, roles=list(t.roles) if t.roles else None))
         return out
 
     def check(self, ctx: ToolContext, name: str) -> Tool:
@@ -780,6 +958,8 @@ class ToolRegistry:
             if ctx.user is None:
                 raise NotAuthenticated("Sign in to use this.")
             if ctx.user.role not in t.roles:
+                if "supporter" in t.roles:
+                    raise ToolDenied(f"'{name}' is only available to Global Supporters and administrators.", code="staff_only")
                 raise ToolDenied(f"'{name}' is only available to administrators.", code="admin_only")
         if t.requires_auth and ctx.user is None and not ctx.system:
             raise NotAuthenticated("Sign in to use this.")

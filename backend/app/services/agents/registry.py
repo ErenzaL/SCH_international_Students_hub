@@ -23,6 +23,7 @@ class AgentAction:
 
 
 ADMIN = ("super_admin", "admin")
+STAFF = ("supporter", "admin", "super_admin")
 SIGNED_IN = ("student", "supporter", "admin", "super_admin")
 EVERYONE = ("visitor",) + SIGNED_IN
 
@@ -61,8 +62,9 @@ class AgentInterface:
                     data_sources=list(self.data_sources))
 
 
-def _tabs(*ids: str, admin: tuple[str, ...] = ()) -> tuple[WorkspaceTab, ...]:
-    return tuple(WorkspaceTab(i) for i in ids) + tuple(WorkspaceTab(i, ADMIN) for i in admin)
+def _tabs(*ids: str, admin: tuple[str, ...] = (), staff: tuple[str, ...] = ()) -> tuple[WorkspaceTab, ...]:
+    return (tuple(WorkspaceTab(i) for i in ids) + tuple(WorkspaceTab(i, STAFF) for i in staff)
+            + tuple(WorkspaceTab(i, ADMIN) for i in admin))
 
 
 CHAT_INTERFACE = AgentInterface(
@@ -91,8 +93,24 @@ class AgentDefinition:
     interface: AgentInterface = CHAT_INTERFACE
 
 
+SUPPORTER_INTERFACE = AgentInterface(
+    "CHAT", "chat", _tabs("chat", "work", "terms", "about", staff=("queue",)),
+    capabilities=("grounded_chat", "citations", "delegation", "task_results", "terminology", "review_queue"),
+    task_actions=("latest_notices", "deadlines"),
+    data_sources=("rag", "published_announcements", "knowledge_center", "agent_tasks", "term_list", "translation_tasks"))
+
+#: official-source monitoring of a desk (admin or an enabled schedule); candidates wait for an admin
+MONITOR = frozenset({"official_source_check", "review_candidates", "official_updates"})
+
+
+def _monitor_actions(task: str) -> tuple[AgentAction, ...]:
+    return (AgentAction("official_updates", "tool", "official_updates", {}),
+            AgentAction("check_official_sources", "task", task, {}, roles=ADMIN),
+            AgentAction("review_queue", "tool", "review_candidates", {}, roles=ADMIN))
+
+
 READ_COMMON = frozenset({"rag_search", "knowledge_document_lookup", "announcement_search", "announcement_detail",
-                         "get_agent_task_status"})
+                         "get_agent_task_status", "upcoming_deadlines"})
 SPECIALISTS = ("immigration", "academic", "topik", "scholarship", "events", "career", "announcement",
                "support-coordinator")
 #: codes of things an agent never does (the UI shows them in the student's language)
@@ -107,11 +125,14 @@ def _supporter(lang: str, name: str, char: str) -> AgentDefinition:
                     "documents, and hands specialist work to the right desk.",
         scope="All student-life topics, in one language. Specialist searches are delegated.",
         languages=(lang,), fixed_language=lang,
-        allowed_tools=READ_COMMON | {"summarize_document", "translate_text", "create_agent_task"},
+        allowed_tools=READ_COMMON | {"summarize_document", "translate_text", "create_agent_task", "terminology_lookup",
+                                     "translation_review_queue", "request_translation_draft"},
         task_types=("summarize_announcement", "explain_document", "delegated_search"),
         can_delegate_to=SPECIALISTS, restricted_actions=NO_DECISIONS,
-        actions=(AgentAction("latest_notices", "tool", "announcement_search", {"limit": 6}),),
-        interface=CHAT_INTERFACE,
+        actions=(AgentAction("latest_notices", "tool", "announcement_search", {"limit": 6}),
+                 AgentAction("deadlines", "tool", "upcoming_deadlines", {}),
+                 AgentAction("translation_queue", "tool", "translation_review_queue", {}, roles=STAFF)),
+        interface=SUPPORTER_INTERFACE,
     )
 
 
@@ -124,10 +145,11 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
         scope="Routing and general questions. Never uses a specialist's tools directly: it delegates.",
         languages=LANGS, allowed_tools=READ_COMMON | {"create_agent_task"},
         task_types=("delegated_search",), can_delegate_to=SPECIALISTS, restricted_actions=NO_DECISIONS,
-        actions=(AgentAction("latest_notices", "tool", "announcement_search", {"status": "active", "limit": 6}),),
+        actions=(AgentAction("latest_notices", "tool", "announcement_search", {"status": "active", "limit": 6}),
+                 AgentAction("deadlines", "tool", "upcoming_deadlines", {})),
         interface=AgentInterface("CHAT", "chat", _tabs("chat", "work", "desks", "about"),
                                  capabilities=("grounded_chat", "citations", "delegation", "task_results", "directory"),
-                                 task_actions=("latest_notices",),
+                                 task_actions=("latest_notices", "deadlines"),
                                  data_sources=("rag", "published_announcements", "knowledge_center", "agent_tasks")),
     ),
     _supporter("ko", "Minji", "supporter-ko"),
@@ -143,48 +165,62 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
                     "that may be outdated.",
         scope="Visa and residence procedures. Explains requirements; never decides eligibility.",
         languages=LANGS,
-        allowed_tools=READ_COMMON | {"deadline_extraction", "source_verification", "visa_checklist"},
-        task_types=("visa_checklist",),
+        allowed_tools=READ_COMMON | MONITOR | {"deadline_extraction", "source_verification", "visa_checklist"},
+        task_types=("visa_checklist", "guidance_discovery"),
         restricted_actions=NO_DECISIONS + ("visa_decisions", "file_immigration"),
         actions=(AgentAction("d2_extension", "tool", "visa_checklist", {"topic": "extension"}),
                  AgentAction("residence_card", "tool", "visa_checklist", {"topic": "residence_card"}),
                  AgentAction("address_change", "tool", "visa_checklist", {"topic": "address"}),
-                 AgentAction("part_time_permission", "tool", "visa_checklist", {"topic": "part_time"})),
-        interface=AgentInterface("SERVICE", "checklists", _tabs("checklists", "chat", "guides", "work", "about"),
-                                 capabilities=("procedure_checklists", "grounded_chat", "citations", "outdated_flags"),
-                                 task_actions=("d2_extension", "residence_card", "address_change", "part_time_permission"),
-                                 data_sources=("knowledge_center", "rag")),
+                 AgentAction("part_time_permission", "tool", "visa_checklist", {"topic": "part_time"}),
+                 *_monitor_actions("guidance_discovery")),
+        interface=AgentInterface("SERVICE", "checklists",
+                                 _tabs("checklists", "chat", "guides", "updates", "work", "about", admin=("review", "sources")),
+                                 capabilities=("procedure_checklists", "grounded_chat", "citations", "outdated_flags",
+                                               "official_monitoring"),
+                                 task_actions=("d2_extension", "residence_card", "address_change", "part_time_permission",
+                                               "check_official_sources"),
+                                 data_sources=("knowledge_center", "rag", "discovery_sources", "reviewed_discoveries")),
     ),
     AgentDefinition(
         id="academic", character_id="academic", name="Joon", title="Academic agent", department="Academic & TOPIK",
         description="Finds academic guidance and university notices, explains procedures such as course "
                     "registration and prepares checklists with links.",
         scope="University academic procedures and notices.", languages=LANGS,
-        allowed_tools=READ_COMMON | {"deadline_extraction", "academic_checklist"},
-        task_types=("academic_checklist",), restricted_actions=NO_DECISIONS,
+        allowed_tools=READ_COMMON | MONITOR | {"deadline_extraction", "academic_checklist"},
+        task_types=("academic_checklist", "guidance_discovery"), restricted_actions=NO_DECISIONS,
         actions=(AgentAction("course_registration", "tool", "academic_checklist", {"topic": "registration"}),
                  AgentAction("leave_of_absence", "tool", "academic_checklist", {"topic": "leave"}),
                  AgentAction("graduation", "tool", "academic_checklist", {"topic": "graduation"}),
                  AgentAction("academic_notices", "tool", "announcement_search",
-                             {"category": "university-announcements", "limit": 6})),
-        interface=AgentInterface("SERVICE", "procedures", _tabs("procedures", "notices", "guides", "chat", "work", "about"),
+                             {"category": "university-announcements", "limit": 6}),
+                 AgentAction("deadlines", "tool", "upcoming_deadlines", {}),
+                 *_monitor_actions("guidance_discovery")),
+        interface=AgentInterface("SERVICE", "procedures",
+                                 _tabs("procedures", "notices", "guides", "updates", "chat", "work", "about",
+                                       admin=("review", "sources")),
                                  capabilities=("procedure_checklists", "academic_notices", "knowledge_resources",
-                                               "grounded_chat"),
-                                 task_actions=("course_registration", "leave_of_absence", "graduation", "academic_notices"),
-                                 data_sources=("knowledge_center", "published_announcements", "rag")),
+                                               "grounded_chat", "official_monitoring"),
+                                 task_actions=("course_registration", "leave_of_absence", "graduation", "academic_notices",
+                                               "check_official_sources"),
+                                 data_sources=("knowledge_center", "published_announcements", "rag", "discovery_sources",
+                                               "reviewed_discoveries")),
     ),
     AgentDefinition(
         id="topik", character_id="topik", name="Seo", title="TOPIK agent", department="Academic & TOPIK",
         description="Finds TOPIK guides and published TOPIK notices and extracts announced dates and deadlines.",
         scope="TOPIK registration, dates and approved study resources.", languages=LANGS,
-        allowed_tools=READ_COMMON | {"deadline_extraction", "topik_dates"},
-        task_types=("topik_dates",), restricted_actions=NO_DECISIONS,
-        actions=(AgentAction("topik_dates", "tool", "topik_dates", {}),),
-        interface=AgentInterface("SERVICE", "topik", _tabs("topik", "guides", "chat", "work", "about"),
+        allowed_tools=READ_COMMON | MONITOR | {"deadline_extraction", "topik_dates"},
+        task_types=("topik_dates", "guidance_discovery"), restricted_actions=NO_DECISIONS,
+        actions=(AgentAction("topik_dates", "tool", "topik_dates", {}),
+                 AgentAction("deadlines", "tool", "upcoming_deadlines", {"category": "topik-korean"}),
+                 *_monitor_actions("guidance_discovery")),
+        interface=AgentInterface("SERVICE", "topik", _tabs("topik", "guides", "updates", "chat", "work", "about",
+                                                           admin=("review", "sources")),
                                  capabilities=("test_dates", "registration_notices", "knowledge_resources",
-                                               "grounded_chat"),
-                                 task_actions=("topik_dates",),
-                                 data_sources=("published_announcements", "knowledge_center", "rag")),
+                                               "grounded_chat", "official_monitoring"),
+                                 task_actions=("topik_dates", "check_official_sources"),
+                                 data_sources=("published_announcements", "knowledge_center", "rag", "discovery_sources",
+                                               "reviewed_discoveries")),
     ),
     AgentDefinition(
         id="scholarship", character_id="opportunities", name="Leo", title="Scholarship agent",
@@ -195,7 +231,7 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
         scope="Scholarships, competitions and programs. Never claims a student is eligible.", languages=LANGS,
         allowed_tools=READ_COMMON | {"scholarship_search", "deadline_extraction", "source_verification",
                                      "official_page_fetch", "official_web_search", "opportunity_search",
-                                     "official_source_check", "review_candidates"},
+                                     "official_source_check", "review_candidates", "official_updates"},
         task_types=("scholarship_scan", "opportunity_discovery"),
         restricted_actions=NO_DECISIONS + ("scholarship_eligibility", "claim_open_without_source"),
         actions=(AgentAction("find_scholarships", "tool", "scholarship_search", {}),
@@ -216,15 +252,19 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
         description="Finds published events, extracts dates, places and deadlines, keeps only upcoming ones and "
                     "detects new or changed announcements.",
         scope="Campus events, dormitory notices and deadlines.", languages=LANGS,
-        allowed_tools=READ_COMMON | {"event_search", "deadline_extraction"},
-        task_types=("event_digest",), restricted_actions=NO_DECISIONS,
+        allowed_tools=READ_COMMON | MONITOR | {"event_search", "deadline_extraction", "opportunity_search"},
+        task_types=("event_digest", "event_discovery"), restricted_actions=NO_DECISIONS,
         actions=(AgentAction("upcoming_events", "tool", "event_search", {}),
-                 AgentAction("what_changed", "task", "event_digest", {})),
-        interface=AgentInterface("DISCOVERY", "events", _tabs("events", "work", "chat", "about"),
+                 AgentAction("what_changed", "task", "event_digest", {}),
+                 AgentAction("official_events", "tool", "opportunity_search", {}),
+                 *_monitor_actions("event_discovery")),
+        interface=AgentInterface("DISCOVERY", "events", _tabs("events", "updates", "work", "chat", "about",
+                                                              admin=("review", "sources")),
                                  capabilities=("published_events", "event_dates", "registration_deadlines",
-                                               "official_links", "upcoming_past_filter", "change_digest"),
-                                 task_actions=("what_changed",),
-                                 data_sources=("published_announcements", "agent_tasks")),
+                                               "official_links", "upcoming_past_filter", "change_digest", "official_monitoring"),
+                                 task_actions=("what_changed", "official_events", "check_official_sources"),
+                                 data_sources=("published_announcements", "agent_tasks", "discovery_sources",
+                                               "reviewed_discoveries")),
     ),
     AgentDefinition(
         id="career", character_id="career", name="Daniel", title="Career agent",
@@ -233,17 +273,20 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
                     "requirements and flags where visa work rules must be checked.",
         scope="Careers, internships and work permission guidance. Never promises a student may legally work.",
         languages=LANGS,
-        allowed_tools=READ_COMMON | {"career_opportunity_search", "deadline_extraction", "source_verification",
-                                     "official_page_fetch", "official_web_search", "opportunity_search"},
-        task_types=("career_scan",),
+        allowed_tools=READ_COMMON | MONITOR | {"career_opportunity_search", "deadline_extraction", "source_verification",
+                                               "official_page_fetch", "official_web_search", "opportunity_search"},
+        task_types=("career_scan", "opportunity_discovery"),
         restricted_actions=NO_DECISIONS + ("work_legality",),
         actions=(AgentAction("find_opportunities", "tool", "career_opportunity_search", {}),
-                 AgentAction("official_jobs", "tool", "opportunity_search", {"kind": "job"})),
-        interface=AgentInterface("DISCOVERY", "careers", _tabs("careers", "guides", "work", "chat", "about"),
+                 AgentAction("official_jobs", "tool", "opportunity_search", {"kind": "job"}),
+                 *_monitor_actions("opportunity_discovery")),
+        interface=AgentInterface("DISCOVERY", "careers", _tabs("careers", "guides", "updates", "work", "chat", "about",
+                                                               admin=("review", "sources")),
                                  capabilities=("published_career_notices", "employment_guidance", "application_dates",
-                                               "official_links", "work_permission_reminder"),
-                                 task_actions=("find_opportunities", "official_jobs"),
-                                 data_sources=("published_announcements", "knowledge_center", "reviewed_discoveries")),
+                                               "official_links", "work_permission_reminder", "official_monitoring"),
+                                 task_actions=("find_opportunities", "official_jobs", "check_official_sources"),
+                                 data_sources=("published_announcements", "knowledge_center", "reviewed_discoveries",
+                                               "discovery_sources")),
     ),
     AgentDefinition(
         id="announcement", character_id="guide-bot", name="Robo", title="Announcement agent",
@@ -254,7 +297,7 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
         languages=LANGS,
         allowed_tools=READ_COMMON | {"deadline_extraction", "summarize_document", "translate_text",
                                      "official_page_fetch", "source_verification", "official_source_check",
-                                     "review_candidates"},
+                                     "review_candidates", "official_updates"},
         task_types=("announcement_digest", "summarize_announcement", "announcement_discovery"),
         restricted_actions=NO_DECISIONS + ("publish_announcements",),
         actions=(AgentAction("latest_notices", "tool", "announcement_search", {"limit": 8}),
@@ -274,11 +317,12 @@ AGENTS: dict[str, AgentDefinition] = {a.id: a for a in [
         description="Prepares a request to a human Global Supporter, sorts it by topic and language, sends it only "
                     "after the student confirms, and shows the status of the student's requests.",
         scope="Human support requests of the signed-in student.", languages=LANGS,
-        allowed_tools=READ_COMMON | {"create_support_request", "get_support_request_status"},
+        allowed_tools=READ_COMMON | {"create_support_request", "get_support_request_status", "support_queue"},
         task_types=("support_request",), restricted_actions=("send_without_confirmation",
                                                              "show_others_requests"),
-        actions=(AgentAction("my_requests", "tool", "get_support_request_status", {}),),
-        interface=AgentInterface("TASK_WORKSPACE", "request", _tabs("request", "requests", "chat", "about"),
+        actions=(AgentAction("my_requests", "tool", "get_support_request_status", {}),
+                 AgentAction("support_queue", "tool", "support_queue", {}, roles=STAFF)),
+        interface=AgentInterface("TASK_WORKSPACE", "request", _tabs("request", "requests", "chat", "about", staff=("queue",)),
                                  capabilities=("request_form", "issue_category", "request_preview",
                                                "explicit_confirmation", "own_request_history", "request_status"),
                                  task_actions=("my_requests",),

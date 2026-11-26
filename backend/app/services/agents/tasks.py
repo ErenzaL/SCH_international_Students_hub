@@ -100,11 +100,12 @@ TASK_PARAMS: dict[str, type[P]] = {
     "topik_dates": ScanParams, "summarize_announcement": RefParams, "explain_document": RefParams,
     "support_request": SupportRequestParams, "lookup": LookupParams, "delegated_search": DelegateParams,
     "announcement_discovery": SourceCheckParams, "opportunity_discovery": SourceCheckParams,
+    "guidance_discovery": SourceCheckParams, "event_discovery": SourceCheckParams,
 }
 #: tasks that crawl official websites: administrators (or an admin-enabled schedule) only
-ADMIN_TASKS = {"announcement_discovery", "opportunity_discovery"}
+ADMIN_TASKS = {"announcement_discovery", "opportunity_discovery", "guidance_discovery", "event_discovery"}
 #: agents that can have official sources (discovery_sources.agent_id)
-DISCOVERY_AGENTS = ("announcement", "scholarship", "career", "events")
+DISCOVERY_AGENTS = ("announcement", "scholarship", "career", "events", "immigration", "academic", "topik")
 LLM_TASKS = {"summarize_announcement", "explain_document"}
 APPROVAL_TASKS = {"support_request"}
 
@@ -122,15 +123,25 @@ class AgentTaskService:
         self.tools = ToolRegistry()
         self.worker_id = "inline"
 
+    # ================================================================== pause (migration 0017)
+    def paused_agents(self) -> set[str]:
+        try:
+            rows, _ = self.store.select("agent_controls", Query(eq={"paused": True}, cols="agent_id", limit=50))
+        except Exception:  # noqa: BLE001 - migration 0017 not applied: nothing can be paused
+            return set()
+        return {r["agent_id"] for r in rows}
+
     # ================================================================== directory
     def directory(self, user: AuthUser | None) -> list[dict[str, Any]]:
         states = self.agent_states(user)
         schedules = {(s["agent_id"]) for s in self._schedules() if s["enabled"] and self.settings.agent_schedules_enabled}
         checking = self.monitoring_activity()
+        paused = self.paused_agents()
+        known: dict[str, str | None] = {}
         role = user.role if user is not None else "visitor"
         out = []
         for a in AGENTS.values():
-            actions = [dict(id=x.id, kind=x.kind, target=x.target, params=x.params, admin_only=x.roles is not None)
+            actions = [dict(id=x.id, kind=x.kind, target=x.target, params=x.params, admin_only=x.roles is not None and "supporter" not in x.roles)
                        for x in a.actions if x.roles is None or (user is not None and user.role in x.roles)]
             visible = {x["id"] for x in actions}
             state = states.get(a.id, dict(state="idle", active=0, awaiting=0))
@@ -143,10 +154,10 @@ class AgentTaskService:
             out.append(dict(
                 id=a.id, character_id=a.character_id, name=a.name, title=a.title, department=a.department,
                 description=a.description, scope=a.scope, languages=list(a.languages), fixed_language=a.fixed_language,
-                tools=self.tools.describe(self.svc, a), task_types=list(a.task_types),
+                tools=self.tools.describe(self.svc, a, known), task_types=list(a.task_types),
                 can_delegate_to=list(a.can_delegate_to), restricted_actions=list(a.restricted_actions),
                 actions=actions, monitoring=a.id in schedules, interface=interface,
-                monitoring_check_running=a.id in checking, **state))
+                monitoring_check_running=a.id in checking, paused=a.id in paused, **state))
         return out
 
     def monitoring_activity(self) -> set[str]:
@@ -307,6 +318,8 @@ class AgentTaskService:
         if not self.settings.agent_tasks_enabled:
             raise AppError("Agent tasks are switched off on this server.", code="tasks_disabled", status_code=503)
         agent = self._agent(agent_id)
+        if agent.id in self.paused_agents():
+            raise AppError(f"{agent.name} is paused by an administrator.", code="agent_paused", status_code=503)
         if task_type not in task_types_of(agent):
             raise Forbidden(f"{agent.name} does not handle '{task_type}' tasks.", code="task_not_allowed")
         if task_type in ADMIN_TASKS and not (schedule_id or (user is not None and user.is_admin)):
@@ -494,13 +507,10 @@ class AgentTaskService:
     def _owner(self, task: dict[str, Any]) -> AuthUser | None:
         if not task.get("requested_by"):
             return None
-        from app.security.auth import AuthUser
+        from app.security.auth import user_from_profile
 
         p = get_one(self.store, "profiles", id=task["requested_by"])
-        if p is None:
-            return None
-        return AuthUser(id=p["id"], email=p.get("email"), role=p["role"], display_name=p.get("display_name"),
-                        preferred_language=p.get("preferred_language") or "en")
+        return None if p is None else user_from_profile(self.store, p)
 
     def execute(self, task: dict[str, Any]) -> None:
         agent = AGENTS.get(task["agent_id"])
@@ -700,10 +710,12 @@ class AgentTaskService:
     def _content_work_pending(self) -> bool:
         """Documents are being ingested / indexed / translated (or wait for the worker) right now."""
         now = now_iso()
-        rows, _ = self.store.select("ingestion_jobs", Query(eq={"status": "running"}, cols="id", limit=1))
+        # jobs of the GPU worker use no capacity of this server and may wait for hours
+        own = {"executor": "local"} if self.settings.gpu_worker_enabled else {}
+        rows, _ = self.store.select("ingestion_jobs", Query(eq={"status": "running", **own}, cols="id", limit=1))
         if rows:
             return True
-        rows, _ = self.store.select("ingestion_jobs", Query(eq={"status": "queued"}, lte={"run_after": now},
+        rows, _ = self.store.select("ingestion_jobs", Query(eq={"status": "queued", **own}, lte={"run_after": now},
                                                             cols="id", limit=1))
         return bool(rows)
 
@@ -713,7 +725,10 @@ class AgentTaskService:
             return dict(enabled=False, queued=0)
         now = datetime.now(UTC)
         queued = postponed = 0
+        paused = self.paused_agents()
         for s in self._schedules():
+            if s["agent_id"] in paused:
+                continue
             if not s["enabled"] or (s.get("next_run_at") and datetime.fromisoformat(s["next_run_at"]) > now):
                 continue
             if s["task_type"] in ADMIN_TASKS and self._content_work_pending():

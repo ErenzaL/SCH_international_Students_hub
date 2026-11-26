@@ -29,6 +29,8 @@ KIND_RULES: list[tuple[str, re.Pattern[str]]] = [
     ("scholarship", re.compile(r"장학|scholarship|GKS|beasiswa|học bổng|奖学金|tuition (?:waiver|reduction)", re.I)),
     ("competition", re.compile(r"공모전|대회|경진|경연|챌린지|해커톤|contest|competition|hackathon|challenge", re.I)),
     ("job", re.compile(r"채용|인턴십?|구인|일자리|\bjobs?\b|\bintern(?:ship)?s?\b|recruit(?:ment)? of staff|employment fair|채용박람회", re.I)),
+    ("event", re.compile(r"축제|페스티벌|설명회|세미나|음악회|기념행사|행사\s*(?:안내|개최)|문화\s*행사|체육대회|festival|seminar|"
+                         r"orientation|open lecture|information session", re.I)),
     ("program", re.compile(r"서포터즈|참가자|참여자|프로그램|연수|캠프|교환학생|문화체험|컨퍼런스|program|exchange|camp|"
                            r"conference|ambassador|supporters", re.I)),
 ]
@@ -165,5 +167,6 @@ def analyse(title: str, text: str, *, published_on: str | None, links: list[dict
     if open_status == "open" and "year_assumed" in flags:
         flags.append("open_status_uncertain")
     return dict(**cls, dates=dates[:10], deadlines=deadlines[:5], next_deadline=future[0] if future else None,
+                event_date=next((d["date"] for d in dates if d["kind"] == "event" and d["date"] >= today.isoformat()), None),
                 eligibility=elig, application_links=apply, open_status=open_status, open_reason=reason,
                 flags=sorted(set(flags)))

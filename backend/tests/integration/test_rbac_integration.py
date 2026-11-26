@@ -11,7 +11,7 @@ import httpx
 import jwt
 import pytest
 
-from tests.integration.test_postgres_integration import IT, PSQL, REST, SECRET, sql
+from tests.integration.test_postgres_integration import ANON_KEY, IT, PSQL, REST, SECRET, sql
 
 pytestmark = pytest.mark.skipif(not (REST and PSQL), reason="set SCH_IT_REST_URL and SCH_IT_PSQL to run")
 
@@ -28,7 +28,7 @@ def it() -> IT:
 
 
 def rest(token: str | None, path: str) -> httpx.Response:
-    headers = {"apikey": "anon"} | ({"Authorization": f"Bearer {token}"} if token else {})
+    headers = {"apikey": ANON_KEY} | ({"Authorization": f"Bearer {token}"} if token else {})
     return httpx.get(f"{REST}/rest/v1/{path}", headers=headers, timeout=10)
 
 
@@ -98,7 +98,7 @@ def test_task_histories_are_private_through_the_api_and_rls(it: IT):
     anon = rest(None, "agent_tasks?select=id")
     assert anon.status_code in (401, 403)
     # students cannot write tasks directly or read schedules / discovery data
-    w = httpx.post(f"{REST}/rest/v1/agent_tasks", headers={"apikey": "anon", "Authorization": f"Bearer {user_jwt(it, 'student')}"},
+    w = httpx.post(f"{REST}/rest/v1/agent_tasks", headers={"apikey": ANON_KEY, "Authorization": f"Bearer {user_jwt(it, 'student')}"},
                    json={"agent_id": "events", "task_type": "event_digest"}, timeout=10)
     assert w.status_code in (401, 403)
     for table in ("agent_schedules", "discovery_sources", "discovered_items"):

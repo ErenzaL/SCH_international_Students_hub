@@ -71,6 +71,9 @@ class Settings(BaseSettings):
     retrieval_fusion: str = "weighted"
     retrieval_vector_weight: float = 1.0
     retrieval_keyword_weight: float = 0.35
+    retrieval_bridge_weight: float = 0.75     # extra Korean/English concept queries (retrieval/bridge.py); 0 = off
+    retrieval_cross_script_weight: float = 0.0  # off: helped the development sets, not the blind set (KOREAN-RETRIEVAL.md)
+    retrieval_hub_beta: float = 0.0           # long documents (many chunks) are scaled down by (typical/n)**beta; 0 = off
     retrieval_candidate_pool: int = 30        # candidates fetched per leg before fusion
     retrieval_max_chunks_per_document: int = 3
     # a passage that names a different visa/status code (E-7, F-2-R ...) but not the one asked about is demoted
@@ -109,6 +112,8 @@ class Settings(BaseSettings):
     # indexing and translation never wait behind a ~90 s official-source check, and students' quick tasks never wait
     # behind a long PDF. Same process (no extra memory for models); off = one thread runs everything, as before.
     agent_task_worker: bool = True
+    # ingestion jobs executing at the same time in one process (worker thread, inline background tasks, CLI); 1 on 512 MB
+    ingestion_max_concurrent_jobs: int = 1
     # running jobs heartbeat every job_heartbeat_seconds (a background ticker, also during long extractions);
     # a job without a heartbeat for job_stale_seconds belongs to a dead worker and is re-queued (or failed after
     # max_attempts). Right after a restart the first claim uses the shorter job_startup_stale_seconds.
@@ -131,6 +136,7 @@ class Settings(BaseSettings):
     # evidence-sufficiency layer (app/services/assistant/evidence.py). OFF by default: chat behaviour is unchanged
     # unless enabled. When on: neighbouring chunks / one targeted search for missing information types, and an
     # ``evidence_check`` report in the response's retrieval metadata (still-missing information is recorded).
+    assistant_verify_local: bool = True        # a short second look at answers with figures, small local models only
     assistant_evidence_check: bool = False
     assistant_evidence_adjacent: bool = True
     assistant_evidence_second_search: bool = True
@@ -160,7 +166,10 @@ class Settings(BaseSettings):
     cron_secret: str = Field(default="", repr=False)
 
     # --- LLM (optional): answer generation + translation drafts -------------
-    llm_provider: str = "none"               # none | anthropic | gemini
+    llm_provider: str = "none"               # none | anthropic | gemini | ollama
+    # background work only (translation drafts, agent summaries / translations, discovery summaries):
+    # none | anthropic | gemini | ollama. Empty = LLM_PROVIDER (the existing behaviour).
+    background_llm_provider: str = ""
     # server-side secret; empty = the SDK reads its own variable (ANTHROPIC_API_KEY / GEMINI_API_KEY)
     llm_api_key: str = Field(default="", repr=False)
     llm_model: str = "claude-opus-5-5"       # anthropic only
@@ -171,6 +180,36 @@ class Settings(BaseSettings):
     gemini_primary_model: str = "gemini-3.6-flash"
     gemini_fallback_model: str = "gemini-3.5-flash-lite"   # empty = no fallback model
     gemini_thinking_level: str = "low"       # minimal | low | medium | high ("" = model default)
+    # Ollama (local models, university server only; see docs/ollama.md). Loopback addresses only.
+    ollama_base_url: str = "http://127.0.0.1:11434"
+    ollama_model: str = "qwen2.5:7b-instruct"
+    ollama_num_ctx: int = 16384               # a prompt that does not fit is an error, never cut silently
+    ollama_max_output_tokens: int = 8192      # per call (at most half of the context)
+    ollama_temperature: float = 0.2
+    ollama_keep_alive: str = "10m"            # how long the model stays in GPU memory when idle
+    ollama_max_concurrency: int = 1           # requests sent at the same time, all features together (one GPU)
+    ollama_connect_timeout_seconds: float = 3.0
+    ollama_request_timeout_seconds: float = 90.0     # one attempt, interactive calls
+    ollama_job_timeout_seconds: float = 180.0        # one attempt, translation jobs
+    ollama_fast_timeout_seconds: float = 30.0        # query rewriting (may include loading the model)
+    ollama_queue_timeout_seconds: float = 30.0       # waiting for a free slot, interactive calls
+    ollama_job_queue_timeout_seconds: float = 300.0  # ... jobs
+    ollama_request_deadline_seconds: float = 120.0   # interactive calls: no retry starts after this much time
+    # GPU worker on the university server (docs/gpu-worker.md). OFF: no endpoint exists and nothing is routed to it.
+    # When on, these translation jobs wait for the worker instead of using the API's own model. Its output is always
+    # stored as 'needs_review' (never shown to students). Needs migration 0016.
+    gpu_worker_enabled: bool = False
+    gpu_worker_job_types: str = "translate_announcement,translate_document"
+    gpu_worker_models: str = "qwen2.5:7b-instruct"   # models whose results are accepted
+    gpu_worker_max_running: int = 1                  # jobs leased at the same time, all workers together
+    gpu_worker_lease_seconds: int = 180              # renewed by the worker; a lost worker's job is re-queued after this
+    gpu_worker_job_max_seconds: int = 1800           # a lease is not renewed beyond this
+    gpu_worker_chunk_chars: int = 1200
+    gpu_worker_max_source_chars: int = 12000         # text a summary is made from (longer: partial, labelled)
+    gpu_worker_online_hours: int = 24                # no contact for this long: new requests use the server's own model
+    gpu_worker_max_queue_hours: int = 48             # a job that waited this long is not left waiting ...
+    gpu_worker_on_expiry: str = "fail"               # ... "fail": visible failure + alert | "local": server's own model
+    gpu_worker_token_days: int = 90                  # validity of a new or rotated credential
     llm_temperature: float | None = None     # None = the model's default (recommended for Gemini 3 models)
     llm_answer_max_tokens: int = 2048        # answer generation output cap (thinking tokens count separately)
     llm_request_timeout_seconds: float = 30.0   # per attempt (assistant answers); translation jobs use llm_timeout
@@ -215,9 +254,14 @@ class Settings(BaseSettings):
     agent_tool_runs_per_minute: int = 30           # instant tool runs per user / client IP
     agent_task_timeout_seconds: int = 180          # a task that runs longer fails (checked between steps)
     agent_task_retention_days: int = 30            # finished tasks (and their step log) are deleted afterwards
+    # size limit of the database plan (free plan: 500 MB); only for the admin storage warnings
+    database_limit_mb: int = 500
     # master switch for scheduled agents. Even when true, each schedule runs only after an admin enables it.
     agent_schedules_enabled: bool = False
     # official-source discovery (Phase 3): polite, bounded checks of admin-configured official pages
+    # official recruitment APIs (app/services/discovery/job_apis.py); empty = the source is shown as blocked
+    saramin_access_key: str = Field(default="", repr=False)
+    data_go_kr_service_key: str = Field(default="", repr=False)
     discovery_max_items: int = 10                   # items read per source per check (hard cap 30)
     discovery_max_sources: int = 10                 # sources per task
     discovery_min_check_interval_seconds: int = 600 # a manual re-check sooner than this reuses the last results

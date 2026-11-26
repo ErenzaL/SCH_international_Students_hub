@@ -8,7 +8,7 @@ do $$
 declare n int; s uuid;
 begin
   select count(*) into n from agent_schedules
-   where task_type in ('announcement_discovery', 'opportunity_discovery') and not enabled and params->>'review' = 'admin';
+   where task_type in ('announcement_discovery', 'opportunity_discovery') and not enabled and agent_id in ('announcement', 'scholarship') and params->>'review' = 'admin';
   if n <> 2 then raise exception 'FAIL: monitoring schedules not seeded disabled with admin review (%)', n; end if;
 
   insert into discovery_sources (id, agent_id, name, kind, url)
@@ -86,7 +86,7 @@ reset role;
 do $$
 declare n int;
 begin
-  select count(*) into n from agent_schedules where task_type in ('announcement_discovery', 'opportunity_discovery');
+  select count(*) into n from agent_schedules where task_type in ('announcement_discovery', 'opportunity_discovery') and agent_id in ('announcement', 'scholarship');
   if n <> 2 then raise exception 'FAIL: re-running 0015 changed schedules'; end if;
 end $$;
 

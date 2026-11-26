@@ -1,0 +1,3027 @@
+{
+ "dataset": "cross-language: English questions about Korean official notices",
+ "version": "v1",
+ "split": "dev",
+ "questions": 54,
+ "index": {
+  "index_seconds": 16.5,
+  "documents": 58,
+  "chunks": 798,
+  "embedded_chunks": 798,
+  "embedding_model": "intfloat/multilingual-e5-small#qint8",
+  "chunk_target_tokens": 320,
+  "chunk_max_tokens": 420,
+  "chunk_overlap_tokens": 48
+ },
+ "commit": "3a0e917+dirty",
+ "seconds": 31.9,
+ "results": {
+  "baseline": {
+   "settings": {
+    "retrieval_cross_script_weight": 0.0,
+    "retrieval_hub_beta": 0.0,
+    "retrieval_bridge_weight": 0.75
+   },
+   "summary": {
+    "strict": {
+     "english": {
+      "n": 36,
+      "mrr": 0.214,
+      "recall_at_1": 0.167,
+      "recall_at_5": 0.278
+     },
+     "english_topic": {
+      "n": 18,
+      "mrr": 0.178,
+      "recall_at_1": 0.111,
+      "recall_at_5": 0.278
+     },
+     "english_detail": {
+      "n": 18,
+      "mrr": 0.25,
+      "recall_at_1": 0.222,
+      "recall_at_5": 0.278
+     },
+     "korean": {
+      "n": 18,
+      "mrr": 0.972,
+      "recall_at_1": 0.944,
+      "recall_at_5": 1.0
+     },
+     "paired_gap_en_topic_minus_ko": -0.794
+    },
+    "lenient": {
+     "english": {
+      "n": 36,
+      "mrr": 0.214,
+      "recall_at_1": 0.167,
+      "recall_at_5": 0.278
+     },
+     "english_topic": {
+      "n": 18,
+      "mrr": 0.178,
+      "recall_at_1": 0.111,
+      "recall_at_5": 0.278
+     },
+     "english_detail": {
+      "n": 18,
+      "mrr": 0.25,
+      "recall_at_1": 0.222,
+      "recall_at_5": 0.278
+     },
+     "korean": {
+      "n": 18,
+      "mrr": 0.972,
+      "recall_at_1": 0.944,
+      "recall_at_5": 1.0
+     },
+     "paired_gap_en_topic_minus_ko": -0.794
+    }
+   },
+   "rows": [
+    {
+     "question_id": "H01-en-topic",
+     "notice_id": "H01",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+      "4650e940-a12f-464c-be4a-285c607e88ef"
+     ]
+    },
+    {
+     "question_id": "H01-en-detail",
+     "notice_id": "H01",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+      "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+     ]
+    },
+    {
+     "question_id": "H01-ko-topic",
+     "notice_id": "H01",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H01",
+      "N12",
+      "N03"
+     ]
+    },
+    {
+     "question_id": "H02-en-topic",
+     "notice_id": "H02",
+     "language": "en",
+     "kind": "topic",
+     "strict": 2,
+     "lenient": 2,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "H02",
+      "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+     ]
+    },
+    {
+     "question_id": "H02-en-detail",
+     "notice_id": "H02",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "H03",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "H02-ko-topic",
+     "notice_id": "H02",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H02",
+      "N11",
+      "H03"
+     ]
+    },
+    {
+     "question_id": "H07-en-topic",
+     "notice_id": "H07",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+     ]
+    },
+    {
+     "question_id": "H07-en-detail",
+     "notice_id": "H07",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H07",
+      "744fdb55-6239-47ca-ab92-18eafb77d677",
+      "N03"
+     ]
+    },
+    {
+     "question_id": "H07-ko-topic",
+     "notice_id": "H07",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H07",
+      "N18",
+      "N12"
+     ]
+    },
+    {
+     "question_id": "H09-en-topic",
+     "notice_id": "H09",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+      "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f"
+     ]
+    },
+    {
+     "question_id": "H09-en-detail",
+     "notice_id": "H09",
+     "language": "en",
+     "kind": "detail",
+     "strict": 2,
+     "lenient": 2,
+     "top": [
+      "N08",
+      "H09",
+      "H10"
+     ]
+    },
+    {
+     "question_id": "H09-ko-topic",
+     "notice_id": "H09",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H09",
+      "d032674b-e938-43dd-a21f-f4b79dcab42f",
+      "da416585-7ae2-40e9-b158-f252fab6be57"
+     ]
+    },
+    {
+     "question_id": "N03-en-topic",
+     "notice_id": "N03",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "N03-en-detail",
+     "notice_id": "N03",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+     ]
+    },
+    {
+     "question_id": "N03-ko-topic",
+     "notice_id": "N03",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N03",
+      "N12",
+      "7c5799ad-a2e4-4044-99ad-2d6882a9a74f"
+     ]
+    },
+    {
+     "question_id": "N05-en-topic",
+     "notice_id": "N05",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "N05-en-detail",
+     "notice_id": "N05",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+     ]
+    },
+    {
+     "question_id": "N05-ko-topic",
+     "notice_id": "N05",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N05",
+      "N18",
+      "H10"
+     ]
+    },
+    {
+     "question_id": "N06-en-topic",
+     "notice_id": "N06",
+     "language": "en",
+     "kind": "topic",
+     "strict": 2,
+     "lenient": 2,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "N06",
+      "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+     ]
+    },
+    {
+     "question_id": "N06-en-detail",
+     "notice_id": "N06",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": []
+    },
+    {
+     "question_id": "N06-ko-topic",
+     "notice_id": "N06",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N06",
+      "d60bc363-0aae-44e5-b0c3-df8c61ad6f66",
+      "96b0fee4-18e9-4ea2-adb5-db654c9ac238"
+     ]
+    },
+    {
+     "question_id": "N07-en-topic",
+     "notice_id": "N07",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+      "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f"
+     ]
+    },
+    {
+     "question_id": "N07-en-detail",
+     "notice_id": "N07",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N07"
+     ]
+    },
+    {
+     "question_id": "N07-ko-topic",
+     "notice_id": "N07",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N07",
+      "N11",
+      "H02"
+     ]
+    },
+    {
+     "question_id": "N10-en-topic",
+     "notice_id": "N10",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N10",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+     ]
+    },
+    {
+     "question_id": "N10-en-detail",
+     "notice_id": "N10",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N10",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+     ]
+    },
+    {
+     "question_id": "N10-ko-topic",
+     "notice_id": "N10",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N10",
+      "N12",
+      "7c5799ad-a2e4-4044-99ad-2d6882a9a74f"
+     ]
+    },
+    {
+     "question_id": "N12-en-topic",
+     "notice_id": "N12",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "N12-en-detail",
+     "notice_id": "N12",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "26fbef6d-9eb0-4279-b8da-af0753c4512b",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+     ]
+    },
+    {
+     "question_id": "N12-ko-topic",
+     "notice_id": "N12",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N12",
+      "N22",
+      "7c5799ad-a2e4-4044-99ad-2d6882a9a74f"
+     ]
+    },
+    {
+     "question_id": "N13-en-topic",
+     "notice_id": "N13",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N13",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "491d4c3f-7bf9-4961-9402-90c5412c7b5c"
+     ]
+    },
+    {
+     "question_id": "N13-en-detail",
+     "notice_id": "N13",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+      "b3f79749-2756-4ae1-8bc0-31662164d333",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "N13-ko-topic",
+     "notice_id": "N13",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N13",
+      "N12",
+      "N10"
+     ]
+    },
+    {
+     "question_id": "N14-en-topic",
+     "notice_id": "N14",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+     ]
+    },
+    {
+     "question_id": "N14-en-detail",
+     "notice_id": "N14",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N14",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "N14-ko-topic",
+     "notice_id": "N14",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N14",
+      "H05",
+      "96b0fee4-18e9-4ea2-adb5-db654c9ac238"
+     ]
+    },
+    {
+     "question_id": "N15-en-topic",
+     "notice_id": "N15",
+     "language": "en",
+     "kind": "topic",
+     "strict": 5,
+     "lenient": 5,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "744fdb55-6239-47ca-ab92-18eafb77d677"
+     ]
+    },
+    {
+     "question_id": "N15-en-detail",
+     "notice_id": "N15",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+      "744fdb55-6239-47ca-ab92-18eafb77d677",
+      "25af9ce5-586d-4a1b-80ee-d30594ead06f"
+     ]
+    },
+    {
+     "question_id": "N15-ko-topic",
+     "notice_id": "N15",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N15",
+      "N18",
+      "N01"
+     ]
+    },
+    {
+     "question_id": "N16-en-topic",
+     "notice_id": "N16",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": []
+    },
+    {
+     "question_id": "N16-en-detail",
+     "notice_id": "N16",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": []
+    },
+    {
+     "question_id": "N16-ko-topic",
+     "notice_id": "N16",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N16",
+      "H03",
+      "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+     ]
+    },
+    {
+     "question_id": "N22-en-topic",
+     "notice_id": "N22",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "744fdb55-6239-47ca-ab92-18eafb77d677",
+      "d032674b-e938-43dd-a21f-f4b79dcab42f"
+     ]
+    },
+    {
+     "question_id": "N22-en-detail",
+     "notice_id": "N22",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "N20"
+     ]
+    },
+    {
+     "question_id": "N22-ko-topic",
+     "notice_id": "N22",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N22",
+      "N23",
+      "ae1cbab7-4248-4536-b725-847c7a61cd64"
+     ]
+    },
+    {
+     "question_id": "N23-en-topic",
+     "notice_id": "N23",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+      "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+     ]
+    },
+    {
+     "question_id": "N23-en-detail",
+     "notice_id": "N23",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": []
+    },
+    {
+     "question_id": "N23-ko-topic",
+     "notice_id": "N23",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N23",
+      "N22",
+      "da416585-7ae2-40e9-b158-f252fab6be57"
+     ]
+    },
+    {
+     "question_id": "N24-en-topic",
+     "notice_id": "N24",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "b3f79749-2756-4ae1-8bc0-31662164d333",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+     ]
+    },
+    {
+     "question_id": "N24-en-detail",
+     "notice_id": "N24",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "d032674b-e938-43dd-a21f-f4b79dcab42f",
+      "H08",
+      "da416585-7ae2-40e9-b158-f252fab6be57"
+     ]
+    },
+    {
+     "question_id": "N24-ko-topic",
+     "notice_id": "N24",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N24",
+      "H08",
+      "d032674b-e938-43dd-a21f-f4b79dcab42f"
+     ]
+    },
+    {
+     "question_id": "N26-en-topic",
+     "notice_id": "N26",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+      "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f"
+     ]
+    },
+    {
+     "question_id": "N26-en-detail",
+     "notice_id": "N26",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+      "744fdb55-6239-47ca-ab92-18eafb77d677"
+     ]
+    },
+    {
+     "question_id": "N26-ko-topic",
+     "notice_id": "N26",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 2,
+     "lenient": 2,
+     "top": [
+      "da416585-7ae2-40e9-b158-f252fab6be57",
+      "N26",
+      "H10"
+     ]
+    }
+   ]
+  },
+  "cross": {
+   "settings": {
+    "retrieval_cross_script_weight": 1.0
+   },
+   "summary": {
+    "strict": {
+     "english": {
+      "n": 36,
+      "mrr": 0.353,
+      "recall_at_1": 0.306,
+      "recall_at_5": 0.417
+     },
+     "english_topic": {
+      "n": 18,
+      "mrr": 0.372,
+      "recall_at_1": 0.278,
+      "recall_at_5": 0.5
+     },
+     "english_detail": {
+      "n": 18,
+      "mrr": 0.333,
+      "recall_at_1": 0.333,
+      "recall_at_5": 0.333
+     },
+     "korean": {
+      "n": 18,
+      "mrr": 0.944,
+      "recall_at_1": 0.889,
+      "recall_at_5": 1.0
+     },
+     "paired_gap_en_topic_minus_ko": -0.572
+    },
+    "lenient": {
+     "english": {
+      "n": 36,
+      "mrr": 0.353,
+      "recall_at_1": 0.306,
+      "recall_at_5": 0.417
+     },
+     "english_topic": {
+      "n": 18,
+      "mrr": 0.372,
+      "recall_at_1": 0.278,
+      "recall_at_5": 0.5
+     },
+     "english_detail": {
+      "n": 18,
+      "mrr": 0.333,
+      "recall_at_1": 0.333,
+      "recall_at_5": 0.333
+     },
+     "korean": {
+      "n": 18,
+      "mrr": 0.944,
+      "recall_at_1": 0.889,
+      "recall_at_5": 1.0
+     },
+     "paired_gap_en_topic_minus_ko": -0.572
+    }
+   },
+   "versus_baseline": {
+    "english_mrr_diff": 0.139,
+    "english_mrr_diff_ci95": [
+     0.042,
+     0.258
+    ],
+    "korean_mrr_diff": -0.028,
+    "korean_mrr_diff_ci95": [
+     -0.083,
+     0.0
+    ]
+   },
+   "rows": [
+    {
+     "question_id": "H01-en-topic",
+     "notice_id": "H01",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "N12",
+      "N03",
+      "N10"
+     ]
+    },
+    {
+     "question_id": "H01-en-detail",
+     "notice_id": "H01",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "N12",
+      "N03",
+      "N10"
+     ]
+    },
+    {
+     "question_id": "H01-ko-topic",
+     "notice_id": "H01",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H01",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+     ]
+    },
+    {
+     "question_id": "H02-en-topic",
+     "notice_id": "H02",
+     "language": "en",
+     "kind": "topic",
+     "strict": 2,
+     "lenient": 2,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "H02",
+      "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+     ]
+    },
+    {
+     "question_id": "H02-en-detail",
+     "notice_id": "H02",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "H03",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "H02-ko-topic",
+     "notice_id": "H02",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H02",
+      "N11",
+      "H03"
+     ]
+    },
+    {
+     "question_id": "H07-en-topic",
+     "notice_id": "H07",
+     "language": "en",
+     "kind": "topic",
+     "strict": 5,
+     "lenient": 5,
+     "top": [
+      "N12",
+      "N03",
+      "N10"
+     ]
+    },
+    {
+     "question_id": "H07-en-detail",
+     "notice_id": "H07",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H07",
+      "N03",
+      "N13"
+     ]
+    },
+    {
+     "question_id": "H07-ko-topic",
+     "notice_id": "H07",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H07",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+     ]
+    },
+    {
+     "question_id": "H09-en-topic",
+     "notice_id": "H09",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "d60bc363-0aae-44e5-b0c3-df8c61ad6f66",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59"
+     ]
+    },
+    {
+     "question_id": "H09-en-detail",
+     "notice_id": "H09",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H09",
+      "H10",
+      "N26"
+     ]
+    },
+    {
+     "question_id": "H09-ko-topic",
+     "notice_id": "H09",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H09",
+      "d032674b-e938-43dd-a21f-f4b79dcab42f",
+      "da416585-7ae2-40e9-b158-f252fab6be57"
+     ]
+    },
+    {
+     "question_id": "N03-en-topic",
+     "notice_id": "N03",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N03",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+     ]
+    },
+    {
+     "question_id": "N03-en-detail",
+     "notice_id": "N03",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+     ]
+    },
+    {
+     "question_id": "N03-ko-topic",
+     "notice_id": "N03",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N03",
+      "N12",
+      "7c5799ad-a2e4-4044-99ad-2d6882a9a74f"
+     ]
+    },
+    {
+     "question_id": "N05-en-topic",
+     "notice_id": "N05",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N05",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+     ]
+    },
+    {
+     "question_id": "N05-en-detail",
+     "notice_id": "N05",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N05",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+     ]
+    },
+    {
+     "question_id": "N05-ko-topic",
+     "notice_id": "N05",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N05",
+      "N18",
+      "H10"
+     ]
+    },
+    {
+     "question_id": "N06-en-topic",
+     "notice_id": "N06",
+     "language": "en",
+     "kind": "topic",
+     "strict": 2,
+     "lenient": 2,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "N06",
+      "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+     ]
+    },
+    {
+     "question_id": "N06-en-detail",
+     "notice_id": "N06",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": []
+    },
+    {
+     "question_id": "N06-ko-topic",
+     "notice_id": "N06",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N06",
+      "d60bc363-0aae-44e5-b0c3-df8c61ad6f66",
+      "96b0fee4-18e9-4ea2-adb5-db654c9ac238"
+     ]
+    },
+    {
+     "question_id": "N07-en-topic",
+     "notice_id": "N07",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+      "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f"
+     ]
+    },
+    {
+     "question_id": "N07-en-detail",
+     "notice_id": "N07",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N07"
+     ]
+    },
+    {
+     "question_id": "N07-ko-topic",
+     "notice_id": "N07",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N07",
+      "N11",
+      "H02"
+     ]
+    },
+    {
+     "question_id": "N10-en-topic",
+     "notice_id": "N10",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N10",
+      "N05",
+      "N12"
+     ]
+    },
+    {
+     "question_id": "N10-en-detail",
+     "notice_id": "N10",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N10",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+     ]
+    },
+    {
+     "question_id": "N10-ko-topic",
+     "notice_id": "N10",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 2,
+     "lenient": 2,
+     "top": [
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "N10",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+     ]
+    },
+    {
+     "question_id": "N12-en-topic",
+     "notice_id": "N12",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "N12-en-detail",
+     "notice_id": "N12",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "N03",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+     ]
+    },
+    {
+     "question_id": "N12-ko-topic",
+     "notice_id": "N12",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N12",
+      "N22",
+      "7c5799ad-a2e4-4044-99ad-2d6882a9a74f"
+     ]
+    },
+    {
+     "question_id": "N13-en-topic",
+     "notice_id": "N13",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N13",
+      "N12",
+      "N03"
+     ]
+    },
+    {
+     "question_id": "N13-en-detail",
+     "notice_id": "N13",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+      "b3f79749-2756-4ae1-8bc0-31662164d333",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "N13-ko-topic",
+     "notice_id": "N13",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N13",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "N12"
+     ]
+    },
+    {
+     "question_id": "N14-en-topic",
+     "notice_id": "N14",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+     ]
+    },
+    {
+     "question_id": "N14-en-detail",
+     "notice_id": "N14",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N14",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "N14-ko-topic",
+     "notice_id": "N14",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N14",
+      "H05",
+      "96b0fee4-18e9-4ea2-adb5-db654c9ac238"
+     ]
+    },
+    {
+     "question_id": "N15-en-topic",
+     "notice_id": "N15",
+     "language": "en",
+     "kind": "topic",
+     "strict": 2,
+     "lenient": 2,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "N15",
+      "N12"
+     ]
+    },
+    {
+     "question_id": "N15-en-detail",
+     "notice_id": "N15",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "N03",
+      "N13",
+      "H07"
+     ]
+    },
+    {
+     "question_id": "N15-ko-topic",
+     "notice_id": "N15",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N15",
+      "N18",
+      "N01"
+     ]
+    },
+    {
+     "question_id": "N16-en-topic",
+     "notice_id": "N16",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": []
+    },
+    {
+     "question_id": "N16-en-detail",
+     "notice_id": "N16",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": []
+    },
+    {
+     "question_id": "N16-ko-topic",
+     "notice_id": "N16",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N16",
+      "H03",
+      "d60bc363-0aae-44e5-b0c3-df8c61ad6f66"
+     ]
+    },
+    {
+     "question_id": "N22-en-topic",
+     "notice_id": "N22",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "744fdb55-6239-47ca-ab92-18eafb77d677",
+      "d032674b-e938-43dd-a21f-f4b79dcab42f"
+     ]
+    },
+    {
+     "question_id": "N22-en-detail",
+     "notice_id": "N22",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "N20"
+     ]
+    },
+    {
+     "question_id": "N22-ko-topic",
+     "notice_id": "N22",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N22",
+      "N23",
+      "ae1cbab7-4248-4536-b725-847c7a61cd64"
+     ]
+    },
+    {
+     "question_id": "N23-en-topic",
+     "notice_id": "N23",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+      "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+     ]
+    },
+    {
+     "question_id": "N23-en-detail",
+     "notice_id": "N23",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": []
+    },
+    {
+     "question_id": "N23-ko-topic",
+     "notice_id": "N23",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N23",
+      "N22",
+      "da416585-7ae2-40e9-b158-f252fab6be57"
+     ]
+    },
+    {
+     "question_id": "N24-en-topic",
+     "notice_id": "N24",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N24",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "b3f79749-2756-4ae1-8bc0-31662164d333"
+     ]
+    },
+    {
+     "question_id": "N24-en-detail",
+     "notice_id": "N24",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "da416585-7ae2-40e9-b158-f252fab6be57",
+      "d60bc363-0aae-44e5-b0c3-df8c61ad6f66",
+      "d032674b-e938-43dd-a21f-f4b79dcab42f"
+     ]
+    },
+    {
+     "question_id": "N24-ko-topic",
+     "notice_id": "N24",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N24",
+      "H08",
+      "d032674b-e938-43dd-a21f-f4b79dcab42f"
+     ]
+    },
+    {
+     "question_id": "N26-en-topic",
+     "notice_id": "N26",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+      "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f"
+     ]
+    },
+    {
+     "question_id": "N26-en-detail",
+     "notice_id": "N26",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+      "744fdb55-6239-47ca-ab92-18eafb77d677"
+     ]
+    },
+    {
+     "question_id": "N26-ko-topic",
+     "notice_id": "N26",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 2,
+     "lenient": 2,
+     "top": [
+      "da416585-7ae2-40e9-b158-f252fab6be57",
+      "N26",
+      "H10"
+     ]
+    }
+   ]
+  },
+  "hub": {
+   "settings": {
+    "retrieval_hub_beta": 0.1
+   },
+   "summary": {
+    "strict": {
+     "english": {
+      "n": 36,
+      "mrr": 0.247,
+      "recall_at_1": 0.222,
+      "recall_at_5": 0.306
+     },
+     "english_topic": {
+      "n": 18,
+      "mrr": 0.233,
+      "recall_at_1": 0.222,
+      "recall_at_5": 0.278
+     },
+     "english_detail": {
+      "n": 18,
+      "mrr": 0.261,
+      "recall_at_1": 0.222,
+      "recall_at_5": 0.333
+     },
+     "korean": {
+      "n": 18,
+      "mrr": 1.0,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0
+     },
+     "paired_gap_en_topic_minus_ko": -0.767
+    },
+    "lenient": {
+     "english": {
+      "n": 36,
+      "mrr": 0.247,
+      "recall_at_1": 0.222,
+      "recall_at_5": 0.306
+     },
+     "english_topic": {
+      "n": 18,
+      "mrr": 0.233,
+      "recall_at_1": 0.222,
+      "recall_at_5": 0.278
+     },
+     "english_detail": {
+      "n": 18,
+      "mrr": 0.261,
+      "recall_at_1": 0.222,
+      "recall_at_5": 0.333
+     },
+     "korean": {
+      "n": 18,
+      "mrr": 1.0,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0
+     },
+     "paired_gap_en_topic_minus_ko": -0.767
+    }
+   },
+   "versus_baseline": {
+    "english_mrr_diff": 0.033,
+    "english_mrr_diff_ci95": [
+     -0.003,
+     0.081
+    ],
+    "korean_mrr_diff": 0.028,
+    "korean_mrr_diff_ci95": [
+     0.0,
+     0.083
+    ]
+   },
+   "rows": [
+    {
+     "question_id": "H01-en-topic",
+     "notice_id": "H01",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "4650e940-a12f-464c-be4a-285c607e88ef",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "491d4c3f-7bf9-4961-9402-90c5412c7b5c"
+     ]
+    },
+    {
+     "question_id": "H01-en-detail",
+     "notice_id": "H01",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "H01-ko-topic",
+     "notice_id": "H01",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H01",
+      "N12",
+      "H07"
+     ]
+    },
+    {
+     "question_id": "H02-en-topic",
+     "notice_id": "H02",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H02",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+     ]
+    },
+    {
+     "question_id": "H02-en-detail",
+     "notice_id": "H02",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "H03",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "H02-ko-topic",
+     "notice_id": "H02",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H02",
+      "N11",
+      "H03"
+     ]
+    },
+    {
+     "question_id": "H07-en-topic",
+     "notice_id": "H07",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "N12",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+     ]
+    },
+    {
+     "question_id": "H07-en-detail",
+     "notice_id": "H07",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H07",
+      "744fdb55-6239-47ca-ab92-18eafb77d677",
+      "7c5799ad-a2e4-4044-99ad-2d6882a9a74f"
+     ]
+    },
+    {
+     "question_id": "H07-ko-topic",
+     "notice_id": "H07",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H07",
+      "N18",
+      "N13"
+     ]
+    },
+    {
+     "question_id": "H09-en-topic",
+     "notice_id": "H09",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f"
+     ]
+    },
+    {
+     "question_id": "H09-en-detail",
+     "notice_id": "H09",
+     "language": "en",
+     "kind": "detail",
+     "strict": 2,
+     "lenient": 2,
+     "top": [
+      "N08",
+      "H09",
+      "H10"
+     ]
+    },
+    {
+     "question_id": "H09-ko-topic",
+     "notice_id": "H09",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H09",
+      "N13",
+      "N26"
+     ]
+    },
+    {
+     "question_id": "N03-en-topic",
+     "notice_id": "N03",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "491d4c3f-7bf9-4961-9402-90c5412c7b5c"
+     ]
+    },
+    {
+     "question_id": "N03-en-detail",
+     "notice_id": "N03",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "26fbef6d-9eb0-4279-b8da-af0753c4512b",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "N03-ko-topic",
+     "notice_id": "N03",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N03",
+      "7c5799ad-a2e4-4044-99ad-2d6882a9a74f",
+      "N12"
+     ]
+    },
+    {
+     "question_id": "N05-en-topic",
+     "notice_id": "N05",
+     "language": "en",
+     "kind": "topic",
+     "strict": 5,
+     "lenient": 5,
+     "top": [
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+     ]
+    },
+    {
+     "question_id": "N05-en-detail",
+     "notice_id": "N05",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "N05-ko-topic",
+     "notice_id": "N05",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N05",
+      "N18",
+      "H10"
+     ]
+    },
+    {
+     "question_id": "N06-en-topic",
+     "notice_id": "N06",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N06",
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+      "H03"
+     ]
+    },
+    {
+     "question_id": "N06-en-detail",
+     "notice_id": "N06",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": []
+    },
+    {
+     "question_id": "N06-ko-topic",
+     "notice_id": "N06",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N06",
+      "H06",
+      "N07"
+     ]
+    },
+    {
+     "question_id": "N07-en-topic",
+     "notice_id": "N07",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+      "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "N07-en-detail",
+     "notice_id": "N07",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N07"
+     ]
+    },
+    {
+     "question_id": "N07-ko-topic",
+     "notice_id": "N07",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N07",
+      "N11",
+      "H02"
+     ]
+    },
+    {
+     "question_id": "N10-en-topic",
+     "notice_id": "N10",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N10",
+      "7c5799ad-a2e4-4044-99ad-2d6882a9a74f",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+     ]
+    },
+    {
+     "question_id": "N10-en-detail",
+     "notice_id": "N10",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N10",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+     ]
+    },
+    {
+     "question_id": "N10-ko-topic",
+     "notice_id": "N10",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N10",
+      "7c5799ad-a2e4-4044-99ad-2d6882a9a74f",
+      "N12"
+     ]
+    },
+    {
+     "question_id": "N12-en-topic",
+     "notice_id": "N12",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+     ]
+    },
+    {
+     "question_id": "N12-en-detail",
+     "notice_id": "N12",
+     "language": "en",
+     "kind": "detail",
+     "strict": 5,
+     "lenient": 5,
+     "top": [
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+     ]
+    },
+    {
+     "question_id": "N12-ko-topic",
+     "notice_id": "N12",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N12",
+      "N22",
+      "7c5799ad-a2e4-4044-99ad-2d6882a9a74f"
+     ]
+    },
+    {
+     "question_id": "N13-en-topic",
+     "notice_id": "N13",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N13",
+      "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+      "4650e940-a12f-464c-be4a-285c607e88ef"
+     ]
+    },
+    {
+     "question_id": "N13-en-detail",
+     "notice_id": "N13",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+      "b3f79749-2756-4ae1-8bc0-31662164d333",
+      "744fdb55-6239-47ca-ab92-18eafb77d677"
+     ]
+    },
+    {
+     "question_id": "N13-ko-topic",
+     "notice_id": "N13",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N13",
+      "N12",
+      "H07"
+     ]
+    },
+    {
+     "question_id": "N14-en-topic",
+     "notice_id": "N14",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+     ]
+    },
+    {
+     "question_id": "N14-en-detail",
+     "notice_id": "N14",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N14",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "N14-ko-topic",
+     "notice_id": "N14",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N14",
+      "H05",
+      "ae1cbab7-4248-4536-b725-847c7a61cd64"
+     ]
+    },
+    {
+     "question_id": "N15-en-topic",
+     "notice_id": "N15",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "N18"
+     ]
+    },
+    {
+     "question_id": "N15-en-detail",
+     "notice_id": "N15",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "744fdb55-6239-47ca-ab92-18eafb77d677",
+      "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59"
+     ]
+    },
+    {
+     "question_id": "N15-ko-topic",
+     "notice_id": "N15",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N15",
+      "N18",
+      "N01"
+     ]
+    },
+    {
+     "question_id": "N16-en-topic",
+     "notice_id": "N16",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": []
+    },
+    {
+     "question_id": "N16-en-detail",
+     "notice_id": "N16",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": []
+    },
+    {
+     "question_id": "N16-ko-topic",
+     "notice_id": "N16",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N16",
+      "H03",
+      "H02"
+     ]
+    },
+    {
+     "question_id": "N22-en-topic",
+     "notice_id": "N22",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "744fdb55-6239-47ca-ab92-18eafb77d677",
+      "d032674b-e938-43dd-a21f-f4b79dcab42f"
+     ]
+    },
+    {
+     "question_id": "N22-en-detail",
+     "notice_id": "N22",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "N20"
+     ]
+    },
+    {
+     "question_id": "N22-ko-topic",
+     "notice_id": "N22",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N22",
+      "N23",
+      "N24"
+     ]
+    },
+    {
+     "question_id": "N23-en-topic",
+     "notice_id": "N23",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "b3f79749-2756-4ae1-8bc0-31662164d333",
+      "7df6e287-15fa-499c-a181-1669bcb04cb0",
+      "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+     ]
+    },
+    {
+     "question_id": "N23-en-detail",
+     "notice_id": "N23",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": []
+    },
+    {
+     "question_id": "N23-ko-topic",
+     "notice_id": "N23",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N23",
+      "N22",
+      "ae1cbab7-4248-4536-b725-847c7a61cd64"
+     ]
+    },
+    {
+     "question_id": "N24-en-topic",
+     "notice_id": "N24",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "b3f79749-2756-4ae1-8bc0-31662164d333",
+      "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+     ]
+    },
+    {
+     "question_id": "N24-en-detail",
+     "notice_id": "N24",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "H08",
+      "d032674b-e938-43dd-a21f-f4b79dcab42f",
+      "ae1cbab7-4248-4536-b725-847c7a61cd64"
+     ]
+    },
+    {
+     "question_id": "N24-ko-topic",
+     "notice_id": "N24",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N24",
+      "H08",
+      "ae1cbab7-4248-4536-b725-847c7a61cd64"
+     ]
+    },
+    {
+     "question_id": "N26-en-topic",
+     "notice_id": "N26",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "744fdb55-6239-47ca-ab92-18eafb77d677",
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+      "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f"
+     ]
+    },
+    {
+     "question_id": "N26-en-detail",
+     "notice_id": "N26",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+      "744fdb55-6239-47ca-ab92-18eafb77d677",
+      "b3f79749-2756-4ae1-8bc0-31662164d333"
+     ]
+    },
+    {
+     "question_id": "N26-ko-topic",
+     "notice_id": "N26",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N26",
+      "H10",
+      "N02"
+     ]
+    }
+   ]
+  },
+  "both": {
+   "settings": {
+    "retrieval_cross_script_weight": 1.0,
+    "retrieval_hub_beta": 0.1
+   },
+   "summary": {
+    "strict": {
+     "english": {
+      "n": 36,
+      "mrr": 0.419,
+      "recall_at_1": 0.389,
+      "recall_at_5": 0.472
+     },
+     "english_topic": {
+      "n": 18,
+      "mrr": 0.486,
+      "recall_at_1": 0.444,
+      "recall_at_5": 0.556
+     },
+     "english_detail": {
+      "n": 18,
+      "mrr": 0.352,
+      "recall_at_1": 0.333,
+      "recall_at_5": 0.389
+     },
+     "korean": {
+      "n": 18,
+      "mrr": 1.0,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0
+     },
+     "paired_gap_en_topic_minus_ko": -0.514
+    },
+    "lenient": {
+     "english": {
+      "n": 36,
+      "mrr": 0.419,
+      "recall_at_1": 0.389,
+      "recall_at_5": 0.472
+     },
+     "english_topic": {
+      "n": 18,
+      "mrr": 0.486,
+      "recall_at_1": 0.444,
+      "recall_at_5": 0.556
+     },
+     "english_detail": {
+      "n": 18,
+      "mrr": 0.352,
+      "recall_at_1": 0.333,
+      "recall_at_5": 0.389
+     },
+     "korean": {
+      "n": 18,
+      "mrr": 1.0,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0
+     },
+     "paired_gap_en_topic_minus_ko": -0.514
+    }
+   },
+   "versus_baseline": {
+    "english_mrr_diff": 0.205,
+    "english_mrr_diff_ci95": [
+     0.1,
+     0.326
+    ],
+    "korean_mrr_diff": 0.028,
+    "korean_mrr_diff_ci95": [
+     0.0,
+     0.083
+    ]
+   },
+   "rows": [
+    {
+     "question_id": "H01-en-topic",
+     "notice_id": "H01",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "N12",
+      "N03",
+      "N13"
+     ]
+    },
+    {
+     "question_id": "H01-en-detail",
+     "notice_id": "H01",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "N12",
+      "N03",
+      "N13"
+     ]
+    },
+    {
+     "question_id": "H01-ko-topic",
+     "notice_id": "H01",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H01",
+      "N12",
+      "H07"
+     ]
+    },
+    {
+     "question_id": "H02-en-topic",
+     "notice_id": "H02",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H02",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+     ]
+    },
+    {
+     "question_id": "H02-en-detail",
+     "notice_id": "H02",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "H03",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "H02-ko-topic",
+     "notice_id": "H02",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H02",
+      "N11",
+      "H03"
+     ]
+    },
+    {
+     "question_id": "H07-en-topic",
+     "notice_id": "H07",
+     "language": "en",
+     "kind": "topic",
+     "strict": 4,
+     "lenient": 4,
+     "top": [
+      "N12",
+      "N03",
+      "N13"
+     ]
+    },
+    {
+     "question_id": "H07-en-detail",
+     "notice_id": "H07",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H07",
+      "N13",
+      "N03"
+     ]
+    },
+    {
+     "question_id": "H07-ko-topic",
+     "notice_id": "H07",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H07",
+      "N18",
+      "N13"
+     ]
+    },
+    {
+     "question_id": "H09-en-topic",
+     "notice_id": "H09",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+      "d60bc363-0aae-44e5-b0c3-df8c61ad6f66",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "H09-en-detail",
+     "notice_id": "H09",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H09",
+      "H10",
+      "N26"
+     ]
+    },
+    {
+     "question_id": "H09-ko-topic",
+     "notice_id": "H09",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "H09",
+      "N13",
+      "N26"
+     ]
+    },
+    {
+     "question_id": "N03-en-topic",
+     "notice_id": "N03",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N03",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "N12"
+     ]
+    },
+    {
+     "question_id": "N03-en-detail",
+     "notice_id": "N03",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "26fbef6d-9eb0-4279-b8da-af0753c4512b",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "N03-ko-topic",
+     "notice_id": "N03",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N03",
+      "7c5799ad-a2e4-4044-99ad-2d6882a9a74f",
+      "N12"
+     ]
+    },
+    {
+     "question_id": "N05-en-topic",
+     "notice_id": "N05",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N05",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "N03"
+     ]
+    },
+    {
+     "question_id": "N05-en-detail",
+     "notice_id": "N05",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N05",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "N03"
+     ]
+    },
+    {
+     "question_id": "N05-ko-topic",
+     "notice_id": "N05",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N05",
+      "N18",
+      "H10"
+     ]
+    },
+    {
+     "question_id": "N06-en-topic",
+     "notice_id": "N06",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N06",
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+      "H03"
+     ]
+    },
+    {
+     "question_id": "N06-en-detail",
+     "notice_id": "N06",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": []
+    },
+    {
+     "question_id": "N06-ko-topic",
+     "notice_id": "N06",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N06",
+      "H06",
+      "N07"
+     ]
+    },
+    {
+     "question_id": "N07-en-topic",
+     "notice_id": "N07",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59",
+      "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "N07-en-detail",
+     "notice_id": "N07",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N07"
+     ]
+    },
+    {
+     "question_id": "N07-ko-topic",
+     "notice_id": "N07",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N07",
+      "N11",
+      "H02"
+     ]
+    },
+    {
+     "question_id": "N10-en-topic",
+     "notice_id": "N10",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N10",
+      "N05",
+      "N12"
+     ]
+    },
+    {
+     "question_id": "N10-en-detail",
+     "notice_id": "N10",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N10",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+     ]
+    },
+    {
+     "question_id": "N10-ko-topic",
+     "notice_id": "N10",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N10",
+      "7c5799ad-a2e4-4044-99ad-2d6882a9a74f",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+     ]
+    },
+    {
+     "question_id": "N12-en-topic",
+     "notice_id": "N12",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "d199604d-6295-4ed6-a1da-2f64f00cd8a1",
+      "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+     ]
+    },
+    {
+     "question_id": "N12-en-detail",
+     "notice_id": "N12",
+     "language": "en",
+     "kind": "detail",
+     "strict": 3,
+     "lenient": 3,
+     "top": [
+      "N03",
+      "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5",
+      "N12"
+     ]
+    },
+    {
+     "question_id": "N12-ko-topic",
+     "notice_id": "N12",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N12",
+      "N22",
+      "7c5799ad-a2e4-4044-99ad-2d6882a9a74f"
+     ]
+    },
+    {
+     "question_id": "N13-en-topic",
+     "notice_id": "N13",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N13",
+      "N12",
+      "N03"
+     ]
+    },
+    {
+     "question_id": "N13-en-detail",
+     "notice_id": "N13",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "25af9ce5-586d-4a1b-80ee-d30594ead06f",
+      "b3f79749-2756-4ae1-8bc0-31662164d333",
+      "744fdb55-6239-47ca-ab92-18eafb77d677"
+     ]
+    },
+    {
+     "question_id": "N13-ko-topic",
+     "notice_id": "N13",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N13",
+      "N12",
+      "H07"
+     ]
+    },
+    {
+     "question_id": "N14-en-topic",
+     "notice_id": "N14",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "26fbef6d-9eb0-4279-b8da-af0753c4512b"
+     ]
+    },
+    {
+     "question_id": "N14-en-detail",
+     "notice_id": "N14",
+     "language": "en",
+     "kind": "detail",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N14",
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37"
+     ]
+    },
+    {
+     "question_id": "N14-ko-topic",
+     "notice_id": "N14",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N14",
+      "H05",
+      "ae1cbab7-4248-4536-b725-847c7a61cd64"
+     ]
+    },
+    {
+     "question_id": "N15-en-topic",
+     "notice_id": "N15",
+     "language": "en",
+     "kind": "topic",
+     "strict": 2,
+     "lenient": 2,
+     "top": [
+      "H07",
+      "N15",
+      "H01"
+     ]
+    },
+    {
+     "question_id": "N15-en-detail",
+     "notice_id": "N15",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "N13",
+      "N03",
+      "H07"
+     ]
+    },
+    {
+     "question_id": "N15-ko-topic",
+     "notice_id": "N15",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N15",
+      "N18",
+      "N01"
+     ]
+    },
+    {
+     "question_id": "N16-en-topic",
+     "notice_id": "N16",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": []
+    },
+    {
+     "question_id": "N16-en-detail",
+     "notice_id": "N16",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": []
+    },
+    {
+     "question_id": "N16-ko-topic",
+     "notice_id": "N16",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N16",
+      "H03",
+      "H02"
+     ]
+    },
+    {
+     "question_id": "N22-en-topic",
+     "notice_id": "N22",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "744fdb55-6239-47ca-ab92-18eafb77d677",
+      "d032674b-e938-43dd-a21f-f4b79dcab42f"
+     ]
+    },
+    {
+     "question_id": "N22-en-detail",
+     "notice_id": "N22",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "672ffe31-109b-47d8-942e-9a7dd8b9ca37",
+      "N20"
+     ]
+    },
+    {
+     "question_id": "N22-ko-topic",
+     "notice_id": "N22",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N22",
+      "N23",
+      "N24"
+     ]
+    },
+    {
+     "question_id": "N23-en-topic",
+     "notice_id": "N23",
+     "language": "en",
+     "kind": "topic",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "b3f79749-2756-4ae1-8bc0-31662164d333",
+      "7df6e287-15fa-499c-a181-1669bcb04cb0",
+      "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+     ]
+    },
+    {
+     "question_id": "N23-en-detail",
+     "notice_id": "N23",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": []
+    },
+    {
+     "question_id": "N23-ko-topic",
+     "notice_id": "N23",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N23",
+      "N22",
+      "ae1cbab7-4248-4536-b725-847c7a61cd64"
+     ]
+    },
+    {
+     "question_id": "N24-en-topic",
+     "notice_id": "N24",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N24",
+      "b3f79749-2756-4ae1-8bc0-31662164d333",
+      "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+     ]
+    },
+    {
+     "question_id": "N24-en-detail",
+     "notice_id": "N24",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "da416585-7ae2-40e9-b158-f252fab6be57",
+      "H08",
+      "d032674b-e938-43dd-a21f-f4b79dcab42f"
+     ]
+    },
+    {
+     "question_id": "N24-ko-topic",
+     "notice_id": "N24",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N24",
+      "H08",
+      "ae1cbab7-4248-4536-b725-847c7a61cd64"
+     ]
+    },
+    {
+     "question_id": "N26-en-topic",
+     "notice_id": "N26",
+     "language": "en",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N26",
+      "744fdb55-6239-47ca-ab92-18eafb77d677",
+      "afb12361-1b28-46b5-8c88-ff33e1fd4c59"
+     ]
+    },
+    {
+     "question_id": "N26-en-detail",
+     "notice_id": "N26",
+     "language": "en",
+     "kind": "detail",
+     "strict": null,
+     "lenient": null,
+     "top": [
+      "491d4c3f-7bf9-4961-9402-90c5412c7b5c",
+      "744fdb55-6239-47ca-ab92-18eafb77d677",
+      "b3f79749-2756-4ae1-8bc0-31662164d333"
+     ]
+    },
+    {
+     "question_id": "N26-ko-topic",
+     "notice_id": "N26",
+     "language": "ko",
+     "kind": "topic",
+     "strict": 1,
+     "lenient": 1,
+     "top": [
+      "N26",
+      "H10",
+      "N02"
+     ]
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,104 @@
+{
+ "phases": [
+  {
+   "phase": "idle after start",
+   "ok": true,
+   "seconds": 0.5,
+   "memory_before_mb": 97,
+   "memory_peak_mb": 98,
+   "memory_after_mb": 98,
+   "server_alive": true,
+   "detail": "started"
+  },
+  {
+   "phase": "first search (loads the embedding model)",
+   "ok": true,
+   "seconds": 13.1,
+   "memory_before_mb": 98,
+   "memory_peak_mb": 323,
+   "memory_after_mb": 309,
+   "server_alive": true,
+   "detail": "HTTP 200 in 12916 ms"
+  },
+  {
+   "phase": "search again",
+   "ok": true,
+   "seconds": 0.8,
+   "memory_before_mb": 309,
+   "memory_peak_mb": 309,
+   "memory_after_mb": 309,
+   "server_alive": true,
+   "detail": "HTTP 200 in 599 ms"
+  },
+  {
+   "phase": "index the 27 public documents",
+   "ok": false,
+   "seconds": 460.3,
+   "memory_before_mb": 309,
+   "memory_peak_mb": 512,
+   "memory_after_mb": 0,
+   "server_alive": false,
+   "detail": "RemoteProtocolError: Server disconnected without sending a response."
+  },
+  {
+   "phase": "upload, extract and index a 3 MB Korean PDF",
+   "ok": false,
+   "seconds": 0.3,
+   "memory_before_mb": 0,
+   "memory_peak_mb": 0,
+   "memory_after_mb": 0,
+   "server_alive": false,
+   "detail": "ConnectError: [Errno 111] Connection refused"
+  },
+  {
+   "phase": "upload, extract and index a 9 MB Korean PDF",
+   "ok": false,
+   "seconds": 0.2,
+   "memory_before_mb": 0,
+   "memory_peak_mb": 0,
+   "memory_after_mb": 0,
+   "server_alive": false,
+   "detail": "ConnectError: [Errno 111] Connection refused"
+  },
+  {
+   "phase": "40 searches, 10 in parallel",
+   "ok": false,
+   "seconds": 0.2,
+   "memory_before_mb": 0,
+   "memory_peak_mb": 0,
+   "memory_after_mb": 0,
+   "server_alive": false,
+   "detail": "ConnectError: [Errno 111] Connection refused"
+  },
+  {
+   "phase": "chat without a model (sources only)",
+   "ok": false,
+   "seconds": 0.2,
+   "memory_before_mb": 0,
+   "memory_peak_mb": 0,
+   "memory_after_mb": 0,
+   "server_alive": false,
+   "detail": "ConnectError: [Errno 111] Connection refused"
+  },
+  {
+   "phase": "agent tools and a background task",
+   "ok": false,
+   "seconds": 0.2,
+   "memory_before_mb": 0,
+   "memory_peak_mb": 0,
+   "memory_after_mb": 0,
+   "server_alive": false,
+   "detail": "ConnectError: [Errno 111] Connection refused"
+  },
+  {
+   "phase": "idle at the end",
+   "ok": false,
+   "seconds": 0.0,
+   "memory_before_mb": 0,
+   "memory_peak_mb": 0,
+   "memory_after_mb": 0,
+   "server_alive": false,
+   "detail": "done"
+  }
+ ]
+}
