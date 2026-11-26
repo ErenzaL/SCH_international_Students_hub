@@ -325,6 +325,7 @@
       "machineNote": "本文为自动翻译，尚未经过人工核对。日期、费用和规定可能有误，请以{original}原文和官方来源为准。",
       "fallbackTitle": "暂无经审核的{language}译文",
       "fallbackBody": "您正在阅读{original}原文。只有在全球支持者对照原文审核后，译文才会显示在这里。",
+      "notOfferedBody": "公告暂未提供{language}翻译。您正在阅读{original}原文。如有不清楚的地方，请在 AI Office 询问 Hana 或{language}支持人员。",
       "originalLanguage": "原文语言",
       "translationStatus": "翻译",
       "statusVerified": "已由全球支持者审核",

@@ -187,7 +187,7 @@ def test_translation_jobs_wait_for_the_worker_and_the_local_worker_leaves_them_a
     svc.ingestion.recover_interrupted_jobs()
     gpu.store.update("ingestion_jobs", {"heartbeat_at": "2020-01-01T00:00:00+00:00"}, {"id": jid})
     assert svc.jobs.claim() is None and job_row(gpu, jid)["status"] == "running"
-    assert request(gpu, a["id"], "vi") != jid
+    assert request(gpu, a["id"], "id") != jid
 
 
 def test_a_job_contains_only_public_content(gpu):
@@ -276,7 +276,7 @@ def test_without_any_provider_the_request_is_refused_not_parked(gpu):
 
 def test_jobs_nobody_fetches_fail_visibly_and_can_be_requested_again(gpu):
     a = publish(gpu)
-    young, aged = request(gpu, a["id"], "en"), request(gpu, a["id"], "vi")
+    young, aged = request(gpu, a["id"], "en"), request(gpu, a["id"], "id")
     old(gpu, aged)
     set_worker(gpu, "revoked")
     assert sweep(gpu) == dict(expired_leases=0, failed=1, rerouted=0)
@@ -286,7 +286,7 @@ def test_jobs_nobody_fetches_fail_visibly_and_can_be_requested_again(gpu):
     sweep(gpu)
     assert len(alerts(gpu)) == n                                     # no alert storm
     gemini_like(gpu)
-    assert job_row(gpu, request(gpu, a["id"], "vi"))["status"] == "succeeded"     # not blocked by the old job
+    assert job_row(gpu, request(gpu, a["id"], "id"))["status"] == "succeeded"     # not blocked by the old job
 
 
 def test_expired_jobs_can_go_to_the_own_model_if_configured(gpu):
@@ -306,7 +306,7 @@ def test_expired_jobs_can_go_to_the_own_model_if_configured(gpu):
 def test_disabling_the_feature_releases_every_open_job(gpu):
     a = publish(gpu)
     running = request(gpu, a["id"], "en")
-    queued = request(gpu, a["id"], "vi")
+    queued = request(gpu, a["id"], "id")
     job = claim(gpu)
     gpu.settings.gpu_worker_enabled = False
     assert sweep(gpu)["failed"] == 2
@@ -442,14 +442,14 @@ def test_other_models_and_other_workers_are_refused(gpu):
 def test_one_job_at_a_time_across_workers_and_repeated_claims(gpu):
     a = publish(gpu)
     request(gpu, a["id"], "en")
-    request(gpu, a["id"], "vi")
+    request(gpu, a["id"], "id")
     lease = str(uuid.uuid4())
     first = claim(gpu, lease)
     again = claim(gpu, lease)                                   # the response was lost: same job, no extra attempt
     assert again["id"] == first["id"] and job_row(gpu, first["id"])["attempts"] == 1
     assert claim(gpu) is None and claim(gpu, token=new_worker(gpu, "second")["token"]) is None
     done(gpu, first)
-    assert claim(gpu)["target_language"] == "vi"
+    assert claim(gpu)["target_language"] == "id"
 
 
 def test_completing_twice_stores_once(gpu):
@@ -601,10 +601,12 @@ def test_queue_missing_languages(gpu):
     publish(gpu)
     url, h = "/api/v1/admin/gpu/jobs/queue-missing", gpu.auth("admin")
     plan = gpu.client.post(url, headers=h, json={}).json()
-    assert plan["dry_run"] is True and plan["missing"] == 4 and not gpu.store.select(
+    # Release 1: a Korean announcement gets machine drafts in English and Indonesian only (not vi / zh-CN)
+    assert plan["dry_run"] is True and plan["missing"] == 2 and not gpu.store.select(
         "ingestion_jobs", Query(eq={"executor": "gpu"}))[0]
-    r = gpu.client.post(url, headers=h, json=dict(dry_run=False, limit=3)).json()
-    assert len(r["queued"]) == 3 and gpu.client.post(url, headers=h, json={}).json()["missing"] == 1
+    assert {i["language"] for i in plan["next"]} == {"en", "id"}
+    r = gpu.client.post(url, headers=h, json=dict(dry_run=False, limit=1)).json()
+    assert len(r["queued"]) == 1 and gpu.client.post(url, headers=h, json={}).json()["missing"] == 1
     assert gpu.client.post(url, headers=gpu.auth("supporter"), json={}).status_code == 403
 
 

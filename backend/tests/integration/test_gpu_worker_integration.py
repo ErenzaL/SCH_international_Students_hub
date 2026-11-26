@@ -106,12 +106,12 @@ def make(gpu, tmp_path, monkeypatch):  # type: ignore[no-untyped-def]
 # --------------------------------------------------------------------------- the normal path
 def test_all_missing_languages_become_unapproved_drafts(gpu, make):
     a = publish(gpu)
-    for lang in ("en", "id", "vi", "zh-CN"):
+    for lang in ("en", "id"):           # Release 1: announcement drafts only in en / id (from Korean)
         request(gpu, a["id"], lang)
     w, ollama, net = make()
     assert w.run("drain") == 0
-    assert w.metrics["completed"] == 4 and net.calls.count("claim") == 5
-    for lang in ("en", "id", "vi", "zh-CN"):
+    assert w.metrics["completed"] == 2 and net.calls.count("claim") == 3
+    for lang in ("en", "id"):
         t = row(gpu, a["id"], lang)
         assert t["translation_status"] == "needs_review" and t["provider"] == "ollama" and t["model"] == MODEL
         assert "2026-12-01" in t["body"] and "intl@example.ac.kr" in t["body"] and public(gpu, a["id"], lang) is None
@@ -295,7 +295,7 @@ def test_paused_and_active_hours(gpu, make):
 def test_two_workers_never_run_two_jobs(gpu, make):
     a = publish(gpu)
     request(gpu, a["id"], "en")
-    request(gpu, a["id"], "vi")
+    request(gpu, a["id"], "id")
     w, ollama, _ = make(lambda s, p: _hang())
     t, out = _in_thread(w.step)
     assert ollama.running.wait(5)

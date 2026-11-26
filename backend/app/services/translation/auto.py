@@ -45,8 +45,14 @@ def now() -> str:
     return datetime.now(UTC).isoformat()
 
 
+def machine_languages(settings: Settings) -> list[str]:
+    """Languages in which announcements get MACHINE drafts (Release 1: ko, en, id)."""
+    return [x for x in (s.strip() for s in settings.announcement_machine_languages.split(",")) if x in SUPPORTED]
+
+
 def auto_languages(settings: Settings) -> list[str]:
-    return [x for x in (s.strip() for s in settings.auto_translate_languages.split(",")) if x in SUPPORTED]
+    allowed = machine_languages(settings)
+    return [x for x in (s.strip() for s in settings.auto_translate_languages.split(",")) if x in allowed]
 
 
 def require_not_touched_since(row: dict[str, Any], job: dict[str, Any], forced: bool) -> None:
@@ -166,6 +172,10 @@ class AnnouncementAutoTranslator:
             raise InvalidState("Only published announcements are translated automatically.")
         if language == a["original_language"] or language not in SUPPORTED:
             raise InvalidState("The original language does not need a translation.")
+        if language not in machine_languages(self.settings):
+            raise InvalidState(f"Machine drafts of announcements are not offered in {language} in this release "
+                               f"(only {', '.join(machine_languages(self.settings)) or 'none'}). A reviewer can still "
+                               f"translate it by hand.", code="language_out_of_scope")
         if not self.can_generate:
             raise InvalidState("Machine translation needs an LLM provider (LLM_PROVIDER and an API key).",
                                code="llm_disabled")
@@ -320,24 +330,18 @@ class AnnouncementAutoTranslator:
     # ---------------------------------------------------------------- public
     def public_translation(self, a: dict[str, Any], body: str, content_hash: str,
                            language: str | None) -> dict[str, Any] | None:
-        """The translation students see for ``language``: human-approved (verified) or, when allowed, a clean
-        machine translation of exactly the current text. None = show the original."""
+        """The translation students see for ``language``: only a reviewer-approved (verified) translation of exactly
+        the current text. Unreviewed machine drafts of announcements are never shown, whatever
+        PUBLIC_MACHINE_TRANSLATIONS says (Release 1 rule). None = show the original."""
         if not language or language == a["original_language"]:
             return None
         row = self._row(a["id"], language)
         if row is None or row.get("is_outdated") or row.get("source_content_hash") != content_hash:
             return None
-        high_risk = is_high_risk(a["title"], body)
-        if row["translation_status"] == "human_approved":
-            kind = "verified"
-        elif row["translation_status"] == "machine_draft" and self.machine_made(row) \
-                and public_machine_allowed(self.settings, high_risk):
-            kind = "machine"
-        else:
+        if row["translation_status"] != "human_approved":
             return None
-        return dict(status=kind, language=language, title=row["title"], body=row["body"], high_risk=high_risk,
-                    reviewed_at=row.get("reviewed_at") if kind == "verified" else None,
-                    generated_at=row.get("generated_at") if kind == "machine" else None)
+        return dict(status="verified", language=language, title=row["title"], body=row["body"],
+                    high_risk=is_high_risk(a["title"], body), reviewed_at=row.get("reviewed_at"), generated_at=None)
 
     def admin_info(self, row: dict[str, Any] | None) -> dict[str, Any]:
         job = self.last_job(row["id"]) if row else None
@@ -350,7 +354,7 @@ class AnnouncementAutoTranslator:
                     llm_enabled=self.can_generate)
 
 
-def translation_llm(settings: Settings, llm: LLMProvider, budget: Any = None) -> LLMProvider:
+def translation_llm(settings: Settings, llm: LLMProvider, budget: Any = None, flags: Any = None) -> LLMProvider:
     """The provider for BACKGROUND work (translation jobs, AI summaries, discovery summaries).
 
     With Gemini it is always its own provider instance: TRANSLATION_MODEL (or the assistant's models) with its own
@@ -361,23 +365,40 @@ def translation_llm(settings: Settings, llm: LLMProvider, budget: Any = None) ->
     BACKGROUND_LLM_PROVIDER selects another provider for background work only (e.g. local Ollama translation drafts
     while the assistant stays on Gemini). Neither side ever falls back to the other's provider."""
     chosen = settings.background_llm_provider.strip().lower()
-    if chosen and chosen != settings.llm_provider.strip().lower():
+    separate = bool(chosen and chosen != settings.llm_provider.strip().lower())
+    if separate:
         from app.services.llm.base import build_llm_from_settings
 
         settings = settings.model_copy(update={"llm_provider": chosen})
         llm = build_llm_from_settings(settings)
     if not llm.enabled:
         return llm
-    limit = settings.llm_background_daily_attempts
-    gate = (lambda: budget.take("background", limit) if limit > 0 else False) if budget is not None else None
+    from app.services.llm.controls import BackgroundControls
+
+    def gated(provider: LLMProvider) -> tuple[LLMProvider, Any]:
+        if budget is None:
+            return provider, None
+        ctl = BackgroundControls(settings, budget, flags, provider.name, getattr(provider, "primary", provider.model))
+        provider.background_controls = ctl  # type: ignore[attr-defined]
+
+        def gate() -> bool:
+            ctl.check()                 # raises the precise reason (stopped / budget / spending limit)
+            return True
+        return provider, gate
+
     if llm.name != "gemini":
+        if separate:                    # never relabel the chatbot's own provider instance
+            llm.lane = "background"  # type: ignore[attr-defined]
+        llm, gate = gated(llm)
         return BudgetedLLM(llm, gate) if gate else llm
     from app.services.llm.base import build_llm_from_settings
 
     model = (settings.translation_model or "").strip()
     update: dict[str, Any] = {"gemini_primary_model": model, "gemini_fallback_model": ""} if model else {}
     bg = build_llm_from_settings(settings.model_copy(update=update))
-    bg.attempt_gate = gate
+    bg.lane = "background"  # type: ignore[attr-defined]
+    bg, gate = gated(bg)
+    bg.attempt_gate = gate  # type: ignore[attr-defined]
     return bg
 
 

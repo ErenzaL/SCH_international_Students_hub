@@ -109,7 +109,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("step", choices=["preflight", "queue", "verify"])
     ap.add_argument("announcement")
-    ap.add_argument("language", choices=["en", "id", "vi", "zh-CN", "ko"])
+    ap.add_argument("language", choices=["en", "id", "ko"])   # Release 1: announcement drafts only ko / en / id
     ap.add_argument("--authorized", default="", help="queue: who approved the pilot, when, and where it is recorded")
     a = ap.parse_args()
     if a.step == "queue" and len(a.authorized) < 10:

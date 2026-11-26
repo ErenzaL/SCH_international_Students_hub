@@ -76,8 +76,13 @@ def clean(env) -> None:  # type: ignore[no-untyped-def]
 @pytest.mark.parametrize("lang", ["en", "id", "vi", "zh-CN"])
 def test_requested_translations(live, lang):
     h = live.auth("super_admin")
-    assert live.client.post(f"/api/v1/admin/announcements/{live.ann['id']}/translations/{lang}/machine-translate", headers=h).status_code == 202
-    clean(live)
+    r = live.client.post(f"/api/v1/admin/announcements/{live.ann['id']}/translations/{lang}/machine-translate", headers=h)
+    if lang in ("vi", "zh-CN"):     # Release 1: no machine drafts of announcements in these languages; nothing is sent
+        assert r.status_code == 409 and r.json()["error"]["code"] == "language_out_of_scope"
+        assert not live.rec.sent
+    else:
+        assert r.status_code == 202
+        clean(live)
     assert live.client.post(f"/api/v1/admin/documents/{live.doc_id}/translations/drafts", headers=h, json=dict(languages=[lang])).status_code == 202
     clean(live)
 

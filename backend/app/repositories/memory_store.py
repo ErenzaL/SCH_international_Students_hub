@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import copy
 import math
+import re
 import threading
 import uuid
 from datetime import UTC, datetime, timedelta
@@ -24,8 +25,9 @@ TABLES = (
     "support_ticket_messages", "support_ticket_assignments", "user_notifications", "translation_revisions",
     "document_suppressions", "document_translations", "document_translation_revisions",
     "agent_tasks", "agent_task_events", "agent_schedules", "discovery_sources", "discovered_items", "gpu_workers", "agent_controls",
+    "llm_daily_counters", "llm_usage_daily", "app_runtime_flags",
 )
-NO_ID = {"agent_task_events", "categories", "profiles", "supporter_languages", "audit_log", "ingestion_events", "allowed_source_domains",
+NO_ID = {"llm_daily_counters", "llm_usage_daily", "app_runtime_flags", "agent_task_events", "categories", "profiles", "supporter_languages", "audit_log", "ingestion_events", "allowed_source_domains",
          "admin_notifications", "notification_reads", "support_agent_status", "support_ticket_assignments",
          "user_notifications", "translation_revisions", "document_suppressions", "document_translation_revisions"}
 SEQ_ID = {"agent_task_events", "audit_log", "ingestion_events", "admin_notifications", "support_ticket_assignments", "user_notifications",
@@ -390,6 +392,39 @@ class MemoryStore:
             raise NotFound(f"unknown rpc {name}")
         with self._lock:
             return copy.deepcopy(fn(**params))
+
+    # migration 0018: daily AI budgets and usage (atomic under the store lock, like the SQL functions)
+    def _rpc_llm_counter_take(self, p_day: str, p_key: str, p_limit: int) -> bool:
+        if not re.fullmatch(r"[a-z][a-z0-9_:.-]{0,79}", p_key or ""):
+            raise ValidationFailed("invalid counter key")
+        row = next((r for r in self.t["llm_daily_counters"] if r["day"] == p_day and r["key"] == p_key), None)
+        if row is None:
+            self.t["llm_daily_counters"].append(dict(day=p_day, key=p_key, used=1, updated_at=now_iso()))
+            return True
+        if p_limit > 0 and row["used"] >= p_limit:
+            return False
+        row["used"] += 1
+        row["updated_at"] = now_iso()
+        return True
+
+    def _rpc_llm_usage_add(self, p_day: str, p_lane: str, p_provider: str, p_model: str, p_purpose: str, p_ok: bool,
+                           p_input: int, p_output: int, p_thinking: int, p_cost: float, p_priced: bool) -> None:
+        if p_lane not in ("chat", "background"):
+            raise ValidationFailed("invalid lane")
+        key = dict(day=p_day, lane=p_lane, provider=p_provider, model=p_model, purpose=p_purpose)
+        row = next((r for r in self.t["llm_usage_daily"] if all(r[k] == v for k, v in key.items())), None)
+        if row is None:
+            row = key | dict(attempts=0, ok=0, failed=0, input_tokens=0, output_tokens=0, thinking_tokens=0,
+                             est_cost_usd=0.0, priced=True)
+            self.t["llm_usage_daily"].append(row)
+        row["attempts"] += 1
+        row["ok" if p_ok else "failed"] += 1
+        row["input_tokens"] += max(int(p_input or 0), 0)
+        row["output_tokens"] += max(int(p_output or 0), 0)
+        row["thinking_tokens"] += max(int(p_thinking or 0), 0)
+        row["est_cost_usd"] = round(row["est_cost_usd"] + max(float(p_cost or 0), 0), 6)
+        row["priced"] = row["priced"] and bool(p_priced)
+        row["updated_at"] = now_iso()
 
     def _ver(self, vid: str) -> Row | None:
         return next((v for v in self.t["document_versions"] if v["id"] == vid), None)

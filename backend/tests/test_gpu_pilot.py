@@ -33,17 +33,17 @@ def pilot(gpu):  # type: ignore[no-untyped-def]
 
 def test_one_translation_end_to_end(gpu, pilot):
     a = publish(gpu, *LIBRARY)["id"]
-    assert pilot.preflight(a, "vi") == [] and set(pilot.sent) == {"GET"}
-    jid = pilot.queue(a, "vi")
+    assert pilot.preflight(a, "id") == [] and set(pilot.sent) == {"GET"}
+    jid = pilot.queue(a, "id")
     assert pilot.sent.count("POST") == 1
     with pytest.raises(Stop, match="other GPU jobs"):
         pilot.queue(a, "en")
-    assert any("expected needs_review" in b for b in pilot.verify(a, "vi"))
+    assert any("expected needs_review" in b for b in pilot.verify(a, "id"))
     job = claim(gpu)
     assert job["id"] == jid
-    done(gpu, job, title="Khóa học TOPIK", body="Bạn có thể xem khóa học TOPIK tại thư viện.")
-    assert pilot.verify(a, "vi") == []
-    assert any("already a translation" in b for b in pilot.preflight(a, "vi"))
+    done(gpu, job, title="Kursus TOPIK", body="Anda dapat melihat kursus TOPIK di perpustakaan.")
+    assert pilot.verify(a, "id") == []
+    assert any("already a translation" in b for b in pilot.preflight(a, "id"))
 
 
 @pytest.mark.parametrize("case", ["high_risk", "long", "pending", "paused", "same_language", "unpublished"])
@@ -59,10 +59,10 @@ def test_unsuitable_pilots_are_refused(gpu, pilot, case):
         gpu.client.post(f"/api/v1/admin/announcements/{a}/cancel", headers=gpu.auth("admin"), json=dict(reason="withdrawn"))
     before = len(gpu.store.t["ingestion_jobs"])
     if case == "pending":       # the approved text is what would be sent: allowed, and the waiting edit stays untouched
-        assert pilot.preflight(a, "vi") == []
+        assert pilot.preflight(a, "id") == []
         return
     with pytest.raises(Stop):
-        pilot.queue(a, "ko" if case == "same_language" else "vi")
+        pilot.queue(a, "ko" if case == "same_language" else "id")
     assert "POST" not in pilot.sent and len(gpu.store.t["ingestion_jobs"]) == before
 
 

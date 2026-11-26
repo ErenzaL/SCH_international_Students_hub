@@ -325,6 +325,7 @@
       "machineNote": "This text was translated automatically and has not been checked by a person. Dates, fees and rules may be wrong – rely on the {original} original and the official source.",
       "fallbackTitle": "No verified {language} translation yet",
       "fallbackBody": "You are reading the {original} original. A translation appears here only after a Global Supporter has reviewed it against the original.",
+      "notOfferedBody": "Announcements are not translated into {language} yet. You are reading the {original} original. If something is unclear, ask Hana or the {language} supporter in the AI Office.",
       "originalLanguage": "Original language",
       "translationStatus": "Translation",
       "statusVerified": "Verified by a Global Supporter",

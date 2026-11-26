@@ -84,6 +84,7 @@ class OllamaProvider:
                  sleep: Callable[[float], Awaitable[None]] = asyncio.sleep):
         self.base_url = check_base_url(base_url)
         self.model = self.primary = model.strip()
+        self.lane = "chat"           # chat | background (usage accounting)
         self.fallback = ""
         #: the assistant repeats its answer format after the question (small models forget it otherwise)
         self.needs_format_reminder = True
@@ -282,7 +283,7 @@ class OllamaProvider:
                     delay = random.uniform(cap / 2, cap)
                     if interactive and time.perf_counter() - started + delay >= self.deadline:
                         delay = None
-                usage.attempt(provider=self.name, model=model, role="primary", purpose=purpose, attempt=attempt,
+                usage.attempt(lane=self.lane, provider=self.name, model=model, role="primary", purpose=purpose, attempt=attempt,
                               outcome="error", latency_ms=_ms(t0), error_code=exc.code, retry_in_s=delay,
                               http=getattr(exc, "http", None), detail=_detail(timing))
                 if delay is None:
@@ -292,7 +293,7 @@ class OllamaProvider:
                 continue
             res.attempts = attempt
             res.latency_ms = _ms(started)
-            usage.attempt(provider=self.name, model=res.model, role="primary", purpose=purpose, attempt=attempt,
+            usage.attempt(lane=self.lane, provider=self.name, model=res.model, role="primary", purpose=purpose, attempt=attempt,
                           outcome="ok", latency_ms=_ms(t0), input_tokens=res.input_tokens,
                           output_tokens=res.output_tokens, total_tokens=res.total_tokens, detail=_detail(timing))
             usage.request(fallback_used=False)

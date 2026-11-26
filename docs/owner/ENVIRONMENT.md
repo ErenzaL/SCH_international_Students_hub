@@ -1,6 +1,6 @@
 # Environment variables
 
-Generated from the code by `scripts/env_inventory.py`; do not edit by hand. 173 variables of the **API service**. Whether a value is set on
+Generated from the code by `scripts/env_inventory.py`; do not edit by hand. 178 variables of the **API service**. Whether a value is set on
 Render cannot be seen from here: check with `python -m app.cli doctor` (prints "set" or "not set", never a value) or in the dashboard.
 
 After changing a variable on Render the service restarts by itself (choose *Save, rebuild and deploy* only for the web variables).
@@ -181,13 +181,18 @@ The worker refuses to start when a Supabase, Gemini or cron secret is set on tha
 | `AUTO_TRANSLATE_DOCUMENTS` | setting | optional | `False` | — | create AI drafts automatically when a new original version is approved (needs an LLM provider) |
 | `PUBLIC_MACHINE_TRANSLATIONS` | setting | optional | `False` | — | show unreviewed machine drafts to students (clearly labelled as machine translation). Off = original only. |
 | `AUTO_TRANSLATE_ANNOUNCEMENTS` | setting | optional | `False` | — | queue machine translations when an announcement is published |
-| `AUTO_TRANSLATE_LANGUAGES` | setting | optional | `ko,en` | — | target languages generated automatically (others: by request) |
+| `AUTO_TRANSLATE_LANGUAGES` | setting | optional | `ko,en,id` | — | target languages generated automatically (others: by request) |
+| `ANNOUNCEMENT_MACHINE_LANGUAGES` | setting | optional | `ko,en,id` | — | Release 1: machine drafts of ANNOUNCEMENTS only in these languages (automatic and on request). Existing approved translations in other languages stay visible; the chatbot |
 | `TRANSLATION_MODEL` | setting | optional | — | — | Gemini model for translation jobs ("" = the assistant's models) |
 | `TRANSLATION_FULL_MAX_CHARS` | setting | optional | `12000` | — | longer documents: title + AI summary only (labelled as summary) |
 | `TRANSLATION_SUMMARY_SOURCE_CHARS` | setting | optional | `40000` | — | text given to the summarizer (plus all section headings) |
 | `TRANSLATION_MAX_REQUESTS_PER_JOB` | setting | optional | `6` | — | model calls per job (title + parts); longer -> human translation |
 | `TRANSLATION_DAILY_JOB_LIMIT` | setting | optional | `60` | — | translation jobs started per UTC day; more wait until tomorrow |
 | `LLM_BACKGROUND_DAILY_ATTEMPTS` | setting | optional | `150` | — | Reserve for the chatbot: every model ATTEMPT made by background work (translation jobs, AI summaries, discovery summaries; retries and fallbacks included) counts against  |
+| `AI_BACKGROUND_STOP` | setting | optional | `False` | — | Emergency stop for ALL background AI (translations, summaries, discovery); the chatbot keeps working. An administrator can also switch it in the admin system page (needs  |
+| `LLM_PRICES` | setting | optional | — | — | Prices for cost ESTIMATES, USD per million tokens: "model=input/output,model2=input/output" (copy them from the provider's official price list; thinking tokens are priced |
+| `LLM_BACKGROUND_DAILY_USD_LIMIT` | setting | optional | `0.0` | — | Optional ceiling on today's (KST) estimated background cost in USD; 0 = off. With a ceiling, a model without a price in LLM_PRICES gets no background attempts (unknown co |
+| `AI_BUDGET_PERSISTENT` | setting | optional | `True` | — | Daily AI budgets (background attempts, generated chat answers) in the database (migration 0018), so restarts do not reopen them. Without the migration they stay in-proces |
 | `TRANSLATION_QUOTA_RETRY_SECONDS` | setting | optional | `3600` | — | provider quota exhausted: try the job again after this long |
 | `TRANSLATION_MAX_DEFERRALS` | setting | optional | `24` | — | ... at most this many times, then the job fails visibly |
 | `MACHINE_TRANSLATION_HIGH_RISK` | setting | optional | `label` | — | unreviewed machine translations of immigration / employment / insurance / fee / legal content: 'label' = shown with a prominent "unverified" label; 'review' = hidden unti |

@@ -325,6 +325,7 @@
       "machineNote": "Văn bản này được dịch tự động và chưa được người kiểm tra. Ngày tháng, chi phí và quy định có thể bị sai – hãy dựa vào bản gốc {original} và nguồn chính thức.",
       "fallbackTitle": "Chưa có bản dịch {language} đã được duyệt",
       "fallbackBody": "Bạn đang đọc bản gốc {original}. Bản dịch chỉ xuất hiện ở đây sau khi một Global Supporter đã đối chiếu và duyệt so với bản gốc.",
+      "notOfferedBody": "Thông báo hiện chưa được dịch sang {language}. Bạn đang đọc bản gốc {original}. Nếu có điều gì chưa rõ, hãy hỏi Hana hoặc nhân viên hỗ trợ {language} trong AI Office.",
       "originalLanguage": "Ngôn ngữ gốc",
       "translationStatus": "Bản dịch",
       "statusVerified": "Đã được Global Supporter duyệt",

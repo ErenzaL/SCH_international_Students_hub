@@ -325,6 +325,7 @@
       "machineNote": "Teks ini diterjemahkan secara otomatis dan belum diperiksa oleh siapa pun. Tanggal, biaya, dan aturan bisa saja salah – gunakan teks asli berbahasa {original} dan sumber resmi sebagai pegangan.",
       "fallbackTitle": "Belum ada terjemahan {language} yang terverifikasi",
       "fallbackBody": "Anda sedang membaca teks asli berbahasa {original}. Terjemahan baru akan muncul di sini setelah diperiksa oleh Global Supporter dengan membandingkannya dengan teks asli.",
+      "notOfferedBody": "Pengumuman belum diterjemahkan ke {language}. Anda sedang membaca teks asli dalam {original}. Jika ada yang kurang jelas, tanyakan kepada Hana atau pendukung {language} di AI Office.",
       "originalLanguage": "Bahasa asli",
       "translationStatus": "Terjemahan",
       "statusVerified": "Diverifikasi oleh Global Supporter",

@@ -7,7 +7,7 @@ from app.api.deps import Pagination, get_services
 from app.core.errors import Conflict, NotFound
 from app.repositories.base import Query as DbQuery
 from app.repositories.base import get_many, get_one
-from app.schemas.api import LanguagesUpdate, RoleUpdate
+from app.schemas.api import BackgroundStop, LanguagesUpdate, RoleUpdate
 from app.security.auth import AuthUser, require_admin, require_super_admin
 from app.services.container import Services
 
@@ -116,18 +116,71 @@ def llm_check(svc: Services = Depends(get_services), user: AuthUser = Depends(re
 
 @router.get("/system/llm-usage")
 def llm_usage(svc: Services = Depends(get_services), _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
-    """Operational LLM metrics since the last restart (no prompts, answers or personal data)."""
+    """Operational LLM metrics (no prompts, answers or personal data). ``usage``: this process since its start;
+    ``daily``: all processes, from the database (migration 0018), the last 7 KST days by lane, purpose and model.
+    Costs are ESTIMATES from LLM_PRICES, never an invoice."""
     from app.core.rate_limit import ai_budget
     from app.services.llm.usage import usage
 
+    bg = svc.background_budget
+    controls = getattr(svc.doc_translations.llm, "background_controls", None)
     return dict(provider=svc.llm.name if svc.llm.enabled else "none", usage=usage.snapshot(),
                 health=svc.llm.health() if hasattr(svc.llm, "health") else {},
-                daily_budget=ai_budget.snapshot() | {"global_limit": svc.settings.ai_daily_limit_global},
+                daily_budget=ai_budget.snapshot() | {"global_limit": svc.settings.ai_daily_limit_global,
+                                                     "global_used_all_processes": ai_budget.used_persisted("global")},
                 # background AI (translations, summaries): attempts today against its cap = the chatbot's reserve
                 background_budget=dict(
-                    attempts_today=svc.background_budget.used("background") if svc.background_budget else 0,
+                    attempts_today=bg.used("background") if bg else 0,
+                    attempts_today_all_processes=bg.used_persisted("background") if bg else None,
+                    persistent=bg.persistent if bg else None, persist_error=bg.persist_error if bg else None,
                     daily_attempt_limit=svc.settings.llm_background_daily_attempts,
-                    separate_model=svc.settings.translation_model or None))
+                    separate_model=svc.settings.translation_model or None),
+                background_controls=controls.state() if controls is not None else None,
+                daily=_daily_usage(svc))
+
+
+def _daily_usage(svc: Services) -> dict:  # type: ignore[type-arg]
+    from datetime import datetime, timedelta
+
+    from app.services.llm.usage import KST
+
+    since = (datetime.now(KST).date() - timedelta(days=6)).isoformat()
+    try:
+        rows, _n = svc.store.select("llm_usage_daily", DbQuery(gte={"day": since}, order=[("day", True)], limit=2000))
+    except Exception:  # noqa: BLE001 - migration 0018 not applied, or the database is unreachable
+        return dict(available=False, rows=[], totals={})
+    totals: dict[str, dict] = {}  # type: ignore[type-arg]
+    for r in rows:
+        t = totals.setdefault(f"{r['day']}:{r['lane']}", dict(day=r["day"], lane=r["lane"], attempts=0, failed=0,
+                                                             input_tokens=0, output_tokens=0, est_cost_usd=0.0,
+                                                             fully_priced=True))
+        t["attempts"] += r["attempts"]
+        t["failed"] += r["failed"]
+        t["input_tokens"] += r["input_tokens"]
+        t["output_tokens"] += r["output_tokens"] + r["thinking_tokens"]
+        t["est_cost_usd"] = round(t["est_cost_usd"] + float(r["est_cost_usd"]), 6)
+        t["fully_priced"] = t["fully_priced"] and (r["priced"] or r["provider"] == "ollama")
+    return dict(available=True, since=since, rows=rows, totals=sorted(totals.values(), key=lambda t: (t["day"], t["lane"]),
+                                                                      reverse=True))
+
+
+@router.post("/system/ai-background-stop")
+def ai_background_stop(body: BackgroundStop, svc: Services = Depends(get_services),
+                       user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """Emergency stop for background AI work (translations, summaries, discovery). The chatbot is not affected.
+    Queued work waits and is retried hourly (bounded); nothing is deleted."""
+    flags = svc.runtime_flags
+    if flags is None:
+        raise Conflict("Runtime switches are not available.")
+    try:
+        flags.set("ai_background_stop", bool(body.stop), user.id)
+    except Exception as exc:  # noqa: BLE001 - table missing (migration 0018) or database down
+        raise Conflict("The switch could not be saved (migration 0018 applied?). Set AI_BACKGROUND_STOP=true on "
+                       "the API service instead.") from exc
+    svc.store.insert("audit_log", dict(action="ai.background_stop" if body.stop else "ai.background_resume",
+                                       entity_type="system", entity_id=None, actor_id=user.id,
+                                       details={"note": (body.note or "")[:300]}))
+    return dict(stopped=bool(body.stop) or svc.settings.ai_background_stop, stop_from_env=svc.settings.ai_background_stop)
 
 
 @router.get("/audit-log")

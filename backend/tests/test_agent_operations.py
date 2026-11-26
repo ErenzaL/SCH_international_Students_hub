@@ -123,16 +123,20 @@ def test_a_supporter_requests_a_draft_for_the_gpu_worker_and_nothing_becomes_pub
     env.settings.gpu_worker_enabled = True
     new_worker(env)
     a = publish(env)
-    assign(env, "supporter", "vi")
-    assert tool(env, "supporter-vi", "request_translation_draft", {"announcement_id": a["id"]}).status_code == 403          # student
-    assert tool(env, "supporter-id", "request_translation_draft", {"announcement_id": a["id"]}, "supporter").status_code == 403
-    r = tool(env, "supporter-vi", "request_translation_draft", {"announcement_id": a["id"]}, "supporter")
+    assign(env, "supporter", "id")
+    assert tool(env, "supporter-id", "request_translation_draft", {"announcement_id": a["id"]}).status_code == 403          # student
+    assert tool(env, "supporter-en", "request_translation_draft", {"announcement_id": a["id"]}, "supporter").status_code == 403
+    r = tool(env, "supporter-id", "request_translation_draft", {"announcement_id": a["id"]}, "supporter")
     assert r.status_code == 200 and r.json()["result"]["items"][0]["executor"] == "gpu", r.text
-    again = tool(env, "supporter-vi", "request_translation_draft", {"announcement_id": a["id"]}, "supporter").json()["result"]["items"][0]
+    again = tool(env, "supporter-id", "request_translation_draft", {"announcement_id": a["id"]}, "supporter").json()["result"]["items"][0]
     assert again["id"] == r.json()["result"]["items"][0]["id"]           # one open job, not two
-    assert not (env.client.get(f"/api/v1/announcements/{a['id']}", params={"lang": "vi"}).json().get("display") or {}).get("is_translated")
+    assert env.client.get(f"/api/v1/announcements/{a['id']}", params={"lang": "id"}).json()["translation"] is None
+    # Release 1: an assigned Vietnamese supporter gets no machine draft of an announcement (out of scope, not hidden)
+    assign(env, "supporter", "vi")
+    out = tool(env, "supporter-vi", "request_translation_draft", {"announcement_id": a["id"]}, "supporter")
+    assert out.status_code == 409 and out.json()["error"]["code"] == "language_out_of_scope", out.text
     # never as a background lookup of a student
-    assert env.client.post("/api/v1/agents/supporter-vi/tasks", headers=env.auth("supporter"), json=dict(
+    assert env.client.post("/api/v1/agents/supporter-id/tasks", headers=env.auth("supporter"), json=dict(
         task_type="lookup", params=dict(tool="request_translation_draft", params={}))).status_code == 403
 
 

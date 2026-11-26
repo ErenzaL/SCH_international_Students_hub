@@ -100,6 +100,7 @@ class GeminiProvider:
         self._circuit: dict[str, dict[str, Any]] = {}
         #: background providers: consulted before EVERY attempt (retries and fallback included); False = stop now
         self.attempt_gate = attempt_gate
+        self.lane = "chat"           # chat | background (usage accounting)
         self._circuit_lock = threading.Lock()
         self._clock = time.monotonic
 
@@ -281,7 +282,7 @@ class GeminiProvider:
                 else:
                     res.latency_ms = int((time.perf_counter() - started) * 1000)
                     res.fallback_used = res.model_role == "fallback" and not fast
-                    usage.attempt(provider=self.name, model=res.model, role=role, purpose=purpose, attempt=attempt,
+                    usage.attempt(lane=self.lane, provider=self.name, model=res.model, role=role, purpose=purpose, attempt=attempt,
                                   outcome="ok", latency_ms=int((time.perf_counter() - t0) * 1000),
                                   input_tokens=res.input_tokens, output_tokens=res.output_tokens,
                                   thinking_tokens=res.thinking_tokens, total_tokens=res.total_tokens)
@@ -295,7 +296,7 @@ class GeminiProvider:
                 if delay is not None and interactive:
                     remaining = self.deadline - (time.perf_counter() - started)
                     delay = delay if delay < remaining else None
-                usage.attempt(provider=self.name, model=model, role=role, purpose=purpose, attempt=attempt,
+                usage.attempt(lane=self.lane, provider=self.name, model=model, role=role, purpose=purpose, attempt=attempt,
                               outcome="error", latency_ms=int((time.perf_counter() - t0) * 1000),
                               error_code=failure.error.code, retry_in_s=delay, http=failure.http,
                               status=failure.status, detail=failure.detail, quota_id=failure.quota_id)

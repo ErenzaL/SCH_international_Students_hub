@@ -325,6 +325,7 @@
       "machineNote": "이 내용은 자동으로 번역되었으며 사람이 확인하지 않았습니다. 날짜, 비용, 규정이 틀릴 수 있으니 {original} 원문과 공식 출처를 기준으로 확인하세요.",
       "fallbackTitle": "검수된 {language} 번역이 아직 없습니다",
       "fallbackBody": "지금 {original} 원문을 보고 있습니다. 번역은 글로벌 서포터가 원문과 대조하여 검수한 후에만 여기에 표시됩니다.",
+      "notOfferedBody": "공지사항은 아직 {language}로 번역되지 않습니다. 지금 {original} 원문을 보고 있습니다. 이해하기 어려운 부분은 AI 오피스의 Hana 또는 {language} 서포터에게 물어보세요.",
       "originalLanguage": "원문 언어",
       "translationStatus": "번역",
       "statusVerified": "글로벌 서포터가 검수함",

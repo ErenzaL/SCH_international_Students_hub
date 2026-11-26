@@ -21,6 +21,8 @@ from app.services.ingestion.pipeline import IngestionService
 from app.services.intake import IntakeService
 from app.services.jobs import JobRunner
 from app.services.llm.base import LLMProvider
+from app.services.llm.controls import RuntimeFlags
+from app.services.llm.usage import usage
 from app.services.notifications import NotificationService, UserNotificationService
 from app.services.ocr.providers import OCRProvider, build_ocr_provider
 from app.services.public import PublicService
@@ -68,6 +70,7 @@ class Services:
     gpu: GpuWorkerService = None  # type: ignore[assignment]  # set right after construction (needs Services)
     #: per-day attempt budget of background AI work (the chatbot's quota reserve)
     background_budget: DailyBudget | None = None
+    runtime_flags: RuntimeFlags | None = None
 
 
 def build_services(settings: Settings, store: Store, storage: FileStorage | None, embedder: EmbeddingProvider,
@@ -86,8 +89,17 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
                                         llm=llm, settings=settings)
     support = SupportService(store, conversations, user_notes, retention_days=settings.support_retention_days)
     background_budget = DailyBudget()                 # per process / Services (one instance in production)
+    runtime_flags = RuntimeFlags(store)
+    usage.configure(prices=settings.llm_prices, store=store)
+    if settings.ai_budget_persistent:
+        from app.core.rate_limit import ai_budget
+
+        # background work fails closed when the counter table exists but cannot be read; chat answers fall back to
+        # the in-process count (students are never refused because of a database hiccup in the accounting)
+        background_budget.attach(store, {"background"}, fail_closed={"background"})
+        ai_budget.attach(store, {"global"})
     # background AI (translations, summaries) has its own provider and a daily attempt budget: the chatbot's reserve
-    tr_llm = translation_llm(settings, llm, background_budget)
+    tr_llm = translation_llm(settings, llm, background_budget, runtime_flags)
     doc_translations = DocumentTranslationService(store, tr_llm, user_notes, settings)
     jobs = JobRunner(store, ingestion, settings)
     doc_translations.ingestion, doc_translations.jobs = ingestion, jobs
@@ -117,6 +129,7 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     discovery.sources_service, discovery.ingestion, discovery.jobs, discovery.llm = services.sources, ingestion, jobs, tr_llm
     services.discovery = discovery
     services.background_budget = background_budget
+    services.runtime_flags = runtime_flags
     services.agents = jobs.agents = AgentTaskService(services)
     services.gpu = jobs.gpu = GpuWorkerService(services)
     services.operations = AgentOperations(services)

@@ -230,7 +230,10 @@ class Settings(BaseSettings):
     public_machine_translations: bool = False
     # --- automatic machine translation (app/services/translation/auto.py) -------------------------------------
     auto_translate_announcements: bool = False    # queue machine translations when an announcement is published
-    auto_translate_languages: str = "ko,en"       # target languages generated automatically (others: by request)
+    auto_translate_languages: str = "ko,en,id"    # target languages generated automatically (others: by request)
+    # Release 1: machine drafts of ANNOUNCEMENTS only in these languages (automatic and on request). Existing
+    # approved translations in other languages stay visible; the chatbot and the website keep all five languages.
+    announcement_machine_languages: str = "ko,en,id"
     translation_model: str = ""                   # Gemini model for translation jobs ("" = the assistant's models)
     translation_full_max_chars: int = 12000       # longer documents: title + AI summary only (labelled as summary)
     translation_summary_source_chars: int = 40000  # text given to the summarizer (plus all section headings)
@@ -241,6 +244,18 @@ class Settings(BaseSettings):
     # sent. Set it to at most ~30% of the chat model's requests-per-day quota (Google AI Studio -> rate limits) so
     # background work can never use the quota the chatbot needs. 0 = no background AI at all.
     llm_background_daily_attempts: int = 150
+    # Emergency stop for ALL background AI (translations, summaries, discovery); the chatbot keeps working.
+    # An administrator can also switch it in the admin system page (needs migration 0018).
+    ai_background_stop: bool = False
+    # Prices for cost ESTIMATES, USD per million tokens: "model=input/output,model2=input/output" (copy them from the
+    # provider's official price list; thinking tokens are priced as output). Empty = no cost estimates at all.
+    llm_prices: str = ""
+    # Optional ceiling on today's (KST) estimated background cost in USD; 0 = off. With a ceiling, a model without a
+    # price in LLM_PRICES gets no background attempts (unknown cost is never treated as zero).
+    llm_background_daily_usd_limit: float = 0.0
+    # Daily AI budgets (background attempts, generated chat answers) in the database (migration 0018), so restarts
+    # do not reopen them. Without the migration they stay in-process.
+    ai_budget_persistent: bool = True
     translation_quota_retry_seconds: int = 3600    # provider quota exhausted: try the job again after this long
     translation_max_deferrals: int = 24            # ... at most this many times, then the job fails visibly
     # unreviewed machine translations of immigration / employment / insurance / fee / legal content:
