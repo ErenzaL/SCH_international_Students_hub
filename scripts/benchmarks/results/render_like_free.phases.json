@@ -1,0 +1,34 @@
+{
+ "phases": [
+  {
+   "phase": "idle after start",
+   "ok": true,
+   "seconds": 0.5,
+   "memory_before_mb": 97,
+   "memory_peak_mb": 98,
+   "memory_after_mb": 98,
+   "server_alive": true,
+   "detail": "started"
+  },
+  {
+   "phase": "first search (loads the embedding model)",
+   "ok": true,
+   "seconds": 13.1,
+   "memory_before_mb": 98,
+   "memory_peak_mb": 323,
+   "memory_after_mb": 309,
+   "server_alive": true,
+   "detail": "HTTP 200 in 12916 ms"
+  },
+  {
+   "phase": "search again",
+   "ok": true,
+   "seconds": 0.8,
+   "memory_before_mb": 309,
+   "memory_peak_mb": 309,
+   "memory_after_mb": 309,
+   "server_alive": true,
+   "detail": "HTTP 200 in 599 ms"
+  }
+ ]
+}

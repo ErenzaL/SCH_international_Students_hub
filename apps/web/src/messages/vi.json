@@ -2992,5 +2992,8 @@
       },
       "staffTabs": "Nhân viên"
     }
+  },
+  "staging": {
+    "banner": "Bản thử nghiệm (staging). Chỉ có dữ liệu thử; không phải thông tin chính thức và không đến sinh viên."
   }
 }

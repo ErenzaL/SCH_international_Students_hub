@@ -10,7 +10,14 @@ const { chromium } = createRequire(process.cwd() + "/")("playwright");
 const [infoFile, OUT, WPY, BACKEND] = process.argv.slice(2);
 const info = JSON.parse(fs.readFileSync(infoFile, "utf8"));
 const WEB = info.web, API = info.api + "/api/v1";
-for (const u of [WEB, info.api, info.auth]) if (!u.startsWith("http://127.0.0.1:")) throw new Error("loopback only");
+// loopback, or (info.staging, written by scripts/staging_bootstrap.py) a hosted STAGING copy; never the production services
+const PRODUCTION = ["sch-hub-api.onrender.com", "sch-international-students-hub.onrender.com"];
+for (const u of [WEB, info.api, info.auth]) {
+  const host = new URL(u).hostname;
+  if (PRODUCTION.includes(host) || (info.production_ref && host.startsWith(info.production_ref))) throw new Error(`refusing production: ${host}`);
+  if (!u.startsWith("http://127.0.0.1:") && !(info.staging && u.startsWith("https://"))) throw new Error("loopback or a hosted staging copy only");
+}
+const EMAIL = (who) => `${who}@${info.email_domain ?? "example.test"}`;
 const only = process.env.ONLY ? process.env.ONLY.split(",") : null;
 let passed = 0, failed = 0;
 const check = (n, ok, d = "") => { ok ? passed++ : failed++; console.log(`${ok ? "PASS" : "FAIL"}  ${n}  ${ok ? "" : d}`); };
@@ -31,7 +38,7 @@ const context = async (who, opts = {}) => {
   if (who !== "visitor") {
     await page.goto(`${WEB}/login`);
     if (!who.startsWith("student")) await page.getByTestId("login-staff").click();
-    await page.locator("#email").fill(`${who}@example.test`);
+    await page.locator("#email").fill(EMAIL(who));
     await page.locator("#password").fill(info.password);
     await page.locator("form button[type=submit]").click();
     await page.waitForURL((u) => !u.pathname.startsWith("/login"), { timeout: 20000 });
@@ -55,6 +62,17 @@ const ask = async (page, text, s = 90) => {
   }, s);
 };
 const J = {};
+
+J.staging = async () => {   // only on a hosted staging copy
+  if (!info.staging) return;
+  const { page, ctx } = await context("visitor");
+  await page.goto(WEB);
+  check("the staging banner is on every page", await page.getByTestId("staging-banner").isVisible());
+  check("search engines are told not to index it", (await page.locator('meta[name="robots"]').getAttribute("content") ?? "").includes("noindex"));
+  const h = await (await fetch(info.api + "/health")).json();
+  check("the API is the staging API with a database", h.status === "ok" && h.supabase === "configured");
+  await ctx.close();
+};
 
 J.setup = async () => {   // synthetic approved guides
   const docs = [["D-2 extension guide (SYNTHETIC)", "visa-immigration", "en", "You can apply to extend a D-2 stay from 14 weeks before the period of stay ends. Required documents: passport, residence card, certificate of enrollment, transcript and proof of residence. The fee is 71,000 won."],
