@@ -69,8 +69,11 @@ PG_BIN=... POSTGREST=... PY=... WORK=... scripts/render_memory_run.sh 4096 0.1 s
 
 1. **Set `MALLOC_ARENA_MAX=2` on the API** (added to `render.yaml`; on the existing service it must be added under Environment by hand: owner
    action, it restarts the service). Staging first.
-2. **Measure on staging** (same plan, $0): upload the 3 MB and 9 MB synthetic PDFs and watch Metrics → Memory. Pass: no "Out of memory" event,
-   under about 470 MB.
+2. **Measure on staging** (same plan, $0) with `scripts/staging_memory_check.py` ([STAGING.md](../owner/STAGING.md) step 5): synthetic PDFs and
+   texts uploaded at once, then responsiveness, restarts, out-of-memory kills, peak, recovery and stuck work from the read-only
+   `GET /api/v1/admin/system/runtime` (process and container memory, an id that changes on every restart, ingestion slots, stale jobs).
+   At most `INGESTION_MAX_CONCURRENT_JOBS` (default 1) ingestion jobs run at once in a process, also in inline mode. If it fails:
+   [INDEXING-OFFLOAD.md](INDEXING-OFFLOAD.md).
 3. Keep `EMBEDDING_ONNX_BATCH_SIZE=1` and `EMBEDDING_THREADS=0` (at most two threads). A reranker (about 120 MB more) does not fit beside this
    ([KOREAN-RETRIEVAL.md](KOREAN-RETRIEVAL.md)).
 4. Index large uploads one at a time; at 0.1 CPU a 9 MB PDF takes about 25 minutes. A killed job is picked up again after the restart.

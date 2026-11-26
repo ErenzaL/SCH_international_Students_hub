@@ -25,10 +25,10 @@ schedules, GPU worker and automatic translation are off by default; the worker, 
 | # | Action | Why | Where / command | Who | Permission | Expected → verify | Risk if skipped |
 |---|---|---|---|---|---|---|---|
 | B1 | Create a second **free** Supabase project `sch-hub-staging` (Tokyo) | hosted sign-in, rules, storage are untested | supabase.com → New project | You | account | project ready; Free plan allows 2 active projects | surprises in production |
-| B2 | Run `scripts/staging_bootstrap.py all` | schema, seed, six made-up accounts, `doctor` | your computer; asks for the staging connection string and keys | You (Claude wrote and tested it) | staging only; refuses production | 17 migrations applied, no FAIL | – |
-| B3 | Approve and push the branch `staging` (`git push origin <commit>:refs/heads/staging`) | the staging services build from it; deploys nothing else | GitHub | You | **your written approval** | branch visible | – |
-| B4 | Create `sch-hub-api-staging` and `sch-hub-web-staging`, **Free**, branch `staging`, Auto-Deploy off, previews off, staging variables only | a hosted copy | Render → New → Web Service, table in STAGING.md | You | Render | both `Live`; yellow banner on the site | – |
-| B5 | Run `doctor --api --web`, `e2e_full.mjs` against staging | proves the candidate on hosted services | STAGING.md §4 | You (Claude can interpret the output) | staging accounts | no FAIL | – |
+| B2 | Approve and push the branch `hub-staging` (`git push origin staging/hosted-checks:refs/heads/hub-staging`) | the staging services build from it; deploys nothing else | university server | You, or Claude after your approval | **your written approval** | branch visible on GitHub; no workflow runs | no hosted test |
+| B3 | Run `scripts/staging_bootstrap.py all` | schema, synthetic seed, six made-up accounts, `doctor` | your computer, on the pushed commit; asks for the staging connection string and keys | You (Claude wrote and tested it) | staging only; refuses production keys, addresses and real domains | 6 accounts, candidate sources off | – |
+| B4 | Create `sch-hub-api-staging` and `sch-hub-web-staging`, **Free**, branch `hub-staging`, Auto-Deploy off, previews off, staging variables only | a hosted copy | Render → New → Web Service, tables in STAGING.md §4 | You | **your approval** | both services live, yellow banner | – |
+| B5 | `doctor`, `staging_memory_check.py`, Render Metrics/Events, optional `e2e_full.mjs` | proves the candidate and the 512 MB fit on hosted services | STAGING.md §5 | You (Claude can interpret the report) | staging accounts | no FAIL; memory under about 470 MB; no restart | a 512 MB problem shows up first in production |
 
 ## C. Before Release A
 
