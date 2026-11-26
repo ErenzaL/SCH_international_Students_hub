@@ -54,7 +54,7 @@ Render → New → **Web Service** → this repository, twice:
 
 API environment: `ENVIRONMENT=staging`, `SUPABASE_URL=https://<STAGING_REF>.supabase.co`, `SUPABASE_SERVICE_ROLE_KEY=<staging secret key>`,
 `CORS_ORIGINS=https://sch-hub-web-staging.onrender.com`, `PYTHON_VERSION=3.11.9`, `JOB_EXECUTION=worker`, `EMBEDDING_PROVIDER=e5_onnx`,
-`EMBEDDING_CACHE_DIR=.model-cache`, `RETRIEVAL_MIN_SIMILARITY=0.80`, `LLM_PROVIDER=none` (or `gemini` with **a separate free key**), and to test the agents and the
+`EMBEDDING_CACHE_DIR=.model-cache`, `MALLOC_ARENA_MAX=2` (memory, see below), `RETRIEVAL_MIN_SIMILARITY=0.80`, `LLM_PROVIDER=none` (or `gemini` with **a separate free key**), and to test the agents and the
 GPU worker: `AGENT_SCHEDULES_ENABLED=true`, `GPU_WORKER_ENABLED=true`, `CRON_SECRET=<new random value>`. Never a production value.
 
 Web environment: `NEXT_PUBLIC_SITE_ENV=staging` (yellow banner, no search indexing), `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (staging publishable key),
@@ -73,6 +73,12 @@ cd /path/with/playwright && node <repo>/scripts/e2e_full.mjs ~/sch-staging.json 
 ```
 `e2e_full.mjs` refuses the production addresses. With `ONLY=staging,setup,announcement,visa,admin,office` it needs no GPU computer. The first request wakes the
 services (about a minute). Expect slower times than on the test computer: 0.1 CPU (see [RENDER-MEMORY.md](../development/RENDER-MEMORY.md)).
+
+**Memory check on real Render (the one thing the test computer cannot prove).** Staging has the same 0.1 CPU / 512 MB as production. Write
+the synthetic test PDFs (`backend/.venv/bin/python scripts/render_memory_test.py --write-pdfs --pdf-mb 3,9 --pdf-dir ~/sch-test-pdfs`: invented
+Korean text, no real data), upload them as an administrator on the staging site (Admin → Knowledge Sources → new source → upload the PDF), approve them, and watch API
+service → **Metrics → Memory** until the jobs finish (at 0.1 CPU a 9 MB PDF takes about 25 minutes). Pass: no restart in **Events** ("Out of memory"), memory stays under about 470 MB. Repeat once without
+`MALLOC_ARENA_MAX` only if you want to see the difference; it was killed at 512 MB on the test computer.
 
 ## 5. Afterwards
 

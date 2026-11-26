@@ -20,14 +20,15 @@ schedules, GPU worker and automatic translation are off by default; the worker, 
 | A7 | Make a backup and test that it can be read | none exists | [SUPABASE-SETUP.md](SUPABASE-SETUP.md) §5 | You | DB password | `pg_restore -l` lists tables | no way back after data loss |
 | A8 | Ask the international office (content) and IT (GPU computer) for consent | their material, their machine | letter; [gpu-gateway-assessment.md](../gpu-gateway-assessment.md) | You | – | written answer | conflict with the university |
 
-## B. Before hosted staging
+## B. Before hosted staging (zero cost, about 45 minutes; full runbook: [STAGING.md](STAGING.md))
 
 | # | Action | Why | Where / command | Who | Permission | Expected → verify | Risk if skipped |
 |---|---|---|---|---|---|---|---|
-| B1 | Create a second **free** Supabase project | hosted sign-in and rules are untested | supabase.com → New project `sch-hub-staging` | You | account | project ready | surprises in production |
-| B2 | Apply migrations 0001–0017 and seed there | same schema | loop in [release-a-staging.md](../release/release-a-staging.md) | You (Claude prepares) | staging DB | `doctor` all migrations PASS | – |
-| B3 | Create `admin@example.test`, run `scripts/staging_smoke.py`, then `scripts/validate_sources.py` | proves Release A on hosted Supabase | same page | You | staging keys | 14/14 | – |
-| B4 | Run API and web on your computer against staging; click through Admin → Agents | proves this candidate | same page, steps 4 and 7 | You | staging keys | no errors | – |
+| B1 | Create a second **free** Supabase project `sch-hub-staging` (Tokyo) | hosted sign-in, rules, storage are untested | supabase.com → New project | You | account | project ready; Free plan allows 2 active projects | surprises in production |
+| B2 | Run `scripts/staging_bootstrap.py all` | schema, seed, six made-up accounts, `doctor` | your computer; asks for the staging connection string and keys | You (Claude wrote and tested it) | staging only; refuses production | 17 migrations applied, no FAIL | – |
+| B3 | Approve and push the branch `staging` (`git push origin <commit>:refs/heads/staging`) | the staging services build from it; deploys nothing else | GitHub | You | **your written approval** | branch visible | – |
+| B4 | Create `sch-hub-api-staging` and `sch-hub-web-staging`, **Free**, branch `staging`, Auto-Deploy off, previews off, staging variables only | a hosted copy | Render → New → Web Service, table in STAGING.md | You | Render | both `Live`; yellow banner on the site | – |
+| B5 | Run `doctor --api --web`, `e2e_full.mjs` against staging | proves the candidate on hosted services | STAGING.md §4 | You (Claude can interpret the output) | staging accounts | no FAIL | – |
 
 ## C. Before Release A
 

@@ -11,14 +11,14 @@ and nothing depends on them.)
 | Health check | `/health` | `/` |
 | Branch | `main` | `main` |
 | Deploys when | GitHub workflow calls the deploy hook after a push to `main` that touches `backend/` or `render.yaml` | the same for `apps/web/` or `render.yaml` |
-| Memory | measured 391–410 MB after loading the model (Linux), limit 512 MB | about 100 MB |
+| Memory | limit 512 MB. At 0.1 CPU: 282–336 MB idle with the model, peak 457 MB while indexing, with `MALLOC_ARENA_MAX=2` ([RENDER-MEMORY.md](../development/RENDER-MEMORY.md)) | peak 205 MB |
 
 ## Walk through the dashboard
 
 1. Each service → **Settings**: branch `main`; *Auto-Deploy* off or "On Commit" (not both hook and auto-deploy, or every push deploys twice);
    **Pull Request Previews off**.
 2. API → **Environment**: compare with [ENVIRONMENT.md](ENVIRONMENT.md). Required: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `CORS_ORIGINS`. Production:
-   `JOB_EXECUTION=worker`, `EMBEDDING_PROVIDER=e5_onnx`, `EMBEDDING_CACHE_DIR=.model-cache`, `RETRIEVAL_MIN_SIMILARITY=0.80`, `LLM_PROVIDER=gemini`, `LLM_API_KEY`.
+   `JOB_EXECUTION=worker`, `EMBEDDING_PROVIDER=e5_onnx`, `EMBEDDING_CACHE_DIR=.model-cache`, `MALLOC_ARENA_MAX=2`, `RETRIEVAL_MIN_SIMILARITY=0.80`, `LLM_PROVIDER=gemini`, `LLM_API_KEY`.
    Must stay off until you approve them: `GPU_WORKER_ENABLED`, `AGENT_SCHEDULES_ENABLED`, `AUTO_TRANSLATE_ANNOUNCEMENTS`, `AUTO_TRANSLATE_DOCUMENTS`,
    `PUBLIC_MACHINE_TRANSLATIONS`.
 3. Web → **Environment**: the three `NEXT_PUBLIC_*` values, all public.
@@ -30,8 +30,11 @@ and nothing depends on them.)
 - **750 free instance hours a month for the whole workspace.** Services sleep after 15 minutes without requests; the first request then takes about a minute.
   Two services awake all month would need about 1,490 hours: never keep them awake artificially. The GPU worker is started by hand (`--drain`), not continuously.
 - One API process with its own worker threads. Queued jobs survive a sleep or restart (durable queue).
-- Large PDFs: text extraction needs about 140 MB more and can exceed 512 MB. Upload large PDFs one at a time, outside busy hours; a killed job is repeated.
-- Do not add a second service "for staging" in the same workspace: it uses the same hours.
+- **`MALLOC_ARENA_MAX=2` is required on the free plan.** Without it, indexing at 0.1 CPU reached 485–512 MB (the test computer killed the API at
+  512 MB); with it the peak was 457 MB and memory after a 9 MB PDF fell from 422 to 312 MB. Set it under Environment; it costs nothing.
+- Large uploads: index them one at a time (a 9 MB PDF takes about 25 minutes at 0.1 CPU); a killed job is repeated.
+- Staging services in the same workspace share these hours. That is fine while they sleep (a two-hour test session uses about 4 hours); never keep
+  them awake. See [STAGING.md](STAGING.md).
 
 ## Deploy and roll back
 

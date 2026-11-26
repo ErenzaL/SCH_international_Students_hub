@@ -1,6 +1,6 @@
 # Environment variables
 
-Generated from the code by `scripts/env_inventory.py`; do not edit by hand. 170 variables of the **API service**. Whether a value is set on
+Generated from the code by `scripts/env_inventory.py`; do not edit by hand. 172 variables of the **API service**. Whether a value is set on
 Render cannot be seen from here: check with `python -m app.cli doctor` (prints "set" or "not set", never a value) or in the dashboard.
 
 After changing a variable on Render the service restarts by itself (choose *Save, rebuild and deploy* only for the web variables).
@@ -78,6 +78,8 @@ The worker refuses to start when a Supabase, Gemini or cron secret is set on tha
 | `RETRIEVAL_VECTOR_WEIGHT` | setting | optional | `1.0` | — |  |
 | `RETRIEVAL_KEYWORD_WEIGHT` | setting | optional | `0.35` | — |  |
 | `RETRIEVAL_BRIDGE_WEIGHT` | setting | optional | `0.75` | .env.example | extra Korean/English concept queries (retrieval/bridge.py); 0 = off |
+| `RETRIEVAL_CROSS_SCRIPT_WEIGHT` | setting | optional | `0.0` | — | off: helped the development sets, not the blind set (KOREAN-RETRIEVAL.md) |
+| `RETRIEVAL_HUB_BETA` | setting | optional | `0.0` | — | long documents (many chunks) are scaled down by (typical/n)**beta; 0 = off |
 | `RETRIEVAL_CANDIDATE_POOL` | setting | optional | `30` | — | candidates fetched per leg before fusion |
 | `RETRIEVAL_MAX_CHUNKS_PER_DOCUMENT` | setting | optional | `3` | — |  |
 | `RETRIEVAL_CODE_MISMATCH_PENALTY` | setting | optional | `0.5` | — | a passage that names a different visa/status code (E-7, F-2-R ...) but not the one asked about is demoted |

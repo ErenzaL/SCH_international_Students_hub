@@ -2,6 +2,7 @@
 parallel searches, chat, agent tasks. Reports time and memory per phase. Synthetic data and public documents only; loopback only.
 
     python3 scripts/render_memory_test.py INFO.json --report OUT.json [--corpus backend/.eval-cache/public_corpus.json] [--pdf-mb 3,9]
+    python3 scripts/render_memory_test.py --write-pdfs --pdf-mb 9 --pdf-dir DIR      # only the synthetic PDFs, e.g. to upload on staging
 """
 from __future__ import annotations
 
@@ -21,12 +22,45 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from render_like import tree, usage  # noqa: E402
 
 ap = argparse.ArgumentParser()
-ap.add_argument("info", type=Path)
-ap.add_argument("--report", type=Path, required=True)
+ap.add_argument("info", type=Path, nargs="?")
+ap.add_argument("--report", type=Path)
+ap.add_argument("--write-pdfs", action="store_true", help="only write the synthetic Korean test PDFs (--pdf-mb, --pdf-dir) and exit; e.g. for staging")
 ap.add_argument("--corpus", type=Path)
 ap.add_argument("--pdf-mb", default="3,9")
 ap.add_argument("--pdf-dir", type=Path, default=Path("/tmp"))
 a = ap.parse_args()
+def make_pdf(mb: int) -> Path:
+    import fitz  # pymupdf, a production dependency
+
+    p = a.pdf_dir / f"render_test_{mb}mb.pdf"
+    if p.exists():
+        return p
+    rnd = random.Random(mb)
+    words = "유학생 생활관 장학금 신청 기간 체류기간 연장 외국인등록증 수강신청 건강보험 시간제 취업 허가 서류 제출 마감 안내 학사 일정 졸업 휴학 복학 기숙사 비용 환불".split()
+    doc = fitz.open()
+    page_no = 0
+    while True:
+        page_no += 1
+        page = doc.new_page()
+        text = f"제{page_no}장 안내\n" + "\n".join(" ".join(rnd.choice(words) for _ in range(14)) + f" {page_no}-{i}." for i in range(38))
+        page.insert_text((40, 50), text, fontname="korea", fontsize=10)
+        img = bytes(rnd.getrandbits(8) for _ in range(160 * 160 * 3))
+        pix = fitz.Pixmap(fitz.csRGB, 160, 160, img, False)
+        page.insert_image(fitz.Rect(380, 600, 560, 780), pixmap=pix)
+        if page_no % 10 == 0:
+            doc.save(p, deflate=False)
+            if p.stat().st_size >= mb * 1024 * 1024:
+                break
+    doc.close()
+    return p
+
+
+if a.write_pdfs:
+    for mb in [int(x) for x in a.pdf_mb.split(",") if x]:
+        print(make_pdf(mb))
+    sys.exit(0)
+if a.info is None or a.report is None:
+    ap.error("INFO and --report are required unless --write-pdfs")
 info = json.loads(a.info.read_text())
 assert info["api"].startswith("http://127.0.0.1:"), "loopback only"
 c = httpx.Client(base_url=info["api"] + "/api/v1", timeout=900, trust_env=False)
@@ -93,32 +127,6 @@ def corpus() -> str:
     wait_jobs()
     st = c.get("/admin/storage", headers=H).json()
     return f"{len(docs)} documents indexed, database {st['database_bytes'] // 1024 // 1024} MB"
-
-
-def make_pdf(mb: int) -> Path:
-    import fitz  # pymupdf, a production dependency
-
-    p = a.pdf_dir / f"render_test_{mb}mb.pdf"
-    if p.exists():
-        return p
-    rnd = random.Random(mb)
-    words = "유학생 생활관 장학금 신청 기간 체류기간 연장 외국인등록증 수강신청 건강보험 시간제 취업 허가 서류 제출 마감 안내 학사 일정 졸업 휴학 복학 기숙사 비용 환불".split()
-    doc = fitz.open()
-    page_no = 0
-    while True:
-        page_no += 1
-        page = doc.new_page()
-        text = f"제{page_no}장 안내\n" + "\n".join(" ".join(rnd.choice(words) for _ in range(14)) + f" {page_no}-{i}." for i in range(38))
-        page.insert_text((40, 50), text, fontname="korea", fontsize=10)
-        img = bytes(rnd.getrandbits(8) for _ in range(160 * 160 * 3))
-        pix = fitz.Pixmap(fitz.csRGB, 160, 160, img, False)
-        page.insert_image(fitz.Rect(380, 600, 560, 780), pixmap=pix)
-        if page_no % 10 == 0:
-            doc.save(p, deflate=False)
-            if p.stat().st_size >= mb * 1024 * 1024:
-                break
-    doc.close()
-    return p
 
 
 def upload(mb: int) -> str:
