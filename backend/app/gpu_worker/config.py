@@ -35,7 +35,7 @@ class Config:
     idle_max: float = 3600.0
     active_hours: tuple[int, int] | None = None    # KST, e.g. (9, 18)
     lock_file: Path = Path.home() / ".local/state/sch-gpu-worker/lock"
-    prompt_style: str = "auto"     # auto | shared | native (auto: native for TranslateGemma models)
+    prompt_style: str = "auto"     # auto (= shared) | shared | native (TranslateGemma's own prompt; measured worse)
 
     @classmethod
     def from_env(cls, env: dict[str, str] | None = None) -> Config:

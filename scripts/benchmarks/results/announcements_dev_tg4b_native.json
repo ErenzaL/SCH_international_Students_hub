@@ -1,0 +1,214 @@
+{
+ "name": "dev_tg4b_native",
+ "at": "2026-11-26T18:33:00+00:00",
+ "model": "translategemma:4b",
+ "style": "native",
+ "repair": true,
+ "seed": 1,
+ "temperature": 0.2,
+ "num_ctx": 16384,
+ "notices": 26,
+ "errors": 0,
+ "gpu": {
+  "memory_mib_peak": 8439.0,
+  "memory_mib_median": 8439.0,
+  "utilization_median": 94.0,
+  "power_w_median": 142.71,
+  "power_w_peak": 146.37,
+  "samples": 165
+ },
+ "results": {
+  "en": {
+   "drafts": 26,
+   "dates": [
+    69,
+    69
+   ],
+   "times": [
+    32,
+    33
+   ],
+   "money": [
+    12,
+    12
+   ],
+   "links": [
+    14,
+    15
+   ],
+   "weekdays": [
+    64,
+    70
+   ],
+   "drafts_with_wrong_weekday": 5,
+   "drafts_with_leaked_instructions": 0,
+   "terminology": [
+    36,
+    42
+   ],
+   "proper_nouns": [
+    23,
+    36
+   ],
+   "drafts_missing_lines": 1,
+   "drafts_with_added_numbers": 0,
+   "drafts_with_added_links": 0,
+   "drafts_with_korean_left": 0,
+   "drafts_with_stray_chinese": 0,
+   "fact_errors": 6,
+   "drafts_without_any_measured_error": 20,
+   "passed_production_checks": 14,
+   "checks_flagged_and_error": 6,
+   "checks_flagged_no_error": 6,
+   "checks_missed_error": 0,
+   "warning_types": {
+    "number": 18,
+    "table_rows": 1,
+    "url": 1,
+    "missing_sections": 1
+   },
+   "drafts_per_warning_type": {
+    "number": 10,
+    "table_rows": 1,
+    "missing_sections": 1,
+    "url": 1
+   },
+   "seconds_median": 2.8,
+   "seconds_p95": 5.43,
+   "seconds_max": 6.5,
+   "input_tokens": 15394,
+   "output_tokens": 10031,
+   "repairs": 0
+  },
+  "id": {
+   "drafts": 26,
+   "dates": [
+    69,
+    69
+   ],
+   "times": [
+    32,
+    33
+   ],
+   "money": [
+    12,
+    12
+   ],
+   "links": [
+    15,
+    15
+   ],
+   "weekdays": [
+    55,
+    64
+   ],
+   "drafts_with_wrong_weekday": 4,
+   "drafts_with_leaked_instructions": 0,
+   "terminology": [
+    38,
+    42
+   ],
+   "proper_nouns": [
+    25,
+    36
+   ],
+   "drafts_missing_lines": 0,
+   "drafts_with_added_numbers": 0,
+   "drafts_with_added_links": 0,
+   "drafts_with_korean_left": 0,
+   "drafts_with_stray_chinese": 0,
+   "fact_errors": 5,
+   "drafts_without_any_measured_error": 21,
+   "passed_production_checks": 13,
+   "checks_flagged_and_error": 5,
+   "checks_flagged_no_error": 8,
+   "checks_missed_error": 0,
+   "warning_types": {
+    "number": 19,
+    "number_added": 2,
+    "table_rows": 1,
+    "url": 1,
+    "url_added": 1
+   },
+   "drafts_per_warning_type": {
+    "number": 10,
+    "table_rows": 1,
+    "number_added": 1,
+    "url_added": 1,
+    "url": 1
+   },
+   "seconds_median": 3.3,
+   "seconds_p95": 6.04,
+   "seconds_max": 6.76,
+   "input_tokens": 15394,
+   "output_tokens": 11332,
+   "repairs": 0
+  },
+  "all": {
+   "drafts": 52,
+   "dates": [
+    138,
+    138
+   ],
+   "times": [
+    64,
+    66
+   ],
+   "money": [
+    24,
+    24
+   ],
+   "links": [
+    29,
+    30
+   ],
+   "weekdays": [
+    119,
+    134
+   ],
+   "drafts_with_wrong_weekday": 9,
+   "drafts_with_leaked_instructions": 0,
+   "terminology": [
+    74,
+    84
+   ],
+   "proper_nouns": [
+    48,
+    72
+   ],
+   "drafts_missing_lines": 1,
+   "drafts_with_added_numbers": 0,
+   "drafts_with_added_links": 0,
+   "drafts_with_korean_left": 0,
+   "drafts_with_stray_chinese": 0,
+   "fact_errors": 11,
+   "drafts_without_any_measured_error": 41,
+   "passed_production_checks": 27,
+   "checks_flagged_and_error": 11,
+   "checks_flagged_no_error": 14,
+   "checks_missed_error": 0,
+   "warning_types": {
+    "number": 37,
+    "table_rows": 2,
+    "number_added": 2,
+    "url": 2,
+    "missing_sections": 1,
+    "url_added": 1
+   },
+   "drafts_per_warning_type": {
+    "number": 20,
+    "table_rows": 2,
+    "url": 2,
+    "number_added": 1,
+    "missing_sections": 1,
+    "url_added": 1
+   },
+   "seconds_median": 2.9,
+   "seconds_p95": 6.04,
+   "seconds_max": 6.76,
+   "input_tokens": 30788,
+   "output_tokens": 21363,
+   "repairs": 0
+  }
+ }
+}

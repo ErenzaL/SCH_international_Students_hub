@@ -44,10 +44,11 @@ PLAIN_NAMES = {"ko": "Korean", "en": "English", "id": "Indonesian", "vi": "Vietn
 
 
 def prompt_style(llm: Any, style: str = "auto") -> str:
-    """shared = the Hub's prompts with hints and repairs; native = the model's own prompt (TranslateGemma)."""
-    if style in ("shared", "native"):
-        return style
-    return "native" if str(getattr(llm, "model", "")).lower().startswith("translategemma") else "shared"
+    """shared = the Hub's prompts with hints and repairs; native = TranslateGemma's own prompt, no hints or repairs.
+    auto = shared: measured on 26 real notices (en + id), the shared prompts were better for TranslateGemma too (12B: 50 of 52
+    drafts without a measured error vs 42 native; docs/research/TRANSLATION-EVALUATION.md). native stays for experiments."""
+    _ = llm
+    return "native" if style == "native" else "shared"
 
 
 class Cancelled(Exception):

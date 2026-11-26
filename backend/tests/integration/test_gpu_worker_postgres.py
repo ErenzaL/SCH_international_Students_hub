@@ -60,7 +60,7 @@ def test_lease_complete_and_idempotency(it: IT):
 
 def test_lease_expiry_release_cancel_and_revocation(it: IT):
     aid = publish(it)
-    jid = request(it, aid, "vi")
+    jid = request(it, aid, "en")
     job = claim(it)
     sql(f"update public.ingestion_jobs set lease_expires_at = now() - interval '1 second' where id = '{jid}'")
     second = claim(it)
@@ -95,8 +95,9 @@ def test_mixed_workload_in_worker_mode(it: IT):
     worker = svc.gpu.create_worker(f"mix-{uuid.uuid4().hex[:8]}", it.users["admin"])
     it.worker = worker  # type: ignore[attr-defined]
     call(it, "/claim", lease_token=str(uuid.uuid4()))
-    aid = publish(it)
-    gpu_jobs = [request(it, aid, lang) for lang in ("en", "vi", "id")]                # older than everything below
+    aid, aid2 = publish(it), publish(it)
+    # Release 1: from Korean only en / id drafts, so the third GPU job comes from a second announcement
+    gpu_jobs = [request(it, aid, "en"), request(it, aid, "id"), request(it, aid2, "en")]   # older than everything below
     running = claim(it)
     it.settings.job_execution, it.settings.job_poll_seconds = "worker", 0.2
     svc.doc_translations.llm = svc.announcement_translator.llm = ScriptedLLMProvider(FakeTranslator(), model="own-1")
@@ -178,10 +179,10 @@ def test_parallel_claims_never_share_a_job(it: IT):
 def test_sweep_and_routing_on_the_real_database(it: IT):
     svc = it.app.state.services
     aid = publish(it)
-    jid = request(it, aid, "zh-CN")
+    jid = request(it, aid, "id")
     sql(f"update public.ingestion_jobs set created_at = now() - interval '3 days' where id = '{jid}'")
     assert svc.gpu.sweep()["failed"] == 1
     assert sql(f"select status || ':' || error_code from public.ingestion_jobs where id = '{jid}'") == "failed:gpu_worker_unavailable"
     sql("update public.gpu_workers set last_seen_at = now() - interval '2 days'")
-    jid = request(it, aid, "zh-CN")
+    jid = request(it, aid, "id")
     assert sql(f"select executor from public.ingestion_jobs where id = '{jid}'") == "local"

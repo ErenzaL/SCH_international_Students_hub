@@ -186,6 +186,9 @@ def main() -> None:
             r = run_mode(mode, svc, ids, a.ask, a.language, llm)
             print(f"\n===== {mode}  ({r['ms']} ms, evidence {r['evidence']}, cited {r['cited']}, {r['gen'].get('fallback_reason', '')})\n{r['answer']}")
             continue
+        from app.services.llm.usage import usage
+
+        usage.reset()                    # provider-reported tokens of this mode only (for the cost model)
         rows, answers = [], []
         for rec in Q:
             if a.only and rec[0] not in a.only.split(","):
@@ -200,7 +203,15 @@ def main() -> None:
                     print(f"  MISS {mode} {rec[0]} {lang} [{s.get('reason') or res['evidence']}] docs={res['docs'][:3]} :: {res['answer'][:140]!r}", flush=True)
         per = {lg: summary([r for r in rows if r["lang"] == lg]) for lg in a.langs.split(",")}
         kinds = {k: summary([r for r in rows if r["kind"] == k])["correct"] for k in sorted({r["kind"] for r in rows})}
-        out["modes"][mode] = dict(overall=summary(rows), per_language=per, per_kind=kinds, answers=answers)
+        snap = usage.snapshot()
+        tok = {k: sum(c.get(k, 0) for c in snap["tokens"].values()) for k in ("input", "output", "thinking")}
+        n = max(1, len(rows))
+        cost_basis = dict(answers=len(rows), model_attempts=sum(snap["attempts"].values()),
+                          attempts_per_answer=round(sum(snap["attempts"].values()) / n, 2),
+                          input_tokens_per_answer=round(tok["input"] / n), output_tokens_per_answer=round(tok["output"] / n),
+                          thinking_tokens_per_answer=round(tok["thinking"] / n), by_purpose=snap["by_purpose"],
+                          note="token counts as reported by the local model's tokenizer (Gemini counts differ somewhat)")
+        out["modes"][mode] = dict(overall=summary(rows), per_language=per, per_kind=kinds, cost_basis=cost_basis, answers=answers)
         print(f"\n{mode}: {json.dumps(summary(rows))}\n  by language: " + ", ".join(f"{k} {v['correct']}" for k, v in per.items()) + f"\n  by kind: {kinds}", flush=True)
     if a.json:
         a.json.parent.mkdir(parents=True, exist_ok=True)

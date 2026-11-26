@@ -49,8 +49,8 @@ def test_publication_creates_a_machine_translation_in_the_real_database(it: IT):
     assert row == "machine_draft|scripted|translate-1|0", row
     assert sql(f"select count(*) from public.ingestion_jobs where job_type = 'translate_announcement' "
                f"and payload->>'announcement_id' = '{ann['id']}' and status = 'succeeded'") == "1"
-    tr = it.client.get(f"/api/v1/announcements/{ann['id']}", params={"lang": "en"}).json()["translation"]
-    assert tr["status"] == "machine" and tr["high_risk"] is True
+    # Release 1: unreviewed machine drafts of announcements are never public (PUBLIC_MACHINE_TRANSLATIONS is ignored for them)
+    assert it.client.get(f"/api/v1/announcements/{ann['id']}", params={"lang": "en"}).json()["translation"] is None
     # the original is untouched
     assert sql(f"select count(*) from public.document_versions where document_id = '{ann['document_id']}' "
                f"and extracted_text like '장학금 신청 기간은%'") == "1"

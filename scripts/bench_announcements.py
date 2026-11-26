@@ -329,6 +329,9 @@ def main() -> int:
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--no-repair", action="store_true")
     ap.add_argument("--rescore", action="store_true")
+    ap.add_argument("--style", choices=["auto", "shared", "native"], default="auto",
+                    help="prompt style of the GPU worker (native = TranslateGemma's own prompt, no hints or repairs)")
+    ap.add_argument("--model", default="", help="Ollama model (default: OLLAMA_MODEL / the worker's default)")
     a = ap.parse_args()
     corpus = json.loads((CACHE / f"announcement_corpus{'_' + a.set if a.set else ''}.json").read_text())[: a.limit or None]
     path = CACHE / f"announcement_outputs_{a.name}.json"
@@ -338,7 +341,7 @@ def main() -> int:
         saved = json.loads(path.read_text())
         rows, gpu_info = saved["rows"], saved["gpu"]
     else:
-        llm = OllamaProvider(s.ollama_model, base_url=s.ollama_base_url, num_ctx=s.ollama_num_ctx,
+        llm = OllamaProvider(a.model or s.ollama_model, base_url=s.ollama_base_url, num_ctx=s.ollama_num_ctx,
                              temperature=s.ollama_temperature, seed=a.seed, job_timeout=180, request_timeout=180)
         llm.complete("Reply OK.", "OK?", max_tokens=16)
         gpu = Gpu()
@@ -350,7 +353,7 @@ def main() -> int:
                            chunk_chars=s.gpu_worker_chunk_chars, max_source_chars=s.gpu_worker_max_source_chars)
                 t0 = time.perf_counter()
                 try:
-                    out, model = generate(llm, job, threading.Event(), **({"repair": False} if a.no_repair else {}))
+                    out, model = generate(llm, job, threading.Event(), repair=not a.no_repair, style=a.style)
                 except LLMError as exc:
                     rows.append(dict(id=src["id"], lang=lang, error=exc.code))
                     continue
@@ -400,7 +403,8 @@ def main() -> int:
             seconds_p95=sorted(r["seconds"] for r in g)[max(0, int(len(g) * 0.95) - 1)], seconds_max=max(r["seconds"] for r in g),
             input_tokens=sum(r["input_tokens"] for r in g), output_tokens=sum(r["output_tokens"] for r in g),
             repairs=sum(r["repairs"] for r in g))
-    res = dict(name=a.name, at=datetime.now(UTC).isoformat(timespec="seconds"), model=s.ollama_model, seed=a.seed,
+    res = dict(name=a.name, at=datetime.now(UTC).isoformat(timespec="seconds"), model=a.model or s.ollama_model,
+               style=a.style, repair=not a.no_repair, seed=a.seed,
                temperature=s.ollama_temperature, num_ctx=s.ollama_num_ctx, notices=len(corpus), errors=len(rows) - len(good),
                gpu=gpu_info, results=table)
     (RESULTS / f"announcements_{a.name}.json").write_text(json.dumps(res, indent=1, ensure_ascii=False) + "\n")
