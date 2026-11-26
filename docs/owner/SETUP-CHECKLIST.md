@@ -20,15 +20,15 @@ schedules, GPU worker and automatic translation are off by default; the worker, 
 | A7 | Make a backup and test that it can be read | none exists | [SUPABASE-SETUP.md](SUPABASE-SETUP.md) §5 | You | DB password | `pg_restore -l` lists tables | no way back after data loss |
 | A8 | Ask the international office (content) and IT (GPU computer) for consent | their material, their machine | letter; [gpu-gateway-assessment.md](../gpu-gateway-assessment.md) | You | – | written answer | conflict with the university |
 
-## B. Before hosted staging (zero cost, about 45 minutes; full runbook: [STAGING.md](STAGING.md))
+## B. Staging without a third Supabase project (zero cost; full runbook: [STAGING.md](STAGING.md))
 
 | # | Action | Why | Where / command | Who | Permission | Expected → verify | Risk if skipped |
 |---|---|---|---|---|---|---|---|
-| B1 | Create a second **free** Supabase project `sch-hub-staging` (Tokyo) | hosted sign-in, rules, storage are untested | supabase.com → New project | You | account | project ready; Free plan allows 2 active projects | surprises in production |
-| B2 | Approve and push the branch `hub-staging` (`git push origin staging/hosted-checks:refs/heads/hub-staging`) | the staging services build from it; deploys nothing else | university server | You, or Claude after your approval | **your written approval** | branch visible on GitHub; no workflow runs | no hosted test |
-| B3 | Run `scripts/staging_bootstrap.py all` | schema, synthetic seed, six made-up accounts, `doctor` | your computer, on the pushed commit; asks for the staging connection string and keys | You (Claude wrote and tested it) | staging only; refuses production keys, addresses and real domains | 6 accounts, candidate sources off | – |
-| B4 | Create `sch-hub-api-staging` and `sch-hub-web-staging`, **Free**, branch `hub-staging`, Auto-Deploy off, previews off, staging variables only | a hosted copy | Render → New → Web Service, tables in STAGING.md §4 | You | **your approval** | both services live, yellow banner | – |
-| B5 | `doctor`, `staging_memory_check.py`, Render Metrics/Events, optional `e2e_full.mjs` | proves the candidate and the 512 MB fit on hosted services | STAGING.md §5 | You (Claude can interpret the report) | staging accounts | no FAIL; memory under about 470 MB; no restart | a 512 MB problem shows up first in production |
+| B1 | Nothing to create in Supabase: both free projects stay as they are (no pause, delete, transfer or upgrade) | the account has its two free projects | – | – | – | production untouched | – |
+| B2 | On your MacBook: install Colima, Docker CLI, Supabase CLI, psql, Python 3.11, Node 22 (and optionally Ollama + Qwen) | real Supabase Auth, Storage and RLS locally (tier L2) | STAGING.md §3 | You | your computer | `scripts/local_supabase.sh check` says ok | Auth/Storage only tested with stand-ins |
+| B3 | Copy the code as a git bundle, then `local_supabase.sh up`, `api`, `web`, `test`, `e2e` | the full local staging on the real Supabase stack, loopback only | STAGING.md §4 | You (Claude can interpret the output) | your computer only | no FAIL; send the outputs | – |
+| B4 | **Approval:** push `hub-staging` and create the free Render service `sch-hub-staging-probe` (no database, no secrets) | the real 512 MB / 0.1 CPU limit (tier R) | STAGING.md §5 | You, or Claude after your approval | **your written approval** | the probe answers `/health` | a 512 MB problem shows up first in production |
+| B5 | `memory_probe_info.py` + `staging_memory_check.py` against the probe; Render Metrics and Events | memory, restarts, out-of-memory kills, responsiveness on real Render | STAGING.md §5 | You | probe key | no FAIL; memory under about 470 MB; no restart | – |
 
 ## C. Before Release A
 

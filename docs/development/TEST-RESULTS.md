@@ -1,4 +1,24 @@
-# Test results (2026-11-25, branch `integration/release-candidate`)
+# Test results
+
+## 2026-11-26, branch `staging/local-first`: tier L1 of [STAGING.md](../owner/STAGING.md) (no third Supabase project)
+
+Everything on the university server, loopback only, synthetic data only. The official websites are replaced by `scripts/synthetic_web.py`
+(same markup as the real boards, invented notices), so no journey read a real website.
+
+| Check | Result |
+|---|---|
+| `cd backend && pytest -q` | **991 passed**, 47 skipped |
+| SQL behaviour tests on PostgreSQL 17 + pgvector, all migrations | **13 of 13** |
+| integration tests on real PostgreSQL + PostgREST (RLS, RPCs, roles) | **94 passed**, 9 skipped (live Gemini and live websites, on purpose) |
+| `e2e_full.mjs`, every journey: setup, announcement, pdf, visa, chats, career, scholarship, gpu, escalation, admin, office, autonomy (real Qwen on the GPU, GPU worker process, synthetic websites) | **156 of 158**; both failures were one selector of the new `pdf` journey (two "Open review" links); fixed and rerun: **8 of 8** |
+| local Supabase stack (tier L2) | not run here: no Docker access on this server; runs on the MacBook (`scripts/local_supabase.sh`) |
+
+The journeys cover: login of all six roles; RAG answers with sources in five languages (12 chat desks); all 14 agents' workspaces; discovery,
+review and approval for notices, jobs and scholarships; scheduled agents that start only when an administrator enables them; PDF upload →
+extraction by the worker → review → approval → Korean search → an English answer from Qwen quoting the PDF; GPU translation draft →
+language review → public, revocation and cancel; private escalation; every admin page and the role refusals; phone and keyboard use.
+
+## 2026-11-25, branch `integration/release-candidate`
 
 ## Mocked (no real service)
 
