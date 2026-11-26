@@ -42,6 +42,26 @@ The `slow_peak` runs had the limit lifted to 4,096 MB so the true peak was recor
 databases. Times at 0.1 CPU are what users of the free plan will see: a search after the model is loaded takes 0.6–1.7 s; the first search after
 a wake-up takes 13–16 s extra (model load), on top of Render's wake-up of about a minute.
 
+## The Render memory probe, run locally (2026-11-26)
+
+`backend/app/memory_probe.py` is what tier R of [STAGING.md](../owner/STAGING.md) deploys on Render instead of a staging database: the real API
+in worker mode with an in-memory store. Before asking for a Render service it ran here under `scripts/render_like.py` with the **real limits
+(512 MB kill, 0.1 CPU)**, `MALLOC_ARENA_MAX=2`, and the full hosted check (`scripts/staging_memory_check.py`: 3 MB and 9 MB synthetic Korean
+PDFs and 12 synthetic texts uploaded at once, approved, indexed). Results: `scripts/benchmarks/results/staging_memory_check_probe_free.json`,
+`render_like_probe_free.server.json`.
+
+| Check | Result |
+|---|---|
+| killed by the 512 MB limit | **no** (peak 403 MB PSS / 413 MB RSS of the whole process tree, PDF child included) |
+| jobs | 16 of 16 succeeded, never more than 1 at a time |
+| `/health` while working | 0 failures in 115, p95 0.28 s, worst 0.54 s |
+| searches while working | 0 failures in 57, p95 5.3 s, median 2.4 s |
+| restarts, stuck work | none |
+| memory after 3 minutes idle | 376 MB (37 % of the rise given back: WARN). Expected for the probe: it keeps every uploaded file, chunk and vector in its own memory; the real API keeps them in Supabase |
+| duration | 45 minutes for the whole workload at 0.1 CPU |
+
+So the probe itself fits the free instance with a margin of about 100 MB, and a Render run measures the real limit without a database.
+
 ## Method and its limits
 
 `scripts/render_like.py` runs a command with a memory and CPU budget, without root or containers (none are available on the test computer):
