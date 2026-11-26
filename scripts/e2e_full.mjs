@@ -221,6 +221,9 @@ J.career = async () => {   // Daniel: live board -> candidate -> approval -> vis
   const st = await context("student2");
   await desk(st.page, "career");
   check("the job is invisible before approval", !(await st.page.getByTestId("office-panel").innerText()).includes(job.title.slice(4, 18)));
+  const sites = st.page.getByTestId("career-sites").locator("a[data-connected=false]");
+  await st.page.getByTestId("career-sites").waitFor({ timeout: 15000 }).catch(() => {});
+  check("Daniel lists the official job sites as links that are not connected", (await sites.count()) === 7 && /Not connected/.test(await st.page.getByTestId("career-sites").innerText()), String(await sites.count()));
   await api("admin", "POST", `/admin/versions/${doc.pending_version_id ?? (await api("admin", "GET", `/admin/documents/${doc.id}`)).data.pending_version.id}/approve`, {});
   await until(async () => (await api(null, "GET", `/knowledge/documents/${doc.id}`)).status === 200, 60);
   const listed = (await api(null, "POST", "/agents/career/tools", { tool: "opportunity_search", params: { kind: "job", include_closed: true } })).data.result.items;
@@ -384,6 +387,19 @@ J.admin = async () => {   // every admin page, roles, pause, storage
 
 J.office = async () => {   // all 14 characters, languages, phone, keyboard
   const { page, ctx } = await context("visitor");
+  // the wall must differ visibly from the floor (Release 1 visual change): pastel blue gradient vs. warm planks
+  await page.goto(`${WEB}/ai-office`);
+  await page.getByTestId("office-wall").waitFor({ timeout: 20000 });
+  const colours = await page.evaluate(() => {
+    const stops = [...document.querySelectorAll("#office-wall stop")].map((x) => x.getAttribute("stop-color"));
+    const plank = document.querySelector("#office-planks rect")?.getAttribute("fill");
+    return { stops, plank };
+  });
+  const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const blueish = colours.stops.every((c) => { const [r, , b] = hex(c); return b > r; });
+  const warm = (() => { const [r, , b] = hex(colours.plank); return r > b; })();
+  check("office wall is a cool colour and the floor a warm one", blueish && warm, JSON.stringify(colours));
+  await shot(page, "office-wall-desktop");
   const ids = (await api(null, "GET", "/agents")).data.items.map((a) => [a.character_id, a.name]);
   for (const [id, name] of ids) {
     await desk(page, id);
@@ -400,6 +416,10 @@ J.office = async () => {   // all 14 characters, languages, phone, keyboard
   }
   await ctx.close();
   const m = await context("visitor", { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  await m.page.goto(`${WEB}/ai-office`);
+  await m.page.getByTestId("office-wall").waitFor({ timeout: 20000 }).catch(() => {});
+  await sleep(800);
+  await shot(m.page, "office-wall-phone");
   for (const p of ["/", "/knowledge", "/announcements", "/assistant", "/ai-office", "/ai-office?desk=opportunities", "/ai-office?desk=visa", "/login"]) {
     await m.page.goto(`${WEB}${p}`);
     await sleep(1200);
