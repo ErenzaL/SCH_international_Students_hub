@@ -1,0 +1,421 @@
+{
+ "dataset": "second blind check (hub documents round)",
+ "created": "2026-11-26",
+ "provenance": "Written by an AI assistant from document titles only, committed before the hub-document experiment, evaluated once at its end. Not reviewed by a human.",
+ "records": [
+  {
+   "question_id": "G01-ko",
+   "language": "ko",
+   "question": "외국인등록증 발급 신청은 어디에서 하나요?",
+   "expected_document_ids": [
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+   ],
+   "primary_document_id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+  },
+  {
+   "question_id": "G01-id",
+   "language": "id",
+   "question": "Di mana saya mengajukan kartu registrasi orang asing?",
+   "expected_document_ids": [
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+   ],
+   "primary_document_id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+  },
+  {
+   "question_id": "G01-zh-CN",
+   "language": "zh-CN",
+   "question": "在哪里申请外国人登录证？",
+   "expected_document_ids": [
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+   ],
+   "primary_document_id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+  },
+  {
+   "question_id": "G02-ko",
+   "language": "ko",
+   "question": "주소가 바뀌었는데 신고를 안 하면 벌금이 있나요?",
+   "expected_document_ids": [
+    "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+   ],
+   "primary_document_id": "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+  },
+  {
+   "question_id": "G02-id",
+   "language": "id",
+   "question": "Apakah ada denda jika tidak melaporkan perubahan alamat?",
+   "expected_document_ids": [
+    "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+   ],
+   "primary_document_id": "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+  },
+  {
+   "question_id": "G02-zh-CN",
+   "language": "zh-CN",
+   "question": "地址变更不申报会被罚款吗？",
+   "expected_document_ids": [
+    "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+   ],
+   "primary_document_id": "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+  },
+  {
+   "question_id": "G03-ko",
+   "language": "ko",
+   "question": "유학생 건강보험은 언제부터 자동 가입되나요?",
+   "expected_document_ids": [
+    "25af9ce5-586d-4a1b-80ee-d30594ead06f"
+   ],
+   "primary_document_id": "25af9ce5-586d-4a1b-80ee-d30594ead06f"
+  },
+  {
+   "question_id": "G03-id",
+   "language": "id",
+   "question": "Kapan mahasiswa internasional otomatis terdaftar asuransi kesehatan?",
+   "expected_document_ids": [
+    "25af9ce5-586d-4a1b-80ee-d30594ead06f"
+   ],
+   "primary_document_id": "25af9ce5-586d-4a1b-80ee-d30594ead06f"
+  },
+  {
+   "question_id": "G03-zh-CN",
+   "language": "zh-CN",
+   "question": "留学生从什么时候自动加入健康保险？",
+   "expected_document_ids": [
+    "25af9ce5-586d-4a1b-80ee-d30594ead06f"
+   ],
+   "primary_document_id": "25af9ce5-586d-4a1b-80ee-d30594ead06f"
+  },
+  {
+   "question_id": "G04-ko",
+   "language": "ko",
+   "question": "한국에서 약국과 병원은 어떻게 다른가요?",
+   "expected_document_ids": [
+    "744fdb55-6239-47ca-ab92-18eafb77d677"
+   ],
+   "primary_document_id": "744fdb55-6239-47ca-ab92-18eafb77d677"
+  },
+  {
+   "question_id": "G04-id",
+   "language": "id",
+   "question": "Apa bedanya apotek dan rumah sakit di Korea?",
+   "expected_document_ids": [
+    "744fdb55-6239-47ca-ab92-18eafb77d677"
+   ],
+   "primary_document_id": "744fdb55-6239-47ca-ab92-18eafb77d677"
+  },
+  {
+   "question_id": "G04-zh-CN",
+   "language": "zh-CN",
+   "question": "在韩国药店和医院有什么区别？",
+   "expected_document_ids": [
+    "744fdb55-6239-47ca-ab92-18eafb77d677"
+   ],
+   "primary_document_id": "744fdb55-6239-47ca-ab92-18eafb77d677"
+  },
+  {
+   "question_id": "G05-ko",
+   "language": "ko",
+   "question": "재입국 허가가 면제되는 경우는?",
+   "expected_document_ids": [
+    "491d4c3f-7bf9-4961-9402-90c5412c7b5c"
+   ],
+   "primary_document_id": "491d4c3f-7bf9-4961-9402-90c5412c7b5c"
+  },
+  {
+   "question_id": "G05-id",
+   "language": "id",
+   "question": "Kapan izin masuk kembali tidak diperlukan?",
+   "expected_document_ids": [
+    "491d4c3f-7bf9-4961-9402-90c5412c7b5c"
+   ],
+   "primary_document_id": "491d4c3f-7bf9-4961-9402-90c5412c7b5c"
+  },
+  {
+   "question_id": "G05-zh-CN",
+   "language": "zh-CN",
+   "question": "什么情况下免除再入境许可？",
+   "expected_document_ids": [
+    "491d4c3f-7bf9-4961-9402-90c5412c7b5c"
+   ],
+   "primary_document_id": "491d4c3f-7bf9-4961-9402-90c5412c7b5c"
+  },
+  {
+   "question_id": "G06-ko",
+   "language": "ko",
+   "question": "D-2 비자 연장 신청 수수료는 얼마인가요?",
+   "expected_document_ids": [
+    "4650e940-a12f-464c-be4a-285c607e88ef"
+   ],
+   "primary_document_id": "4650e940-a12f-464c-be4a-285c607e88ef"
+  },
+  {
+   "question_id": "G06-id",
+   "language": "id",
+   "question": "Berapa biaya perpanjangan visa D-2?",
+   "expected_document_ids": [
+    "4650e940-a12f-464c-be4a-285c607e88ef"
+   ],
+   "primary_document_id": "4650e940-a12f-464c-be4a-285c607e88ef"
+  },
+  {
+   "question_id": "G06-zh-CN",
+   "language": "zh-CN",
+   "question": "D-2签证延期手续费是多少？",
+   "expected_document_ids": [
+    "4650e940-a12f-464c-be4a-285c607e88ef"
+   ],
+   "primary_document_id": "4650e940-a12f-464c-be4a-285c607e88ef"
+  },
+  {
+   "question_id": "G07-ko",
+   "language": "ko",
+   "question": "유학 비자를 취업 비자로 바꿀 수 있나요?",
+   "expected_document_ids": [
+    "a37644b0-53e5-48ee-b861-9876e2c88195",
+    "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f"
+   ],
+   "primary_document_id": "a37644b0-53e5-48ee-b861-9876e2c88195"
+  },
+  {
+   "question_id": "G07-id",
+   "language": "id",
+   "question": "Bisakah visa pelajar diubah menjadi visa kerja?",
+   "expected_document_ids": [
+    "a37644b0-53e5-48ee-b861-9876e2c88195",
+    "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f"
+   ],
+   "primary_document_id": "a37644b0-53e5-48ee-b861-9876e2c88195"
+  },
+  {
+   "question_id": "G07-zh-CN",
+   "language": "zh-CN",
+   "question": "留学签证可以换成工作签证吗？",
+   "expected_document_ids": [
+    "a37644b0-53e5-48ee-b861-9876e2c88195",
+    "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f"
+   ],
+   "primary_document_id": "a37644b0-53e5-48ee-b861-9876e2c88195"
+  },
+  {
+   "question_id": "G08-ko",
+   "language": "ko",
+   "question": "TOPIK 성적은 몇 년 동안 유효한가요?",
+   "expected_document_ids": [
+    "b3f79749-2756-4ae1-8bc0-31662164d333"
+   ],
+   "primary_document_id": "b3f79749-2756-4ae1-8bc0-31662164d333"
+  },
+  {
+   "question_id": "G08-id",
+   "language": "id",
+   "question": "Berapa lama nilai TOPIK berlaku?",
+   "expected_document_ids": [
+    "b3f79749-2756-4ae1-8bc0-31662164d333"
+   ],
+   "primary_document_id": "b3f79749-2756-4ae1-8bc0-31662164d333"
+  },
+  {
+   "question_id": "G08-zh-CN",
+   "language": "zh-CN",
+   "question": "TOPIK成绩有效期是几年？",
+   "expected_document_ids": [
+    "b3f79749-2756-4ae1-8bc0-31662164d333"
+   ],
+   "primary_document_id": "b3f79749-2756-4ae1-8bc0-31662164d333"
+  },
+  {
+   "question_id": "G09-ko",
+   "language": "ko",
+   "question": "한국에서 월세와 식비는 대략 얼마인가요?",
+   "expected_document_ids": [
+    "afb12361-1b28-46b5-8c88-ff33e1fd4c59"
+   ],
+   "primary_document_id": "afb12361-1b28-46b5-8c88-ff33e1fd4c59"
+  },
+  {
+   "question_id": "G09-id",
+   "language": "id",
+   "question": "Berapa kira-kira biaya sewa dan makan di Korea?",
+   "expected_document_ids": [
+    "afb12361-1b28-46b5-8c88-ff33e1fd4c59"
+   ],
+   "primary_document_id": "afb12361-1b28-46b5-8c88-ff33e1fd4c59"
+  },
+  {
+   "question_id": "G09-zh-CN",
+   "language": "zh-CN",
+   "question": "在韩国房租和餐费大概多少？",
+   "expected_document_ids": [
+    "afb12361-1b28-46b5-8c88-ff33e1fd4c59"
+   ],
+   "primary_document_id": "afb12361-1b28-46b5-8c88-ff33e1fd4c59"
+  },
+  {
+   "question_id": "G10-ko",
+   "language": "ko",
+   "question": "수강신청은 몇 학점까지 할 수 있나요?",
+   "expected_document_ids": [
+    "d032674b-e938-43dd-a21f-f4b79dcab42f",
+    "ae1cbab7-4248-4536-b725-847c7a61cd64"
+   ],
+   "primary_document_id": "d032674b-e938-43dd-a21f-f4b79dcab42f"
+  },
+  {
+   "question_id": "G10-id",
+   "language": "id",
+   "question": "Berapa SKS maksimal saat pendaftaran mata kuliah?",
+   "expected_document_ids": [
+    "d032674b-e938-43dd-a21f-f4b79dcab42f",
+    "ae1cbab7-4248-4536-b725-847c7a61cd64"
+   ],
+   "primary_document_id": "d032674b-e938-43dd-a21f-f4b79dcab42f"
+  },
+  {
+   "question_id": "G10-zh-CN",
+   "language": "zh-CN",
+   "question": "选课最多可以选多少学分？",
+   "expected_document_ids": [
+    "d032674b-e938-43dd-a21f-f4b79dcab42f",
+    "ae1cbab7-4248-4536-b725-847c7a61cd64"
+   ],
+   "primary_document_id": "d032674b-e938-43dd-a21f-f4b79dcab42f"
+  },
+  {
+   "question_id": "G11-ko",
+   "language": "ko",
+   "question": "생활관 퇴사할 때 청소 점검을 받아야 하나요?",
+   "expected_document_ids": [
+    "7c5799ad-a2e4-4044-99ad-2d6882a9a74f"
+   ],
+   "primary_document_id": "7c5799ad-a2e4-4044-99ad-2d6882a9a74f"
+  },
+  {
+   "question_id": "G11-id",
+   "language": "id",
+   "question": "Apakah harus ada pemeriksaan kebersihan saat keluar asrama?",
+   "expected_document_ids": [
+    "7c5799ad-a2e4-4044-99ad-2d6882a9a74f"
+   ],
+   "primary_document_id": "7c5799ad-a2e4-4044-99ad-2d6882a9a74f"
+  },
+  {
+   "question_id": "G11-zh-CN",
+   "language": "zh-CN",
+   "question": "退宿时需要检查卫生吗？",
+   "expected_document_ids": [
+    "7c5799ad-a2e4-4044-99ad-2d6882a9a74f"
+   ],
+   "primary_document_id": "7c5799ad-a2e4-4044-99ad-2d6882a9a74f"
+  },
+  {
+   "question_id": "G12-ko",
+   "language": "ko",
+   "question": "교외 짐 보관 서비스는 어떻게 이용하나요?",
+   "expected_document_ids": [
+    "b8a53e42-8fd9-4ada-a357-95be2bb822bf"
+   ],
+   "primary_document_id": "b8a53e42-8fd9-4ada-a357-95be2bb822bf"
+  },
+  {
+   "question_id": "G12-id",
+   "language": "id",
+   "question": "Bagaimana cara memakai layanan penitipan barang di luar kampus?",
+   "expected_document_ids": [
+    "b8a53e42-8fd9-4ada-a357-95be2bb822bf"
+   ],
+   "primary_document_id": "b8a53e42-8fd9-4ada-a357-95be2bb822bf"
+  },
+  {
+   "question_id": "G12-zh-CN",
+   "language": "zh-CN",
+   "question": "校外行李寄存服务怎么用？",
+   "expected_document_ids": [
+    "b8a53e42-8fd9-4ada-a357-95be2bb822bf"
+   ],
+   "primary_document_id": "b8a53e42-8fd9-4ada-a357-95be2bb822bf"
+  },
+  {
+   "question_id": "G13-ko",
+   "language": "ko",
+   "question": "유학생 시간제 취업 허가 없이 일하면 강제 출국되나요?",
+   "expected_document_ids": [
+    "0c3a24ef-434e-4ce9-a78d-a747e19335c2",
+    "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+   ],
+   "primary_document_id": "0c3a24ef-434e-4ce9-a78d-a747e19335c2"
+  },
+  {
+   "question_id": "G13-id",
+   "language": "id",
+   "question": "Apakah bisa dideportasi jika bekerja tanpa izin kerja paruh waktu?",
+   "expected_document_ids": [
+    "0c3a24ef-434e-4ce9-a78d-a747e19335c2",
+    "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+   ],
+   "primary_document_id": "0c3a24ef-434e-4ce9-a78d-a747e19335c2"
+  },
+  {
+   "question_id": "G13-zh-CN",
+   "language": "zh-CN",
+   "question": "没有打工许可工作会被驱逐出境吗？",
+   "expected_document_ids": [
+    "0c3a24ef-434e-4ce9-a78d-a747e19335c2",
+    "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147"
+   ],
+   "primary_document_id": "0c3a24ef-434e-4ce9-a78d-a747e19335c2"
+  },
+  {
+   "question_id": "G14-ko",
+   "language": "ko",
+   "question": "영문 성명을 변경하려면 어떤 서류가 필요한가요?",
+   "expected_document_ids": [
+    "8ba959a0-d078-4d76-97bb-abde75a0e003"
+   ],
+   "primary_document_id": "8ba959a0-d078-4d76-97bb-abde75a0e003"
+  },
+  {
+   "question_id": "G14-id",
+   "language": "id",
+   "question": "Dokumen apa yang dibutuhkan untuk mengubah nama dalam bahasa Inggris?",
+   "expected_document_ids": [
+    "8ba959a0-d078-4d76-97bb-abde75a0e003"
+   ],
+   "primary_document_id": "8ba959a0-d078-4d76-97bb-abde75a0e003"
+  },
+  {
+   "question_id": "G14-zh-CN",
+   "language": "zh-CN",
+   "question": "更改英文姓名需要什么材料？",
+   "expected_document_ids": [
+    "8ba959a0-d078-4d76-97bb-abde75a0e003"
+   ],
+   "primary_document_id": "8ba959a0-d078-4d76-97bb-abde75a0e003"
+  },
+  {
+   "question_id": "G15-ko",
+   "language": "ko",
+   "question": "한국의 대학원 과정은 어떻게 나뉘나요?",
+   "expected_document_ids": [
+    "7df6e287-15fa-499c-a181-1669bcb04cb0"
+   ],
+   "primary_document_id": "7df6e287-15fa-499c-a181-1669bcb04cb0"
+  },
+  {
+   "question_id": "G15-id",
+   "language": "id",
+   "question": "Bagaimana program pascasarjana di Korea dibagi?",
+   "expected_document_ids": [
+    "7df6e287-15fa-499c-a181-1669bcb04cb0"
+   ],
+   "primary_document_id": "7df6e287-15fa-499c-a181-1669bcb04cb0"
+  },
+  {
+   "question_id": "G15-zh-CN",
+   "language": "zh-CN",
+   "question": "韩国的研究生课程是怎么划分的？",
+   "expected_document_ids": [
+    "7df6e287-15fa-499c-a181-1669bcb04cb0"
+   ],
+   "primary_document_id": "7df6e287-15fa-499c-a181-1669bcb04cb0"
+  }
+ ]
+}
