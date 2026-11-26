@@ -28,6 +28,7 @@ from app.services.embeddings.base import EmbeddingError, EmbeddingProvider
 from app.services.retrieval import families
 from app.services.retrieval.bridge import bridge_queries
 from app.services.retrieval.query_analysis import (
+    _script,
     analyze,
     code_matches,
     find_codes,
@@ -103,6 +104,8 @@ class RetrievalService:
         self._cache_lock = threading.Lock()
         self._family_index: list[dict[str, Any]] | None = None
         self._family_at = 0.0
+        self._sizes: dict[str, int] | None = None
+        self._sizes_at = 0.0
 
     def search(self, query: str, *, language: str | None = None, category: str | None = None, top_k: int = 5,
                mode: str = "hybrid", scope: str | None = None, authority: list[str] | None = None,
@@ -115,6 +118,23 @@ class RetrievalService:
                                          max_per_document=max_per_document, bridge=bridge)
         return self._search_sql(query, category=category, top_k=top_k, mode="hybrid" if mode == "hybrid_legacy" else mode,
                                 scope=scope, authority=authority, label=mode)
+
+    def chunk_counts(self) -> dict[str, int]:
+        """Chunks per searchable version (cached like the family index); empty on any failure."""
+        now = time.monotonic()
+        with self._cache_lock:
+            if self._sizes is not None and now - self._sizes_at < FAMILY_TTL:
+                return self._sizes
+        out: dict[str, int] = {}
+        try:
+            rows, _ = self.store.select("searchable_chunks", Query(cols="version_id", limit=100000))
+            for r in rows:
+                out[r["version_id"]] = out.get(r["version_id"], 0) + 1
+        except Exception:  # noqa: BLE001
+            log.warning("chunk counts unavailable")
+        with self._cache_lock:
+            self._sizes, self._sizes_at = out, now
+        return out
 
     def family_index(self) -> list[dict[str, Any]]:
         """Titles of all published documents (a few hundred short rows, cached for FAMILY_TTL seconds): finds a newer
@@ -264,6 +284,22 @@ class RetrievalService:
         lex_rank = {cid: i for i, cid in enumerate(
             sorted((cid for cid in cands if lex[cid][0] > 0),
                    key=lambda cid: (-lex[cid][0], -float(cands[cid].get("similarity") or 0.0), stable(cid))), 1)}
+        # a passage in ANOTHER script than the question whose title holds at least half of the question's glossary concepts was
+        # found by translation, not by chance (an English question, a Korean notice): ranked among such passages, counted like a
+        # bridge hit. Measured: English questions about Korean notices MRR 0.27 -> 0.88 (docs/development/KOREAN-RETRIEVAL.md)
+        qscript = _script(qa.normalized)
+        cross = {}
+        if s.retrieval_cross_script_weight > 0 and qscript in ("latin", "hangul", "han"):
+            # the concepts must be in the TITLE or section heading: a long guide mentions everything somewhere in its body
+            title_lex = lexical_scores(qa, {cid: f"{c.get('document_title') or ''}\n{c.get('heading') or ''}" for cid, c in cands.items()})
+            share = {cid: _concept_share(qa, title_lex[cid][1]) for cid in cands}
+            ranked = sorted((cid for cid in cands if share[cid] >= 0.5 and _script(texts[cid]) not in (qscript, "mixed")),
+                            key=lambda cid: (-share[cid], -lex[cid][0], stable(cid)))
+            cross = {cid: share[cid] / (k + i) for i, cid in enumerate(ranked, 1)}
+        # hub documents: a very long document has hundreds of chunks, so one of them is close to almost any question (the
+        # maximum of many noisy similarities). Its passages are scaled by (typical length / its length) ** beta.
+        sizes = self.chunk_counts() if s.retrieval_hub_beta > 0 else {}
+        typical = sorted(sizes.values())[len(sizes) // 2] if sizes else 0
         min_sim = s.retrieval_min_similarity
         scored: list[tuple[float, dict[str, Any], dict[str, Any]]] = []
         for cid, c in cands.items():
@@ -274,7 +310,7 @@ class RetrievalService:
             # the code itself is one of the weighted terms, so a passage that merely mentions "D-2" does not reach
             # 0.5 coverage on its own when the question asks about something else as well
             strong_lex = coverage >= 0.5
-            if sim is None and not strong_lex and not (cid in bridge_rank and coverage > 0):
+            if sim is None and not strong_lex and not (cid in bridge_rank and coverage > 0) and cid not in cross:
                 continue          # keyword-only overlap on weak/broad words is not evidence
             if sim is not None and min_sim and sim < min_sim and not strong_lex:
                 continue          # semantic-only match below the evidence threshold
@@ -282,11 +318,15 @@ class RetrievalService:
             if cid in lex_rank:
                 score += s.retrieval_keyword_weight * coverage / (k + lex_rank[cid])
             score += s.retrieval_bridge_weight * bridge_rank.get(cid, 0.0)
+            score += s.retrieval_cross_script_weight * cross.get(cid, 0.0)
             if exact and qa.codes:
                 score += s.retrieval_keyword_weight / (k + 1)
             mismatch = bool(qa.codes) and bool(codes_here) and not code_matches(qa.codes, codes_here)
             if mismatch:
                 score *= s.retrieval_code_mismatch_penalty
+            n = sizes.get(c.get("version_id"), 0)
+            if typical and n > typical:
+                score *= (typical / n) ** s.retrieval_hub_beta
             if c.get("authority_type") in ("official_government", "official_university"):
                 score += 1e-6     # tie-break toward official sources (as the SQL function does)
             row = dict(c, score=score, exact_match=exact,
@@ -326,6 +366,12 @@ class RetrievalService:
         return dict(query=query, results=results, retrieval=dict(
             mode=mode, embedding_model=self.embedder.model_id, total=len(results), warning=warning,
             exact_terms=exact_terms(query) if exact is None else exact))
+
+
+def _concept_share(qa: Any, matched: list[str]) -> float:
+    """Share of the question's glossary concepts (and codes) a passage contains."""
+    wanted = [t.key for t in qa.terms if not t.key.startswith("tok:")]
+    return sum(1 for k in wanted if k in matched) / len(wanted) if wanted else 0.0
 
 
 def _jaccard(a: set[str], b: set[str]) -> float:

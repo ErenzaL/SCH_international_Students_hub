@@ -238,3 +238,37 @@ def test_the_query_vector_is_cached_but_results_are_not(env):
     svc.retrieval.search("library opening hours today")
     svc.retrieval.search("library opening hours today")
     assert len(n) == len(set(n))
+
+
+# ------------------------------------------------------------------------------------------------ optional ranking switches (off by default)
+def _two_docs(env):  # type: ignore[no-untyped-def]
+    from tests.test_retrieval import make_doc
+
+    long_text = "\n\n".join(f"## 장 {i}\n생활 안내 {i}: 은행, 교통, 병원, 기숙사, 아르바이트, 보험, 주소, 비자 연장에 관한 일반 설명입니다. " * 3 for i in range(40))
+    make_doc(env, "한국 생활 가이드북", long_text, language="ko", category="daily-living")
+    make_doc(env, "[생활관] 동계방학 생활관 입사 신청 안내", "동계방학 생활관 입사 신청은 12월 18일까지 종합정보시스템에서 합니다.", language="ko", category="dormitory-housing")
+
+
+def test_both_switches_are_off_by_default_and_change_nothing_then(env):
+    s = env.app.state.services.settings
+    assert s.retrieval_hub_beta == 0 and s.retrieval_cross_script_weight == 0
+    _two_docs(env)
+    assert env.app.state.services.retrieval.search("winter dormitory application")["results"]
+
+
+def test_the_long_document_penalty_only_scales_long_documents(env):
+    _two_docs(env)
+    r = env.app.state.services.retrieval
+    counts = r.chunk_counts()
+    assert len(counts) == 2 and max(counts.values()) > 10 * min(counts.values())
+    env.settings.retrieval_hub_beta = 0.5
+    r._sizes = None
+    top = r.search("기숙사 동계방학 입사 신청")["results"][0]
+    assert top["document_title"].startswith("[생활관]")
+
+
+def test_cross_script_title_concepts_reach_a_korean_notice_from_english(env):
+    _two_docs(env)
+    env.settings.retrieval_cross_script_weight = 1.0
+    res = env.app.state.services.retrieval.search("How do I apply for the dormitory during winter vacation?")["results"]
+    assert res and res[0]["document_title"].startswith("[생활관]")
