@@ -1,0 +1,415 @@
+{
+ "dataset": "fresh blind check (Korean retrieval round)",
+ "created": "2026-11-26",
+ "provenance": "Written by an AI assistant from document TITLES only, committed before any change of this round and evaluated once at the end. Expected = the specific document; the two general guidebooks are not counted. Not reviewed by a human.",
+ "records": [
+  {
+   "question_id": "F01-ko",
+   "language": "ko",
+   "question": "체류지를 옮기면 며칠 안에 신고해야 하나요?",
+   "expected_document_ids": [
+    "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+   ],
+   "primary_document_id": "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+  },
+  {
+   "question_id": "F01-en",
+   "language": "en",
+   "question": "How many days do I have to report a new address?",
+   "expected_document_ids": [
+    "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+   ],
+   "primary_document_id": "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+  },
+  {
+   "question_id": "F01-vi",
+   "language": "vi",
+   "question": "Tôi phải khai báo địa chỉ mới trong bao nhiêu ngày?",
+   "expected_document_ids": [
+    "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+   ],
+   "primary_document_id": "d199604d-6295-4ed6-a1da-2f64f00cd8a1"
+  },
+  {
+   "question_id": "F02-ko",
+   "language": "ko",
+   "question": "외국인등록증을 잃어버리면 재발급은 어떻게 받나요?",
+   "expected_document_ids": [
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+   ],
+   "primary_document_id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+  },
+  {
+   "question_id": "F02-en",
+   "language": "en",
+   "question": "How do I get my residence card reissued after losing it?",
+   "expected_document_ids": [
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+   ],
+   "primary_document_id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+  },
+  {
+   "question_id": "F02-vi",
+   "language": "vi",
+   "question": "Làm sao để cấp lại thẻ cư trú khi bị mất?",
+   "expected_document_ids": [
+    "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+   ],
+   "primary_document_id": "21e3e650-2d7f-412c-b8c1-9cc4d78e1aa5"
+  },
+  {
+   "question_id": "F03-ko",
+   "language": "ko",
+   "question": "건강보험료를 안 내면 어떤 불이익이 있나요?",
+   "expected_document_ids": [
+    "25af9ce5-586d-4a1b-80ee-d30594ead06f"
+   ],
+   "primary_document_id": "25af9ce5-586d-4a1b-80ee-d30594ead06f"
+  },
+  {
+   "question_id": "F03-en",
+   "language": "en",
+   "question": "What happens if I don't pay the health insurance premium?",
+   "expected_document_ids": [
+    "25af9ce5-586d-4a1b-80ee-d30594ead06f"
+   ],
+   "primary_document_id": "25af9ce5-586d-4a1b-80ee-d30594ead06f"
+  },
+  {
+   "question_id": "F03-vi",
+   "language": "vi",
+   "question": "Không đóng phí bảo hiểm y tế thì sao?",
+   "expected_document_ids": [
+    "25af9ce5-586d-4a1b-80ee-d30594ead06f"
+   ],
+   "primary_document_id": "25af9ce5-586d-4a1b-80ee-d30594ead06f"
+  },
+  {
+   "question_id": "F04-ko",
+   "language": "ko",
+   "question": "출국했다가 다시 들어올 때 필요한 서류는?",
+   "expected_document_ids": [
+    "491d4c3f-7bf9-4961-9402-90c5412c7b5c"
+   ],
+   "primary_document_id": "491d4c3f-7bf9-4961-9402-90c5412c7b5c"
+  },
+  {
+   "question_id": "F04-en",
+   "language": "en",
+   "question": "Which documents do I need to re-enter Korea after a trip?",
+   "expected_document_ids": [
+    "491d4c3f-7bf9-4961-9402-90c5412c7b5c"
+   ],
+   "primary_document_id": "491d4c3f-7bf9-4961-9402-90c5412c7b5c"
+  },
+  {
+   "question_id": "F04-vi",
+   "language": "vi",
+   "question": "Cần giấy tờ gì để tái nhập cảnh Hàn Quốc?",
+   "expected_document_ids": [
+    "491d4c3f-7bf9-4961-9402-90c5412c7b5c"
+   ],
+   "primary_document_id": "491d4c3f-7bf9-4961-9402-90c5412c7b5c"
+  },
+  {
+   "question_id": "F05-ko",
+   "language": "ko",
+   "question": "한 달 생활비로 얼마를 준비해야 하나요?",
+   "expected_document_ids": [
+    "afb12361-1b28-46b5-8c88-ff33e1fd4c59"
+   ],
+   "primary_document_id": "afb12361-1b28-46b5-8c88-ff33e1fd4c59"
+  },
+  {
+   "question_id": "F05-en",
+   "language": "en",
+   "question": "How much money should I plan for living expenses each month?",
+   "expected_document_ids": [
+    "afb12361-1b28-46b5-8c88-ff33e1fd4c59"
+   ],
+   "primary_document_id": "afb12361-1b28-46b5-8c88-ff33e1fd4c59"
+  },
+  {
+   "question_id": "F05-vi",
+   "language": "vi",
+   "question": "Tôi nên chuẩn bị bao nhiêu tiền sinh hoạt mỗi tháng?",
+   "expected_document_ids": [
+    "afb12361-1b28-46b5-8c88-ff33e1fd4c59"
+   ],
+   "primary_document_id": "afb12361-1b28-46b5-8c88-ff33e1fd4c59"
+  },
+  {
+   "question_id": "F06-ko",
+   "language": "ko",
+   "question": "D-2에서 다른 체류자격으로 변경하려면?",
+   "expected_document_ids": [
+    "a37644b0-53e5-48ee-b861-9876e2c88195"
+   ],
+   "primary_document_id": "a37644b0-53e5-48ee-b861-9876e2c88195"
+  },
+  {
+   "question_id": "F06-en",
+   "language": "en",
+   "question": "How can I change from a D-2 to another status of stay?",
+   "expected_document_ids": [
+    "a37644b0-53e5-48ee-b861-9876e2c88195"
+   ],
+   "primary_document_id": "a37644b0-53e5-48ee-b861-9876e2c88195"
+  },
+  {
+   "question_id": "F06-vi",
+   "language": "vi",
+   "question": "Làm sao chuyển từ D-2 sang loại visa khác?",
+   "expected_document_ids": [
+    "a37644b0-53e5-48ee-b861-9876e2c88195"
+   ],
+   "primary_document_id": "a37644b0-53e5-48ee-b861-9876e2c88195"
+  },
+  {
+   "question_id": "F07-ko",
+   "language": "ko",
+   "question": "TOPIK 시험은 몇 급으로 나뉘나요?",
+   "expected_document_ids": [
+    "b3f79749-2756-4ae1-8bc0-31662164d333"
+   ],
+   "primary_document_id": "b3f79749-2756-4ae1-8bc0-31662164d333"
+  },
+  {
+   "question_id": "F07-en",
+   "language": "en",
+   "question": "How many levels does TOPIK have?",
+   "expected_document_ids": [
+    "b3f79749-2756-4ae1-8bc0-31662164d333"
+   ],
+   "primary_document_id": "b3f79749-2756-4ae1-8bc0-31662164d333"
+  },
+  {
+   "question_id": "F07-vi",
+   "language": "vi",
+   "question": "TOPIK có bao nhiêu cấp?",
+   "expected_document_ids": [
+    "b3f79749-2756-4ae1-8bc0-31662164d333"
+   ],
+   "primary_document_id": "b3f79749-2756-4ae1-8bc0-31662164d333"
+  },
+  {
+   "question_id": "F08-ko",
+   "language": "ko",
+   "question": "응급실은 언제 가야 하나요?",
+   "expected_document_ids": [
+    "744fdb55-6239-47ca-ab92-18eafb77d677"
+   ],
+   "primary_document_id": "744fdb55-6239-47ca-ab92-18eafb77d677"
+  },
+  {
+   "question_id": "F08-en",
+   "language": "en",
+   "question": "When should I go to an emergency room?",
+   "expected_document_ids": [
+    "744fdb55-6239-47ca-ab92-18eafb77d677"
+   ],
+   "primary_document_id": "744fdb55-6239-47ca-ab92-18eafb77d677"
+  },
+  {
+   "question_id": "F08-vi",
+   "language": "vi",
+   "question": "Khi nào nên đến phòng cấp cứu?",
+   "expected_document_ids": [
+    "744fdb55-6239-47ca-ab92-18eafb77d677"
+   ],
+   "primary_document_id": "744fdb55-6239-47ca-ab92-18eafb77d677"
+  },
+  {
+   "question_id": "F09-ko",
+   "language": "ko",
+   "question": "수강신청 기간에 수강 정정은 언제 하나요?",
+   "expected_document_ids": [
+    "d032674b-e938-43dd-a21f-f4b79dcab42f",
+    "ae1cbab7-4248-4536-b725-847c7a61cd64"
+   ],
+   "primary_document_id": "d032674b-e938-43dd-a21f-f4b79dcab42f"
+  },
+  {
+   "question_id": "F09-en",
+   "language": "en",
+   "question": "When can I change my registered courses?",
+   "expected_document_ids": [
+    "d032674b-e938-43dd-a21f-f4b79dcab42f",
+    "ae1cbab7-4248-4536-b725-847c7a61cd64"
+   ],
+   "primary_document_id": "d032674b-e938-43dd-a21f-f4b79dcab42f"
+  },
+  {
+   "question_id": "F09-vi",
+   "language": "vi",
+   "question": "Khi nào có thể điều chỉnh môn đã đăng ký?",
+   "expected_document_ids": [
+    "d032674b-e938-43dd-a21f-f4b79dcab42f",
+    "ae1cbab7-4248-4536-b725-847c7a61cd64"
+   ],
+   "primary_document_id": "d032674b-e938-43dd-a21f-f4b79dcab42f"
+  },
+  {
+   "question_id": "F10-ko",
+   "language": "ko",
+   "question": "외국인 신입학 지원 자격은 무엇인가요?",
+   "expected_document_ids": [
+    "da416585-7ae2-40e9-b158-f252fab6be57"
+   ],
+   "primary_document_id": "da416585-7ae2-40e9-b158-f252fab6be57"
+  },
+  {
+   "question_id": "F10-en",
+   "language": "en",
+   "question": "What are the eligibility requirements for foreign freshmen applicants?",
+   "expected_document_ids": [
+    "da416585-7ae2-40e9-b158-f252fab6be57"
+   ],
+   "primary_document_id": "da416585-7ae2-40e9-b158-f252fab6be57"
+  },
+  {
+   "question_id": "F10-vi",
+   "language": "vi",
+   "question": "Điều kiện ứng tuyển cho tân sinh viên nước ngoài là gì?",
+   "expected_document_ids": [
+    "da416585-7ae2-40e9-b158-f252fab6be57"
+   ],
+   "primary_document_id": "da416585-7ae2-40e9-b158-f252fab6be57"
+  },
+  {
+   "question_id": "F11-ko",
+   "language": "ko",
+   "question": "방학 동안 기숙사에 머물려면 신청해야 하나요?",
+   "expected_document_ids": [
+    "365a6c54-40af-4e3f-bf81-5f9c69a86449"
+   ],
+   "primary_document_id": "365a6c54-40af-4e3f-bf81-5f9c69a86449"
+  },
+  {
+   "question_id": "F11-en",
+   "language": "en",
+   "question": "Do I need to apply to stay in the dorm during the break?",
+   "expected_document_ids": [
+    "365a6c54-40af-4e3f-bf81-5f9c69a86449"
+   ],
+   "primary_document_id": "365a6c54-40af-4e3f-bf81-5f9c69a86449"
+  },
+  {
+   "question_id": "F11-vi",
+   "language": "vi",
+   "question": "Muốn ở ký túc xá trong kỳ nghỉ có cần đăng ký không?",
+   "expected_document_ids": [
+    "365a6c54-40af-4e3f-bf81-5f9c69a86449"
+   ],
+   "primary_document_id": "365a6c54-40af-4e3f-bf81-5f9c69a86449"
+  },
+  {
+   "question_id": "F12-ko",
+   "language": "ko",
+   "question": "기숙사 냉장고 점검 날짜를 알려 주세요",
+   "expected_document_ids": [
+    "ea1e2b41-c0a3-42da-b981-ea457be05411"
+   ],
+   "primary_document_id": "ea1e2b41-c0a3-42da-b981-ea457be05411"
+  },
+  {
+   "question_id": "F12-en",
+   "language": "en",
+   "question": "When is the dorm fridge inspection?",
+   "expected_document_ids": [
+    "ea1e2b41-c0a3-42da-b981-ea457be05411"
+   ],
+   "primary_document_id": "ea1e2b41-c0a3-42da-b981-ea457be05411"
+  },
+  {
+   "question_id": "F12-vi",
+   "language": "vi",
+   "question": "Ngày kiểm tra tủ lạnh ký túc xá là khi nào?",
+   "expected_document_ids": [
+    "ea1e2b41-c0a3-42da-b981-ea457be05411"
+   ],
+   "primary_document_id": "ea1e2b41-c0a3-42da-b981-ea457be05411"
+  },
+  {
+   "question_id": "F13-ko",
+   "language": "ko",
+   "question": "무단으로 아르바이트를 하면 처벌을 받나요?",
+   "expected_document_ids": [
+    "0c3a24ef-434e-4ce9-a78d-a747e19335c2"
+   ],
+   "primary_document_id": "0c3a24ef-434e-4ce9-a78d-a747e19335c2"
+  },
+  {
+   "question_id": "F13-en",
+   "language": "en",
+   "question": "Will I be punished for working without a work permit?",
+   "expected_document_ids": [
+    "0c3a24ef-434e-4ce9-a78d-a747e19335c2"
+   ],
+   "primary_document_id": "0c3a24ef-434e-4ce9-a78d-a747e19335c2"
+  },
+  {
+   "question_id": "F13-vi",
+   "language": "vi",
+   "question": "Làm thêm không phép có bị phạt không?",
+   "expected_document_ids": [
+    "0c3a24ef-434e-4ce9-a78d-a747e19335c2"
+   ],
+   "primary_document_id": "0c3a24ef-434e-4ce9-a78d-a747e19335c2"
+  },
+  {
+   "question_id": "F14-ko",
+   "language": "ko",
+   "question": "졸업 후 구직 비자는 어떻게 받나요?",
+   "expected_document_ids": [
+    "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f"
+   ],
+   "primary_document_id": "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f"
+  },
+  {
+   "question_id": "F14-en",
+   "language": "en",
+   "question": "How do I get a job-seeking visa after graduation?",
+   "expected_document_ids": [
+    "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f"
+   ],
+   "primary_document_id": "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f"
+  },
+  {
+   "question_id": "F14-vi",
+   "language": "vi",
+   "question": "Làm sao xin visa tìm việc sau khi tốt nghiệp?",
+   "expected_document_ids": [
+    "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f"
+   ],
+   "primary_document_id": "1ec42073-8d17-4ca0-a4c6-3431bf7a3a6f"
+  },
+  {
+   "question_id": "F15-ko",
+   "language": "ko",
+   "question": "한국 대학의 학위 과정은 몇 년인가요?",
+   "expected_document_ids": [
+    "7df6e287-15fa-499c-a181-1669bcb04cb0"
+   ],
+   "primary_document_id": "7df6e287-15fa-499c-a181-1669bcb04cb0"
+  },
+  {
+   "question_id": "F15-en",
+   "language": "en",
+   "question": "How many years does a bachelor's degree take in Korea?",
+   "expected_document_ids": [
+    "7df6e287-15fa-499c-a181-1669bcb04cb0"
+   ],
+   "primary_document_id": "7df6e287-15fa-499c-a181-1669bcb04cb0"
+  },
+  {
+   "question_id": "F15-vi",
+   "language": "vi",
+   "question": "Chương trình cử nhân ở Hàn Quốc kéo dài mấy năm?",
+   "expected_document_ids": [
+    "7df6e287-15fa-499c-a181-1669bcb04cb0"
+   ],
+   "primary_document_id": "7df6e287-15fa-499c-a181-1669bcb04cb0"
+  }
+ ]
+}
