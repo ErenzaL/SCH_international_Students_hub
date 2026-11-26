@@ -39,7 +39,24 @@ SCH notices (tens) takes minutes. Model size on disk: 8.1 GB (12B), 3.3 GB (4B),
 
 ## 4. Memory on the free plan (512 MB, 0.1 CPU), emulated
 
-MEMORY_PLACEHOLDER
+Re-run 2026-11-27 on this branch (`scripts/render_memory_run.sh 4096 0.1 rc1127_arena2 9 3 MALLOC_ARENA_MAX=2`: the limit lifted to record
+the true peak, 0.1 CPU, the API alone on one core). Files: `scripts/benchmarks/results/render_like_rc1127_arena2.*`.
+
+| Phase | Peak MB (PSS) | After MB | Time at 0.1 CPU | Result |
+|---|---|---|---|---|
+| idle after start (cold start 8.2 s) | 94 | 94 | 0.3 s | ok |
+| first search (loads the embedding model) | 328 | 304 | 9.6 s | ok |
+| search again | 305 | 305 | 1.1 s | ok |
+| index the 27 public documents | **471** | 359 | 663 s | ok |
+| upload, extract, index a 3 MB Korean PDF | 407 | 340 | 256 s | ok |
+| upload, extract, index a 9 MB Korean PDF | 408 | 342 | 827 s | ok |
+| 40 searches, 10 in parallel | 342 | 342 | 24 s | ok |
+| chat without a model, agent tools, a background task | 342 | 342 | 8 s | ok |
+
+**Server peak: 471 MB PSS / 485 MB RSS — never above 512 MB.** The candidate of 2026-11-26 peaked at 457 / 491 under the same settings:
+the cost-control changes (a usage-writer thread, one database call per AI attempt) did not change the picture beyond run-to-run spread.
+The margin stays small (≈ 40 MB PSS, ≈ 27 MB RSS); without `MALLOC_ARENA_MAX=2` an earlier run was killed. Confirm on the staging probe
+before production (FINAL-SETUP-CHECKLIST 3.1). The Render-like emulation is not Render: real hosted limits may behave differently.
 
 ## 5. Database growth and indexing
 

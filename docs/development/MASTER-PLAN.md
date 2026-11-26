@@ -1,3 +1,27 @@
+# Master plan — mission of 2026-11-27 (school PC)
+
+Branch `school/rc-2026-11-27` = `origin/main` `c5098cc` + the school-PC lineage (`staging/local-first` `5967ce9`, merged as `b104bc4`) + the
+work below. Local only. **Not allowed:** push, merge, deploy, production data or migrations, production schedules, paid calls without
+approval, public Ollama, retention deletion, unreviewed machine translations in public. Resume: [PROGRESS.md](PROGRESS.md).
+
+| Phase | Work package | Acceptance |
+|---|---|---|
+| 0 | baseline from GitHub, backups, audit | baseline = origin commit; all suites green |
+| 1 | cost controls: persistent budgets, usage roll-up, price-based estimates, spend ceiling, emergency stop (0018) | unit + SQL tests; no change without the migration |
+| 2 | RAG research evaluation (dev + held-out, all metrics, bootstrap CIs, paired tests, error analysis) | reproducible JSON results |
+| 3 | 14 agents: verify jobs, tools, restrictions; fix controls that cannot work (vi/zh announcement drafts) | registry, tests |
+| 4 | weekly staggered schedules (0019), Work24 connector, read-time expiry, honest deadline labels, job-site links | tests, live source check |
+| 5 | announcement translation ko/en/id, verified-only display, TranslateGemma benchmark, worker model choice | rule fixed before held-out |
+| 6 | office wall colour, admin AI usage card | unit + browser checks |
+| 7 | security review of new code, dependency audit, rollbacks | review table |
+| 8 | integration on PostgreSQL, browser journeys A–L | TEST-RESULTS.md |
+| 9 | research reports and Korean summary | docs/research |
+| 10 | owner checklist, readiness verdict | docs/owner/FINAL-SETUP-CHECKLIST.md, FINAL-READINESS.md |
+
+---
+
+# Previous plan (release candidate, 2026-11-25)
+
 # Master plan
 
 Branch `integration/release-candidate` = `main` `eca1d71` + Release A `af2a766` + Release B `2e3acd4` + the work below. Local only.

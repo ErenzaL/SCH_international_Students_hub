@@ -280,26 +280,35 @@ J.gpu = async () => {   // token in the browser -> worker process -> draft -> la
   const vi = await api("supporter_vi", "POST", `/admin/announcements/${ann.data.id}/translations/vi/machine-translate`);
   check("no machine draft of an announcement in Vietnamese (Release 1)", vi.status === 409 && vi.data?.error?.code === "language_out_of_scope", JSON.stringify(vi.data));
   const t0 = Date.now();
-  const run = await worker("--drain");
-  check(`the GPU worker generated the draft with ${GPU_MODEL}`, run.code === 0, run.log.slice(-400));
-  console.log(`      drain: ${((Date.now() - t0) / 1000).toFixed(1)} s`);
-  const tr = (await api("reviewer_id", "GET", `/admin/announcements/${ann.data.id}/translations/id`)).data;
-  const body = tr.translation?.body ?? tr.body ?? "";
+  const draftOf = async () => { const d = (await api("reviewer_id", "GET", `/admin/announcements/${ann.data.id}/translations/id`)).data;
+    return { d, body: d?.translation?.body ?? d?.body ?? "" }; };
+  // a refused draft (e.g. wrong language) is re-queued by the server with a back-off: drain again when it is due, at most 3 times
+  let run = null, got = { d: null, body: "" }, drains = 0;
+  for (; drains < 3 && !got.body; drains++) {
+    if (drains) await until(async () => (await api("super_admin", "GET", "/admin/gpu/status")).data.jobs.some((j) => j.status === "queued" && new Date(j.run_after) <= new Date()), 180);
+    run = await worker("--drain");
+    got = await draftOf();
+    if (!got.body) console.log(`      drain ${drains + 1}: no draft yet (refused or failed: ${(run.log.match(/error=\w+|llm_\w+/g) || []).slice(-1)})`);
+  }
+  check(`the GPU worker generated the draft with ${GPU_MODEL}`, run.code === 0 && got.body.length > 20, run.log.slice(-400));
+  console.log(`      drain: ${((Date.now() - t0) / 1000).toFixed(1)} s over ${drains} drain(s)`);
+  const tr = got.d ?? {};
+  const body = got.body;
   console.log("      id:", body.replace(/\s+/g, " ").slice(0, 200), "|", tr.translation?.translation_status ?? tr.translation_status);
   check("the draft needs review, keeps date, time and phone", /2026/.test(body) && /13[:.]30/.test(body) && /041-000-1234/.test(body) && JSON.stringify(tr).includes("needs_review"), JSON.stringify(tr).slice(0, 300));
   const pub = async (lang) => JSON.stringify((await api(null, "GET", `/announcements/${ann.data.id}?lang=${lang}`)).data);
-  check("not public before a reviewer approves", !(await pub("id")).includes(body.slice(0, 30)));
+  check("not public before a reviewer approves", body.length > 20 && !(await pub("id")).includes(body.slice(0, 30)));
   const other = await api("supporter_vi", "POST", `/admin/announcements/${ann.data.id}/translations/id/approve`, { original_verified: true });
   check("a reviewer of another language cannot approve it", other.status === 403, other.status);
   const ap = await api("reviewer_id", "POST", `/admin/announcements/${ann.data.id}/translations/id/approve`, { original_verified: true });
   check("the Indonesian reviewer approves", ap.status === 200, JSON.stringify(ap.data));
-  check("now it is public in Indonesian", (await pub("id")).includes(body.slice(0, 30)));
-  check("Vietnamese still gets the original (no translation)", !(await pub("vi")).includes(body.slice(0, 30)) && (await pub("vi")).includes("기숙사 냉장고 점검"));
+  check("now it is public in Indonesian", body.length > 20 && (await pub("id")).includes(body.slice(0, 30)));
+  check("Vietnamese still gets the original (no translation)", body.length > 20 && !(await pub("vi")).includes(body.slice(0, 30)) && (await pub("vi")).includes("기숙사 냉장고 점검"));
   const reader = await context("visitor");
   await lang(reader.page, "id");
   await reader.page.goto(`${WEB}/announcements/${ann.data.id}`);
   await reader.page.getByTestId("announcement-body").waitFor({ timeout: 20000 });
-  check("the Indonesian page shows the reviewed translation", (await reader.page.getByTestId("announcement-body").innerText()).includes(body.slice(0, 20)));
+  check("the Indonesian page shows the reviewed translation", body.length > 20 && (await reader.page.getByTestId("announcement-body").innerText()).includes(body.slice(0, 20)));
   await shot(reader.page, "announcement-id-verified");
   await lang(reader.page, "vi");
   await reader.page.goto(`${WEB}/announcements/${ann.data.id}`);

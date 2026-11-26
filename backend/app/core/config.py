@@ -200,7 +200,8 @@ class Settings(BaseSettings):
     # stored as 'needs_review' (never shown to students). Needs migration 0016.
     gpu_worker_enabled: bool = False
     gpu_worker_job_types: str = "translate_announcement,translate_document"
-    gpu_worker_models: str = "qwen2.5:7b-instruct"   # models whose results are accepted
+    # models whose results are accepted (translategemma:12b: selected in docs/research/TRANSLATION-EVALUATION.md)
+    gpu_worker_models: str = "qwen2.5:7b-instruct,translategemma:12b"
     gpu_worker_max_running: int = 1                  # jobs leased at the same time, all workers together
     gpu_worker_lease_seconds: int = 180              # renewed by the worker; a lost worker's job is re-queued after this
     gpu_worker_job_max_seconds: int = 1800           # a lease is not renewed beyond this

@@ -45,7 +45,7 @@ Earlier, still valid detail: [SETUP-CHECKLIST.md](SETUP-CHECKLIST.md) (sections 
 
 | # | Action | Value | Verify |
 |---|---|---|---|
-| 3.1 | Memory | `MALLOC_ARENA_MAX=2` on the API service (first on the staging probe, STAGING.md §5) | re-measured 2026-11-27, PERFORMANCE.md |
+| 3.1 | Memory | `MALLOC_ARENA_MAX=2` on the API service (first on the staging probe, STAGING.md §5) | re-measured 2026-11-27 under emulated 512 MB / 0.1 CPU: peak 471 MB PSS / 485 MB RSS, not killed (PERFORMANCE.md §4); confirm on real Render |
 | 3.2 | Announcement translation scope | `ANNOUNCEMENT_MACHINE_LANGUAGES=ko,en,id` (default), `AUTO_TRANSLATE_LANGUAGES=ko,en,id` (default) | Admin → Announcements → a Korean notice offers drafts only for English and Indonesian |
 | 3.3 | Keep automation off until reviewers exist | `AUTO_TRANSLATE_ANNOUNCEMENTS=false`, `AUTO_TRANSLATE_DOCUMENTS=false`, `PUBLIC_MACHINE_TRANSLATIONS=false` | students see only reviewed translations (announcements: always, whatever this says) |
 | 3.4 | Schedules stay off | `AGENT_SCHEDULES_ENABLED=false` (default); `DISCOVERY_WEEKLY_ANCHOR=mon 03:00` (Korea time) | Admin → Agents → Schedules: "globally off" |
@@ -60,8 +60,9 @@ Earlier, still valid detail: [SETUP-CHECKLIST.md](SETUP-CHECKLIST.md) (sections 
 | 4.1 | Ask university IT for consent to use the GPU for translation drafts of public notices | letter: [gpu-gateway-assessment.md](../gpu-gateway-assessment.md) | written answer |
 | 4.2 | Ollama | already installed (snap, 0.40.2), listens on `127.0.0.1:11434` only | `ss -ltn 'sport = :11434'` → `127.0.0.1` |
 | 4.3 | Model | `translategemma:12b` already downloaded (8.1 GB; `translategemma:4b` 3.3 GB and `qwen2.5:7b-instruct` 4.7 GB also present). Pull command if missing: `curl -s 127.0.0.1:11434/api/pull -d '{"model":"translategemma:12b","stream":false}'` | `curl -s 127.0.0.1:11434/api/tags` lists it |
-| 4.4 | Resources | GPU memory 9.7 GB while translating (RTX 4070 has 12 GB); RAM < 2 GB for the worker; disk: root is 91 % full, ~39 GB free — do not pull more models there | `nvidia-smi`, `df -h /` |
+| 4.4 | Resources | measured: GPU memory 9.7 GB while translating (RTX 4070 has 12 GB); system RAM ≈ 1.4 GB for Ollama's model runner + ≈ 30 MB for the worker process; disk: root is 91 % full, ~39 GB free — do not pull more models there | `nvidia-smi`, `df -h /` |
 | 4.5 | Worker environment | `~/.config/sch-gpu-worker/env` (0600): `GPU_WORKER_HUB_URL=…`, `OLLAMA_MODEL=translategemma:12b`, `GPU_WORKER_PROMPT_STYLE=auto` (= the Hub's prompts; measured better), token in `~/.config/sch-gpu-worker/token` (0600). **Never** put Supabase or Gemini keys there (the worker refuses to start) | `python -m app.gpu_worker --check` |
+| 4.5b | Accepted models on the API | `GPU_WORKER_MODELS=qwen2.5:7b-instruct,translategemma:12b` (the default): drafts of any other model are refused (`model_not_allowed`) | Admin → GPU worker shows completed jobs |
 | 4.6 | Batch run (manual, bounded) | `… -m app.gpu_worker --drain` (everything that waits, then stops) or `--once` | Admin → GPU worker: results; Admin → Translations: drafts `needs_review` |
 | 4.7 | Start / stop | start: the command above; stop: Ctrl+C (the task is handed back) | – |
 | 4.8 | Failure recovery | computer off → tasks wait (48 h), then the server's model or a visible failure; worker dies → lease expires, task re-queued | Admin → GPU worker |

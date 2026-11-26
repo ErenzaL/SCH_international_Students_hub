@@ -156,7 +156,7 @@ The worker refuses to start when a Supabase, Gemini or cron secret is set on tha
 | `OLLAMA_REQUEST_DEADLINE_SECONDS` | setting | optional | `120.0` | — | interactive calls: no retry starts after this much time |
 | `GPU_WORKER_ENABLED` | setting | optional | `False` | .env.example | GPU worker on the university server (docs/gpu-worker.md). OFF: no endpoint exists and nothing is routed to it. When on, these translation jobs wait for the worker instead |
 | `GPU_WORKER_JOB_TYPES` | setting | optional | `translate_announcement,translate_document` | — |  |
-| `GPU_WORKER_MODELS` | setting | optional | `qwen2.5:7b-instruct` | — | models whose results are accepted |
+| `GPU_WORKER_MODELS` | setting | optional | `qwen2.5:7b-instruct,translategemma:12b` | — | models whose results are accepted (translategemma:12b: selected in docs/research/TRANSLATION-EVALUATION.md) |
 | `GPU_WORKER_MAX_RUNNING` | setting | optional | `1` | — | jobs leased at the same time, all workers together |
 | `GPU_WORKER_LEASE_SECONDS` | setting | optional | `180` | — | renewed by the worker; a lost worker's job is re-queued after this |
 | `GPU_WORKER_JOB_MAX_SECONDS` | setting | optional | `1800` | — | a lease is not renewed beyond this |

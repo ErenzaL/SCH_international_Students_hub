@@ -1,5 +1,46 @@
 # Test results
 
+## 2026-11-27, branch `school/rc-2026-11-27` (school PC; loopback only; no production access)
+
+Mocked = in-memory store and scripted models; real = real PostgreSQL 17 + pgvector + PostgREST, real local models (Ollama on the RTX 4070),
+live public websites. **Nothing ran against hosted staging or production.**
+
+| Suite | Kind | Result |
+|---|---|---|
+| backend unit tests (`pytest -q`) | mocked | see the final line below (start of day: 991 passed / 47 skipped) |
+| SQL behaviour tests, all migrations 0001–0019 | real PostgreSQL | **15 of 15** suites (new: `llm_usage_controls`, `weekly_discovery`) |
+| rollbacks 0018 and 0019, then re-apply | real PostgreSQL | ok (schedules restored, Work24 sources removed, usage tables dropped; behaviour tests pass after re-apply) |
+| integration tests (RLS, RPCs, roles, GPU worker, translation) with 0018 + 0019 | real PostgreSQL + PostgREST | **94 passed**, 9 skipped (live Gemini / live websites on purpose) |
+| web `tsc --noEmit`, `eslint`, `vitest run` | mocked | clean, clean, see the final line below (start of day: 257) |
+| `next build` (production bundle) | – | builds |
+| `npm audit --omit=dev` | – | 0 vulnerabilities |
+| live source validation (`validate_sources.py`, 23 public sources) | **live** websites | **23 of 23 ok**; 3 API sources not tested (no keys) |
+| retrieval research evaluation, dev + held-out | real embedding model | `rag_research_{dev,heldout}.json` |
+| answer benchmark (95 questions) Qwen + RAG / excerpts / no sources | real local model | 0.916 / 0.874 / 0.000 correct |
+| translation benchmark, 5 configurations dev + 2 held-out | real local models | `announcements_*.json` |
+| Render-like memory run (512 MB / 0.1 CPU, `MALLOC_ARENA_MAX=2`) | emulated limits | PERFORMANCE.md §4 |
+
+### Mission journeys
+
+| Journey | How it is tested | Kind |
+|---|---|---|
+| A Indonesian RAG | browser `chats` (12 desks × 5 languages, right fee, citation); answer benchmark id 1.00 | real (Qwen) |
+| B Visa (Yuna) | browser `visa`; `visa_checklist` tests | real |
+| C Scholarship (Leo) | browser `scholarship` (live board → candidate → approval → visible) | real, live site |
+| D Career (Daniel) | browser `career` (live board, review gating, job-site links); Work24 fixtures | real + fixtures |
+| E Events (Mia) | `test_agent_operations` desk tests (event kind, upcoming); browser `office` | mocked + real |
+| F Robo monitoring | browser `announcement` and `autonomy` (scheduled live checks, change detection, notifications) | real, live sites |
+| G Translation ko → id | browser `gpu` rewritten: TranslateGemma 12B draft by the worker process → Indonesian reviewer → public in Indonesian only; vi refused | real |
+| H Unapproved data | browser `admin` refusals; `test_students_cannot_reach_drafts`; Release 1 scope tests | real + mocked |
+| I Expiration | `test_opportunity_expiry.py` (deadline day open, next day hidden, no re-crawl) | mocked |
+| J Cost limit | `test_cost_controls.py` (deferral without retry loop, nothing corrupted, restart keeps budget) | mocked |
+| K Model unavailable | `test_r_s_both_models_unavailable_gives_a_localized_message_and_sources_only`, `test_offline_worker_jobs_fail_visibly_after_the_attempt_limit`, GPU worker revoked in the browser | mocked + real |
+| L Frontend | browser `office` (14 desks, 5 languages, phone width, wall colour), `admin`, keyboard | real |
+
+BROWSER_PLACEHOLDER
+
+---
+
 ## 2026-11-26, branch `staging/local-first`: tier L1 of [STAGING.md](../owner/STAGING.md) (no third Supabase project)
 
 Everything on the university server, loopback only, synthetic data only. The official websites are replaced by `scripts/synthetic_web.py`

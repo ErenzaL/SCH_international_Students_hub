@@ -24,20 +24,18 @@ Plan: [MASTER-PLAN.md](MASTER-PLAN.md). Blockers: [BLOCKERS.md](BLOCKERS.md). Me
 | Phase | State | Commit |
 |---|---|---|
 | 0 audit and baseline | done | `b104bc4` |
-| 1 cost controls (migration 0018, persistent budgets, estimates from configured prices, spend ceiling, emergency stop) | done, tested | `4666ea3` |
-| 5a announcement translation scope ko/en/id, verified-only display | done, tested | `4666ea3` |
-| 2 RAG research evaluation (dev + held-out, CIs, paired tests) | done | `48a5a12` |
-| 4 weekly staggered schedules (0019), Work24 connector, read-time expiry, job-site links | done, tested | `2ca6734` |
-| 5b TranslateGemma benchmark: 12B + shared prompts chosen on dev (rule fixed before held-out) | dev done; held-out running | `aed8a09` |
-| 6 office wall colour, admin AI usage card | done, unit-tested; browser screenshots pending | `a6dd5dd` |
-| 7 security: secret scan of changes clean, `npm audit --omit=dev` 0, rollbacks 0018/0019 tested | done (pip-audit blocked) | – |
-| 8 end-to-end: integration 94/9 with 0018+0019; browser journeys pending (web build OK) | in progress | – |
-| 9 research reports: methodology, results, error analysis, translation (draft) | in progress | – |
-| 10 final checklist (draft), readiness | in progress | – |
+| 1 cost controls (0018) | done, tested | `4666ea3` |
+| 2 RAG research evaluation | done | `48a5a12` |
+| 3 agents: verified; vi/zh queue control fixed | done | `7b786c9` |
+| 4 weekly schedules (0019), Work24, read-time expiry, job-site links; 23/23 sources live today | done | `2ca6734`, `99dc493` |
+| 5 translation scope + TranslateGemma benchmark (12B chosen; held-out 20/20) | done | `4666ea3`, `aed8a09`, `99dc493` |
+| 6 office colour, admin AI usage card | done | `a6dd5dd` |
+| 7 security review, rollbacks 0018/0019 | done (pip-audit blocked) | `99dc493`, `4d13699` |
+| 8 tests: unit 1022/47, web 261, SQL 15/15, integration 94/9, browser 155/163 first run (PDF env + Journey G) → re-run | in progress | – |
+| 9 research reports | done | `4d13699` |
+| 10 checklist + readiness | done, final numbers pending | – |
 
-## Next executable step
+## Open item being worked on
 
-1. Held-out translation runs (`heldout_tg12b_shared`, `heldout_qwen7b_shared`) → fill TRANSLATION-EVALUATION §5.
-2. `rag_lab.py --modes qwen,retrieval,nocontext --json …/rag_behaviour_rc1127.json` (answers + tokens per answer) → RAG-RESULTS §7, COST-EVALUATION.
-3. Memory re-run `render_like_rc1127_arena2.*` (work dir `/data/20243508/w`) → PERFORMANCE.md.
-4. Browser journeys: fresh scratch DB, `dev_stack.py --synthetic-web`, `next start`, `node scripts/e2e_full.mjs` (Journey G rewritten for Indonesian).
+Journey G in the browser: the GPU worker's TranslateGemma 12B output for the synthetic notice is refused as wrong-language in the worker
+path (3 of 3 drains) while the same text passes 10 of 10 when generate() is called directly. Debug driver: `/data/20243508/w/dbg/drive.py`.

@@ -645,3 +645,13 @@ def test_logs_contain_no_token_and_no_content(gpu, caplog):
     assert "gpu complete worker=school-gpu" in logs
     for secret in (gpu.worker["token"], "schgw_bad_token_value", GOOD["body"], KO[1]):
         assert secret not in logs
+
+
+def test_the_evaluated_translation_model_is_accepted_by_default(gpu):
+    """TranslateGemma 12B was selected by the benchmark; a server with default settings must accept its drafts (found by the browser
+    journey: without it every draft was refused as model_not_allowed)."""
+    a = publish(gpu)
+    request(gpu, a["id"])
+    r = done(gpu, claim(gpu), model="translategemma:12b")
+    assert r.status_code == 200, r.text
+    assert row(gpu, a["id"])["model"] == "translategemma:12b" and row(gpu, a["id"])["translation_status"] == "needs_review"
