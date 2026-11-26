@@ -65,7 +65,7 @@ class ScheduleUpdate(Body):
 class DiscoverySourceCreate(Body):
     agent_id: Literal["announcement", "scholarship", "career", "events", "immigration", "academic", "topik"]
     name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=2, max_length=200)]
-    kind: Literal["sch_board", "listing", "page", "saramin_api", "data_go_kr_jobs"]
+    kind: Literal["sch_board", "listing", "page", "saramin_api", "data_go_kr_jobs", "work24_api"]
     url: Annotated[str, StringConstraints(strip_whitespace=True, min_length=8, max_length=1000)]
     config: dict[str, Any] = Field(default_factory=dict)
     category: Annotated[str, StringConstraints(max_length=60)] | None = None

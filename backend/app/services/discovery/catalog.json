@@ -1,5 +1,5 @@
 {
- "note": "Prepared official sources (checked live on the date in 'validated'). Nothing is active until an administrator adds it.",
+ "note": "Prepared official sources (checked live on the date in 'validated'). Nothing is active until an administrator adds it. Weekly checks are recommended (Release 1).",
  "sources": [
   {
    "agent_id": "announcement",
@@ -11,7 +11,7 @@
    "config": {
     "max_items": 10
    },
-   "recommended_interval_minutes": 720,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 3,
@@ -40,7 +40,7 @@
     "attachment_selector": "div.board_file",
     "max_items": 10
    },
-   "recommended_interval_minutes": 720,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 3,
@@ -62,7 +62,7 @@
    "config": {
     "max_items": 10
    },
-   "recommended_interval_minutes": 1440,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 3,
@@ -91,7 +91,7 @@
     "attachment_selector": "div.board_file",
     "max_items": 10
    },
-   "recommended_interval_minutes": 1440,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 3,
@@ -113,7 +113,7 @@
    "config": {
     "content_selector": "div.schedule-board"
    },
-   "recommended_interval_minutes": 1440,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 1,
@@ -133,7 +133,7 @@
    "category": "academic-life",
    "language": "ko",
    "config": {},
-   "recommended_interval_minutes": 2880,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 1,
@@ -162,7 +162,7 @@
     "attachment_selector": "div.board_file",
     "max_items": 10
    },
-   "recommended_interval_minutes": 1440,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 3,
@@ -187,7 +187,7 @@
     "date_selector": "span.date",
     "max_items": 10
    },
-   "recommended_interval_minutes": 1440,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 3,
@@ -209,7 +209,7 @@
    "config": {
     "content_selector": "main#contents"
    },
-   "recommended_interval_minutes": 2880,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 1,
@@ -238,7 +238,7 @@
     "attachment_selector": "div.board_file",
     "max_items": 10
    },
-   "recommended_interval_minutes": 1440,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 3,
@@ -260,7 +260,7 @@
    "config": {
     "max_items": 10
    },
-   "recommended_interval_minutes": 1440,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 3,
@@ -282,7 +282,7 @@
    "config": {
     "content_selector": "main#contents"
    },
-   "recommended_interval_minutes": 2880,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 1,
@@ -302,7 +302,7 @@
    "category": "visa-immigration",
    "language": "ko",
    "config": {},
-   "recommended_interval_minutes": 2880,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 1,
@@ -322,7 +322,7 @@
    "category": "part-time-employment",
    "language": "ko",
    "config": {},
-   "recommended_interval_minutes": 2880,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 1,
@@ -342,7 +342,7 @@
    "category": "health-insurance",
    "language": "ko",
    "config": {},
-   "recommended_interval_minutes": 2880,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 1,
@@ -364,7 +364,7 @@
    "config": {
     "content_selector": "main#contents"
    },
-   "recommended_interval_minutes": 2880,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 1,
@@ -386,7 +386,7 @@
    "config": {
     "content_selector": "main#contents"
    },
-   "recommended_interval_minutes": 2880,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 1,
@@ -406,7 +406,7 @@
    "category": "visa-immigration",
    "language": "ko",
    "config": {},
-   "recommended_interval_minutes": 2880,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 1,
@@ -428,7 +428,7 @@
    "config": {
     "content_selector": "main#contents"
    },
-   "recommended_interval_minutes": 2880,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 1,
@@ -448,7 +448,7 @@
    "category": "topik-korean",
    "language": "ko",
    "config": {},
-   "recommended_interval_minutes": 2880,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 1,
@@ -470,7 +470,7 @@
    "config": {
     "max_items": 10
    },
-   "recommended_interval_minutes": 2880,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 3,
@@ -495,7 +495,7 @@
     "date_selector": "span.date",
     "max_items": 10
    },
-   "recommended_interval_minutes": 1440,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 3,
@@ -517,7 +517,7 @@
    "config": {
     "max_items": 10
    },
-   "recommended_interval_minutes": 1440,
+   "recommended_interval_minutes": 10080,
    "validated": {
     "status": "ok",
     "items_read": 3,
@@ -539,7 +539,7 @@
    "config": {
     "max_items": 10
    },
-   "recommended_interval_minutes": 1440,
+   "recommended_interval_minutes": 10080,
    "needs": "DATA_GO_KR_SERVICE_KEY",
    "validated": {
     "status": "not_tested"
@@ -556,10 +556,28 @@
     "max_items": 10,
     "keywords": "외국인 유학생"
    },
-   "recommended_interval_minutes": 1440,
+   "recommended_interval_minutes": 10080,
    "needs": "SARAMIN_ACCESS_KEY",
    "validated": {
     "status": "not_tested"
+   }
+  },
+  {
+   "agent_id": "career",
+   "name": "고용24 채용정보 (공식 Open API)",
+   "kind": "work24_api",
+   "url": "https://www.work24.go.kr/",
+   "category": "employment-internships",
+   "language": "ko",
+   "config": {
+    "max_items": 10,
+    "keywords": "외국인"
+   },
+   "recommended_interval_minutes": 10080,
+   "needs": "WORK24_AUTH_KEY",
+   "validated": {
+    "status": "not_tested",
+    "note": "request and response fields from the official 고용24 Open API page (2026-11-27); no key on the development server"
    }
   }
  ]

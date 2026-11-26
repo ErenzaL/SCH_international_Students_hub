@@ -509,6 +509,8 @@ def test_monitoring_schedules_are_off_and_configurable_by_admins(env):
     assert cron().json()["agent_schedules"]["enabled"] is False        # the server switch is still off
     assert env.store.select("discovered_items")[0] == []
     env.settings.agent_schedules_enabled = True
+    assert cron().json()["agent_schedules"]["queued"] == 0            # weekly: waits for its Monday slot
+    env.store.update("agent_schedules", {"next_run_at": "2020-01-06T00:00:00+00:00"}, {"id": sched["id"]})   # slot reached
     assert cron().json()["agent_schedules"]["queued"] == 1
     task = next(t for t in env.store.select("agent_tasks")[0] if t["task_type"] == "announcement_discovery")
     assert task["status"] == "completed" and task["requested_by"] is None

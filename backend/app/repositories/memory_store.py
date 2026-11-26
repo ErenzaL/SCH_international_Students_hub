@@ -1299,6 +1299,17 @@ def seed_categories(store: MemoryStore) -> None:
                                          ("career", "opportunity_discovery", 1440)):
         store.insert("agent_schedules", dict(agent_id=agent_id, task_type=task_type, interval_minutes=minutes, params=dict(
             max_items_per_source=10, max_sources=5, notify_admins=True, summarize_new=False, review="admin")))
+    # migration 0019: untouched, disabled schedules become weekly with a stagger
+    stagger = {("announcement", "announcement_discovery"): 0, ("scholarship", "opportunity_discovery"): 20,
+               ("career", "opportunity_discovery"): 40, ("events", "event_discovery"): 60,
+               ("immigration", "guidance_discovery"): 80, ("academic", "guidance_discovery"): 100,
+               ("topik", "guidance_discovery"): 120, ("announcement", "announcement_digest"): 180,
+               ("scholarship", "scholarship_scan"): 200, ("events", "event_digest"): 220, ("career", "career_scan"): 240}
+    for row in store.t["agent_schedules"]:
+        k = (row["agent_id"], row["task_type"])
+        if k in stagger and not row.get("updated_by") and not row.get("enabled"):
+            row["interval_minutes"] = 10080
+            row["params"] = dict(row.get("params") or {}) | {"stagger_minutes": stagger[k]}
 
 
 _ = timedelta

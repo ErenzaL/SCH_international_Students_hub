@@ -1,6 +1,6 @@
 # Environment variables
 
-Generated from the code by `scripts/env_inventory.py`; do not edit by hand. 178 variables of the **API service**. Whether a value is set on
+Generated from the code by `scripts/env_inventory.py`; do not edit by hand. 180 variables of the **API service**. Whether a value is set on
 Render cannot be seen from here: check with `python -m app.cli doctor` (prints "set" or "not set", never a value) or in the dashboard.
 
 After changing a variable on Render the service restarts by itself (choose *Save, rebuild and deploy* only for the web variables).
@@ -204,8 +204,10 @@ The worker refuses to start when a Supabase, Gemini or cron secret is set on tha
 | `AGENT_TASK_RETENTION_DAYS` | setting | optional | `30` | — | finished tasks (and their step log) are deleted afterwards |
 | `DATABASE_LIMIT_MB` | setting | optional | `500` | .env.example | size limit of the database plan (free plan: 500 MB); only for the admin storage warnings |
 | `AGENT_SCHEDULES_ENABLED` | setting | optional | `False` | — | master switch for scheduled agents. Even when true, each schedule runs only after an admin enables it. |
+| `DISCOVERY_WEEKLY_ANCHOR` | setting | optional | `mon 03:00` | — | weekly schedules (interval 10080) run at this slot, Korea time, plus their own stagger (params.stagger_minutes): "<mon/tue/wed/thu/fri/sat/sun> HH:MM" |
 | `SARAMIN_ACCESS_KEY` | SECRET | optional | — | .env.example | official-source discovery (Phase 3): polite, bounded checks of admin-configured official pages official recruitment APIs (app/services/discovery/job_apis.py); empty = the<br>**Get it:** https://oapi.saramin.co.kr/join (approval needed) |
 | `DATA_GO_KR_SERVICE_KEY` | SECRET | optional | — | .env.example | <br>**Get it:** https://www.data.go.kr/data/15125273/openapi.do → 활용신청 |
+| `WORK24_AUTH_KEY` | SECRET | optional | — | — | 고용24 Open API (job postings): the key from work24.go.kr -> OPEN-API. Without it the source is shown as blocked.<br>**Get it:** https://www.work24.go.kr → OPEN-API → 채용정보 API 신청 (terms and limits: confirm on that page) |
 | `DISCOVERY_MAX_ITEMS` | setting | optional | `10` | — | items read per source per check (hard cap 30) |
 | `DISCOVERY_MAX_SOURCES` | setting | optional | `10` | — | sources per task |
 | `DISCOVERY_MIN_CHECK_INTERVAL_SECONDS` | setting | optional | `600` | — | a manual re-check sooner than this reuses the last results |

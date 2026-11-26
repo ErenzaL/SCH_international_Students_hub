@@ -236,7 +236,8 @@ class Doctor:
         except (httpx.HTTPError, ValueError):
             self.add(a, "Ollama", FAIL if uses_local else SKIP, "not running on this computer", "only needed on the GPU computer")
 
-        for name, v in (("SARAMIN_ACCESS_KEY", s.saramin_access_key), ("DATA_GO_KR_SERVICE_KEY", s.data_go_kr_service_key)):
+        for name, v in (("SARAMIN_ACCESS_KEY", s.saramin_access_key), ("DATA_GO_KR_SERVICE_KEY", s.data_go_kr_service_key),
+                        ("WORK24_AUTH_KEY", s.work24_auth_key)):
             self.add("recruitment APIs (optional)", name, PASS if v else OWNER, "set" if v else "not set: this source stays blocked", "" if v else "docs/owner/EXTERNAL-APIS.md")
 
     def gpu_worker(self) -> None:

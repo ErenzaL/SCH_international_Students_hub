@@ -30,8 +30,8 @@ from app.services.ingestion.extractors_html import decode_html, extract_html
 from app.services.ingestion.normalize import normalize_text
 from app.services.ingestion.sch_board import KST
 
-KINDS = ("sch_board", "listing", "page", "saramin_api", "data_go_kr_jobs")
-API_KINDS = ("saramin_api", "data_go_kr_jobs")
+KINDS = ("sch_board", "listing", "page", "saramin_api", "data_go_kr_jobs", "work24_api")
+API_KINDS = ("saramin_api", "data_go_kr_jobs", "work24_api")
 MAX_TEXT = 20000
 _DATE = re.compile(r"(20\d{2})\s*[.\-/년]\s*(\d{1,2})\s*[.\-/월]\s*(\d{1,2})")
 

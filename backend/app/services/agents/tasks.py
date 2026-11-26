@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import logging
 import time
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any
 
 from fastapi import BackgroundTasks
@@ -45,6 +45,22 @@ from app.services.agents.tools import (
     TopicParams,
 )
 from app.services.announcements import today_kst
+
+WEEK = 10080
+KST_TZ = timezone(timedelta(hours=9))
+_DAYS = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
+
+
+def weekly_anchor(spec: str) -> tuple[int, int, int]:
+    """'mon 03:00' -> (0, 3, 0). An invalid setting falls back to Monday 03:00 (Korea time)."""
+    try:
+        d, t = spec.strip().lower().split()
+        hh, mm = (int(x) for x in t.split(":"))
+        if d[:3] in _DAYS and 0 <= hh < 24 and 0 <= mm < 60:
+            return _DAYS.index(d[:3]), hh, mm
+    except ValueError:
+        pass
+    return 0, 3, 0
 
 if TYPE_CHECKING:
     from app.security.auth import AuthUser
@@ -625,7 +641,21 @@ class AgentTaskService:
 
     def schedules(self) -> dict[str, Any]:
         return dict(globally_enabled=self.settings.agent_schedules_enabled,
+                    weekly_anchor_kst=self.settings.discovery_weekly_anchor,
                     items=[self._schedule_view(s) for s in self._schedules()])
+
+    def first_run(self, s: dict[str, Any], now: datetime) -> datetime:
+        """When a schedule that was just switched on runs first: a weekly schedule at the next weekly slot (anchor in
+        Korea time + its stagger), so the official sources are never all asked at once; others right away."""
+        if int(s.get("interval_minutes") or 0) != WEEK:
+            return now
+        day, hh, mm = weekly_anchor(self.settings.discovery_weekly_anchor)
+        local = now.astimezone(KST_TZ)
+        slot = (local - timedelta(days=(local.weekday() - day) % 7)).replace(hour=hh, minute=mm, second=0, microsecond=0)
+        slot += timedelta(minutes=int((s.get("params") or {}).get("stagger_minutes") or 0))
+        while slot <= local:
+            slot += timedelta(days=7)
+        return slot.astimezone(UTC)
 
     @staticmethod
     def _schedule_view(s: dict[str, Any]) -> dict[str, Any]:
@@ -644,7 +674,8 @@ class AgentTaskService:
         if enabled is not None:
             patch["enabled"] = enabled
             if enabled and not s["enabled"]:
-                patch["next_run_at"] = now_iso()
+                after = dict(s) | {k: v for k, v in (("interval_minutes", interval_minutes),) if v is not None}
+                patch["next_run_at"] = self.first_run(after, datetime.now(UTC)).isoformat()
         if interval_minutes is not None:
             if not 60 <= interval_minutes <= 10080:
                 raise ValidationFailed("interval_minutes must be between 60 and 10080.")
@@ -737,7 +768,12 @@ class AgentTaskService:
                                   {"id": s["id"]})
                 postponed += 1
                 continue
-            nxt = (now + timedelta(minutes=s["interval_minutes"])).isoformat()
+            # fixed cadence: the next slot follows the planned one (a late tick neither drifts nor catches up twice)
+            step = timedelta(minutes=s["interval_minutes"])
+            nxt_dt = (datetime.fromisoformat(s["next_run_at"]) if s.get("next_run_at") else now) + step
+            while nxt_dt <= now:
+                nxt_dt += step
+            nxt = nxt_dt.isoformat()
             self.store.update("agent_schedules", dict(last_run_at=now.isoformat(), next_run_at=nxt), {"id": s["id"]})
             try:
                 self.create(None, s["agent_id"], s["task_type"], {}, idempotency_key=f"schedule:{s['id']}",

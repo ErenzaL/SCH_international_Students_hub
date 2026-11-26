@@ -2576,7 +2576,7 @@
         "open": "开放中",
         "openUntil": "开放至{date}",
         "closed": "已截止",
-        "unknown": "状态未知",
+        "unknown": "截止日期未知——请查看原文",
         "uncertain": "年份为推测"
       },
       "kinds": {
@@ -2725,7 +2725,8 @@
           "listing": "列表页面",
           "page": "单个页面",
           "saramin_api": "Saramin（官方 API）",
-          "data_go_kr_jobs": "公共机构（官方 API）"
+          "data_go_kr_jobs": "公共机构（官方 API）",
+          "work24_api": "고용24 Work24（官方 API）"
         },
         "failures": "连续失败 {count} 次",
         "disable": "停用",
@@ -2780,6 +2781,8 @@
         "officialNotice": "官方公告"
       },
       "careers": {
+        "sitesTitle": "官方招聘网站（请自行打开）",
+        "sitesNote": "未连接：本平台不读取也不核实这些网站上的招聘信息，无法确认是否接受留学生。申请前请向国际交流处或 HiKorea 确认您的就业许可（D-2 / D-4：兼职许可）。",
         "intro": "在Hub发布的就业和实习公告、已批准的就业指南，以及经工作人员审核的大学官方网站招聘信息。",
         "search": "搜索就业信息",
         "searchPlaceholder": "例如：实习、兼职、招聘会",

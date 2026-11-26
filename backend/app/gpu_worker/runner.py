@@ -80,7 +80,7 @@ class Worker:
         out: dict[str, Any] | None = None
         code, model = "", None
         try:
-            out, model = generate(self.llm, job, ended)
+            out, model = generate(self.llm, job, ended, style=getattr(self.config, "prompt_style", "auto"))
         except Cancelled:
             pass
         except LLMError as exc:

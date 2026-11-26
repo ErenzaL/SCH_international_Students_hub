@@ -49,6 +49,27 @@ _ORG_PREFIX = re.compile(r"\[\s*[^\]]*?(?:센터|사업단|교류처|본부|위�
 OPEN = re.compile(r"접수\s*중|모집\s*중|applications? (?:are|is) (?:now )?open|now accepting|sedang dibuka|đang mở|正在接受", re.I)
 
 
+def effective_open_status(stored: str, extracted: dict[str, Any] | None, today: date) -> tuple[str, str]:
+    """The status a student sees TODAY, computed when the item is read - not when it was last crawled.
+
+    Rule for date-only deadlines (Korean notices give dates, rarely times): a deadline of YYYY-MM-DD is open through
+    23:59 Korea time of that day, so it closes when ``today`` (Asia/Seoul) is after it. "open" needs a deadline that
+    has not passed; a notice that only says it is recruiting, without a date, is "unknown" (deadline unknown), never
+    "open"; a notice the source calls closed stays closed."""
+    f = extracted or {}
+    reason = f.get("open_reason") or ""
+    if stored == "closed":
+        return "closed", reason or "closed"
+    t = today.isoformat()
+    dates = [d["date"] for d in (f.get("deadlines") or []) if d.get("date")] + \
+        ([f["next_deadline"]] if f.get("next_deadline") else [])
+    if dates and not any(d >= t for d in dates):
+        return "closed", "deadline_passed"
+    if any(d >= t for d in dates) and "deadline_before_published" not in (f.get("flags") or []):
+        return "open", "deadline_in_future"
+    return "unknown", "open_stated_no_deadline" if reason == "source_says_open" else "no_deadline"
+
+
 def classify(title: str, text: str) -> dict[str, Any]:
     category, word = "university-announcements", None
     # the title decides when it can; the opening of the body only when the title says nothing

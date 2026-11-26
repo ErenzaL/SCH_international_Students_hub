@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 from app.core.config import Settings  # noqa: E402
 
-SECRET = {"SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_JWT_SECRET", "LLM_API_KEY", "CRON_SECRET", "OCR_SPACE_API_KEY", "SARAMIN_ACCESS_KEY", "DATA_GO_KR_SERVICE_KEY", "TRANSLATION_API_KEY"}
+SECRET = {"SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_JWT_SECRET", "LLM_API_KEY", "CRON_SECRET", "OCR_SPACE_API_KEY", "SARAMIN_ACCESS_KEY", "DATA_GO_KR_SERVICE_KEY", "TRANSLATION_API_KEY", "WORK24_AUTH_KEY"}
 REQUIRED = {"SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "CORS_ORIGINS"}
 PROD = {"JOB_EXECUTION", "EMBEDDING_PROVIDER", "EMBEDDING_CACHE_DIR", "RETRIEVAL_MIN_SIMILARITY", "LLM_PROVIDER", "LLM_API_KEY", "GEMINI_PRIMARY_MODEL", "GEMINI_FALLBACK_MODEL", "CRON_SECRET",
         "SUPABASE_JWT_SECRET"}
@@ -21,7 +21,8 @@ HOW = {"SUPABASE_URL": "Supabase → Project Settings → API → Project URL", 
        "SUPABASE_JWT_SECRET": "Supabase → Project Settings → JWT Keys → legacy secret. Only when the project signs with HS256", "CORS_ORIGINS": "the exact web address, e.g. https://sch-international-students-hub.onrender.com",
        "LLM_API_KEY": "https://aistudio.google.com/apikey", "CRON_SECRET": "make one: `openssl rand -base64 32`; the same value as GitHub → Settings → Secrets → Actions → CRON_SECRET",
        "OCR_SPACE_API_KEY": "https://ocr.space/ocrapi (free key; images go to that service)", "SARAMIN_ACCESS_KEY": "https://oapi.saramin.co.kr/join (approval needed)",
-       "DATA_GO_KR_SERVICE_KEY": "https://www.data.go.kr/data/15125273/openapi.do → 활용신청"}
+       "DATA_GO_KR_SERVICE_KEY": "https://www.data.go.kr/data/15125273/openapi.do → 활용신청",
+       "WORK24_AUTH_KEY": "https://www.work24.go.kr → OPEN-API → 채용정보 API 신청 (terms and limits: confirm on that page)"}
 
 
 def comments() -> dict[str, str]:

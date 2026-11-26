@@ -2576,7 +2576,7 @@
         "open": "Đang mở",
         "openUntil": "Mở đến {date}",
         "closed": "Đã đóng",
-        "unknown": "Chưa rõ trạng thái",
+        "unknown": "Chưa rõ hạn chót – hãy xem nguồn gốc",
         "uncertain": "năm được giả định"
       },
       "kinds": {
@@ -2725,7 +2725,8 @@
           "listing": "Trang danh sách",
           "page": "Trang đơn",
           "saramin_api": "Saramin (API chính thức)",
-          "data_go_kr_jobs": "Cơ quan công (API chính thức)"
+          "data_go_kr_jobs": "Cơ quan công (API chính thức)",
+          "work24_api": "Work24 / 고용24 (API chính thức)"
         },
         "failures": "{count} lần thất bại liên tiếp",
         "disable": "Tắt",
@@ -2780,6 +2781,8 @@
         "officialNotice": "Thông báo chính thức"
       },
       "careers": {
+        "sitesTitle": "Trang tuyển dụng chính thức (tự mở)",
+        "sitesNote": "Chưa kết nối: Hub không đọc hay kiểm tra tin tuyển dụng trên các trang này và không biết tin đó có nhận du học sinh hay không. Trước khi ứng tuyển, hãy kiểm tra giấy phép làm việc (D-2 / D-4: giấy phép làm thêm) tại phòng quốc tế hoặc HiKorea.",
         "intro": "Thông báo nghề nghiệp và thực tập đã đăng trên Hub, hướng dẫn việc làm đã duyệt, và tin tuyển dụng từ trang chính thức của trường đã được nhân viên duyệt.",
         "search": "Tìm nghề nghiệp",
         "searchPlaceholder": "vd. thực tập, làm thêm, hội chợ việc làm",

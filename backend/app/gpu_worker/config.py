@@ -35,6 +35,7 @@ class Config:
     idle_max: float = 3600.0
     active_hours: tuple[int, int] | None = None    # KST, e.g. (9, 18)
     lock_file: Path = Path.home() / ".local/state/sch-gpu-worker/lock"
+    prompt_style: str = "auto"     # auto | shared | native (auto: native for TranslateGemma models)
 
     @classmethod
     def from_env(cls, env: dict[str, str] | None = None) -> Config:
@@ -60,6 +61,10 @@ class Config:
             if not m or not (0 <= int(m[1]) < int(m[2]) <= 24):
                 raise ConfigError("GPU_WORKER_ACTIVE_HOURS must look like 9-18 (Korea time).")
             c.active_hours = int(m[1]), int(m[2])
+        style = (e.get("GPU_WORKER_PROMPT_STYLE") or "auto").strip().lower()
+        if style not in ("auto", "shared", "native"):
+            raise ConfigError("GPU_WORKER_PROMPT_STYLE must be auto, shared or native.")
+        c.prompt_style = style
         if e.get("GPU_WORKER_LOCK_FILE"):
             c.lock_file = Path(e["GPU_WORKER_LOCK_FILE"]).expanduser()
         return c

@@ -22,7 +22,7 @@ from app.core.errors import AppError, Conflict, InvalidState, NotFound, Validati
 from app.repositories.base import Query, Store, get_one
 from app.services.announcements import today_kst
 from app.services.discovery.connectors import API_KINDS, Connectors, Entry, canonical, validate_config
-from app.services.discovery.extract import analyse
+from app.services.discovery.extract import analyse, effective_open_status
 from app.services.discovery.job_apis import HOME
 from app.services.ingestion.errors import ExtractionError, FetchError
 from app.services.ingestion.notice_reader import config_for
@@ -322,10 +322,11 @@ class DiscoveryService:
              admin: bool = False) -> dict[str, Any]:
         f = it.get("extracted") or {}
         src = (sources or {}).get(it["source_id"]) or get_one(self.store, "discovery_sources", id=it["source_id"]) or {}
+        status, reason = effective_open_status(it["open_status"], f, today_kst())
         out = dict(kind="discovered", id=it["id"], title=it["title"], href=it["url"], url=it["url"],
                    published_on=it.get("published_on"), category=it.get("category"),
-                   opportunity_kind=it.get("opportunity_kind"), open_status=it["open_status"],
-                   open_reason=f.get("open_reason"), next_deadline=f.get("next_deadline"),
+                   opportunity_kind=it.get("opportunity_kind"), open_status=status,
+                   open_reason=reason, next_deadline=f.get("next_deadline"),
                    deadline=f.get("next_deadline"), event_date=f.get("event_date"), deadlines=f.get("deadlines") or [],
                    eligibility=f.get("eligibility") or [], application_links=f.get("application_links") or [],
                    flags=f.get("flags") or [], change=it["change"], first_seen_at=it["first_seen_at"],
@@ -336,6 +337,7 @@ class DiscoveryService:
         if f.get("summary"):
             out["summary_label"] = "ai_generated"
         if admin:
+            out.update(open_status_when_checked=it["open_status"])
             out.update(duplicate_of=it.get("duplicate_of"), imported_source_id=it.get("imported_source_id"),
                        reviewed_at=it.get("reviewed_at"), review_note=it.get("review_note"),
                        error=f.get("error"), category_reason=f.get("category_reason"))
@@ -367,12 +369,14 @@ class DiscoveryService:
         approved = approved_documents(imported) if approved_documents and imported else {}
         if reviewed_only:
             rows = [r for r in rows if r.get("imported_source_id") in approved]
-        if not include_closed:
-            rows = [r for r in rows if r["open_status"] != "closed"]
+        today = today_kst()
+        status = {r["id"]: effective_open_status(r["open_status"], r.get("extracted"), today)[0] for r in rows}
+        if not include_closed:                    # a passed deadline hides the item at once, without a new crawl
+            rows = [r for r in rows if status[r["id"]] != "closed"]
         if q:
             ql = q.lower()
             rows = [r for r in rows if ql in (r["title"] + " " + (r.get("text_excerpt") or "")).lower()]
-        rows.sort(key=lambda r: ({"open": 0, "unknown": 1, "closed": 2}[r["open_status"]],
+        rows.sort(key=lambda r: ({"open": 0, "unknown": 1, "closed": 2}[status[r["id"]]],
                                  (r.get("extracted") or {}).get("next_deadline") or "9999"))
         smap = self._sources_map()
         out = []

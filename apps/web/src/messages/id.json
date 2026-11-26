@@ -2576,7 +2576,7 @@
         "open": "Dibuka",
         "openUntil": "Dibuka sampai {date}",
         "closed": "Ditutup",
-        "unknown": "Status tidak diketahui",
+        "unknown": "Batas waktu tidak diketahui – periksa sumbernya",
         "uncertain": "tahun diperkirakan"
       },
       "kinds": {
@@ -2725,7 +2725,8 @@
           "listing": "Halaman daftar",
           "page": "Satu halaman",
           "saramin_api": "Saramin (API resmi)",
-          "data_go_kr_jobs": "Lembaga publik (API resmi)"
+          "data_go_kr_jobs": "Lembaga publik (API resmi)",
+          "work24_api": "Work24 / 고용24 (API resmi)"
         },
         "failures": "{count} kali gagal berturut-turut",
         "disable": "Nonaktifkan",
@@ -2780,6 +2781,8 @@
         "officialNotice": "Pengumuman resmi"
       },
       "careers": {
+        "sitesTitle": "Situs lowongan resmi (buka sendiri)",
+        "sitesNote": "Tidak terhubung: Hub tidak membaca atau memeriksa lowongan di situs ini dan tidak dapat memastikan apakah lowongan menerima mahasiswa internasional. Sebelum melamar, periksa izin kerja Anda (D-2 / D-4: izin kerja paruh waktu) di kantor internasional atau HiKorea.",
         "intro": "Pengumuman karier dan magang yang dipublikasikan di Hub, panduan kerja yang disetujui, dan lowongan dari situs resmi universitas yang ditinjau staf.",
         "search": "Cari karier",
         "searchPlaceholder": "mis. magang, paruh waktu, bursa kerja",

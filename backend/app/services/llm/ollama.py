@@ -253,7 +253,8 @@ class OllamaProvider:
         attempts = attempts or self.max_attempts
         payload: dict[str, Any] = dict(
             model=model, stream=stream, keep_alive=self.keep_alive, truncate=False, shift=False,
-            messages=[{"role": "system", "content": system}, {"role": "user", "content": prompt}],
+            # an empty system message is left out (TranslateGemma's own prompt is one user turn)
+            messages=([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": prompt}],
             options=dict(num_ctx=self.num_ctx, num_predict=min(max_tokens, self.max_output_tokens),
                          temperature=self.temperature))
         if self.seed is not None:

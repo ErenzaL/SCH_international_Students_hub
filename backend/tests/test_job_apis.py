@@ -111,4 +111,77 @@ def test_the_catalogue_is_valid_allowlisted_and_added_by_an_administrator(env):
         r = env.client.post("/api/v1/admin/discovery/sources", headers=env.auth("admin"), json={k: i[k] for k in ("agent_id", "name", "kind", "url", "category", "language", "config")})
         assert r.status_code == 201, (i["name"], r.text)
     again = env.client.get("/api/v1/admin/discovery/catalog", headers=env.auth("admin")).json()["items"]
-    assert all(i["added"] for i in again) and [i["ready"] for i in again if i["needs"]] == [False, False]
+    assert all(i["added"] for i in again) and [i["ready"] for i in again if i["needs"]] == [False, False, False]   # 3 keys
+
+
+# ------------------------------------------------------------------ 고용24 (Work24) OPEN-API: XML, field names from the official page
+def work24_xml(*wanted: str) -> bytes:
+    return ("<?xml version='1.0' encoding='UTF-8'?><wantedRoot><total>3</total><startPage>1</startPage><display>50</display>"
+            + "".join(wanted) + "</wantedRoot>").encode()
+
+
+def wanted(no: str, title: str, close: str, url: str = "https://www.work24.go.kr/wk/a/b/1500/empDetailAuthView.do?wantedAuthNo=K1") -> str:
+    return (f"<wanted><wantedAuthNo>{no}</wantedAuthNo><company>(주)아산글로벌</company><title>{title}</title>"
+            f"<salTpNm>시급</salTpNm><sal>10,320원</sal><region>충남 아산시</region><holidayTpNm>주5일근무</holidayTpNm>"
+            f"<minEdubg>학력무관</minEdubg><career>신입</career><regDt>{D(-2)[2:]}</regDt><closeDt>{close}</closeDt>"
+            f"<wantedInfoUrl>{url}</wantedInfoUrl></wanted>")
+
+
+def work24(env, body: bytes, status: int = 200) -> list[httpx.Request]:  # type: ignore[no-untyped-def]
+    seen: list[httpx.Request] = []
+
+    def h(req: httpx.Request) -> httpx.Response:
+        seen.append(req)
+        return httpx.Response(status, content=body, headers={"content-type": "application/xml"})
+
+    env.app.state.services.discovery.connectors.api_http = httpx.Client(transport=httpx.MockTransport(h))
+    env.settings.work24_auth_key = KEY
+    return seen
+
+
+def test_work24_without_a_key_is_blocked_and_sends_nothing(env):
+    source(env, "work24_api")
+    seen = work24(env, work24_xml())
+    env.settings.work24_auth_key = ""
+    t = run_task(env, "career", "opportunity_discovery").json()
+    assert t["output"]["sources"][0]["error"] == "api_key_missing" and seen == []
+
+
+def test_work24_postings_become_private_candidates_with_honest_deadlines(env, caplog):
+    s = source(env, "work24_api", keywords="외국인")
+    assert s["url"] == "https://www.work24.go.kr/"
+    seen = work24(env, work24_xml(
+        wanted("K1", "외국인 유학생 통역 아르바이트", D(10)[2:]),                      # yy-mm-dd, as Work24 writes it
+        wanted("K2", "영어 가능 글로벌 마케팅 인턴", "채용시까지"),                      # no date: deadline unknown
+        wanted("K3", "중국어 상담원", D(5), url="https://evil.example/x"),
+        wanted("K4", "생산직 사원", D(5))))                                            # not relevant to international students
+    t = run_task(env, "career", "opportunity_discovery").json()
+    items = {i["title"]: i for i in t["output"]["items"]}
+    assert set(items) == {"[채용] (주)아산글로벌 외국인 유학생 통역 아르바이트", "[채용] (주)아산글로벌 영어 가능 글로벌 마케팅 인턴",
+                          "[채용] (주)아산글로벌 중국어 상담원"}
+    assert items["[채용] (주)아산글로벌 외국인 유학생 통역 아르바이트"]["next_deadline"] == D(10)
+    assert items["[채용] (주)아산글로벌 영어 가능 글로벌 마케팅 인턴"]["next_deadline"] is None     # never "open until" a guessed date
+    assert items["[채용] (주)아산글로벌 중국어 상담원"]["href"] == "https://www.work24.go.kr/"        # foreign links are not shown
+    q = seen[0].url
+    assert q.host == "www.work24.go.kr" and q.scheme == "https" and q.params["callTp"] == "L" and q.params["regDate"] == "W-1"
+    assert q.params["keyword"] == "외국인" and len(seen) == 1
+    row = next(r for r in env.store.select("discovered_items")[0] if "마케팅" in r["title"])
+    assert "채용 시까지" in (row["text_excerpt"] or "") and row["open_status"] != "open"   # labelled, not "open"
+    stored = str(env.store.select("discovered_items")[0]) + str(env.store.select("agent_task_events")[0])
+    assert KEY not in stored and KEY not in caplog.text
+    # nothing is visible to students before an administrator approves it
+    assert env.client.post("/api/v1/agents/career/tools", headers=env.auth("student"),
+                           json=dict(tool="opportunity_search", params={"kind": "job"})).json()["result"]["items"] == []
+
+
+@pytest.mark.parametrize("body,code", [
+    (b"<?xml version='1.0'?><!DOCTYPE x [<!ENTITY a 'aaaa'>]><wantedRoot>&a;</wantedRoot>", "invalid_answer"),
+    (b"<error><message>\xec\x9d\xb8\xec\xa6\x9d\xed\x82\xa4 \xec\x98\xa4\xeb\xa5\x98</message></error>", "api_key_invalid"),
+    (b"<result><code>x</code></result>", "structure_changed"),
+    (b"not xml at all", "invalid_answer")])
+def test_work24_bad_answers_are_refused_without_leaking_the_key(env, body, code):
+    s = source(env, "work24_api")
+    work24(env, body)
+    t = run_task(env, "career", "opportunity_discovery").json()
+    assert t["output"]["sources"][0]["error"] == code
+    assert KEY not in str(get_one(env.store, "discovery_sources", id=s["id"]))

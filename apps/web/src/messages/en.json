@@ -2576,7 +2576,7 @@
         "open": "Open",
         "openUntil": "Open until {date}",
         "closed": "Closed",
-        "unknown": "Status unknown",
+        "unknown": "Deadline unknown – check the source",
         "uncertain": "year assumed"
       },
       "kinds": {
@@ -2725,7 +2725,8 @@
           "listing": "List page",
           "page": "Single page",
           "saramin_api": "Saramin (official API)",
-          "data_go_kr_jobs": "Public institutions (official API)"
+          "data_go_kr_jobs": "Public institutions (official API)",
+          "work24_api": "Work24 / 고용24 (official API)"
         },
         "failures": "{count, plural, one {# failed check} other {# failed checks}} in a row",
         "disable": "Disable",
@@ -2780,6 +2781,8 @@
         "officialNotice": "Official notice"
       },
       "careers": {
+        "sitesTitle": "Official job sites (open them yourself)",
+        "sitesNote": "Not connected: the Hub does not read or check these listings and cannot say whether a posting accepts international students. Before you apply, check your permission to work (D-2 / D-4: part-time work permit) with the international office or HiKorea.",
         "intro": "Career and internship notices published in the Hub, approved employment guides, and job postings from official university websites that staff reviewed.",
         "search": "Search careers",
         "searchPlaceholder": "e.g. internship, part-time, job fair",

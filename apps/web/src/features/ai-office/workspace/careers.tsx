@@ -7,7 +7,7 @@
  */
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Info, Search } from "lucide-react";
+import { ExternalLink, Info, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { agentApi, useAgentTasks } from "@/features/ai-office/agent-api";
 import { useWorkspace } from "@/features/ai-office/workspace/context";
@@ -16,6 +16,18 @@ import {
   AgentTaskList, EmptyState, LoadState, Notes, OpportunityCard, WorkspaceSection, useCommonNextSteps,
 } from "@/features/ai-office/workspace/parts";
 import { useApi } from "@/lib/use-api";
+
+/** Job sites students can open themselves. None is read by the Hub: automated access is either not permitted, not
+ * documented or needs a key the owner has not set (docs/owner/FINAL-SETUP-CHECKLIST.md). */
+const JOB_SITES: { name: string; href: string }[] = [
+  { name: "고용24 (Work24)", href: "https://www.work24.go.kr/" },
+  { name: "Study in Korea – 외국인 유학생 취업", href: "https://www.studyinkorea.go.kr/ko/work/aboutForeignerEmploymentSystem.do" },
+  { name: "HiKorea – 시간제 취업 허가", href: "https://www.hikorea.go.kr/" },
+  { name: "사람인 (Saramin)", href: "https://www.saramin.co.kr/" },
+  { name: "잡코리아 (JobKorea)", href: "https://www.jobkorea.co.kr/" },
+  { name: "링커리어 (Linkareer)", href: "https://linkareer.com/" },
+  { name: "Buddies Korea", href: "https://www.buddieskorea.com/" },
+];
 
 export function CareersWorkspace() {
   const ws = useWorkspace();
@@ -73,6 +85,20 @@ export function CareersWorkspace() {
         <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
         {external?.available ? t("externalOn") : t("externalOff")}
       </p>
+
+      <WorkspaceSection title={t("sitesTitle")} testId="career-sites">
+        <p className="text-xs text-muted-foreground">{t("sitesNote")}</p>
+        <ul className="mt-2 flex flex-wrap gap-2">
+          {JOB_SITES.map((site) => (
+            <li key={site.href}>
+              <a href={site.href} target="_blank" rel="noopener noreferrer" data-connected="false"
+                className="inline-flex min-h-9 items-center gap-1 rounded-full border border-border px-3 text-xs hover:bg-muted">
+                {site.name} <ExternalLink className="size-3" aria-hidden />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </WorkspaceSection>
 
       <Button variant="outline" size="sm" className="min-h-9" onClick={() => ws.openTab("guides")}>{t("openGuides")}</Button>
 

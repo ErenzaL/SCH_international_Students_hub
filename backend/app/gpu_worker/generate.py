@@ -30,6 +30,26 @@ Translate the source text again, completely, into {target} only. Keep every line
 number, code, amount, date and weekday. Do not add anything."""
 
 
+# TranslateGemma was trained on this single user prompt (model card); rules, hints or repair notes in English would
+# be translated as if they were part of the notice, so the native style sends nothing else.
+NATIVE_PROMPT = """You are a professional {src} ({src_code}) to {tgt} ({tgt_code}) translator. Your goal is to accurately \
+convey the meaning and nuances of the original {src} text while adhering to {tgt} grammar, vocabulary, and cultural \
+sensitivities.
+Produce only the {tgt} translation, without any additional explanations or commentary. Please translate the following \
+{src} text into {tgt}:
+
+
+{text}"""
+PLAIN_NAMES = {"ko": "Korean", "en": "English", "id": "Indonesian", "vi": "Vietnamese", "zh-CN": "Chinese"}
+
+
+def prompt_style(llm: Any, style: str = "auto") -> str:
+    """shared = the Hub's prompts with hints and repairs; native = the model's own prompt (TranslateGemma)."""
+    if style in ("shared", "native"):
+        return style
+    return "native" if str(getattr(llm, "model", "")).lower().startswith("translategemma") else "shared"
+
+
 class Cancelled(Exception):
     pass
 
@@ -40,8 +60,10 @@ class CheckedModel:
     instructions or slipped into another language, it is translated again with the problems named (at most twice) and the
     best version is kept. A version that is still in the wrong language is refused (llm_malformed: the job is retried)."""
 
-    def __init__(self, llm: Any, source: str, target: str, cancelled: threading.Event, *, repair: bool):
+    def __init__(self, llm: Any, source: str, target: str, cancelled: threading.Event, *, repair: bool,
+                 style: str = "shared"):
         self.llm, self.source, self.target, self.cancelled, self.repair = llm, source, target, cancelled, repair
+        self.style = style
         self.max_source_chars = llm.max_source_chars
         self.calls = self.repairs = self.input_tokens = self.output_tokens = 0
 
@@ -72,6 +94,17 @@ class CheckedModel:
 
     def complete(self, system: str, prompt: str, **kw: Any) -> LLMResult:
         m = _SOURCE.search(prompt)
+        if self.style == "native" and m is not None:
+            # the checks still run (the reviewer sees every warning); nothing is retried with instructions
+            text = m.group(1)
+            one_line = "one line" in prompt.split("<source_text>", 1)[0]
+            r = self._call("", NATIVE_PROMPT.format(src=PLAIN_NAMES[self.source], src_code=self.source,
+                                                    tgt=PLAIN_NAMES[self.target], tgt_code=self.target, text=text), **kw)
+            if one_line:
+                r.text = next((ln for ln in r.text.strip().splitlines() if ln.strip()), r.text)
+            if self._wrong_language(text, r.text):
+                raise LLMError("llm_malformed", "The model answered in the wrong language.", transient=True)
+            return r
         if not self.repair or m is None:
             return self._call(system, prompt, **kw)
         src = m.group(1)
@@ -115,9 +148,11 @@ def check_job(job: Any) -> dict[str, Any]:
     return job
 
 
-def generate(llm: Any, job: dict[str, Any], cancelled: threading.Event) -> tuple[dict[str, Any], CheckedModel]:
+def generate(llm: Any, job: dict[str, Any], cancelled: threading.Event, *, repair: bool = True,
+             style: str = "auto") -> tuple[dict[str, Any], CheckedModel]:
     summarize = job["mode"] == "summarize"
-    model = CheckedModel(llm, job["source_language"], job["target_language"], cancelled, repair=not summarize)
+    model = CheckedModel(llm, job["source_language"], job["target_language"], cancelled,
+                         repair=repair and not summarize, style="shared" if summarize else prompt_style(llm, style))
     common = dict(title=job["title"], body=job["body"], source_lang=job["source_language"],
                   target_lang=job["target_language"])
     if summarize:
