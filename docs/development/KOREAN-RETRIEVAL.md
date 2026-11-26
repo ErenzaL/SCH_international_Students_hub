@@ -51,4 +51,6 @@ gives the model up to four sources and R@5 is 0.80–0.98, the effect on answers
 with real questions; 3) a cross-encoder reranker (research: +7–9 points MRR) needs about 120 MB more memory, which the free 512 MB instance does not have
 ([RENDER-MEMORY.md](RENDER-MEMORY.md)); 4) split the 85,000-character guidebook into chapter documents in the Knowledge Center (an editorial change, no code).
 
+Follow-up for English questions about Korean notices, with an adoption rule: [CROSSLANG-EVAL.md](CROSSLANG-EVAL.md).
+
 Files: `scripts/benchmarks/retrieval_fresh_ko_check_v1.json`, `…_v2.json`, `scripts/benchmarks/results/korean_retrieval_round.json`.

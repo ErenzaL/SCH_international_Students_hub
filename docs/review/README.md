@@ -84,3 +84,17 @@ part or a wrong meaning that the reviewer could have overlooked, and correcting 
 | English | who is exempt from the health check | another group is exempt |
 | Chinese | list of 14 items | 7 items as a list |
 | several | the section about fines | missing |
+
+## Part 4: search questions in English about Korean notices (`crosslang_en_ko_v1_review.csv`, about 1 hour)
+
+Each row is a question a student might ask and the Korean notice that should answer it (open the link). Fill in:
+
+| Column | What to write |
+|---|---|
+| natural_wording | `yes` if a student would ask it like this; `no` otherwise |
+| notice_answers_it | `yes`, `partly` or `no` |
+| other_pages_that_answer | links of other official pages that answer it just as well, if you know any |
+| better_question | optional: how a student would really ask |
+| reviewer | your name or initials |
+
+Do not search the Hub to check: the point is to decide what the right answer is before anyone sees what the search finds.
