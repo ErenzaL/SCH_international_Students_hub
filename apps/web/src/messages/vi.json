@@ -3000,6 +3000,7 @@
         "error": "Không tìm được. Vui lòng thử lại."
       },
       "queue": {
+        "handOnly": "Hãy dịch thủ công: bản nháp máy cho thông báo chỉ được tạo bằng tiếng Hàn, tiếng Anh và tiếng Indonesia.",
         "intro": "Các bản dịch của ngôn ngữ này đang chờ người xem. Bản nháp không được công bố trước khi người duyệt chấp thuận.",
         "counts": "Số lượng theo trạng thái",
         "empty": "Không có mục nào đang chờ.",

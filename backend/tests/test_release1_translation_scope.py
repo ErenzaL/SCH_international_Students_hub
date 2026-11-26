@@ -79,3 +79,16 @@ def test_language_switching_never_exposes_a_pending_draft(auto):
         assert all(t["translation_status"] == "human_approved" for t in d["translations"])
         items = auto.client.get("/api/v1/announcements", params={"display_language": lang}).json()["items"]
         assert items[0]["display_title"] is None
+
+
+def test_the_supporter_queue_says_where_machine_drafts_exist(auto):
+    from tests.test_agent_operations import tool
+    from tests.test_document_translations import assign
+
+    auto.settings.auto_translate_announcements = False
+    publish(auto, title=TEXT["ko"][0], body=TEXT["ko"][1])
+    for lang, expected in (("id", True), ("vi", False)):
+        assign(auto, "supporter", lang)
+        r = tool(auto, f"supporter-{lang}", "translation_review_queue", {}, "supporter")
+        items = [i for i in r.json()["result"]["items"] if i["content_kind"] == "announcement"]
+        assert items and all(i["machine_draft"] is expected for i in items), (lang, r.text)

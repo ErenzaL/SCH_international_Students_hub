@@ -128,7 +128,10 @@ function TranslationQueue() {
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     <Button asChild size="sm" variant="outline" className="min-h-9"><Link href={i.href ?? "/admin/translations"}><Languages className="size-4" aria-hidden /> {t("open")}</Link></Button>
-                    {i.status === "todo" && (
+                    {i.status === "todo" && i.machine_draft === false && (
+                      <span className="self-center text-xs text-muted-foreground" data-testid="hand-only">{t("handOnly")}</span>
+                    )}
+                    {i.status === "todo" && i.machine_draft !== false && (
                       <Button size="sm" variant="ghost" className="min-h-9" disabled={!draftTool?.available || busy !== null} onClick={() => void draft(i)} data-testid="request-draft">
                         {busy === i.id && <Loader2 className="size-4 animate-spin" aria-hidden />} {t("draft")}
                       </Button>

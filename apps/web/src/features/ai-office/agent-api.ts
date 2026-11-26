@@ -173,6 +173,8 @@ export interface ResultItem {
   ref?: string;
   outdated?: boolean;
   can_review?: boolean;
+  /** translation queue: false = no machine draft in this language (Release 1: announcements only ko / en / id) */
+  machine_draft?: boolean;
   executor?: "local" | "gpu";
   language?: string;
   priority?: string;

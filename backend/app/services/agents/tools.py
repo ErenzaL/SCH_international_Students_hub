@@ -710,6 +710,7 @@ def terminology_lookup(ctx: ToolContext, p: TermParams) -> dict[str, Any]:
 def translation_review_queue(ctx: ToolContext, p: QueueParams) -> dict[str, Any]:
     """Translations of this supporter's language that wait for a person. Only the caller's own language permissions count."""
     from app.security.permissions import languages_with
+    from app.services.translation.auto import machine_languages
 
     assert ctx.user is not None
     lang = ctx.agent.fixed_language or ctx.language
@@ -733,6 +734,8 @@ def translation_review_queue(ctx: ToolContext, p: QueueParams) -> dict[str, Any]
         items.append(dict(kind="translation_task", id=t["id"], title=t.get("announcement_title") or t.get("document_title") or "",
                           content_kind=kind, ref=ref, status=st, outdated=bool(t.get("is_outdated")), updated_at=t.get("updated_at"),
                           can_review=bool(t.get("can_can_review") or t.get("can_review")),
+                          # Release 1: machine drafts of announcements only in ko / en / id (documents: every language)
+                          machine_draft=kind == "document" or lang in machine_languages(svc.settings),
                           href=f"/admin/translations/{ref}/{lang}" if kind == "announcement" else f"/admin/translations/documents/{ref}/{lang}",
                           reliability=None))
     rank = {"in_review": 0, "needs_review": 1, "machine_draft": 2, "draft": 3, "changes_requested": 4, "todo": 5}

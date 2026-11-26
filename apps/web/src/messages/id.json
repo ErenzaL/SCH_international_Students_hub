@@ -3000,6 +3000,7 @@
         "error": "Pencarian gagal. Silakan coba lagi."
       },
       "queue": {
+        "handOnly": "Terjemahkan secara manual: draf mesin untuk pengumuman hanya dibuat dalam bahasa Korea, Inggris, dan Indonesia.",
         "intro": "Terjemahan bahasa ini yang menunggu orang. Draf tidak pernah publik sebelum disetujui peninjau.",
         "counts": "Jumlah per status",
         "empty": "Tidak ada yang menunggu.",

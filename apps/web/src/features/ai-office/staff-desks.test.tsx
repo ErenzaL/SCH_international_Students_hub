@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { renderWithIntl } from "@/test/utils";
 import type { AgentInfo } from "@/features/ai-office/agent-api";
@@ -54,6 +54,17 @@ describe("supporter desks", () => {
     await userEvent.click(screen.getByTestId("request-draft"));
     expect(await screen.findByText(/queued for the university GPU/)).toBeInTheDocument();
     expect(calls.find((c) => c.body?.tool === "request_translation_draft")?.body?.params).toEqual({ announcement_id: "a1" });
+  });
+
+  it("offers no machine draft of an announcement where the release does not make one (Vietnamese)", async () => {
+    results = { translation_review_queue: { tool: "q", count: 2, notes: [], counts: { todo: 2 }, items: [
+      { kind: "translation_task", id: "1", title: "Dorm notice", content_kind: "announcement", ref: "a1", status: "todo", machine_draft: false, href: "/admin/translations/a1/vi" },
+      { kind: "translation_task", id: "2", title: "Guide", content_kind: "document", ref: "d1", status: "todo", machine_draft: true, href: "/admin/translations/documents/d1/vi" }] } };
+    renderWithIntl(<QueueWorkspace />);
+    const items = await screen.findAllByTestId("queue-item");
+    expect(within(items[0]).queryByTestId("request-draft")).toBeNull();
+    expect(within(items[0]).getByTestId("hand-only")).toHaveTextContent(/Translate by hand/);
+    expect(within(items[1]).getByTestId("request-draft")).toBeInTheDocument();
   });
 
   it("tells a supporter of another language that this is not their queue", async () => {

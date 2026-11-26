@@ -3000,6 +3000,7 @@
         "error": "The search did not work. Please try again."
       },
       "queue": {
+        "handOnly": "Translate by hand: machine drafts of announcements are only made in Korean, English and Indonesian.",
         "intro": "Translations of this language that wait for a person. A draft is never public before a reviewer approves it.",
         "counts": "Numbers by status",
         "empty": "Nothing is waiting.",
