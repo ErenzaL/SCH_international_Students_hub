@@ -1,0 +1,506 @@
+[
+  {
+    "filename": "KR_Korea.png",
+    "source_sheet": "a_clean_vector_cartoon_illustration_on_a_transpare_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      0,
+      226
+    ]
+  },
+  {
+    "filename": "ID_Indonesia.png",
+    "source_sheet": "a_clean_vector_cartoon_illustration_on_a_transpare_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      226,
+      406
+    ]
+  },
+  {
+    "filename": "VN_Vietnam.png",
+    "source_sheet": "a_clean_vector_cartoon_illustration_on_a_transpare_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      406,
+      619
+    ]
+  },
+  {
+    "filename": "CN_China.png",
+    "source_sheet": "a_clean_vector_cartoon_illustration_on_a_transpare_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      619,
+      817
+    ]
+  },
+  {
+    "filename": "JP_Japan.png",
+    "source_sheet": "a_clean_vector_cartoon_illustration_on_a_transpare_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      817,
+      997
+    ]
+  },
+  {
+    "filename": "TH_Thailand.png",
+    "source_sheet": "a_clean_vector_cartoon_illustration_on_a_transpare_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      997,
+      1176
+    ]
+  },
+  {
+    "filename": "PH_Philippines.png",
+    "source_sheet": "a_clean_vector_cartoon_illustration_on_a_transpare_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      1176,
+      1368
+    ]
+  },
+  {
+    "filename": "MY_Malaysia.png",
+    "source_sheet": "a_clean_vector_cartoon_illustration_on_a_transpare_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      1368,
+      1554
+    ]
+  },
+  {
+    "filename": "US_United_States.png",
+    "source_sheet": "a_clean_vector_cartoon_illustration_on_a_transpare_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      1554,
+      1744
+    ]
+  },
+  {
+    "filename": "UK_United_Kingdom.png",
+    "source_sheet": "a_clean_vector_cartoon_illustration_on_a_transpare_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      1744,
+      1983
+    ]
+  },
+  {
+    "filename": "AU_Australia.png",
+    "source_sheet": "a_clean_png_style_transparent_background_image_ch_2_batch_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      0,
+      241
+    ]
+  },
+  {
+    "filename": "IN_India.png",
+    "source_sheet": "a_clean_png_style_transparent_background_image_ch_2_batch_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      241,
+      421
+    ]
+  },
+  {
+    "filename": "MN_Mongolia.png",
+    "source_sheet": "a_clean_png_style_transparent_background_image_ch_2_batch_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      421,
+      621
+    ]
+  },
+  {
+    "filename": "KH_Cambodia.png",
+    "source_sheet": "a_clean_png_style_transparent_background_image_ch_2_batch_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      621,
+      799
+    ]
+  },
+  {
+    "filename": "LA_Laos.png",
+    "source_sheet": "a_clean_png_style_transparent_background_image_ch_2_batch_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      799,
+      989
+    ]
+  },
+  {
+    "filename": "MM_Myanmar.png",
+    "source_sheet": "a_clean_png_style_transparent_background_image_ch_2_batch_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      989,
+      1179
+    ]
+  },
+  {
+    "filename": "SG_Singapore.png",
+    "source_sheet": "a_clean_png_style_transparent_background_image_ch_2_batch_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      1179,
+      1366
+    ]
+  },
+  {
+    "filename": "BR_Brazil.png",
+    "source_sheet": "a_clean_png_style_transparent_background_image_ch_2_batch_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      1366,
+      1565
+    ]
+  },
+  {
+    "filename": "FR_France.png",
+    "source_sheet": "a_clean_png_style_transparent_background_image_ch_2_batch_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      1565,
+      1755
+    ]
+  },
+  {
+    "filename": "DE_Germany.png",
+    "source_sheet": "a_clean_png_style_transparent_background_image_ch_2_batch_1.png",
+    "row_band": [
+      0,
+      793
+    ],
+    "x_band": [
+      1755,
+      1983
+    ]
+  },
+  {
+    "filename": "AI_General_Robot.png",
+    "source_sheet": "a_clean_transparent_background_sprite_sheet_of_11_3_batch_2.png",
+    "row_band": [
+      0,
+      481
+    ],
+    "x_band": [
+      0,
+      257
+    ]
+  },
+  {
+    "filename": "Agent_General_AI.png",
+    "source_sheet": "a_clean_transparent_background_sprite_sheet_of_11_3_batch_2.png",
+    "row_band": [
+      0,
+      481
+    ],
+    "x_band": [
+      257,
+      482
+    ]
+  },
+  {
+    "filename": "Agent_Visa_and_Stay.png",
+    "source_sheet": "a_clean_transparent_background_sprite_sheet_of_11_3_batch_2.png",
+    "row_band": [
+      0,
+      481
+    ],
+    "x_band": [
+      482,
+      707
+    ]
+  },
+  {
+    "filename": "Agent_Dormitory.png",
+    "source_sheet": "a_clean_transparent_background_sprite_sheet_of_11_3_batch_2.png",
+    "row_band": [
+      0,
+      481
+    ],
+    "x_band": [
+      707,
+      933
+    ]
+  },
+  {
+    "filename": "Agent_TOPIK.png",
+    "source_sheet": "a_clean_transparent_background_sprite_sheet_of_11_3_batch_2.png",
+    "row_band": [
+      0,
+      481
+    ],
+    "x_band": [
+      933,
+      1168
+    ]
+  },
+  {
+    "filename": "Agent_Part_Time_Job.png",
+    "source_sheet": "a_clean_transparent_background_sprite_sheet_of_11_3_batch_2.png",
+    "row_band": [
+      0,
+      481
+    ],
+    "x_band": [
+      1168,
+      1448
+    ]
+  },
+  {
+    "filename": "Agent_Academics.png",
+    "source_sheet": "a_clean_transparent_background_sprite_sheet_of_11_3_batch_2.png",
+    "row_band": [
+      481,
+      1086
+    ],
+    "x_band": [
+      0,
+      278
+    ]
+  },
+  {
+    "filename": "Agent_Events_and_Contests.png",
+    "source_sheet": "a_clean_transparent_background_sprite_sheet_of_11_3_batch_2.png",
+    "row_band": [
+      481,
+      1086
+    ],
+    "x_band": [
+      278,
+      540
+    ]
+  },
+  {
+    "filename": "Agent_Life_in_Korea.png",
+    "source_sheet": "a_clean_transparent_background_sprite_sheet_of_11_3_batch_2.png",
+    "row_band": [
+      481,
+      1086
+    ],
+    "x_band": [
+      540,
+      823
+    ]
+  },
+  {
+    "filename": "Agent_Emergency.png",
+    "source_sheet": "a_clean_transparent_background_sprite_sheet_of_11_3_batch_2.png",
+    "row_band": [
+      481,
+      1086
+    ],
+    "x_band": [
+      823,
+      1086
+    ]
+  },
+  {
+    "filename": "Agent_Global_Supporter.png",
+    "source_sheet": "a_clean_transparent_background_sprite_sheet_of_11_3_batch_2.png",
+    "row_band": [
+      481,
+      1086
+    ],
+    "x_band": [
+      1086,
+      1448
+    ]
+  },
+  {
+    "filename": "Staff_01_Black_Hair.png",
+    "source_sheet": "a_transparent_background_png_checkerboard_transpa_4_batch_3.png",
+    "row_band": [
+      0,
+      502
+    ],
+    "x_band": [
+      0,
+      241
+    ]
+  },
+  {
+    "filename": "Staff_02_Brown_Hair.png",
+    "source_sheet": "a_transparent_background_png_checkerboard_transpa_4_batch_3.png",
+    "row_band": [
+      0,
+      502
+    ],
+    "x_band": [
+      241,
+      496
+    ]
+  },
+  {
+    "filename": "Staff_03_Glasses_Male.png",
+    "source_sheet": "a_transparent_background_png_checkerboard_transpa_4_batch_3.png",
+    "row_band": [
+      0,
+      502
+    ],
+    "x_band": [
+      496,
+      723
+    ]
+  },
+  {
+    "filename": "Staff_04_Glasses_Female.png",
+    "source_sheet": "a_transparent_background_png_checkerboard_transpa_4_batch_3.png",
+    "row_band": [
+      0,
+      502
+    ],
+    "x_band": [
+      723,
+      968
+    ]
+  },
+  {
+    "filename": "Staff_05_Hijab.png",
+    "source_sheet": "a_transparent_background_png_checkerboard_transpa_4_batch_3.png",
+    "row_band": [
+      0,
+      502
+    ],
+    "x_band": [
+      968,
+      1194
+    ]
+  },
+  {
+    "filename": "Staff_06_Ponytail.png",
+    "source_sheet": "a_transparent_background_png_checkerboard_transpa_4_batch_3.png",
+    "row_band": [
+      0,
+      502
+    ],
+    "x_band": [
+      1194,
+      1448
+    ]
+  },
+  {
+    "filename": "Staff_07_Curly_Hair.png",
+    "source_sheet": "a_transparent_background_png_checkerboard_transpa_4_batch_3.png",
+    "row_band": [
+      502,
+      1086
+    ],
+    "x_band": [
+      0,
+      316
+    ]
+  },
+  {
+    "filename": "Staff_08_Blonde_Hair.png",
+    "source_sheet": "a_transparent_background_png_checkerboard_transpa_4_batch_3.png",
+    "row_band": [
+      502,
+      1086
+    ],
+    "x_band": [
+      316,
+      573
+    ]
+  },
+  {
+    "filename": "Staff_09_Long_Blue_Hair.png",
+    "source_sheet": "a_transparent_background_png_checkerboard_transpa_4_batch_3.png",
+    "row_band": [
+      502,
+      1086
+    ],
+    "x_band": [
+      573,
+      844
+    ]
+  },
+  {
+    "filename": "Staff_10_Red_Hair.png",
+    "source_sheet": "a_transparent_background_png_checkerboard_transpa_4_batch_3.png",
+    "row_band": [
+      502,
+      1086
+    ],
+    "x_band": [
+      844,
+      1096
+    ]
+  },
+  {
+    "filename": "Staff_11_Purple_Hair.png",
+    "source_sheet": "a_transparent_background_png_checkerboard_transpa_4_batch_3.png",
+    "row_band": [
+      502,
+      1086
+    ],
+    "x_band": [
+      1096,
+      1448
+    ]
+  }
+]
