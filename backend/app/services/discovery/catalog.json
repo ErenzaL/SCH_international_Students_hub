@@ -18,9 +18,9 @@
     "with_text": 3,
     "with_date": 3,
     "with_deadline": 1,
-    "newest": "2026-11-23",
+    "newest": "2026-11-25",
     "seconds": 3.5,
-    "checked": "2026-11-25"
+    "checked": "2026-11-27"
    }
   },
   {
@@ -46,10 +46,10 @@
     "items_read": 3,
     "with_text": 3,
     "with_date": 3,
-    "with_deadline": 2,
-    "newest": "2026-11-24",
-    "seconds": 5.4,
-    "checked": "2026-11-25"
+    "with_deadline": 3,
+    "newest": "2026-11-26",
+    "seconds": 3.6,
+    "checked": "2026-11-27"
    }
   },
   {
@@ -70,8 +70,8 @@
     "with_date": 3,
     "with_deadline": 0,
     "newest": "2026-11-12",
-    "seconds": 3.4,
-    "checked": "2026-11-25"
+    "seconds": 3.3,
+    "checked": "2026-11-27"
    }
   },
   {
@@ -99,8 +99,8 @@
     "with_date": 3,
     "with_deadline": 3,
     "newest": "2026-11-23",
-    "seconds": 3.4,
-    "checked": "2026-11-25"
+    "seconds": 4.3,
+    "checked": "2026-11-27"
    }
   },
   {
@@ -122,7 +122,7 @@
     "with_deadline": 0,
     "newest": null,
     "seconds": 0.1,
-    "checked": "2026-11-25"
+    "checked": "2026-11-27"
    }
   },
   {
@@ -142,7 +142,7 @@
     "with_deadline": 0,
     "newest": null,
     "seconds": 0.1,
-    "checked": "2026-11-25"
+    "checked": "2026-11-27"
    }
   },
   {
@@ -170,8 +170,8 @@
     "with_date": 3,
     "with_deadline": 1,
     "newest": "2026-11-18",
-    "seconds": 4.5,
-    "checked": "2026-11-25"
+    "seconds": 3.3,
+    "checked": "2026-11-27"
    }
   },
   {
@@ -195,8 +195,8 @@
     "with_date": 3,
     "with_deadline": 0,
     "newest": "2026-10-06",
-    "seconds": 0.3,
-    "checked": "2026-11-25"
+    "seconds": 0.4,
+    "checked": "2026-11-27"
    }
   },
   {
@@ -217,8 +217,8 @@
     "with_date": 0,
     "with_deadline": 0,
     "newest": null,
-    "seconds": 0.4,
-    "checked": "2026-11-25"
+    "seconds": 0.3,
+    "checked": "2026-11-27"
    }
   },
   {
@@ -244,10 +244,10 @@
     "items_read": 3,
     "with_text": 3,
     "with_date": 3,
-    "with_deadline": 0,
-    "newest": "2026-11-24",
-    "seconds": 3.5,
-    "checked": "2026-11-25"
+    "with_deadline": 1,
+    "newest": "2026-11-26",
+    "seconds": 4.3,
+    "checked": "2026-11-27"
    }
   },
   {
@@ -268,8 +268,8 @@
     "with_date": 3,
     "with_deadline": 2,
     "newest": "2026-11-24",
-    "seconds": 3.5,
-    "checked": "2026-11-25"
+    "seconds": 3.3,
+    "checked": "2026-11-27"
    }
   },
   {
@@ -290,8 +290,8 @@
     "with_date": 0,
     "with_deadline": 0,
     "newest": null,
-    "seconds": 0.3,
-    "checked": "2026-11-25"
+    "seconds": 0.2,
+    "checked": "2026-11-27"
    }
   },
   {
@@ -311,7 +311,7 @@
     "with_deadline": 0,
     "newest": null,
     "seconds": 0.1,
-    "checked": "2026-11-25"
+    "checked": "2026-11-27"
    }
   },
   {
@@ -330,8 +330,8 @@
     "with_date": 0,
     "with_deadline": 0,
     "newest": null,
-    "seconds": 0.2,
-    "checked": "2026-11-25"
+    "seconds": 0.1,
+    "checked": "2026-11-27"
    }
   },
   {
@@ -351,7 +351,7 @@
     "with_deadline": 0,
     "newest": null,
     "seconds": 0.1,
-    "checked": "2026-11-25"
+    "checked": "2026-11-27"
    }
   },
   {
@@ -373,7 +373,7 @@
     "with_deadline": 0,
     "newest": null,
     "seconds": 0.2,
-    "checked": "2026-11-25"
+    "checked": "2026-11-27"
    }
   },
   {
@@ -395,7 +395,7 @@
     "with_deadline": 0,
     "newest": null,
     "seconds": 0.2,
-    "checked": "2026-11-25"
+    "checked": "2026-11-27"
    }
   },
   {
@@ -414,8 +414,8 @@
     "with_date": 0,
     "with_deadline": 0,
     "newest": null,
-    "seconds": 0.1,
-    "checked": "2026-11-25"
+    "seconds": 0.2,
+    "checked": "2026-11-27"
    }
   },
   {
@@ -437,7 +437,7 @@
     "with_deadline": 0,
     "newest": null,
     "seconds": 0.2,
-    "checked": "2026-11-25"
+    "checked": "2026-11-27"
    }
   },
   {
@@ -457,7 +457,7 @@
     "with_deadline": 0,
     "newest": null,
     "seconds": 0.1,
-    "checked": "2026-11-25"
+    "checked": "2026-11-27"
    }
   },
   {
@@ -478,8 +478,8 @@
     "with_date": 3,
     "with_deadline": 1,
     "newest": "2026-10-06",
-    "seconds": 3.4,
-    "checked": "2026-11-25"
+    "seconds": 3.3,
+    "checked": "2026-11-27"
    }
   },
   {
@@ -503,8 +503,8 @@
     "with_date": 3,
     "with_deadline": 0,
     "newest": "2026-11-13",
-    "seconds": 0.2,
-    "checked": "2026-11-25"
+    "seconds": 0.3,
+    "checked": "2026-11-27"
    }
   },
   {
@@ -525,8 +525,8 @@
     "with_date": 3,
     "with_deadline": 3,
     "newest": "2026-11-12",
-    "seconds": 3.5,
-    "checked": "2026-11-25"
+    "seconds": 3.4,
+    "checked": "2026-11-27"
    }
   },
   {

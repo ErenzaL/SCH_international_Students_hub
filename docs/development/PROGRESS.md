@@ -26,15 +26,18 @@ Plan: [MASTER-PLAN.md](MASTER-PLAN.md). Blockers: [BLOCKERS.md](BLOCKERS.md). Me
 | 0 audit and baseline | done | `b104bc4` |
 | 1 cost controls (migration 0018, persistent budgets, estimates from configured prices, spend ceiling, emergency stop) | done, tested | `4666ea3` |
 | 5a announcement translation scope ko/en/id, verified-only display | done, tested | `4666ea3` |
-| 5b TranslateGemma benchmark (4B and 12B downloaded: 3.3 GB + 8.1 GB) | dev runs in progress | – |
-| 2 RAG evaluation | next | – |
-| 3, 4 agents and discovery | after 2 | – |
-| 6 office colours, admin | after 4 | – |
-| 7–10 | later | – |
+| 2 RAG research evaluation (dev + held-out, CIs, paired tests) | done | `48a5a12` |
+| 4 weekly staggered schedules (0019), Work24 connector, read-time expiry, job-site links | done, tested | `2ca6734` |
+| 5b TranslateGemma benchmark: 12B + shared prompts chosen on dev (rule fixed before held-out) | dev done; held-out running | `aed8a09` |
+| 6 office wall colour, admin AI usage card | done, unit-tested; browser screenshots pending | `a6dd5dd` |
+| 7 security: secret scan of changes clean, `npm audit --omit=dev` 0, rollbacks 0018/0019 tested | done (pip-audit blocked) | – |
+| 8 end-to-end: integration 94/9 with 0018+0019; browser journeys pending (web build OK) | in progress | – |
+| 9 research reports: methodology, results, error analysis, translation (draft) | in progress | – |
+| 10 final checklist (draft), readiness | in progress | – |
 
 ## Next executable step
 
-1. When `dev_tg*` runs finish: compare `scripts/benchmarks/results/announcements_dev_tg*.json` with the Qwen baseline
-   (`announcements_improved.json`), choose ONE configuration by the rule in TRANSLATION-EVALUATION.md, then run the held-out set once.
-2. Phase 2: `scripts/eval_retrieval_benchmark.py`, `scripts/eval_multilingual_retrieval.py`, `scripts/eval_crosslang.py` (see CROSSLANG-EVAL.md: the
-   held-out cross-language set is still unlooked-at; one pre-registered look only).
+1. Held-out translation runs (`heldout_tg12b_shared`, `heldout_qwen7b_shared`) → fill TRANSLATION-EVALUATION §5.
+2. `rag_lab.py --modes qwen,retrieval,nocontext --json …/rag_behaviour_rc1127.json` (answers + tokens per answer) → RAG-RESULTS §7, COST-EVALUATION.
+3. Memory re-run `render_like_rc1127_arena2.*` (work dir `/data/20243508/w`) → PERFORMANCE.md.
+4. Browser journeys: fresh scratch DB, `dev_stack.py --synthetic-web`, `next start`, `node scripts/e2e_full.mjs` (Journey G rewritten for Indonesian).

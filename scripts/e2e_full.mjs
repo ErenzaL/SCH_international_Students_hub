@@ -19,6 +19,7 @@ for (const u of [WEB, info.api, info.auth]) {
 }
 const EMAIL = (who) => `${who}@${info.email_domain ?? "example.test"}`;
 const only = process.env.ONLY ? process.env.ONLY.split(",") : null;
+const GPU_MODEL = process.env.E2E_GPU_MODEL || "translategemma:12b";   // the translation model chosen in TRANSLATION-EVALUATION.md
 let passed = 0, failed = 0;
 const check = (n, ok, d = "") => { ok ? passed++ : failed++; console.log(`${ok ? "PASS" : "FAIL"}  ${n}  ${ok ? "" : d}`); };
 const api = async (who, method, p, body) => {
@@ -257,38 +258,54 @@ J.gpu = async () => {   // token in the browser -> worker process -> draft -> la
   check("the token is not shown again", !(await sa.page.content()).includes(token));
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gpuw-"));
   fs.writeFileSync(path.join(dir, "token"), token, { mode: 0o600 });
-  const worker = (...args) => new Promise((res) => { let log = ""; const p = spawn(WPY, ["-m", "app.gpu_worker", ...args], { cwd: BACKEND, env: { PATH: process.env.PATH, HOME: dir, GPU_WORKER_HUB_URL: info.api, GPU_WORKER_TOKEN_FILE: path.join(dir, "token"), GPU_WORKER_IDLE_MIN_SECONDS: "5" } });
+  const worker = (...args) => new Promise((res) => { let log = ""; const p = spawn(WPY, ["-m", "app.gpu_worker", ...args], { cwd: BACKEND, env: { PATH: process.env.PATH, HOME: dir, GPU_WORKER_HUB_URL: info.api, GPU_WORKER_TOKEN_FILE: path.join(dir, "token"), GPU_WORKER_IDLE_MIN_SECONDS: "5", OLLAMA_MODEL: GPU_MODEL } });
     p.stdout.on("data", (d) => (log += d)); p.stderr.on("data", (d) => (log += d)); p.on("close", (code) => res({ code, log })); });
   const chk = await worker("--check");
   check("worker --check", chk.code === 0, chk.log);
   await worker("--drain");                       // first contact: the worker is now known as available
   const ann = await api("admin", "POST", "/admin/announcements", { title: "[가상] 기숙사 점검 안내", body: "기숙사 냉장고 점검은 2026년 12월 2일 13:30에 합니다. 점검 전에 냉장고를 비워 주십시오. 문의: 041-000-1234", category: "dormitory-housing", source_type: "manual_text", submit: true, evidence_note: "synthetic", original_language: "ko" });
   await api("admin", "POST", `/admin/announcements/${ann.data.id}/approve`, {});
-  const sup = await context("supporter_vi");
-  await desk(sup.page, "supporter-vi");
+  // Journey G (Release 1): a Korean notice -> Indonesian draft on the GPU -> the Indonesian reviewer -> public in Indonesian only
+  const sup = await context("reviewer_id");
+  await desk(sup.page, "supporter-id");
   await tab(sup.page, "Queue");
   const row = sup.page.getByTestId("queue-item").filter({ hasText: "기숙사 점검" });
   await row.waitFor({ timeout: 15000 });
   await row.getByTestId("request-draft").click();
-  check("Vietnamese supporter requests a draft; it waits for the GPU", await sup.page.getByText(/queued for the university GPU/).waitFor({ timeout: 15000 }).then(() => true, () => false));
-  await shot(sup.page, "minh-queue");
+  check("Indonesian reviewer requests a draft; it waits for the GPU", await sup.page.getByText(/queued for the university GPU/).waitFor({ timeout: 15000 }).then(() => true, () => false));
+  await shot(sup.page, "sari-queue");
+  const vi = await api("supporter_vi", "POST", `/admin/announcements/${ann.data.id}/translations/vi/machine-translate`);
+  check("no machine draft of an announcement in Vietnamese (Release 1)", vi.status === 409 && vi.data?.error?.code === "language_out_of_scope", JSON.stringify(vi.data));
   const t0 = Date.now();
   const run = await worker("--drain");
-  check("the GPU worker generated the draft with Qwen", run.code === 0, run.log.slice(-400));
+  check(`the GPU worker generated the draft with ${GPU_MODEL}`, run.code === 0, run.log.slice(-400));
   console.log(`      drain: ${((Date.now() - t0) / 1000).toFixed(1)} s`);
-  const tr = (await api("supporter_vi", "GET", `/admin/announcements/${ann.data.id}/translations/vi`)).data;
+  const tr = (await api("reviewer_id", "GET", `/admin/announcements/${ann.data.id}/translations/id`)).data;
   const body = tr.translation?.body ?? tr.body ?? "";
-  console.log("      vi:", body.replace(/\s+/g, " ").slice(0, 200), "|", tr.translation?.translation_status ?? tr.translation_status);
-  check("the draft needs review, keeps date, time and phone", /2026/.test(body) && /13:30/.test(body) && /041-000-1234/.test(body) && JSON.stringify(tr).includes("needs_review"), JSON.stringify(tr).slice(0, 300));
-  const pub = async () => JSON.stringify((await api(null, "GET", `/announcements/${ann.data.id}?lang=vi`)).data);
-  check("not public before a reviewer approves", !(await pub()).includes(body.slice(0, 30)));
-  const ap = await api("supporter_vi", "POST", `/admin/announcements/${ann.data.id}/translations/vi/approve`, { original_verified: true });
-  check("the Vietnamese reviewer approves", ap.status === 200, JSON.stringify(ap.data));
-  check("now it is public in Vietnamese", (await pub()).includes(body.slice(0, 30)));
-  const other = await api("reviewer_id", "POST", `/admin/announcements/${ann.data.id}/translations/vi/approve`, { original_verified: true });
+  console.log("      id:", body.replace(/\s+/g, " ").slice(0, 200), "|", tr.translation?.translation_status ?? tr.translation_status);
+  check("the draft needs review, keeps date, time and phone", /2026/.test(body) && /13[:.]30/.test(body) && /041-000-1234/.test(body) && JSON.stringify(tr).includes("needs_review"), JSON.stringify(tr).slice(0, 300));
+  const pub = async (lang) => JSON.stringify((await api(null, "GET", `/announcements/${ann.data.id}?lang=${lang}`)).data);
+  check("not public before a reviewer approves", !(await pub("id")).includes(body.slice(0, 30)));
+  const other = await api("supporter_vi", "POST", `/admin/announcements/${ann.data.id}/translations/id/approve`, { original_verified: true });
   check("a reviewer of another language cannot approve it", other.status === 403, other.status);
+  const ap = await api("reviewer_id", "POST", `/admin/announcements/${ann.data.id}/translations/id/approve`, { original_verified: true });
+  check("the Indonesian reviewer approves", ap.status === 200, JSON.stringify(ap.data));
+  check("now it is public in Indonesian", (await pub("id")).includes(body.slice(0, 30)));
+  check("Vietnamese still gets the original (no translation)", !(await pub("vi")).includes(body.slice(0, 30)) && (await pub("vi")).includes("기숙사 냉장고 점검"));
+  const reader = await context("visitor");
+  await lang(reader.page, "id");
+  await reader.page.goto(`${WEB}/announcements/${ann.data.id}`);
+  await reader.page.getByTestId("announcement-body").waitFor({ timeout: 20000 });
+  check("the Indonesian page shows the reviewed translation", (await reader.page.getByTestId("announcement-body").innerText()).includes(body.slice(0, 20)));
+  await shot(reader.page, "announcement-id-verified");
+  await lang(reader.page, "vi");
+  await reader.page.goto(`${WEB}/announcements/${ann.data.id}`);
+  await reader.page.getByTestId("fallback-notice").waitFor({ timeout: 20000 });
+  check("the Vietnamese page shows the original with the 'not offered yet' note", /chưa được dịch/.test(await reader.page.getByTestId("fallback-notice").innerText()));
+  await shot(reader.page, "announcement-vi-original");
+  await reader.ctx.close();
   // outage: revoked key while a job waits
-  await api("super_admin", "POST", `/admin/announcements/${ann.data.id}/translations/id/machine-translate`);
+  await api("super_admin", "POST", `/admin/announcements/${ann.data.id}/translations/en/machine-translate`);
   const w = (await api("super_admin", "GET", "/admin/gpu/status")).data.workers[0];
   await api("super_admin", "PATCH", `/admin/gpu/workers/${w.id}`, { status: "revoked" });
   const bad = await worker("--once");
