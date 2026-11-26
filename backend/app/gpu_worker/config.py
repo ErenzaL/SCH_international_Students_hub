@@ -14,6 +14,11 @@ FORBIDDEN = re.compile(r"^(SUPABASE_|NEXT_PUBLIC_SUPABASE_|DATABASE_URL$|LLM_API
                        r"CRON_SECRET$|OCR_SPACE_API_KEY$)", re.I)
 
 
+#: the production API. Until the Release B sign-off the worker serves only development and staging task systems; connecting to
+#: production needs GPU_WORKER_PRODUCTION_HOST set to exactly this host (a deliberate step taken with the Release B sign-off)
+PRODUCTION_HOSTS = ("sch-hub-api.onrender.com",)
+
+
 class ConfigError(Exception):
     pass
 
@@ -37,7 +42,7 @@ class Config:
         bad = sorted(k for k, v in e.items() if v and FORBIDDEN.match(k))
         if bad:
             raise ConfigError(f"Refusing to start: {', '.join(bad)} must not be set on the GPU server.")
-        url = check_hub_url(e.get("GPU_WORKER_HUB_URL", ""))
+        url = check_hub_url(e.get("GPU_WORKER_HUB_URL", ""), production_host=e.get("GPU_WORKER_PRODUCTION_HOST", ""))
         c = cls(hub_url=url, token_file=Path(e.get("GPU_WORKER_TOKEN_FILE")
                                              or Path.home() / ".config/sch-gpu-worker/token").expanduser())
         c.ollama_url = e.get("OLLAMA_BASE_URL") or c.ollama_url
@@ -60,8 +65,8 @@ class Config:
         return c
 
 
-def check_hub_url(url: str) -> str:
-    """https, or plain http to this machine (tests). No path, credentials or query."""
+def check_hub_url(url: str, production_host: str = "") -> str:
+    """https, or plain http to this machine (tests). No path, credentials or query. Not the production API without the Release B sign-off."""
     url = url.strip().rstrip("/")
     try:
         p = urlsplit(url)
@@ -74,6 +79,9 @@ def check_hub_url(url: str) -> str:
         local = host == "localhost"
     if not host or p.username or p.path or p.query or p.fragment or not (p.scheme == "https" or (p.scheme == "http" and local)):
         raise ConfigError("GPU_WORKER_HUB_URL must be https://<api host> without a path.")
+    if host.lower() in PRODUCTION_HOSTS and production_host.strip().lower() != host.lower():
+        raise ConfigError(f"GPU_WORKER_HUB_URL is the production API ({host}). The worker serves development and staging only; production needs "
+                          "the Release B sign-off and then GPU_WORKER_PRODUCTION_HOST set to that exact host.")
     return url
 
 

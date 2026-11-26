@@ -168,3 +168,78 @@ def test_restart_oom_concurrency_and_stuck_work_fail():
 def test_unresponsive_api_fails():
     res = judge([sample(0, 300), sample(1, 300), sample(2, 300, health_ok=False, health_s=None, search_ok=False), sample(3, 300)])
     assert res["API stays responsive (/health)"] == "FAIL" and res["search stays usable during processing"] == "FAIL"
+
+
+# --------------------------------------------------------------------------- --supabase-local (the CLI stack on this computer)
+DEMO_SERVICE = jwt(iss="supabase-demo", role="service_role")
+DEMO_ANON = jwt(iss="supabase-demo", role="anon")
+
+
+@pytest.fixture
+def local_env(monkeypatch):
+    for k in list(__import__("os").environ):
+        if k.startswith("STAGING_"):
+            monkeypatch.delenv(k)
+    for k, v in dict(STAGING_DB_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres", STAGING_SERVICE_KEY=DEMO_SERVICE,
+                     STAGING_ANON_KEY=DEMO_ANON, STAGING_API="http://127.0.0.1:8051", STAGING_WEB="http://127.0.0.1:3000",
+                     PRODUCTION_REF=PROD).items():
+        monkeypatch.setenv(k, v)
+    return monkeypatch
+
+
+def local_guard(http=None):  # type: ignore[no-untyped-def]
+    st = boot.Staging(argparse.Namespace(step="all", email_domain="sch-staging.example.com", local=False, supabase_local=True,
+                                         info=Path("/nonexistent")), http=http or FakeHttp())
+    st.guard()
+    return st
+
+
+def test_local_stack_with_demo_keys_passes(local_env):
+    st = local_guard()
+    assert st.url == "http://127.0.0.1:54321" and "127.0.0.1:54322" in st.db
+
+
+@pytest.mark.parametrize("name,value,match", [
+    ("STAGING_DB_URL", f"postgresql://postgres.{PROD}:pw@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres", "hosted Supabase"),
+    ("STAGING_DB_URL", "postgresql://postgres:pw@10.0.0.5:5432/postgres", "not the database on this computer"),
+    ("STAGING_SUPABASE_URL", f"https://{PROD}.supabase.co", "hosted Supabase"),
+    ("STAGING_API", "https://sch-hub-api.onrender.com", "production"),
+    ("STAGING_WEB", "http://192.168.0.10:3000", "on this computer"),
+    ("STAGING_SERVICE_KEY", jwt(ref=PROD, role="service_role"), "PRODUCTION"),
+    ("STAGING_SERVICE_KEY", jwt(ref="otherhostedprojectxx", role="service_role"), "hosted project"),
+    ("STAGING_SERVICE_KEY", DEMO_ANON, "role 'anon'"),
+])
+def test_local_stack_refuses_anything_hosted_or_remote(local_env, name, value, match):
+    local_env.setenv(name, value)
+    with pytest.raises(SystemExit, match=match):
+        local_guard()
+
+
+def test_local_stack_new_keys_are_checked_against_the_local_stack_only(local_env):
+    local_env.setenv("STAGING_SERVICE_KEY", "sb_secret_local")
+    local_env.setenv("STAGING_ANON_KEY", "sb_publishable_local")
+    http = FakeHttp(200)
+    local_guard(http)
+    assert http.urls and all(u.startswith("http://127.0.0.1:54321/") for u in http.urls)
+
+
+def test_local_api_runs_only_against_the_stack_on_this_computer():
+    local_api = load("local_api")
+    local_api.check({"SUPABASE_URL": "http://127.0.0.1:54321", "SUPABASE_SERVICE_ROLE_KEY": DEMO_SERVICE})
+    for env, match in (({"SUPABASE_URL": f"https://{PROD}.supabase.co"}, "on this computer"),
+                       ({"SUPABASE_URL": "http://127.0.0.1:54321", "CORS_ORIGINS": "https://sch-international-students-hub.onrender.com"}, "production"),
+                       ({"SUPABASE_URL": "http://127.0.0.1:54321", "LLM_API_KEY": "x"}, "LLM_API_KEY")):
+        with pytest.raises(SystemExit, match=match):
+            local_api.check(env)
+
+
+def test_synthetic_web_serves_only_invented_pages():
+    import httpx
+
+    web = load("synthetic_web")
+    c = httpx.Client(transport=web.transport())
+    board = c.get("https://sgee.sch.ac.kr/notice/notice01.php?table_name=noti_fore&loc_mnu=3")
+    assert board.status_code == 200 and "(합성)" in board.text
+    notice = c.get("https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=9101&table_name=noti_fore")
+    assert web.MARK in notice.text
+    assert c.get("https://www.google.com/").status_code == 404 and c.get("https://sgee.sch.ac.kr/robots.txt").status_code == 404

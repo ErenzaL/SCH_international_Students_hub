@@ -1,4 +1,8 @@
-"""Prepare a SEPARATE, free Supabase project as staging: schema, seed, made-up accounts, and an info file for the tests.
+"""Prepare a staging database: schema, seed, made-up accounts, and an info file for the tests. Three targets:
+
+    --supabase-local   the Supabase CLI stack on this computer (scripts/local_supabase.sh; real Auth, Storage, PostgREST, RLS)
+    --local            a scratch PostgreSQL + PostgREST of scripts/scratch_db.sh (tests of this script)
+    (default)          a SEPARATE hosted Supabase project, if one is ever available (the Free plan allows two active projects)
 
     export STAGING_REF=abcd... PRODUCTION_REF=wxyz... STAGING_SUPABASE_URL=https://$STAGING_REF.supabase.co
     export STAGING_API=https://sch-hub-api-staging.onrender.com STAGING_WEB=https://sch-hub-web-staging.onrender.com
@@ -10,6 +14,8 @@ of another project (legacy keys name their project; new sb_ keys are tried once,
 accepted there); a secret key in the publishable slot or the reverse; STAGING_API / STAGING_WEB that are production addresses or not
 https; an account domain that is not a reserved example domain (example.com/.net/.org, *.example, *.test, *.invalid); a project with
 more than 50 profiles or more than 5 accounts outside that domain (a real project, not a fresh staging one).
+With --supabase-local every address and the connection string must be on this computer, and a key that names any hosted project is
+refused.
 Only synthetic data is written: the seed's labelled samples and categories, made-up accounts; the seed's candidate official sources
 are registered but switched off (nothing on staging fetches a real website unless an administrator enables a source).
 Secrets are read from the environment or typed; they are never printed or written anywhere except the info file (mode 600: passwords
@@ -26,6 +32,7 @@ import secrets
 import shlex
 import subprocess
 import sys
+import tempfile
 import time
 import uuid
 from pathlib import Path
@@ -66,6 +73,11 @@ def reserved_domain(domain: str) -> bool:
     return d in RESERVED or d.endswith(tuple("." + r for r in RESERVED)) or d.endswith((".example", ".test", ".invalid"))
 
 
+def loopback(url: str) -> bool:
+    host = (urlparse(url).hostname or "").lower()
+    return host in ("127.0.0.1", "localhost", "::1")
+
+
 def jwt_claims(key: str) -> dict | None:  # type: ignore[type-arg]
     """Claims of a legacy Supabase key (a JWT naming its project as 'ref'); None for the new sb_... keys."""
     parts = key.split(".")
@@ -84,8 +96,9 @@ class Staging:
         self.http = http
         self.service_key = self.anon_key = ""
         self.local = a.local
+        self.supabase_local = getattr(a, "supabase_local", False)
         self.ref, self.prod = os.environ.get("STAGING_REF", ""), os.environ.get("PRODUCTION_REF", "")
-        self.url = os.environ.get("STAGING_SUPABASE_URL", "").rstrip("/")
+        self.url = os.environ.get("STAGING_SUPABASE_URL", "http://127.0.0.1:54321" if self.supabase_local else "").rstrip("/")
         self.db = os.environ.get("STAGING_PSQL", "") if self.local else ""
 
     # ------------------------------------------------------------------ guards
@@ -95,6 +108,9 @@ class Staging:
         if self.local:
             if "supabase" in self.db or not os.environ.get("STAGING_PSQL"):
                 stop("--local is only for a scratch database (scripts/scratch_db.sh)")
+            return
+        if self.supabase_local:
+            self.guard_supabase_local()
             return
         if not self.ref or not self.prod or self.ref == self.prod:
             stop("set STAGING_REF and PRODUCTION_REF (two different projects)")
@@ -114,12 +130,36 @@ class Staging:
             self.anon_key = self.check_key(secret("STAGING_ANON_KEY", "STAGING publishable / anon key: "), "publishable")
         self.db = "psql " + shlex.quote(conn)
 
-    def check_key(self, key: str, kind: str) -> str:
+    def guard_supabase_local(self) -> None:
+        """The Supabase CLI stack on this computer (supabase start): every address must be loopback, nothing may name a hosted project."""
+        values = {k: v for k, v in os.environ.items() if k.startswith("STAGING_") and v}
+        for k, v in values.items():
+            if ".supabase.co" in v or ".supabase.com" in v or (self.prod and self.prod in v) or any(h in v for h in PRODUCTION_HOSTS):
+                stop(f"{k} names a hosted Supabase project or production; --supabase-local is only for the stack on this computer")
+        for name, u in (("STAGING_SUPABASE_URL", self.url), ("STAGING_API", os.environ.get("STAGING_API", "")), ("STAGING_WEB", os.environ.get("STAGING_WEB", ""))):
+            if u and not loopback(u):
+                stop(f"{name} must be an address on this computer (127.0.0.1 / localhost), not {urlparse(u).hostname}")
+        conn = secret("STAGING_DB_URL", "local connection string (supabase status: DB_URL): ")
+        if not loopback(conn):
+            stop("the connection string is not the database on this computer")
+        if self.a.step in ("all", "users", "info", "doctor"):
+            self.service_key = self.check_key(secret("STAGING_SERVICE_KEY", "local secret / service_role key: "), "secret", local=True)
+        if self.a.step in ("all", "info", "doctor"):
+            self.anon_key = self.check_key(secret("STAGING_ANON_KEY", "local publishable / anon key: "), "publishable", local=True)
+        self.db = "psql " + shlex.quote(conn)
+
+    def check_key(self, key: str, kind: str, local: bool = False) -> str:
         """The key must belong to the staging project. Read-only; nothing is written with it before this passed."""
         key = key.strip()
         if not key:
             stop(f"no {kind} key")
         claims = jwt_claims(key)
+        if claims is not None and local:                         # the CLI's demo keys name no project; a hosted key does
+            if claims.get("ref"):
+                stop(f"the {kind} key belongs to a hosted project ({'PRODUCTION' if claims.get('ref') == self.prod else 'not this computer'})")
+            if (claims.get("role") == "service_role") != (kind == "secret"):
+                stop(f"the {kind} key has role {claims.get('role')!r}")
+            return key
         if claims is not None:                                   # legacy JWT key: names its project and role
             if claims.get("ref") == self.prod:
                 stop(f"the {kind} key is a PRODUCTION key")
@@ -222,7 +262,7 @@ class Staging:
                 if r.status_code != 200:
                     raise SystemExit(f"sign-in of {name} failed: HTTP {r.status_code}")
                 tokens[name] = r.json()["access_token"]
-        data = dict(staging=True, api=os.environ.get("STAGING_API", "").rstrip("/"), web=os.environ.get("STAGING_WEB", "").rstrip("/"), auth=self.url,
+        data = dict(staging=not self.supabase_local, local_supabase=self.supabase_local, api=os.environ.get("STAGING_API", "").rstrip("/"), web=os.environ.get("STAGING_WEB", "").rstrip("/"), auth=self.url,
                     password=self.password, users=ids, tokens=tokens, email_domain=self.a.email_domain, cron=os.environ.get("STAGING_CRON_SECRET", ""),
                     schedules=bool(os.environ.get("STAGING_CRON_SECRET")), production_ref=self.prod, staging_ref=self.ref,
                     # the publishable key is public by design (the web build contains it); with the password it lets long tests sign in again
@@ -236,7 +276,10 @@ class Staging:
         env = dict(os.environ, SUPABASE_URL=self.url, SUPABASE_SERVICE_ROLE_KEY=self.service_key, SUPABASE_ANON_KEY=self.anon_key)
         args = ["-m", "app.cli", "doctor"] + (["--api", os.environ["STAGING_API"]] if os.environ.get("STAGING_API") else []) + \
             (["--web", os.environ["STAGING_WEB"]] if os.environ.get("STAGING_WEB") else [])
-        subprocess.run([sys.executable, *args], cwd=ROOT / "backend", env=env)
+        # from an empty directory: the settings also read .env and ../.env of the working directory, and a developer's backend/.env may
+        # hold production values
+        with tempfile.TemporaryDirectory() as empty:
+            subprocess.run([sys.executable, *args], cwd=empty, env=dict(env, PYTHONPATH=str(ROOT / "backend")))
 
 
 def main() -> None:
@@ -244,7 +287,10 @@ def main() -> None:
     ap.add_argument("step", choices=["all", "schema", "seed", "users", "info", "doctor"])
     ap.add_argument("--info", type=Path, default=Path.home() / "sch-staging.json")
     ap.add_argument("--email-domain", default="sch-staging.example.com")
-    ap.add_argument("--local", action="store_true", help="a scratch database of scripts/scratch_db.sh (tests of this script)")
+    mode = ap.add_mutually_exclusive_group()
+    mode.add_argument("--local", action="store_true", help="a scratch database of scripts/scratch_db.sh (tests of this script)")
+    mode.add_argument("--supabase-local", action="store_true",
+                      help="the Supabase CLI stack on this computer (scripts/local_supabase.sh): real Auth, Storage, PostgREST, loopback only")
     a = ap.parse_args()
     st = Staging(a)
     st.guard()

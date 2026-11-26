@@ -131,6 +131,45 @@ J.announcement = async () => {   // Robo: real source -> candidate -> review -> 
   await page.context().close();
 };
 
+J.pdf = async () => {   // admin uploads a synthetic Korean PDF in the browser -> worker extracts -> review -> approval -> search -> RAG answer
+  const pdf = path.join(OUT, "synthetic-deposit-notice.pdf");
+  const py = process.env.PDF_PYTHON ?? path.join(BACKEND, ".venv/bin/python");
+  const tag = Date.now().toString(36);
+  const code = `import fitz,sys\nd=fitz.open();p=d.new_page()\np.insert_text((50,60),"(합성) 생활관 보증금 환불 안내 ${tag}\\n\\n보증금 환불 신청 기간: 3월 2일 ~ 3월 13일\\n환불 금액: 보증금 50,000원 전액\\n신청 장소: 글로벌빌리지 1층 행정실\\n준비물: 학생증, 본인 명의 통장 사본\\n\\n※ 시험용 합성 데이터입니다.",fontname="korea",fontsize=12)\nd.save(sys.argv[1])`;
+  const made = await new Promise((res) => { const p = spawn(py, ["-c", code, pdf]); p.on("close", (c) => res(c === 0)); p.on("error", () => res(false)); });
+  check("a synthetic Korean PDF was made", made && fs.existsSync(pdf), py);
+  const title = `(합성) 생활관 보증금 환불 안내 ${tag}`;
+  const { page, ctx } = await context("admin");
+  await page.goto(`${WEB}/admin/knowledge-sources/new`);
+  await page.getByRole("tab", { name: "Document upload" }).click();
+  await page.locator("#doc-title").fill(title);
+  await page.locator("#doc-org").fill("SYNTHETIC TEST");
+  await page.getByTestId("doc-input").setInputFiles(pdf);
+  await page.getByRole("button", { name: "Upload and extract" }).click();
+  const review = page.getByRole("link", { name: "Open review" }).first();
+  check("upload accepted; the worker extracted the text in the background", await review.waitFor({ timeout: 300000 }).then(() => true, () => false));
+  check("the extracted text is shown before review", await page.getByText("보증금 환불 신청 기간").first().waitFor({ timeout: 10000 }).then(() => true, () => false));
+  const hidden = await api(null, "POST", "/knowledge/search", { query: "생활관 보증금 환불 신청 기간", top_k: 5 });
+  check("nothing is searchable before approval", !(hidden.data?.results ?? []).some((r) => r.document_title?.includes(tag)));
+  await shot(page, "pdf-extracted");
+  await review.click();
+  await page.getByRole("button", { name: "Approve and index" }).click();
+  check("approved in the browser and indexed by the worker", await page.getByText("Active – searchable.").waitFor({ timeout: 180000 }).then(() => true, () => false));
+  const found = await api(null, "POST", "/knowledge/search", { query: "생활관 보증금 환불 신청 기간", top_k: 5 });
+  check("the PDF is found by a Korean search", (found.data?.results ?? []).some((r) => r.document_title?.includes(tag)), JSON.stringify((found.data?.results ?? []).map((r) => r.document_title)));
+  const en = await api(null, "POST", "/knowledge/search", { query: "When can I get my dormitory deposit refunded?", top_k: 5 });
+  console.log("      English search top:", JSON.stringify((en.data?.results ?? []).slice(0, 3).map((r) => r.document_title)));
+  if (process.env.LLM !== "none") {
+    const st = await context("student");
+    await desk(st.page, "supporter-en");
+    const a = await ask(st.page, "When can I apply for the dormitory deposit refund, and where?");
+    console.log("      en:", (a ?? "").replace(/\s+/g, " ").slice(0, 200));
+    check("the answer quotes the approved PDF (dates or office)", a && /(13|March|3월|Global Village|글로벌빌리지)/i.test(a), a);
+    await st.ctx.close();
+  }
+  await ctx.close();
+};
+
 J.visa = async () => {
   const { page, ctx } = await context("student");
   await desk(page, "visa");

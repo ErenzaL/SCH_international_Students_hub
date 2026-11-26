@@ -113,3 +113,39 @@ def test_a_job_started_inside_a_running_job_does_not_deadlock(env, monkeypatch):
     t.start()
     t.join(5)
     assert not t.is_alive() and seen == [outer, inner]
+
+
+def test_gpu_worker_refuses_the_production_api_without_explicit_approval():
+    import pytest
+
+    from app.gpu_worker.config import ConfigError, check_hub_url
+
+    assert check_hub_url("http://127.0.0.1:8051") == "http://127.0.0.1:8051"
+    assert check_hub_url("https://sch-hub-api-staging.onrender.com")
+    for allowed in ("", "yes", "sch-hub-api-staging.onrender.com"):
+        with pytest.raises(ConfigError, match="production API"):
+            check_hub_url("https://sch-hub-api.onrender.com", production_host=allowed)
+    assert check_hub_url("https://sch-hub-api.onrender.com", production_host="sch-hub-api.onrender.com")
+
+
+def test_memory_probe_refuses_real_credentials_and_needs_its_key():
+    import secrets
+
+    import pytest
+    from fastapi.testclient import TestClient
+
+    from app import memory_probe
+
+    k, s = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
+    for bad in ("SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "LLM_API_KEY", "CRON_SECRET"):
+        with pytest.raises(SystemExit, match=bad):
+            memory_probe.build({"PROBE_KEY": k, "PROBE_JWT_SECRET": s, bad: "x"})
+    with pytest.raises(SystemExit, match="PROBE_KEY"):
+        memory_probe.build({"PROBE_KEY": "short", "PROBE_JWT_SECRET": s})
+    app = memory_probe.build({"PROBE_KEY": k, "PROBE_JWT_SECRET": s, "EMBEDDING_PROVIDER": "hash"})
+    with TestClient(app) as c:
+        assert c.get("/health").status_code == 200
+        assert c.get("/api/v1/categories").status_code == 404
+        assert c.get("/api/v1/categories", headers={"x-probe-key": "wrong"}).status_code == 404
+        assert c.get("/api/v1/categories", headers={"x-probe-key": k}).status_code == 200
+        assert c.post("/api/v1/knowledge/search", json={"query": "x"}).status_code == 404

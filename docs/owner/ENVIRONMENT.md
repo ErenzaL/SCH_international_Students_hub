@@ -28,6 +28,7 @@ All three are **public**: they are built into the pages. Never put a secret here
 | Variable | Required | Meaning |
 |---|---|---|
 | `GPU_WORKER_HUB_URL` | yes | `https://` address of the API, no path |
+| `GPU_WORKER_PRODUCTION_HOST` | no | leave unset: the worker refuses the production API. Only after the Release B sign-off: exactly `sch-hub-api.onrender.com` |
 | `GPU_WORKER_TOKEN_FILE` | yes | file with the token, mode 600 (the token itself is **not** a variable) |
 | `OLLAMA_BASE_URL`, `OLLAMA_MODEL`, `OLLAMA_NUM_CTX`, `OLLAMA_JOB_TIMEOUT_SECONDS` | no | defaults: loopback, `qwen2.5:7b-instruct`, 16384, 180 |
 | `GPU_WORKER_IDLE_MIN_SECONDS`, `GPU_WORKER_IDLE_MAX_SECONDS`, `GPU_WORKER_ACTIVE_HOURS`, `GPU_WORKER_LOCK_FILE` | no | continuous mode only |

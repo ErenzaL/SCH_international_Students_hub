@@ -19,8 +19,11 @@ def known() -> set[str]:
     for f in (ROOT / "apps/web/src").rglob("*.ts*"):
         web |= set(re.findall(r"process\.env\.([A-Z0-9_]+)", f.read_text(errors="ignore")))
     scripts = set()
-    for name in ("staging_bootstrap.py", "staging_memory_check.py"):
-        scripts |= set(re.findall(r"""(?:environ(?:\.get)?\(|environ\[|secret\()["']([A-Z0-9_]+)["']""", (ROOT / "scripts" / name).read_text()))
+    for f in ("scripts/staging_bootstrap.py", "scripts/staging_memory_check.py", "scripts/memory_probe_info.py", "scripts/local_api.py",
+              "backend/app/memory_probe.py"):
+        scripts |= set(re.findall(r"""(?:environ(?:\.get)?\(|environ\[|secret\(|env\.get\()["']([A-Z0-9_]+)["']""", (ROOT / f).read_text()))
+    shell = (ROOT / "scripts/local_supabase.sh").read_text()          # what supabase status prints and the script reads or unsets
+    scripts |= set(re.findall(r"\$\{?([A-Z][A-Z0-9_]+)", shell)) | set(re.findall(r"unset ([A-Z_ ]+)", shell)[0].split())
     return api | web | scripts | set(PLATFORM)
 
 

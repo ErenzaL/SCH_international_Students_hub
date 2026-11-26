@@ -73,7 +73,9 @@ class Check:
     def __init__(self, info: dict[str, Any], a: argparse.Namespace):
         self.a = a
         self.api = target(info)
-        self.c = httpx.Client(base_url=self.api, timeout=a.timeout, trust_env=False)
+        # the Render memory probe (backend/app/memory_probe.py) answers only with its key; never sent anywhere but target()
+        extra = {"X-Probe-Key": str(info["probe_key"])} if info.get("probe_key") else {}
+        self.c = httpx.Client(base_url=self.api, timeout=a.timeout, trust_env=False, headers=extra)
         token = (info.get("tokens") or {}).get("super_admin") or (info.get("tokens") or {}).get("admin")
         if not token:
             raise SystemExit("the info file has no admin token: run staging_bootstrap.py info first")

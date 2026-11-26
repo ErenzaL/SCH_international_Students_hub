@@ -35,6 +35,7 @@ ap.add_argument("--info", required=True)
 ap.add_argument("--llm", choices=["ollama", "none"], default="ollama")
 ap.add_argument("--embedding", choices=["e5_onnx", "hash"], default="e5_onnx")
 ap.add_argument("--offline", action="store_true")
+ap.add_argument("--synthetic-web", action="store_true", help="official websites replaced by scripts/synthetic_web.py (no real data, nothing leaves)")
 ap.add_argument("--schedules", action="store_true", help="agent schedules may run (an administrator still enables each one)")
 a = ap.parse_args()
 REST, SECRET, PSQL = os.environ["SCH_IT_REST_URL"], os.environ["SCH_IT_JWT_SECRET"], os.environ["SCH_IT_PSQL"]
@@ -84,7 +85,12 @@ settings = Settings(_env_file=None, environment="development", supabase_url=REST
                     board_request_delay_seconds=1.0, rate_limit_search_per_minute=600, rate_limit_ingest_per_minute=600, rate_limit_public_per_minute=3000,
                     rate_limit_chat_user_per_minute=120, rate_limit_chat_anonymous_global_per_minute=120, agent_tool_runs_per_minute=300)
 fetcher = None
-if a.offline:
+if a.synthetic_web:
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import synthetic_web  # noqa: E402
+
+    fetcher = GuardedFetcher(settings, transport=synthetic_web.transport(), resolver=lambda h: ["93.184.216.34"])
+elif a.offline:
     fetcher = GuardedFetcher(settings, transport=httpx.MockTransport(lambda r: httpx.Response(404)), resolver=lambda h: ["93.184.216.34"])
 app = create_app(settings, store=SupabaseStore(settings), storage=MemoryFileStorage(), fetcher=fetcher)
 app.dependency_overrides[get_settings] = lambda: settings
