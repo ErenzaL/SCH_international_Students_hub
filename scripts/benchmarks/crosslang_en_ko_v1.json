@@ -1,0 +1,1316 @@
+{
+ "dataset": "cross-language: English questions about Korean official notices",
+ "version": "v1",
+ "created": "2026-11-26",
+ "provenance": "Written by an AI assistant from the notice texts (backend/.eval-cache/announcement_corpus*.json, public notices of the university, not committed). Not reviewed by a person: docs/review/crosslang_en_ko_v1_review.csv. Each notice has an English topic question (own words, not a translated title), an English detail question (a fact only in the body) and a Korean control question with the same target.",
+ "split_rule": "by notice, random.Random(20261126).sample(sorted ids, 18) = heldout; questions of one notice are never in both splits",
+ "heldout_rule": "per-question held-out results are never printed or written; every held-out evaluation is appended to scripts/benchmarks/results/crosslang_heldout_ledger.json",
+ "records": [
+  {
+   "question_id": "H01-en-topic",
+   "notice_id": "H01",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "Is there a dormitory satisfaction survey, and do I get a reward for answering it?",
+   "expected_document_ids": [
+    "H01"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H01-en-detail",
+   "notice_id": "H01",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "Where do I pick up the coffee coupon from the dorm survey?",
+   "expected_document_ids": [
+    "H01"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H01-ko-topic",
+   "notice_id": "H01",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "생활관 만족도 조사 기간이 언제예요?",
+   "expected_document_ids": [
+    "H01"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H02-en-topic",
+   "notice_id": "H02",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "Is there a free one-day cultural exchange trip for language students?",
+   "expected_document_ids": [
+    "H02"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H02-en-detail",
+   "notice_id": "H02",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "Is there a shuttle from Seoul Station for the Gongju and Buyeo culture trip?",
+   "expected_document_ids": [
+    "H02"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H02-ko-topic",
+   "notice_id": "H02",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "어학연수생 무료 문화교류 체험 프로그램은 어떻게 신청하나요?",
+   "expected_document_ids": [
+    "H02"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H03-en-topic",
+   "notice_id": "H03",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "Can international students become promotion supporters for the Korea Tourism Organization's bus tour?",
+   "expected_document_ids": [
+    "H03"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H03-en-detail",
+   "notice_id": "H03",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "How many supporters will be selected for the C-Tour bus DRT program?",
+   "expected_document_ids": [
+    "H03"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H03-ko-topic",
+   "notice_id": "H03",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "한국관광공사 DRT 홍보 서포터즈 모집 기간이 언제예요?",
+   "expected_document_ids": [
+    "H03"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H04-en-topic",
+   "notice_id": "H04",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "Is there a tteokbokki food festival in Daegu?",
+   "expected_document_ids": [
+    "H04"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H04-en-detail",
+   "notice_id": "H04",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "On which dates is the Daegu tteokbokki festival?",
+   "expected_document_ids": [
+    "H04"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H04-ko-topic",
+   "notice_id": "H04",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "대구 떡볶이 페스티벌은 언제 어디서 해요?",
+   "expected_document_ids": [
+    "H04"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H05-en-topic",
+   "notice_id": "H05",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "Is there a job and visa consulting event for international students at KINTEX?",
+   "expected_document_ids": [
+    "H05"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H05-en-detail",
+   "notice_id": "H05",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "Can I get a free photo for my resume at the international student job consulting event?",
+   "expected_document_ids": [
+    "H05"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H05-ko-topic",
+   "notice_id": "H05",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "외국인 유학생 취업 컨설팅 행사 날짜와 장소가 어떻게 돼요?",
+   "expected_document_ids": [
+    "H05"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H06-en-topic",
+   "notice_id": "H06",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "Is there a Korean history quiz event for foreigners at the royal tombs?",
+   "expected_document_ids": [
+    "H06"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H06-en-detail",
+   "notice_id": "H06",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "How many foreign participants can join the Joseon Royal Tombs Golden Bell?",
+   "expected_document_ids": [
+    "H06"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H06-ko-topic",
+   "notice_id": "H06",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "조선왕릉골든벨 외국인 참가 신청은 어떻게 해요?",
+   "expected_document_ids": [
+    "H06"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H07-en-topic",
+   "notice_id": "H07",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "When is the monthly pest control in the dorm rooms?",
+   "expected_document_ids": [
+    "H07"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H07-en-detail",
+   "notice_id": "H07",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "On what date is the dorm disinfection in November?",
+   "expected_document_ids": [
+    "H07"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H07-ko-topic",
+   "notice_id": "H07",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "생활관 방역소독은 언제 하나요?",
+   "expected_document_ids": [
+    "H07"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H08-en-topic",
+   "notice_id": "H08",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "Can I take winter classes at Sun Moon University for credit?",
+   "expected_document_ids": [
+    "H08"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H08-en-detail",
+   "notice_id": "H08",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "What grade average do I need for the credit exchange with Sun Moon University?",
+   "expected_document_ids": [
+    "H08"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H08-ko-topic",
+   "notice_id": "H08",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "선문대 학점교류 신청은 어디로 하나요?",
+   "expected_document_ids": [
+    "H08"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H09-en-topic",
+   "notice_id": "H09",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "Is there a living-cost scholarship from the Korea Student Aid Foundation this semester?",
+   "expected_document_ids": [
+    "H09"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H09-en-detail",
+   "notice_id": "H09",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "How much does the Blue Lighthouse scholarship pay per semester?",
+   "expected_document_ids": [
+    "H09"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H09-ko-topic",
+   "notice_id": "H09",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "푸른등대 기부장학금은 어떻게 신청하나요?",
+   "expected_document_ids": [
+    "H09"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H10-en-topic",
+   "notice_id": "H10",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "Can I do intensive work-study during the winter vacation?",
+   "expected_document_ids": [
+    "H10"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H10-en-detail",
+   "notice_id": "H10",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "What score do I need in the university's selection criteria for the winter intensive work-study?",
+   "expected_document_ids": [
+    "H10"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "H10-ko-topic",
+   "notice_id": "H10",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "국가근로장학금 동계방학 집중근로 기간이 언제예요?",
+   "expected_document_ids": [
+    "H10"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N01-en-topic",
+   "notice_id": "N01",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "When is the monthly health check day in the dorm, and do I have to wait in my room?",
+   "expected_document_ids": [
+    "N01"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N01-en-detail",
+   "notice_id": "N01",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "What penalty do I get if I keep food in the shared fridge in the wrong kind of container?",
+   "expected_document_ids": [
+    "N01"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N01-ko-topic",
+   "notice_id": "N01",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "기숙사 헬스케어 데이는 언제 하고 방에서 기다려야 하나요?",
+   "expected_document_ids": [
+    "N01"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N02-en-topic",
+   "notice_id": "N02",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "Is it illegal to take one-day cash jobs that I found through a job app like Face One?",
+   "expected_document_ids": [
+    "N02"
+   ],
+   "acceptable_document_ids": [
+    "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+    "96b0fee4-18e9-4ea2-adb5-db654c9ac238"
+   ]
+  },
+  {
+   "question_id": "N02-en-detail",
+   "notice_id": "N02",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "Which kinds of short-term work count as illegal employment for international students, for example interpreting or helping at events?",
+   "expected_document_ids": [
+    "N02"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N02-ko-topic",
+   "notice_id": "N02",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "Face One 같은 앱으로 구한 하루짜리 아르바이트도 불법인가요?",
+   "expected_document_ids": [
+    "N02"
+   ],
+   "acceptable_document_ids": [
+    "e54e1dd7-8894-4cdb-a1b7-5c7d25f2b147",
+    "96b0fee4-18e9-4ea2-adb5-db654c9ac238"
+   ]
+  },
+  {
+   "question_id": "N03-en-topic",
+   "notice_id": "N03",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "When do I have to move out of the dormitory at the end of the fall semester?",
+   "expected_document_ids": [
+    "N03"
+   ],
+   "acceptable_document_ids": [
+    "7c5799ad-a2e4-4044-99ad-2d6882a9a74f"
+   ]
+  },
+  {
+   "question_id": "N03-en-detail",
+   "notice_id": "N03",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "By when must Global Village residents book their room inspection for check-out?",
+   "expected_document_ids": [
+    "N03"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N03-ko-topic",
+   "notice_id": "N03",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "2학기 끝나고 기숙사 퇴사는 언제 해야 하나요?",
+   "expected_document_ids": [
+    "N03"
+   ],
+   "acceptable_document_ids": [
+    "7c5799ad-a2e4-4044-99ad-2d6882a9a74f"
+   ]
+  },
+  {
+   "question_id": "N04-en-topic",
+   "notice_id": "N04",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "Can I leave my luggage in Global Village during the winter break?",
+   "expected_document_ids": [
+    "N04"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N04-en-detail",
+   "notice_id": "N04",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "Where can I store my belongings off campus during the vacation?",
+   "expected_document_ids": [
+    "N04"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N04-ko-topic",
+   "notice_id": "N04",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "방학 동안 글로벌빌리지에 짐을 맡길 수 있나요?",
+   "expected_document_ids": [
+    "N04"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N05-en-topic",
+   "notice_id": "N05",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "How do I apply to stay in the dorm over the winter vacation?",
+   "expected_document_ids": [
+    "N05"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N05-en-detail",
+   "notice_id": "N05",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "How much does the dormitory cost per day during the winter break, and what is the minimum stay?",
+   "expected_document_ids": [
+    "N05"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N05-ko-topic",
+   "notice_id": "N05",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "겨울방학에도 기숙사에 살려면 어떻게 신청하나요?",
+   "expected_document_ids": [
+    "N05"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N06-en-topic",
+   "notice_id": "N06",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "Is there a free English guided tour at the Seoul Museum of Art in December?",
+   "expected_document_ids": [
+    "N06"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N06-en-detail",
+   "notice_id": "N06",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "On which date is the Indonesian-language exhibition tour?",
+   "expected_document_ids": [
+    "N06"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N06-ko-topic",
+   "notice_id": "N06",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "서울시립미술관 외국어 전시해설은 언제 하나요?",
+   "expected_document_ids": [
+    "N06"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N07-en-topic",
+   "notice_id": "N07",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "Is there a Korean speech contest for foreigners with prize money?",
+   "expected_document_ids": [
+    "N07"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N07-en-detail",
+   "notice_id": "N07",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "How long may the video for the Namseoul University speaking contest be?",
+   "expected_document_ids": [
+    "N07"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N07-ko-topic",
+   "notice_id": "N07",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "외국인 한국어 말하기 대회 참가 신청은 어떻게 하나요?",
+   "expected_document_ids": [
+    "N07"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N08-en-topic",
+   "notice_id": "N08",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "How can I join the SCH Global Supporters?",
+   "expected_document_ids": [
+    "N08"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N08-en-detail",
+   "notice_id": "N08",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "What GPA do I need to apply to be a global supporter?",
+   "expected_document_ids": [
+    "N08"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N08-ko-topic",
+   "notice_id": "N08",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "SCH 글로벌 서포터즈 지원 자격이 어떻게 되나요?",
+   "expected_document_ids": [
+    "N08"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N09-en-topic",
+   "notice_id": "N09",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "Is there a job fair in South Chungcheong where foreign students can have interviews on the spot?",
+   "expected_document_ids": [
+    "N09"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N09-en-detail",
+   "notice_id": "N09",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "Where is the 2026 Chungnam job fair held?",
+   "expected_document_ids": [
+    "N09"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N09-ko-topic",
+   "notice_id": "N09",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "충청남도 일자리 박람회는 언제 어디서 하나요?",
+   "expected_document_ids": [
+    "N09"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N10-en-topic",
+   "notice_id": "N10",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "When does the dorm switch from air conditioning to heating?",
+   "expected_document_ids": [
+    "N10"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N10-en-detail",
+   "notice_id": "N10",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "Can I still use cooling on the system air conditioner in Hyangseol Hall 1 after the heating starts?",
+   "expected_document_ids": [
+    "N10"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N10-ko-topic",
+   "notice_id": "N10",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "기숙사 난방은 언제부터 들어오나요?",
+   "expected_document_ids": [
+    "N10"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N11-en-topic",
+   "notice_id": "N11",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "Is there a taekwondo competition for foreigners that I can join for free?",
+   "expected_document_ids": [
+    "N11"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N11-en-detail",
+   "notice_id": "N11",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "Where is the foreigners' taekwondo festival held?",
+   "expected_document_ids": [
+    "N11"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N11-ko-topic",
+   "notice_id": "N11",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "외국인 태권도 경연축제 신청 마감이 언제예요?",
+   "expected_document_ids": [
+    "N11"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N12-en-topic",
+   "notice_id": "N12",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "Is the dorm entrance open 24 hours during the midterm exam period?",
+   "expected_document_ids": [
+    "N12"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N12-en-detail",
+   "notice_id": "N12",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "Which dorm rule violations can get me forced to move out, like letting a non-resident stay overnight?",
+   "expected_document_ids": [
+    "N12"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N12-ko-topic",
+   "notice_id": "N12",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "중간고사 기간에 기숙사 출입문이 24시간 열려 있나요?",
+   "expected_document_ids": [
+    "N12"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N13-en-topic",
+   "notice_id": "N13",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "Do I have to attend the dormitory fire evacuation drill?",
+   "expected_document_ids": [
+    "N13"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N13-en-detail",
+   "notice_id": "N13",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "How do I prove that I attended the fire drill?",
+   "expected_document_ids": [
+    "N13"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N13-ko-topic",
+   "notice_id": "N13",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "생활관 소방훈련에 안 가면 벌점이 있나요?",
+   "expected_document_ids": [
+    "N13"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N14-en-topic",
+   "notice_id": "N14",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "Is there an intellectual property course for foreigners who want to start a tech company in Korea?",
+   "expected_document_ids": [
+    "N14"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N14-en-detail",
+   "notice_id": "N14",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "In which language is the OASIS-1 course taught?",
+   "expected_document_ids": [
+    "N14"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N14-ko-topic",
+   "notice_id": "N14",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "외국인 기술창업자를 위한 지식재산권 교육은 어떻게 신청하나요?",
+   "expected_document_ids": [
+    "N14"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N15-en-topic",
+   "notice_id": "N15",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "Do international students who live in the dorm need a medical check-up every semester?",
+   "expected_document_ids": [
+    "N15"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N15-en-detail",
+   "notice_id": "N15",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "How much does the dorm health examination cost, and where is it done?",
+   "expected_document_ids": [
+    "N15"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N15-ko-topic",
+   "notice_id": "N15",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "기숙사에 사는 유학생은 건강검진을 매 학기 받아야 하나요?",
+   "expected_document_ids": [
+    "N15"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N16-en-topic",
+   "notice_id": "N16",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "Is there a shuttle bus between Sinchang station and the campus?",
+   "expected_document_ids": [
+    "N16"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N16-en-detail",
+   "notice_id": "N16",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "On weekday mornings, is there a bus from campus to Sinchang station?",
+   "expected_document_ids": [
+    "N16"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N16-ko-topic",
+   "notice_id": "N16",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "신창역과 학교 사이 셔틀버스는 어떻게 운행하나요?",
+   "expected_document_ids": [
+    "N16"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N17-en-topic",
+   "notice_id": "N17",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "Can I watch free TOPIK preparation videos through the library?",
+   "expected_document_ids": [
+    "N17"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N17-en-detail",
+   "notice_id": "N17",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "How do I find the Hackers TOPIK e-learning on the library website?",
+   "expected_document_ids": [
+    "N17"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N17-ko-topic",
+   "notice_id": "N17",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "도서관에서 TOPIK 무료 강의를 볼 수 있나요?",
+   "expected_document_ids": [
+    "N17"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N18-en-topic",
+   "notice_id": "N18",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "When can returning students move into the dorm for the second semester?",
+   "expected_document_ids": [
+    "N18"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N18-en-detail",
+   "notice_id": "N18",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "How much is the Global Village dormitory fee for the semester?",
+   "expected_document_ids": [
+    "N18"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N18-ko-topic",
+   "notice_id": "N18",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "2학기 기숙사 입사 날짜가 언제인가요?",
+   "expected_document_ids": [
+    "N18"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N19-en-topic",
+   "notice_id": "N19",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "Is there a reading mentoring program where Korean students read books together with international students?",
+   "expected_document_ids": [
+    "N19"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N19-en-detail",
+   "notice_id": "N19",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "How many international students are in one K-Book mentoring team?",
+   "expected_document_ids": [
+    "N19"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N19-ko-topic",
+   "notice_id": "N19",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "유학생 독서멘토링 프로그램은 어떻게 신청하나요?",
+   "expected_document_ids": [
+    "N19"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N20-en-topic",
+   "notice_id": "N20",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "Will the e-Class learning system be down for maintenance?",
+   "expected_document_ids": [
+    "N20"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N20-en-detail",
+   "notice_id": "N20",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "At what time is the SCH-LMS service interruption on August 14?",
+   "expected_document_ids": [
+    "N20"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N20-ko-topic",
+   "notice_id": "N20",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "e-Class 접속이 안 되는 시간이 있나요?",
+   "expected_document_ids": [
+    "N20"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N21-en-topic",
+   "notice_id": "N21",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "Is the international student office closed around Liberation Day?",
+   "expected_document_ids": [
+    "N21"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N21-en-detail",
+   "notice_id": "N21",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "When does the international office open again after the cleaning day and the holiday?",
+   "expected_document_ids": [
+    "N21"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N21-ko-topic",
+   "notice_id": "N21",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "광복절에 국제교육교류처 사무실 문 여나요?",
+   "expected_document_ids": [
+    "N21"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N22-en-topic",
+   "notice_id": "N22",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "When are the final exams this fall semester?",
+   "expected_document_ids": [
+    "N22"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N22-en-detail",
+   "notice_id": "N22",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "What share of students in a class can get an A grade?",
+   "expected_document_ids": [
+    "N22"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N22-ko-topic",
+   "notice_id": "N22",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "2학기 기말고사 기간이 언제예요?",
+   "expected_document_ids": [
+    "N22"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N23-en-topic",
+   "notice_id": "N23",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "How do I fill in the end-of-semester course evaluation?",
+   "expected_document_ids": [
+    "N23"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N23-en-detail",
+   "notice_id": "N23",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "Is my lecture evaluation anonymous?",
+   "expected_document_ids": [
+    "N23"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N23-ko-topic",
+   "notice_id": "N23",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "기말 강의평가는 어디서 하나요?",
+   "expected_document_ids": [
+    "N23"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N24-en-topic",
+   "notice_id": "N24",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "When can I register for winter session classes?",
+   "expected_document_ids": [
+    "N24"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N24-en-detail",
+   "notice_id": "N24",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "How much is the tuition per credit for the winter seasonal semester?",
+   "expected_document_ids": [
+    "N24"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N24-ko-topic",
+   "notice_id": "N24",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "동계 계절학기 수강신청 기간이 언제예요?",
+   "expected_document_ids": [
+    "N24"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N25-en-topic",
+   "notice_id": "N25",
+   "split": "heldout",
+   "language": "en",
+   "kind": "topic",
+   "question": "How do I apply to change my major for next spring?",
+   "expected_document_ids": [
+    "N25"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N25-en-detail",
+   "notice_id": "N25",
+   "split": "heldout",
+   "language": "en",
+   "kind": "detail",
+   "question": "Which departments can I not transfer into when I change majors?",
+   "expected_document_ids": [
+    "N25"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N25-ko-topic",
+   "notice_id": "N25",
+   "split": "heldout",
+   "language": "ko",
+   "kind": "topic",
+   "question": "전과 신청은 언제 어떻게 하나요?",
+   "expected_document_ids": [
+    "N25"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N26-en-topic",
+   "notice_id": "N26",
+   "split": "dev",
+   "language": "en",
+   "kind": "topic",
+   "question": "What happens if I receive more scholarship money than my tuition?",
+   "expected_document_ids": [
+    "N26"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N26-en-detail",
+   "notice_id": "N26",
+   "split": "dev",
+   "language": "en",
+   "kind": "detail",
+   "question": "Where can I check whether I received duplicate student financial aid?",
+   "expected_document_ids": [
+    "N26"
+   ],
+   "acceptable_document_ids": []
+  },
+  {
+   "question_id": "N26-ko-topic",
+   "notice_id": "N26",
+   "split": "dev",
+   "language": "ko",
+   "kind": "topic",
+   "question": "장학금이 중복으로 지원되면 어떻게 되나요?",
+   "expected_document_ids": [
+    "N26"
+   ],
+   "acceptable_document_ids": []
+  }
+ ]
+}
