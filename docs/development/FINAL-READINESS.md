@@ -18,7 +18,7 @@ deployed or changed in production. Branch `school/rc-2026-11-27` (local commits 
 
 | Criterion | State | Evidence |
 |---|---|---|
-| existing public features keep working | locally verified | 1,000+ unit tests, 94 integration tests, browser journeys (TEST-RESULTS.md) |
+| existing public features keep working | locally verified | 1,024 unit, 94 integration, 15 SQL suites, 261 web, **168 / 168 browser checks** (TEST-RESULTS.md) |
 | RAG uses approved, attributable evidence | verified | `test_only_approved_content_is_returned`, RLS tests, citations 92.9 % correct in the answer benchmark |
 | reproducible multilingual retrieval and answer evaluation | done | `rag_research_eval.py`, `rag_lab.py`, results in `scripts/benchmarks/results/` |
 | no fabricated metrics | yes | every number links to a result file; labels marked AI-drafted |
@@ -34,7 +34,7 @@ deployed or changed in production. Branch `school/rc-2026-11-27` (local commits 
 | office visual change | done | browser check + screenshots |
 | admin functions work | locally verified | browser admin journey |
 | database permissions and RLS tested | yes | 15 SQL suites, integration tests |
-| core browser journeys pass | see TEST-RESULTS.md | – |
+| core browser journeys pass | **168 / 168** on a fresh stack (run 4) | TEST-RESULTS.md |
 | resource constraints documented and tested where possible | yes (emulated 512 MB / 0.1 CPU) | PERFORMANCE.md §4 |
 | manual production steps documented | yes | FINAL-SETUP-CHECKLIST.md |
 | no production system changed | yes | – |

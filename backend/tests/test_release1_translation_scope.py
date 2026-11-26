@@ -92,3 +92,14 @@ def test_the_supporter_queue_says_where_machine_drafts_exist(auto):
         r = tool(auto, f"supporter-{lang}", "translation_review_queue", {}, "supporter")
         items = [i for i in r.json()["result"]["items"] if i["content_kind"] == "announcement"]
         assert items and all(i["machine_draft"] is expected for i in items), (lang, r.text)
+
+
+def test_a_translated_title_gets_no_full_stop_the_original_does_not_have():
+    from app.services.llm.base import ScriptedLLMProvider
+    from app.services.translation_drafts import translate_document
+
+    llm = ScriptedLLMProvider(lambda system, prompt: "[Simulasi] Panduan Pemeriksaan Asrama." if "title" in prompt else "Isi.")
+    out = translate_document(llm, title="[가상] 기숙사 점검 안내", body="본문", source_lang="ko", target_lang="id", chunk_chars=1000)
+    assert out["title"] == "[Simulasi] Panduan Pemeriksaan Asrama"
+    kept = translate_document(llm, title="안내입니다.", body="본문", source_lang="ko", target_lang="id", chunk_chars=1000)
+    assert kept["title"].endswith(".")

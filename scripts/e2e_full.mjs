@@ -303,7 +303,9 @@ J.gpu = async () => {   // token in the browser -> worker process -> draft -> la
   const ap = await api("reviewer_id", "POST", `/admin/announcements/${ann.data.id}/translations/id/approve`, { original_verified: true });
   check("the Indonesian reviewer approves", ap.status === 200, JSON.stringify(ap.data));
   check("now it is public in Indonesian", body.length > 20 && (await pub("id")).includes(body.slice(0, 30)));
-  check("Vietnamese still gets the original (no translation)", body.length > 20 && !(await pub("vi")).includes(body.slice(0, 30)) && (await pub("vi")).includes("기숙사 냉장고 점검"));
+  const viData = (await api(null, "GET", `/announcements/${ann.data.id}?lang=vi`)).data;
+  check("Vietnamese still gets the original (no translation shown)", body.length > 20 && viData.translation === null && viData.body.includes("기숙사 냉장고 점검"),
+    JSON.stringify({ translation: viData.translation, body: viData.body?.slice(0, 40) }));
   const reader = await context("visitor");
   await lang(reader.page, "id");
   await reader.page.goto(`${WEB}/announcements/${ann.data.id}`);

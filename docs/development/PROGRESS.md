@@ -31,11 +31,11 @@ Plan: [MASTER-PLAN.md](MASTER-PLAN.md). Blockers: [BLOCKERS.md](BLOCKERS.md). Me
 | 5 translation scope + TranslateGemma benchmark (12B chosen; held-out 20/20) | done | `4666ea3`, `aed8a09`, `99dc493` |
 | 6 office colour, admin AI usage card | done | `a6dd5dd` |
 | 7 security review, rollbacks 0018/0019 | done (pip-audit blocked) | `99dc493`, `4d13699` |
-| 8 tests: unit 1022/47, web 261, SQL 15/15, integration 94/9, browser 155/163 first run (PDF env + Journey G) → re-run | in progress | – |
+| 8 tests: unit 1024/47, web 261, SQL 15/15, integration 94/9, browser 168/168 (4th run; the 2nd found the GPU model allowlist bug) | done | `1a6e552` |
 | 9 research reports | done | `4d13699` |
-| 10 checklist + readiness | done, final numbers pending | – |
+| 10 checklist + readiness | done | – |
 
-## Open item being worked on
+## State at the end of the session
 
-Journey G in the browser: the GPU worker's TranslateGemma 12B output for the synthetic notice is refused as wrong-language in the worker
-path (3 of 3 drains) while the same text passes 10 of 10 when generate() is called directly. Debug driver: `/data/20243508/w/dbg/drive.py`.
+Everything above is committed on `school/rc-2026-11-27` (local). The local test stack (scratch databases, dev_stack, `next start`) was
+stopped at the end. To continue: read docs/owner/FINAL-SETUP-CHECKLIST.md (owner decisions 0.1–0.5) and docs/development/BLOCKERS.md.

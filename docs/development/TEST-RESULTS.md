@@ -7,11 +7,11 @@ live public websites. **Nothing ran against hosted staging or production.**
 
 | Suite | Kind | Result |
 |---|---|---|
-| backend unit tests (`pytest -q`) | mocked | see the final line below (start of day: 991 passed / 47 skipped) |
+| backend unit tests (`pytest -q`), `ruff check .` | mocked | **1,024 passed**, 47 skipped (start of day 991 / 47); ruff clean |
 | SQL behaviour tests, all migrations 0001–0019 | real PostgreSQL | **15 of 15** suites (new: `llm_usage_controls`, `weekly_discovery`) |
 | rollbacks 0018 and 0019, then re-apply | real PostgreSQL | ok (schedules restored, Work24 sources removed, usage tables dropped; behaviour tests pass after re-apply) |
 | integration tests (RLS, RPCs, roles, GPU worker, translation) with 0018 + 0019 | real PostgreSQL + PostgREST | **94 passed**, 9 skipped (live Gemini / live websites on purpose) |
-| web `tsc --noEmit`, `eslint`, `vitest run` | mocked | clean, clean, see the final line below (start of day: 257) |
+| web `tsc --noEmit`, `eslint`, `vitest run` | mocked | clean, clean, **261 passed** (start of day 257) |
 | `next build` (production bundle) | – | builds |
 | `npm audit --omit=dev` | – | 0 vulnerabilities |
 | live source validation (`validate_sources.py`, 23 public sources) | **live** websites | **23 of 23 ok**; 3 API sources not tested (no keys) |
@@ -37,7 +37,23 @@ live public websites. **Nothing ran against hosted staging or production.**
 | K Model unavailable | `test_r_s_both_models_unavailable_gives_a_localized_message_and_sources_only`, `test_offline_worker_jobs_fail_visibly_after_the_attempt_limit`, GPU worker revoked in the browser | mocked + real |
 | L Frontend | browser `office` (14 desks, 5 languages, phone width, wall colour), `admin`, keyboard | real |
 
-BROWSER_PLACEHOLDER
+### Browser journeys (`scripts/e2e_full.mjs`, Chromium, production web build, real API + worker + PostgreSQL, Qwen for chat, TranslateGemma 12B in the GPU worker process, LIVE public SCH / Study in Korea / HiKorea pages)
+
+| Run | Result | What it found / what changed before the next run |
+|---|---|---|
+| 1 | 155 / 163 | PDF journey: the new worktree had no `backend/.venv` (environment); Journey G: no Indonesian draft |
+| 2 | 161 / 168 | the draft was refused 3 of 3 times; the debug driver showed the server answering `model_not_allowed`: the GPU model allowlist only named Qwen → **fixed** (`1a6e552`) |
+| 3 | 167 / 168 | Journey G end to end; one assertion was wrong (the public response lists all approved translations) → test corrected |
+| **4 (fresh database)** | **168 / 168** | – |
+
+Journeys in run 4: setup, announcement, PDF (upload → extraction → review → Korean search → English answer), visa, chats (12 desks, 5 languages),
+career (live board → candidate → approval; job-site links not connected), scholarship (live), **gpu = Journey G** (worker token once,
+`--check`, Indonesian draft by TranslateGemma 12B in 5.2 s, `needs_review`, Vietnamese request refused, other-language reviewer refused,
+Indonesian reviewer approves, Indonesian page shows it, Vietnamese page shows the original with the note, revoked worker refused,
+waiting job cancelled in the browser), escalation (Sumin, consent first), admin (every page, refusals), office (14 desks, 5 languages,
+phone width, keyboard, **wall colour check**), autonomy (weekly slots planned on Mondays, nothing runs early, then three scheduled LIVE
+checks: Robo 10 read, Joon 10 read / 10 new, Yuna 1 read; admins notified; nothing became public). No page errors, missing texts or
+hydration errors. Screenshots: `docs/integration-screenshots/2026-11-27/`.
 
 ---
 

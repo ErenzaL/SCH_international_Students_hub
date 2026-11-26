@@ -165,6 +165,8 @@ def translate_document(llm: LLMProvider, *, title: str, body: str, source_lang: 
     t = llm.complete(system, TITLE_PROMPT.format(source=src, target=tgt, text=title), max_tokens=1024)
     results.append(t)
     new_title = _strip_wrappers(t.text).splitlines()[0].strip().strip("#").strip() or title
+    if new_title.endswith((".", "。")) and not title.rstrip().endswith((".", "。")):
+        new_title = new_title[:-1].rstrip()          # models like to end a title with a full stop the original does not have
     parts = chunk_text(body, chunk_chars)
     out: list[str] = []
     for i, part in enumerate(parts, start=1):
@@ -213,6 +215,8 @@ def summarize_document(llm: LLMProvider, *, title: str, body: str, source_lang: 
                      max_tokens=1024)
     results.append(t)
     new_title = _strip_wrappers(t.text).splitlines()[0].strip().strip("#").strip() or title
+    if new_title.endswith((".", "。")) and not title.rstrip().endswith((".", "。")):
+        new_title = new_title[:-1].rstrip()          # models like to end a title with a full stop the original does not have
     # a local model with a small context window may accept less text than the configured maximum
     max_source_chars = min(max_source_chars, getattr(llm, "max_source_chars", max_source_chars))
     partial = len(body) > max_source_chars
