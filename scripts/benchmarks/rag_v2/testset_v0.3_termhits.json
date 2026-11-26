@@ -1,0 +1,525 @@
+{
+ "ACA-01": {
+  "terms": {
+   "출석부": [
+    "d032674b"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "ACA-02": {
+  "terms": {
+   "30%": [
+    "ae1cbab7",
+    "d60bc363",
+    "da416585"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "d60bc363",
+   "da416585"
+  ]
+ },
+ "ACA-03": {
+  "terms": {
+   "재수강": [
+    "672ffe31",
+    "ae1cbab7",
+    "d032674b"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "672ffe31"
+  ]
+ },
+ "ACA-04": {
+  "terms": {
+   "장학": [
+    "96b0fee4",
+    "ae1cbab7",
+    "d032674b",
+    "d60bc363",
+    "da416585"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "96b0fee4",
+   "d60bc363",
+   "da416585"
+  ]
+ },
+ "ACA-05": {
+  "terms": {
+   "OCU": [
+    "1ec42073",
+    "21e3e650",
+    "25af9ce5",
+    "26fbef6d",
+    "4650e940",
+    "491d4c3f",
+    "672ffe31",
+    "744fdb55",
+    "a37644b0",
+    "ae1cbab7",
+    "b3f79749",
+    "d032674b",
+    "d199604d",
+    "d60bc363",
+    "e54e1dd7"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "1ec42073",
+   "21e3e650",
+   "25af9ce5",
+   "26fbef6d",
+   "4650e940",
+   "491d4c3f",
+   "672ffe31",
+   "744fdb55",
+   "a37644b0",
+   "ae1cbab7",
+   "b3f79749",
+   "d199604d",
+   "d60bc363",
+   "e54e1dd7"
+  ]
+ },
+ "ACA-06": {
+  "terms": {
+   "의예과": [
+    "d032674b",
+    "da416585"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "da416585"
+  ]
+ },
+ "ACA-07": {
+  "terms": {
+   "복학": [
+    "672ffe31",
+    "d032674b",
+    "d60bc363"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "672ffe31",
+   "d60bc363"
+  ]
+ },
+ "ACA-08": {
+  "terms": {
+   "동영상 강의": [
+    "ae1cbab7"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "ACA-09": {
+  "terms": {
+   "영문명": [
+    "8ba959a0",
+    "da416585"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "da416585"
+  ]
+ },
+ "DOR-01": {
+  "terms": {
+   "이동입사": [
+    "7c5799ad"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "DOR-02": {
+  "terms": {
+   "초기화": [
+    "7c5799ad",
+    "d60bc363"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "d60bc363"
+  ]
+ },
+ "DOR-03": {
+  "terms": {
+   "퇴사": [
+    "2b02fcbd",
+    "365a6c54",
+    "7c5799ad"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "DOR-04": {
+  "terms": {
+   "입사보증금": [
+    "7c5799ad"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "DOR-05": {
+  "terms": {
+   "청소": [
+    "672ffe31",
+    "7c5799ad",
+    "d60bc363",
+    "da416585"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "672ffe31",
+   "d60bc363",
+   "da416585"
+  ]
+ },
+ "DOR-06": {
+  "terms": {
+   "냉장고": [
+    "d60bc363",
+    "ea1e2b41"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "d60bc363"
+  ]
+ },
+ "VIS-01": {
+  "terms": {
+   "extension-of-stay": [
+    "21e3e650"
+   ],
+   "체류기간 연장": [
+    "0c3a24ef",
+    "21e3e650",
+    "d60bc363"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "0c3a24ef",
+   "d60bc363"
+  ]
+ },
+ "VIS-02": {
+  "terms": {
+   "graduat": [
+    "1ec42073",
+    "21e3e650",
+    "26fbef6d",
+    "4650e940",
+    "672ffe31",
+    "7df6e287",
+    "a37644b0",
+    "b3f79749",
+    "e54e1dd7"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "1ec42073",
+   "26fbef6d",
+   "4650e940",
+   "7df6e287",
+   "a37644b0",
+   "b3f79749",
+   "e54e1dd7"
+  ]
+ },
+ "VIS-03": {
+  "terms": {
+   "IC chip": [
+    "21e3e650"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "VIS-04": {
+  "terms": {
+   "Global Supporter": [
+    "21e3e650"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "VIS-05": {
+  "terms": {
+   "leave of absence": [
+    "21e3e650",
+    "672ffe31"
+   ],
+   "휴학허가": [
+    "d60bc363"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "VIS-06": {
+  "terms": {
+   "1345": [
+    "21e3e650",
+    "4650e940",
+    "491d4c3f",
+    "672ffe31",
+    "744fdb55",
+    "d199604d",
+    "d60bc363",
+    "e54e1dd7"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "491d4c3f",
+   "672ffe31",
+   "744fdb55",
+   "d199604d",
+   "e54e1dd7"
+  ]
+ },
+ "VIS-07": {
+  "terms": {
+   "change of status": [
+    "26fbef6d",
+    "a37644b0"
+   ],
+   "체류자격 변경": [
+    "21e3e650",
+    "a37644b0",
+    "d60bc363"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "VIS-08": {
+  "terms": {
+   "4.5 cm": [
+    "21e3e650",
+    "672ffe31"
+   ],
+   "4.5cm": [
+    "672ffe31"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "VIS-09": {
+  "terms": {
+   "D-10": [
+    "25af9ce5",
+    "26fbef6d",
+    "672ffe31",
+    "96b0fee4",
+    "a37644b0",
+    "d60bc363"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "25af9ce5",
+   "672ffe31",
+   "a37644b0"
+  ]
+ },
+ "VIS-10": {
+  "terms": {
+   "위반자": [
+    "96b0fee4",
+    "d60bc363",
+    "da416585"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "da416585"
+  ]
+ },
+ "VIS-11": {
+  "terms": {
+   "extension": [
+    "21e3e650",
+    "26fbef6d",
+    "4650e940",
+    "491d4c3f",
+    "672ffe31",
+    "d199604d",
+    "e54e1dd7"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "21e3e650",
+   "26fbef6d",
+   "491d4c3f",
+   "672ffe31",
+   "d199604d",
+   "e54e1dd7"
+  ]
+ },
+ "WRK-01": {
+  "terms": {
+   "사례금": [
+    "96b0fee4",
+    "d60bc363"
+   ],
+   "prizes": [
+    "26fbef6d"
+   ],
+   "prize money": [
+    "672ffe31"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "WRK-02": {
+  "terms": {
+   "TOPIK 4": [
+    "e54e1dd7"
+   ],
+   "4급": [
+    "96b0fee4",
+    "d60bc363",
+    "da416585"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "da416585"
+  ]
+ },
+ "WRK-03": {
+  "terms": {
+   "범칙금": [
+    "0c3a24ef",
+    "96b0fee4",
+    "d60bc363"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "WRK-04": {
+  "terms": {
+   "사업자등록증": [
+    "d60bc363",
+    "e54e1dd7"
+   ],
+   "Business Registration": [
+    "26fbef6d",
+    "672ffe31",
+    "d60bc363",
+    "e54e1dd7"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "WRK-05": {
+  "terms": {
+   "D-4": [
+    "21e3e650",
+    "25af9ce5",
+    "26fbef6d",
+    "672ffe31",
+    "96b0fee4",
+    "a37644b0",
+    "d199604d",
+    "d60bc363",
+    "e54e1dd7"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "21e3e650",
+   "25af9ce5",
+   "26fbef6d",
+   "672ffe31",
+   "a37644b0",
+   "d199604d"
+  ]
+ },
+ "HLT-01": {
+  "terms": {
+   "co-pay": [
+    "25af9ce5"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "HLT-02": {
+  "terms": {
+   "English-speaking staff": [
+    "744fdb55"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "TPK-01": {
+  "terms": {
+   "eligibility factor": [
+    "b3f79749"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "TPK-02": {
+  "terms": {
+   "Validity Period": [
+    "672ffe31"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "JOB-01": {
+  "terms": {
+   "통역": [
+    "0c3a24ef",
+    "8712f911"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "0c3a24ef"
+  ]
+ },
+ "ADM-01": {
+  "terms": {
+   "간호학과": [
+    "d032674b",
+    "da416585"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "d032674b"
+  ]
+ },
+ "ADM-02": {
+  "terms": {
+   "불허": [
+    "d60bc363",
+    "da416585"
+   ]
+  },
+  "mentioning_but_ungraded": [
+   "d60bc363"
+  ]
+ },
+ "JOB-02": {
+  "terms": {
+   "standard employment contract": [
+    "1ec42073",
+    "26fbef6d",
+    "672ffe31",
+    "e54e1dd7"
+   ]
+  },
+  "mentioning_but_ungraded": []
+ },
+ "UNA-01": {
+  "terms": {},
+  "mentioning_but_ungraded": []
+ },
+ "UNA-02": {
+  "terms": {},
+  "mentioning_but_ungraded": []
+ },
+ "UNA-03": {
+  "terms": {},
+  "mentioning_but_ungraded": []
+ }
+}
