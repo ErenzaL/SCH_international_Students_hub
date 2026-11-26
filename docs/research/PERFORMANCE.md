@@ -17,7 +17,13 @@ Render's own wake-up of about a minute ([RENDER-MEMORY.md](../development/RENDER
 
 ## 2. Answer generation (local Qwen 2.5 7B on the GPU; Gemini NOT measured)
 
-ANSWER_LATENCY_PLACEHOLDER
+| Mode | Median | p95 | Model calls per answer |
+|---|---|---|---|
+| Qwen 2.5 7B + RAG (rewrite, answer, second look) | 2.2 s | 2.9 s | 2.9 |
+| excerpts only | 20 ms | 28 ms | 0 |
+
+Workstation GPU, warm model. With Gemini in production the second look is skipped and the time is dominated by Gemini's latency plus the
+free Render CPU (not measured).
 
 ## 3. Announcement translation (TranslateGemma 12B / Qwen 2.5 7B on the RTX 4070)
 

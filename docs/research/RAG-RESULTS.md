@@ -80,7 +80,21 @@ Topics with 5 questions are anecdotal. Visa / immigration is the most important 
 
 ## 7. Answers (grounded generation)
 
-ANSWER_SECTION_PLACEHOLDER
+Answer benchmark `rag_behaviour_v1` (95 questions over synthetic documents with invented figures; 19 per language; rule-based scoring, no
+model judge), run 2026-11-27 on this branch with **local Qwen 2.5 7B** (`rag_behaviour_rc1127.json`). Gemini + RAG: **not measured**.
+
+| Mode | Correct [Wilson 95 %] | Fact recall | Needed document retrieved | Correct citation | Stale or wrong figure | Unanswerable refused | Answer in question's language | Median / p95 |
+|---|---|---|---|---|---|---|---|---|
+| **Qwen + RAG** | **0.916 [0.843–0.957]** | 0.906 | 0.988 | 0.929 [0.859–0.966] | **0 / 95** | **1.00** [0.961–1.000] | **1.00** | 2.2 s / 2.9 s |
+| excerpts only (no model) | 0.874 [0.792–0.926] | 0.929 | 0.929 | – | 0.024 | 0.60 | 0.54 | 20 ms / 28 ms |
+| Qwen **without** sources | **0.000** [0.000–0.039] | 0.000 | – | – | 0 | 0.00 | 0.99 | 1.3 s / 3.2 s |
+
+By kind (Qwen + RAG): fact 0.93, duplicate notices 0.80, stale edition 0.87, passed deadline 0.80, unanswerable 1.00, prompt injection
+1.00. By language: ko 1.00, en 0.95, id 1.00, vi 0.84, zh-CN 0.79 (19 each; wide intervals). The earlier two runs on the release candidate
+gave 0.926 and 0.916: the result is reproducible.
+
+**The headline for slides:** without sources the model answered **0 of 95** correctly (it invents figures); with the Hub's retrieval it
+answered **91.6 %** correctly, refused **every** unanswerable question and never gave a stale figure.
 
 ## 8. What a student can expect (plain statement for slides)
 

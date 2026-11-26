@@ -29,3 +29,21 @@ Method: code reading, automated tests, browser tests with six accounts, SQL beha
 | Local shared GPU computer | medium | only public approved content leaves the Hub; IT consent open |
 | Hosted Supabase sign-in, Storage, Realtime untested here | – | staging |
 | No external review | – | second-person review |
+
+## 2026-11-27 (branch `school/rc-2026-11-27`): what changed and how it was checked
+
+| Area | Change | Evidence |
+|---|---|---|
+| New tables (0018) | `llm_daily_counters`, `llm_usage_daily`, `app_runtime_flags`: RLS on, no policy, grants only to `service_role`; functions `llm_counter_take`, `llm_usage_add` executable only by `service_role` | `behavior_test_llm_usage_controls.sql` (anon and student refused for read, write and execute) |
+| New admin endpoint | `POST /admin/system/ai-background-stop`: admin role on the server, audited (`ai.background_stop` / `ai.background_resume`), stops only background AI | `test_admins_flip_the_stop_switch_and_it_is_audited` (supporter and student 403) |
+| Usage data | only provider, model, lane, purpose, outcome, token counts, estimated cost; no prompt, answer, student id or IP is stored | `usage.py`, `test_usage_rows_reach_the_database_without_blocking` |
+| Budgets fail closed | background AI is refused when the counter table exists but cannot be read; chat falls back to the in-process count | `test_background_fails_closed_when_the_counter_cannot_be_read_but_chat_does_not` |
+| Work24 XML | fixed https host, GET, key never in logs/DB/URLs shown, documents with DOCTYPE/ENTITY refused before parsing (no entity expansion), links to other hosts replaced by the official home page | `test_work24_*` (4 bad-answer cases) |
+| Relevance | a posting is relevant only by its own title / type / requirements, not by the employer's name | `test_work24_postings_become_private_candidates_with_honest_deadlines` |
+| Opportunities | status computed when read (Korea time); a passed deadline hides the item at once; "recruiting" without a date is never "open" | `test_opportunity_expiry.py` |
+| Announcement translations | unreviewed machine drafts never public, whatever `PUBLIC_MACHINE_TRANSLATIONS` says; machine drafts only in ko/en/id; vi/zh supporters get no draft button for announcements | `test_release1_translation_scope.py` (8), integration tests on PostgreSQL |
+| Third-party job sites | JobKorea (robots.txt blocks AI crawlers), Linkareer, Buddies Korea: no automated access; plain links, marked "not connected" | catalogue, `careers.tsx`, browser check |
+| Secrets | pattern scan of every line added on this branch: no key, token, private key or credentialed URL (one match: the public Supabase CLI default `postgres:postgres@127.0.0.1:54322` in a local staging script) | scan 2026-11-27 |
+| Dependencies | web `npm audit --omit=dev`: **0 vulnerabilities** (2026-11-27); Python dependencies unchanged since 2026-11-24 (`pip-audit` clean that day); `pip-audit` not re-run today (not installed; a tool download was declined on 2026-11-24) | – |
+| Credentials on the school PC | none (no `.env` files); the GPU worker refuses to start with Supabase/Gemini/cron secrets in its environment | `Config.from_env`, `test_gpu_worker` |
+| Gemini privacy | paid tier is assumed for the owner's key; on a free-tier key Google may use content to improve products — the Hub sends the student's question, recent conversation turns and approved public passages, so whatever a student types reaches Google; background jobs send only approved public text | owner decision (paid tier recommended) |

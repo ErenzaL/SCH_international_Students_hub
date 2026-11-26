@@ -467,6 +467,18 @@ J.autonomy = async () => {   // dev_stack --schedules: nobody clicks "check"; th
     await page.getByTestId(s).getByRole("switch").click();
     await page.getByTestId(s).locator("[aria-checked=true]").waitFor({ timeout: 10000 });
   }
+  // weekly (0019): switched on, each waits for its Monday slot (Korea time) plus its own stagger; nothing runs now
+  const sch = (await api("admin", "GET", "/admin/agent-schedules")).data;
+  const mine = sch.items.filter((x) => x.enabled);
+  const kst = (iso) => new Date(new Date(iso).getTime() + 9 * 3600e3);
+  check("enabled weekly schedules are planned for distinct Monday slots", mine.length === 3 && mine.every((x) => x.interval_minutes === 10080 && kst(x.next_run_at).getUTCDay() === 1)
+    && new Set(mine.map((x) => x.next_run_at)).size === 3, JSON.stringify(mine.map((x) => [x.agent_id, x.next_run_at])));
+  check("nothing runs before the weekly slot", (await due(info.cron)).data.agent_schedules.queued === 0);
+  // for this test only: a 60-minute interval runs at once (an administrator could do the same)
+  for (const x of mine) {
+    await api("admin", "PATCH", `/admin/agent-schedules/${x.id}`, { enabled: false });
+    await api("admin", "PATCH", `/admin/agent-schedules/${x.id}`, { enabled: true, interval_minutes: 60 });
+  }
   const r = await due(info.cron);
   check("three enabled schedules are queued", r.data.agent_schedules.queued === 3, JSON.stringify(r.data));
   const done = await until(async () => { const t = (await api("admin", "GET", "/admin/agent-operations/tasks")).data.items.filter((x) => x.requested === "schedule"); return t.length === 3 && t.every((x) => x.status === "completed") ? t : null; }, 150);

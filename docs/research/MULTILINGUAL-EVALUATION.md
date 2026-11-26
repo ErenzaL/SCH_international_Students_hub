@@ -32,7 +32,16 @@ development split but is **not adopted** until it passes the held-out look with 
 
 ## 3. Answers by question language (answer benchmark, Qwen 2.5 7B + RAG, 19 questions per language)
 
-ANSWER_LANGUAGE_PLACEHOLDER
+| Language | Qwen + RAG correct (n = 19) | excerpts only | no sources |
+|---|---|---|---|
+| Korean | 1.00 | 0.84 | 0 |
+| English | 0.95 | 0.84 | 0 |
+| Indonesian | 1.00 | 0.89 | 0 |
+| Vietnamese | 0.84 | 0.89 | 0 |
+| Chinese | 0.79 | 0.89 | 0 |
+
+Every Qwen + RAG answer was in the question's language (95 / 95). Vietnamese and Chinese are the weakest for answers (passed-deadline and
+two-date notices; RAG-ERROR-ANALYSIS §3); with 19 questions per language a difference of one or two answers is within noise.
 
 ## 4. Language behaviour that is guaranteed by code (tested)
 

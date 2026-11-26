@@ -13,7 +13,8 @@ Earlier, still valid detail: [SETUP-CHECKLIST.md](SETUP-CHECKLIST.md) (sections 
 |---|---|---|---|
 | 0.1 | Release order | A → B → this candidate, one per day ([RELEASE-CANDIDATE.md](../development/RELEASE-CANDIDATE.md)), each after a backup | small reviews, easy rollback |
 | 0.2 | Push the branch | `git push origin school/rc-2026-11-27` **only after** a second person has looked at it; never push to `main` directly | `main` deploys the API |
-| 0.3 | Paid Gemini test | approve or refuse a capped live run (≈ US$0.20, §1.4) | Gemini answer quality is **not measured** yet |
+| 0.3 | Paid Gemini test | approve or refuse a capped live run (≈ US$0.28–0.46, §1.4) | Gemini answer quality is **not measured** yet |
+| 0.5 | **Daily chatbot cap** | set `AI_DAILY_LIMIT_GLOBAL` from your monthly budget: ≈ budget USD / (30 × 0.011); US$5 → 15/day, US$20 → 60/day. **The default 1500/day allows up to ≈ US$495/month at the 2027 Flash price** | COST-EVALUATION §3 |
 | 0.4 | Translation model for drafts | TranslateGemma 12B on the school PC (selected by the benchmark), reviewed by people; production keeps the school PC optional | [TRANSLATION-EVALUATION.md](../research/TRANSLATION-EVALUATION.md) |
 
 ## 1. Gemini (You)
@@ -23,8 +24,8 @@ Earlier, still valid detail: [SETUP-CHECKLIST.md](SETUP-CHECKLIST.md) (sections 
 | 1.1 | Check which models your key can use (free, sends no prompt) | on **your** computer: `cd backend && LLM_PROVIDER=gemini LLM_API_KEY=… .venv/bin/python -m app.cli check-llm --list` | `gemini-3.6-flash` and `gemini-3.5-flash-lite` (or what you choose) are listed |
 | 1.2 | Set the models on Render (API service → Environment) | `GEMINI_PRIMARY_MODEL`, `GEMINI_FALLBACK_MODEL`, `GEMINI_THINKING_LEVEL=low` | Admin → Settings → "Check AI models": both OK |
 | 1.3 | Set prices for cost estimates (from the official page, today) | `LLM_PRICES=gemini-3.6-flash=0.75/3.75,gemini-3.5-flash-lite=0.30/2.50` — **from 2027-01-01 3.6 Flash is 1.50/7.50: update it then** | Admin → Settings → AI usage: "Prices configured for …" |
-| 1.4 | Optional measured comparison | `GEMINI_LAB_KEY=… .venv/bin/python ../scripts/rag_lab.py --modes gemini --langs en,ko,id,vi,zh-CN` on your computer: 95 answers ≈ 0.5 M input + 0.04 M output tokens ≈ **US$0.20 with 3.6 Flash** (estimate, COST-EVALUATION §2) | a `gemini` row in the results file; send it to Claude for the report |
-| 1.5 | Spending safety (all free to set) | `AI_DAILY_LIMIT_GLOBAL` (default 1500 answers/day), `LLM_BACKGROUND_DAILY_ATTEMPTS` (150), `TRANSLATION_DAILY_JOB_LIMIT` (60), optional `LLM_BACKGROUND_DAILY_USD_LIMIT=0.50` | Admin → Settings → AI usage shows the limits |
+| 1.4 | Optional measured comparison | `GEMINI_LAB_KEY=… .venv/bin/python ../scripts/rag_lab.py --modes gemini --langs en,ko,id,vi,zh-CN` on your computer: 95 answers ≈ 0.33 M input + 0.014 M output tokens + thinking ≈ **US$0.28–0.46 with 3.6 Flash at the 2026 price** (estimate from measured sizes, COST-EVALUATION §2) | a `gemini` row in the results file; send it to Claude for the report |
+| 1.5 | Spending safety (all free to set) | `AI_DAILY_LIMIT_GLOBAL` (decision 0.5; default 1500 is too high for a small budget), `LLM_BACKGROUND_DAILY_ATTEMPTS` (150), `TRANSLATION_DAILY_JOB_LIMIT` (60), optional `LLM_BACKGROUND_DAILY_USD_LIMIT=0.50`, `TRANSLATION_MODEL=gemini-3.5-flash-lite` (cheaper if Gemini ever translates) | Admin → Settings → AI usage shows the limits |
 | 1.6 | Set a budget alert at Google | Google Cloud console → Billing → Budgets & alerts (the project of the key) | an e-mail alert at e.g. 5,000 KRW. **The app's limits are estimates; only Google's billing is the real cap.** Your earlier KRW 8,000 payment is not a spending limit |
 | 1.7 | Emergency stop, if costs look wrong | Admin → Settings → AI usage → "Stop background AI" (needs 0018), or `AI_BACKGROUND_STOP=true` on Render | background jobs wait; the chatbot keeps answering |
 
