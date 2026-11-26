@@ -112,6 +112,8 @@ class Settings(BaseSettings):
     # indexing and translation never wait behind a ~90 s official-source check, and students' quick tasks never wait
     # behind a long PDF. Same process (no extra memory for models); off = one thread runs everything, as before.
     agent_task_worker: bool = True
+    # ingestion jobs executing at the same time in one process (worker thread, inline background tasks, CLI); 1 on 512 MB
+    ingestion_max_concurrent_jobs: int = 1
     # running jobs heartbeat every job_heartbeat_seconds (a background ticker, also during long extractions);
     # a job without a heartbeat for job_stale_seconds belongs to a dead worker and is re-queued (or failed after
     # max_attempts). Right after a restart the first claim uses the shorter job_startup_stale_seconds.

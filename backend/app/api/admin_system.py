@@ -82,6 +82,16 @@ def client_ip_diagnostics(request: Request, svc: Services = Depends(get_services
                 socket_peer=request.client.host if request.client else None)
 
 
+@router.get("/system/runtime")
+def runtime(svc: Services = Depends(get_services), _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """This API process: memory (process and container, out-of-memory counters), an id that changes on every restart, worker
+    threads, ingestion slots, queues and running jobs whose heartbeat stopped. Read-only; for the hosted memory test
+    (scripts/staging_memory_check.py). Values a host does not expose are null."""
+    from app.services.runtime import snapshot
+
+    return snapshot(svc)
+
+
 @router.post("/system/llm-check")
 def llm_check(svc: Services = Depends(get_services), user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
     """Probe the configured Gemini models with the server's own key: one tiny non-streaming and one tiny streaming

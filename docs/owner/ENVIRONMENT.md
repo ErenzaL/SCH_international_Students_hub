@@ -1,6 +1,6 @@
 # Environment variables
 
-Generated from the code by `scripts/env_inventory.py`; do not edit by hand. 172 variables of the **API service**. Whether a value is set on
+Generated from the code by `scripts/env_inventory.py`; do not edit by hand. 173 variables of the **API service**. Whether a value is set on
 Render cannot be seen from here: check with `python -m app.cli doctor` (prints "set" or "not set", never a value) or in the dashboard.
 
 After changing a variable on Render the service restarts by itself (choose *Save, rebuild and deploy* only for the web variables).
@@ -101,6 +101,7 @@ The worker refuses to start when a Supabase, Gemini or cron secret is set on tha
 | `SUPPORT_RETENTION_DAYS` | setting | optional | `365` | — | resolved support tickets (and their threads) deleted after this   # transient failures re-queue after 30 s, 60 s, 120 s ... (max_attempts) |
 | `JOB_POLL_SECONDS` | setting | optional | `10.0` | — |  |
 | `AGENT_TASK_WORKER` | setting | optional | `True` | — | A second worker thread only for agent tasks (digests, checklists, official-source checks): document ingestion, indexing and translation never wait behind a ~90 s official |
+| `INGESTION_MAX_CONCURRENT_JOBS` | setting | optional | `1` | — | ingestion jobs executing at the same time in one process (worker thread, inline background tasks, CLI); 1 on 512 MB |
 | `JOB_HEARTBEAT_SECONDS` | setting | optional | `15.0` | — | running jobs heartbeat every job_heartbeat_seconds (a background ticker, also during long extractions); a job without a heartbeat for job_stale_seconds belongs to a dead  |
 | `JOB_STALE_SECONDS` | setting | optional | `180` | — |  |
 | `JOB_STARTUP_STALE_SECONDS` | setting | optional | `90` | — |  |

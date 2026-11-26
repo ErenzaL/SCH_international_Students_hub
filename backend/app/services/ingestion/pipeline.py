@@ -96,6 +96,37 @@ class IngestionService:
         self.rag_health: Any = None     # RagHealthService (wired by the container): post-activation verification
         self.announcement_translator: Any = None   # AnnouncementAutoTranslator (translate_announcement jobs)
         self._sleep = sleep
+        # at most INGESTION_MAX_CONCURRENT_JOBS jobs execute at once in this process, whatever starts them (the worker thread,
+        # inline background tasks, the CLI): extraction + embedding of two large files at the same time do not fit 512 MB
+        self._slots = threading.BoundedSemaphore(max(1, settings.ingestion_max_concurrent_jobs))
+        self._slot_held = threading.local()
+        self._slot_lock = threading.Lock()
+        self._active = self._waiting = 0
+
+    @contextmanager
+    def _slot(self) -> Iterator[None]:
+        if getattr(self._slot_held, "on", False):   # a job started inline from inside a running job: same slot
+            yield
+            return
+        with self._slot_lock:
+            self._waiting += 1
+        self._slots.acquire()
+        with self._slot_lock:
+            self._waiting -= 1
+            self._active += 1
+        self._slot_held.on = True
+        try:
+            yield
+        finally:
+            self._slot_held.on = False
+            with self._slot_lock:
+                self._active -= 1
+            self._slots.release()
+
+    def slots(self) -> dict[str, int]:
+        """Ingestion slots of this process (for /admin/system/runtime)."""
+        with self._slot_lock:
+            return dict(limit=max(1, self.settings.ingestion_max_concurrent_jobs), active=self._active, waiting=self._waiting)
 
     # ---------------------------------------------------------------- jobs
     def create_job(self, source: dict[str, Any], trigger: str = "manual", requested_by: str | None = None,
@@ -156,18 +187,23 @@ class IngestionService:
             log.warning("heartbeat failed for job %s", job_id)
 
     def run_job(self, job_id: str) -> dict[str, Any]:
-        """Inline execution of a queued job (tests / scripts / CLI)."""
-        job = get_one(self.store, "ingestion_jobs", id=job_id)
-        if job is None:
-            raise NotFound("job not found")
-        if job["status"] != "queued" or job.get("executor") == "gpu":
-            return job
-        job = self.store.update("ingestion_jobs", dict(status="running", started_at=utcnow(), heartbeat_at=utcnow(),
-                                                       attempts=(job.get("attempts") or 0) + 1), {"id": job_id})[0]
-        return self.execute(job)
+        """Inline execution of a queued job (tests / scripts / CLI). Waits for a free slot while still 'queued'."""
+        with self._slot():
+            job = get_one(self.store, "ingestion_jobs", id=job_id)
+            if job is None:
+                raise NotFound("job not found")
+            if job["status"] != "queued" or job.get("executor") == "gpu":
+                return job
+            job = self.store.update("ingestion_jobs", dict(status="running", started_at=utcnow(), heartbeat_at=utcnow(),
+                                                           attempts=(job.get("attempts") or 0) + 1), {"id": job_id})[0]
+            return self.execute(job)
 
     def execute(self, job: dict[str, Any]) -> dict[str, Any]:
         """Run a job that is already marked running. Never raises: failures are persisted on job and source."""
+        with self._slot():
+            return self._execute(job)
+
+    def _execute(self, job: dict[str, Any]) -> dict[str, Any]:
         source = get_one(self.store, "knowledge_sources", id=job["source_id"]) if job.get("source_id") else None
         if source is None:   # deleted while queued: never recreate anything for it
             return self._finish(job, None, error=IngestionError("source_deleted", "The source was deleted."))
