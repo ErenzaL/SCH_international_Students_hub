@@ -6,13 +6,15 @@ only, not pushed). The RC branch `school/rc-2026-11-27` is not touched (backup t
 
 | Phase | State | Output |
 |---|---|---|
-| 0 Audit + baseline reproduction | in-memory baseline reproduced exactly (see EXPERIMENT-LOG E0); audit document and real-PostgreSQL baseline next | `results/rag_v2/repro_memory_*.json` |
+| 0 Audit + baseline reproduction | **done**: BASELINE-AUDIT.md; baseline reproduced in memory (E0, E1) and on real PostgreSQL + pgvector (E2); chunker text loss found (F1) | `results/rag_v2/E1*`, `E2*` |
 | 1 Dataset | **test set v0.3 frozen** (210 questions, 42 needs); card, guidelines, review checklist written | DATASET-CARD.md, LABELING-GUIDELINES.md, HUMAN-REVIEW-CHECKLIST.md |
 | 2–14 | not started | |
 
 ## Resume here
 
 1. `build_testset.py --check` must print OK before any experiment.
-2. Write BASELINE-AUDIT.md, then run the real PostgreSQL + pgvector baseline (scratch DB through
-   `scripts/scratch_db.sh`, socket under `/data/20243508/w`).
-3. Experiment framework with content-based tie-breaks (the in-memory store breaks ties by random UUID).
+2. Evaluator: `scripts/rag_v2/retrieval_eval.py` (memory or postgres backend, configs in `configs.py`).
+   PostgreSQL: `export PG_BIN=/data/20243508/tools/pg/bin POSTGREST=/data/20243508/tools/prst/postgrest
+   PYTHON=$PWD/backend/.venv/bin/python; scripts/scratch_db.sh start /data/20243508/w/rv2; source …/env`
+   (stop needs PG_BIN too).
+3. Next: Phase 2 failure analysis on DEV + VALIDATION, then chunker v2 (F1).

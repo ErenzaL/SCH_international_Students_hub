@@ -61,6 +61,9 @@ C
   echo "started: source $dir/env";;
 stop)
   [ -f "$dir/.scratch_db" ] || { echo "$dir was not made by this script" >&2; exit 1; }
+  # never delete the data directory of a server that is still running (it would keep running on deleted files and
+  # remove the socket of the next stack started at the same path when it finally shuts down)
+  [ -x "$PG_BIN/pg_ctl" ] || { echo "pg_ctl not found: set PG_BIN (nothing was stopped or deleted)" >&2; exit 1; }
   for p in proxy postgrest; do [ -f "$dir/$p.pid" ] && kill "$(cat "$dir/$p.pid")" 2>/dev/null || true; done
   [ -f "$dir/data/postmaster.pid" ] && "$PG_BIN/pg_ctl" -D "$dir/data" -m fast stop >/dev/null || true
   rm -rf -- "$dir"; echo "stopped and deleted $dir";;
