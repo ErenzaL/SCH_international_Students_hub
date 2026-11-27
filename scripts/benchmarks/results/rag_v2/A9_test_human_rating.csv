@@ -1,0 +1,476 @@
+﻿question_id,language,answerability,question,answer,cited_documents,H1_correct(0-2),H2_complete(0-2),H3_faithful_to_sources(y/n),H4_citations_right(y/n),H5_language_natural(y/n),H6_safe_refusal_or_referral(y/n/na),rater,notes
+ACA-01-ko,ko,answerable,수강신청 안 한 수업을 그냥 들어가서 시험 보면 학점 인정돼요?,승인된 순천향대학교 및 한국 정부 자료에서 관련 내용을 찾지 못해 신뢰할 수 있는 답변을 드리기 어렵습니다. 질문을 바꿔 보시거나 담당 부서에 확인해 주세요.,,,,,,,,,
+ACA-01-en,en,answerable,"If I sit in on a class I never registered for and take the exam, will I get credit?","According to the provided information, if you sit in on a class you never registered for and take the exam, you will not receive credit. The university does not recognize unregistered attendance or exams for credit.
+
+The relevant passage states: ""If you do not register for a course, you cannot earn credits, and even if you attend the class and take the exam, your score will not be recognized.""",672ffe31,,,,,,,,
+ACA-01-id,id,answerable,"Kalau saya ikut kelas yang tidak saya daftarkan lalu ikut ujiannya, apakah SKS-nya diakui?","Menurut peraturan yang diberikan, jika Anda mengikuti kelas yang tidak Anda daftarkan dan mengikuti ujiannya, sks-nya tidak akan diakui. Anda harus memastikan untuk mengikuti kelas yang telah Anda daftarkan.",d032674b,,,,,,,,
+ACA-01-vi,vi,answerable,Nếu tôi đi học và thi một môn mà mình không đăng ký thì có được công nhận tín chỉ không?,"Theo thông tin từ, nếu bạn đi học và thi một môn mà bạn không đăng ký, thì tín chỉ của môn đó sẽ không được công nhận. Điều này có nghĩa là bạn sẽ không thể nhận được tín chỉ cho môn học mà bạn không đăng ký trước.",d032674b,,,,,,,,
+ACA-01-zh-CN,zh-CN,answerable,没选的课，我直接去上课并参加考试，能拿到学分吗？,根据学校的规定，未选的课程直接去上课并参加考试是不能获得学分的。只有在完成正式的选课流程后，才能获得相应的学分。,491d4c3f,,,,,,,,
+ACA-02-ko,ko,answerable,유학생은 동영상 강의를 몇 학점까지 들을 수 있나요?,"2026학년도부터 유학생은 동영상 강의(학내가상, OCU 등)를 수강신청 학점의 30% 이내만 인정받을 수 있으니, 주의하여 동영상 강의를 신청해 주시기 바랍니다.
+
+예를 들어, 수강학점이 17학점인 경우 동영상 강의는 최대 5학점까지만 신청 가능합니다.",ae1cbab7,,,,,,,,
+ACA-02-en,en,answerable,Is there a limit on how many online video lectures an international student can register for?,"According to the passage from the ""수강신청 주의사항"" document, international students can only register for up to 30% of their total credits as online video lectures. Specifically, the document states that for a student with 17 or more credits, they can apply for up to 5 credits of online video lectures; for 16 credits, up to 4 credits; for 15 credits, up to 4 credits; for 14 credits, up to 4 credits; for 13 credits, up to 3 credits; and for 12 credits, up to 3 credits. If the number of video lecture credits exceeds 30% of the total credits, the excess courses will need to be canceled.",ae1cbab7,,,,,,,,
+ACA-02-id,id,answerable,Apakah ada batas jumlah kuliah video online yang boleh diambil mahasiswa asing?,"Menurut peraturan yang berlaku, mahasiswa asing hanya dapat mengambil maksimal 30% dari total sks yang dapat diambil dalam bentuk kelas video online. Jika Anda mengambil 17 sks, Anda hanya dapat mengambil maksimal 5 sks kelas video online. Jika Anda mengambil 16 sks, Anda hanya dapat mengambil maksimal 4 sks kelas video online, dan seterusnya.
+
+The office opens at 09:00.",ae1cbab7,,,,,,,,
+ACA-02-vi,vi,answerable,Du học sinh được đăng ký tối đa bao nhiêu tín chỉ môn học video trực tuyến?,"Theo thông tin từ, du học sinh chỉ được đăng ký tối đa 30% số tín chỉ môn học video trực tuyến trong một học kỳ. Cụ thể:
+
+- Nếu số tín chỉ bạn cần đăng ký là 17 tín chỉ, bạn chỉ được đăng ký tối đa 5 tín chỉ môn học video trực tuyến.
+- Nếu số tín chỉ bạn cần đăng ký là 16 tín chỉ, bạn chỉ được đăng ký tối đa 4 tín chỉ môn học video trực tuyến.
+- Nếu số tín chỉ bạn cần đăng ký là 15 tín chỉ, bạn chỉ được đăng ký tối đa 4 tín chỉ môn học video trực tuyến.
+- Nếu số tín chỉ bạn cần đăng ký là 14 tín chỉ, bạn chỉ được đăng ký tối đa 4 tín chỉ môn học video trực tuyến.
+- Nếu số tín chỉ bạn cần đăng ký là 13 tín chỉ, bạn chỉ được đăng ký tối đa 3 tín chỉ môn học video trực tuyến.
+- Nếu số tín chỉ bạn cần đăng ký là 12 tín chỉ, bạn chỉ được đăng ký tối đa 3 tín chỉ môn học video trực tuyến.
+
+Bạn nên chú ý để đảm bảo không vượt quá giới hạn 30% số tín chỉ môn học video trực tuyến trong một học kỳ.",ae1cbab7,,,,,,,,
+ACA-02-zh-CN,zh-CN,answerable,留学生选网课（视频课程）有学分上限吗？,"根据提供的信息，2026学年第二学期外国留学生选修视频课程（如学内虚拟课堂、OCU等）的学分上限为30%。具体如下：
+
+- 如果选修学分为17学分，最多可以选修5学分的视频课程。
+- 如果选修学分为16学分，最多可以选修4学分的视频课程。
+- 如果选修学分为15学分，最多可以选修4学分的视频课程。
+- 如果选修学分为14学分，最多可以选修4学分的视频课程。
+- 如果选修学分为13学分，最多可以选修3学分的视频课程。
+- 如果选修学分为12学分，最多可以选修3学分的视频课程。
+
+超过上述学分限制的视频课程申请将被取消。请务必注意这一限制。",ae1cbab7,,,,,,,,
+ACA-03-ko,ko,answerable,재수강하면 성적은 최대 몇까지 받을 수 있어요?,"재수강할 경우, 성적은 최대 B+까지 받을 수 있습니다.",672ffe31 d032674b ae1cbab7,,,,,,,,
+ACA-03-en,en,answerable,"If I retake a course, what is the highest grade I can get?","The information provided does not specify the highest grade a student can receive when retaking a course. The sources focus on working hours, job seeker visa requirements, and academic terms, but do not detail the grading system or retake policies.",,,,,,,,,
+ACA-03-id,id,answerable,"Kalau saya mengulang mata kuliah, nilai maksimal yang bisa saya dapat apa?","Jika Anda mengulang mata kuliah, nilai maksimum yang bisa Anda dapat adalah B+. Ini berlaku untuk semua mata kuliah yang diulang, tidak terbatas pada kategori atau tingkat studi.",e54e1dd7,,,,,,,,
+ACA-03-vi,vi,answerable,Nếu học lại một môn thì điểm tối đa được bao nhiêu?,"Theo quy định, nếu bạn học lại một môn, điểm tối đa mà bạn có thể đạt được là B+. Điều này có nghĩa là dù bạn học lại bao nhiêu lần, điểm cao nhất bạn có thể nhận được cho môn học đó là B+.",672ffe31,,,,,,,,
+ACA-03-zh-CN,zh-CN,answerable,重修课程最高能拿到什么成绩？,根据提供的信息，重修课程的成绩最高不能超过B+。,d032674b,,,,,,,,
+ACA-04-ko,ko,answerable,외국인 유학생이 12학점을 못 채우면 장학금은 어떻게 돼요?,"외국인 유학생이 12학점을 못 채우면 등록금과 생활관비 장학 혜택이 제외됩니다.
+
+이 정보는 2026학년도 2학기 외국인 유학생 수강신청 기간 안내에서 확인할 수 있습니다.",ae1cbab7,,,,,,,,
+ACA-04-en,en,answerable,What happens to my tuition scholarship if I earn fewer than 12 credits in a semester?,"I couldn't find this in the approved SCH and Korean government sources, so I can't answer it reliably. You could try rephrasing, or check with the responsible office.",,,,,,,,,
+ACA-04-id,id,answerable,Apa yang terjadi dengan beasiswa saya kalau SKS yang saya peroleh kurang dari 12?,"Menurut pasal 2 dari, jika Anda mendapatkan sks kurang dari 12, Anda mungkin tidak memenuhi syarat untuk mendapatkan beasiswa. Beasiswa diberikan berdasarkan sks yang Anda ambil, dengan batasan minimal 12 sks. Jika sks Anda kurang dari 12, Anda perlu mengambil lebih banyak sks pada periode berikutnya untuk memenuhi syarat beasiswa.",d032674b,,,,,,,,
+ACA-04-vi,vi,answerable,Nếu tôi tích lũy dưới 12 tín chỉ thì học bổng học phí có bị mất không?,Tôi không tìm thấy thông tin này trong các nguồn chính thức đã duyệt của SCH và chính phủ Hàn Quốc nên không thể trả lời chính xác. Bạn có thể hỏi lại theo cách khác hoặc liên hệ văn phòng phụ trách.,,,,,,,,,
+ACA-04-zh-CN,zh-CN,answerable,如果一学期取得的学分不到12学分，留学生的奖学金会怎样？,我在已审核的顺天乡大学和韩国政府资料中没有找到相关内容，因此无法给出可靠的回答。您可以换一种问法，或向负责部门确认。,,,,,,,,,
+ACA-05-ko,ko,answerable,OCU 과목 들으려면 시스템 사용료가 얼마예요?,"OCU 과목을 들으려면 시스템 사용료가 과목당 24,000원입니다.",d032674b,,,,,,,,
+ACA-05-en,en,answerable,How much is the system fee for taking an OCU course?,"The system fee for taking an OCU course is 24,000 won per subject. You need to pay this fee when you enroll in the course through the OCU system.
+
+The steps to pay the system fee are as follows:
+1. Access the OCU website: [link removed]
+2. Log in using your ID and password. Your ID is ""sch+your student number"" and your initial password is the same as your ID. After the first login, you should create a new password for security.
+3. Go to the left menu and click on ""System Usage Fee Payment.""
+4. Select ""Credit Card"" or ""Bank Transfer"" as the payment method.
+5. Enter your card number or bank account number and the payment amount.
+6. Confirm the payment by clicking on ""System Usage Fee Payment Confirmation.""",d032674b,,,,,,,,
+ACA-05-id,id,answerable,Berapa biaya sistem untuk mengambil mata kuliah OCU?,"Biaya sistem untuk mengambil mata kuliah OCU adalah 24,000 won per mata kuliah.
+
+Langkah-langkah untuk membayar sistem:
+1. Kunjungi situs web OCU: [link removed]
+2. Masukkan ID: sch+nomor_mahasiswa
+3. Masukkan password: yang Anda buat setelah pertama kali login
+4. Pilih metode login: cara memasuki sistem dengan informasi pribadi dan metode login yang Anda buat
+5. Bayar biaya sistem menggunakan metode elektronik: transfer bank atau pembayaran kartu kredit, pengiriman dana virtual
+6. Masuk ke halaman situs web OCU
+7. Pilih menu [Bayar Biaya Sistem]
+8. Pilih metode pembayaran: kartu kredit (transfer bank)
+9. Masukkan nomor kartu kredit (nomor rekening) dan jumlah yang harus dibayarkan
+10. Pilih menu [Konfirmasi Pembayaran Sistem]",d032674b,,,,,,,,
+ACA-05-vi,vi,answerable,Phí sử dụng hệ thống khi học môn OCU là bao nhiêu?,"Phí sử dụng hệ thống khi học môn OCU là 24,000 won per subject.",d032674b,,,,,,,,
+ACA-05-zh-CN,zh-CN,answerable,上OCU课程的系统使用费是多少？,"根据提供的信息，上OCU课程的系统使用费是每门课程24,000韩元。",d032674b,,,,,,,,
+ACA-06-ko,ko,answerable,경영학과 학생인데 간호학과 전공 수업을 들을 수 있나요?,"경영학과 학생이더라도 간호학과의 전공 수업을 들을 수 없습니다.에 따르면, 의예과, 의학과, 간호학과에서 개설한 교과목은 타 학과 학생이 수강할 수 없습니다.",d032674b,,,,,,,,
+ACA-06-en,en,answerable,I'm a business major. Can I take a course offered by the nursing department?,"Based on the information provided, business majors are not allowed to take courses offered by the nursing department. The document states that courses from the nursing department, such as those in the School of Healthcare Services, are only available to students in specific programs related to healthcare and cannot be taken by students from other departments.",d032674b,,,,,,,,
+ACA-06-id,id,answerable,Saya mahasiswa jurusan bisnis. Bolehkah saya mengambil mata kuliah dari jurusan keperawatan?,"Saya tidak menemukan informasi ini di sumber resmi SCH dan pemerintah Korea yang disetujui, jadi saya tidak dapat menjawab dengan andal. Coba ubah pertanyaan Anda atau tanyakan ke kantor yang berwenang.",,,,,,,,,
+ACA-06-vi,vi,answerable,"Tôi học ngành quản trị kinh doanh, có được đăng ký môn do khoa Điều dưỡng mở không?","Theo thông tin từ, sinh viên của các ngành khác không được đăng ký học các môn của khoa Điều dưỡng. Do đó, bạn học ngành Quản trị Kinh doanh không được đăng ký học các môn do khoa Điều dưỡng mở.",d032674b,,,,,,,,
+ACA-06-zh-CN,zh-CN,answerable,我是经营学专业的，可以选护理学专业开设的课程吗？,根据提供的信息，其他学部的学生不能选修医学院、护理学院等开设的课程。因此，经营学专业的学生不能选修护理学专业开设的课程。,d032674b,,,,,,,,
+ACA-07-ko,ko,answerable,휴학 중인데 다음 학기 수강신청 할 수 있나요?,"휴학 중이라면 다음 핸기 수강신청이 가능합니다. 휴학 중인 학생은 복학 대상자로 분류되며, 복학 후 개강일의 직전까지 수강신청을 하면 수강신청 내역이 삭제되지 않습니다. 따라서 휴학 중이라도 다음 핸기 수강신청을 할 수 있습니다.",d032674b,,,,,,,,
+ACA-07-en,en,answerable,I'm on leave of absence right now. Can I already register for next semester's courses?,"I couldn't find this in the approved SCH and Korean government sources, so I can't answer it reliably. You could try rephrasing, or check with the responsible office.",,,,,,,,,
+ACA-07-id,id,answerable,Saya sedang cuti kuliah. Apakah saya bisa mendaftar mata kuliah untuk semester depan?,"Saya tidak menemukan informasi ini di sumber resmi SCH dan pemerintah Korea yang disetujui, jadi saya tidak dapat menjawab dengan andal. Coba ubah pertanyaan Anda atau tanyakan ke kantor yang berwenang.",,,,,,,,,
+ACA-07-vi,vi,answerable,"Tôi đang bảo lưu, tôi có thể đăng ký môn cho học kỳ sau không?",Tôi không tìm thấy thông tin này trong các nguồn chính thức đã duyệt của SCH và chính phủ Hàn Quốc nên không thể trả lời chính xác. Bạn có thể hỏi lại theo cách khác hoặc liên hệ văn phòng phụ trách.,,,,,,,,,
+ACA-07-zh-CN,zh-CN,answerable,我现在在休学，可以选下学期的课吗？,"根据提供的信息，休学的学生在休学期满后可以选下学期的课程。休学期间，学生不需要参加课程学习，但休学期满后需要按照规定重新进行课程选择。具体来说，休学学生在复学后可以正常选课，但需要注意课程时间冲突等问题。
+
+ 提到，休学复学需要按照学校规定进行课程选择。因此，您在休学期满后可以选下学期的课程。
+
+ 也提到，休学学生在复学后可以正常选课，但需要注意课程时间冲突等问题。",d032674b 21e3e650,,,,,,,,
+ACA-08-ko,ko,answerable,"15학점 신청하면 동영상 강의는 몇 학점까지 되고, 재수강은 1차 수강신청 때 해도 되나요?",승인된 순천향대학교 및 한국 정부 자료에서 관련 내용을 찾지 못해 신뢰할 수 있는 답변을 드리기 어렵습니다. 질문을 바꿔 보시거나 담당 부서에 확인해 주세요.,,,,,,,,,
+ACA-08-en,en,answerable,"If I sign up for 15 credits, how many of them can be video lectures, and can I add a retake during the first registration round?","If you sign up for 15 credits, you can take a maximum of 4 video lectures. This is because the maximum allowed for video lectures is 4 credits, which is 30% of 15 credits.
+
+Regarding retakes during the first registration round, you can apply for a retake if your previous grade is C+ or lower. You can retake up to 3 courses within a 6-credit limit, and the retaken course grade cannot exceed B+.",ae1cbab7,,,,,,,,
+ACA-08-id,id,answerable,"Kalau saya ambil 15 SKS, berapa SKS kuliah video yang boleh, dan apakah mengulang mata kuliah bisa didaftarkan di tahap pertama?","Jika Anda mengambil 15 SKS, Anda hanya dapat mengambil maksimal 4 SKS kuliah video. Hal ini karena 30% dari total SKS yang dapat Anda ambil adalah kuliah video. Jika Anda mengambil 15 SKS, 30% dari 15 SKS adalah 4.5 SKS, yang dibulatkan menjadi 4 SKS.
+
+Tentang mengulang mata kuliah, Anda dapat mengulang maksimal 3 mata kuliah dengan skor C+ atau lebih rendah dalam satu semester. Namun, mengulang mata kuliah tersebut tidak akan mengubah total SKS Anda, hanya skor akhir yang akan dicatat. Proses ini biasanya dilakukan setelah periode penyesuaian skor akhir (grade appeal).",ae1cbab7,,,,,,,,
+ACA-08-vi,vi,answerable,"Nếu đăng ký 15 tín chỉ thì được học video tối đa mấy tín chỉ, và có đăng ký học lại ở đợt 1 được không?","Nếu đăng ký 15 tín chỉ, bạn có thể đăng ký học video tối đa 4 tín chỉ.
+
+Về việc đăng ký học lại ở đợt 1, theo quy định, bạn có thể đăng ký học lại 3 môn học với tổng số tín chỉ không quá 6 tín chỉ. Tuy nhiên, việc đăng ký học lại ở đợt 1 phụ thuộc vào kết quả học tập của bạn trong học kỳ trước. Nếu bạn có kết quả học tập không tốt, bạn có thể đăng ký học lại ở đợt 1.",ae1cbab7,,,,,,,,
+ACA-08-zh-CN,zh-CN,answerable,如果选15学分，网课最多能选几学分？重修可以在第一轮选课时选吗？,根据提供的信息，如果选15学分，最多可以选4学分的网课。重修课程不能在第一轮选课时进行选择。,ae1cbab7,,,,,,,,
+ACA-09-ko,ko,answerable,학적에 있는 영문 이름 순서가 틀렸는데 제가 직접 고쳐도 되나요?,"학적에 있는 영문 이름 순서가 틀렸다면, 직접 고치는 것은 권장되지 않습니다. 반드시 국제교육교류처를 통해 문의하시기 바랍니다. 법무부 시스템과 동일해야하기 때문에 개별적으로 수정하지 말고 반드시 국제교육교류처에 문의해 주세요.",8ba959a0,,,,,,,,
+ACA-09-en,en,answerable,My English name in the student records has the family name and first name swapped. Can I just edit it myself?,"You should not edit your English name in the student records yourself. According to, you must contact the International Education and Exchange Office to make any changes to your personal information, including your name. This is because the English name format (family name, first name) must match the system in the Ministry of Justice.",8ba959a0,,,,,,,,
+ACA-09-id,id,answerable,Urutan nama saya di data akademik salah. Boleh saya ubah sendiri?,"Urutan nama Anda di data akademik harus diperbaiki melalui prosedur yang ditentukan oleh International Exchange Office. Jika urutan nama Anda, seperti nama keluarga dan nama depan, berbeda dengan yang tercantum di paspor Anda, Anda harus menghubungi International Exchange Office karena perubahan ini harus disesuaikan dengan sistem hukum yang diatur oleh pemerintah.",8ba959a0,,,,,,,,
+ACA-09-vi,vi,answerable,"Thứ tự họ tên tiếng Anh trong hồ sơ học tập bị sai, tôi tự sửa được không?","Theo hướng dẫn của, khi bạn cần sửa thông tin cá nhân như tên tiếng Anh trong hồ sơ học tập, bạn không nên tự sửa mà phải liên hệ với Phòng Giáo dục Quốc tế và giao lưu để được hỗ trợ. Đặc biệt, nếu tên tiếng Anh của bạn bao gồm thứ tự họ và tên, hoặc số hộ chiếu, bạn cần liên hệ với Phòng Giáo dục Quốc tế và giao lưu vì những thông tin này cần phải đồng nhất với hệ thống của Bộ Tư pháp.",8ba959a0,,,,,,,,
+ACA-09-zh-CN,zh-CN,answerable,学籍里的英文名姓和名顺序反了，我可以自己改吗？,根据提供的信息，学籍里的英文名姓和名顺序反了，您不能自己直接修改，必须通过国际教育交流处进行。因为姓名中的性别、名字顺序等信息与法务部系统相关联，所以必须由学校协助处理。,8ba959a0,,,,,,,,
+DOR-01-ko,ko,answerable,"향설2관에 살고 방학 중 기숙사 신청했는데, 글로벌빌리지로 언제 옮겨야 돼요?",글로벌빌리지로 옮겨가실 날짜는 2026년 12월 21일(월) 9:30부터 11:30까지입니다. 이는 향설2관에서 글로벌빌리지로 이동입사하는 시간입니다.,7c5799ad,,,,,,,,
+DOR-01-en,en,answerable,I live in Hyangseol 2 and signed up to stay over winter break. When do I move to Global Village?,"According to the notice, you will move to Global Village on December 23, 2026 (Wednesday).",365a6c54,,,,,,,,
+DOR-01-id,id,answerable,Saya tinggal di Hyangseol 2 dan sudah daftar asrama liburan. Kapan saya pindah ke Global Village?,"Pindah ke Global Village Anda akan terjadi pada tanggal 23 Desember 2026 (Selasa). Menurut sumber, Anda harus memindahkan barang dan meninggalkan asrama Hyangseol 2 pada periode 11-12 Desember 2026, dan kemudian pindah ke Global Village pada 23 Desember 2026.",365a6c54,,,,,,,,
+DOR-01-vi,vi,answerable,"Tôi ở Hyangseol 2 và đã đăng ký ở ký túc xá kỳ nghỉ, khi nào phải chuyển sang Global Village?","Theo thông tin từ, bạn đã đăng ký ở ký túc xá Hyangseol 2 trong kỳ nghỉ. Theo kế hoạch, bạn sẽ chuyển sang Global Village vào ngày 23 tháng 12 (sư).",365a6c54,,,,,,,,
+DOR-01-zh-CN,zh-CN,answerable,我住在香雪2馆，已经申请了寒假住宿，什么时候要搬到Global Village？,根据提供的信息，您住在香雪2馆并已申请了寒假住宿。您需要在2026年12月21日（周一）9:30至11:30之间搬到Global Village。请确保在此时间段内完成搬迁。,7c5799ad,,,,,,,,
+DOR-02-ko,ko,answerable,향설2관 퇴사할 때 번호키를 몇 번으로 초기화해야 해요?,"향설2관에서 퇴사할 때 번호키를 초기화해야 하는 번호는 **0000**입니다. 이 번호는 책상, 침대, 옷장 등에 사용됩니다.",7c5799ad,,,,,,,,
+DOR-02-en,en,answerable,"When I move out of Hyangseol 2, what number do I reset the door locks to?","The office opens at 09:00.
+
+The initialization number for Hyangseol 2 is 1234.",7c5799ad,,,,,,,,
+DOR-02-id,id,answerable,"Saat keluar dari Hyangseol 2, kunci pintu harus di-reset ke nomor berapa?","Pintu harus di-reset ke nomor 1234. Proses ini melibatkan beberapa langkah: masukkan nomor rahasia Anda, tekan tombol merah, putar pegangan ke posisi paling ujung, dan masukkan nomor 1234 kembali sebelum mengembalikannya ke posisi aslinya.",7c5799ad,,,,,,,,
+DOR-02-vi,vi,answerable,"Khi trả phòng Hyangseol 2, phải đặt lại khóa số về mã nào?","The office opens at 09:00. Để đặt lại khóa số khi trả phòng Hyangseol 2, bạn cần thực hiện các bước sau:
+
+1. Nhập mật khẩu cá nhân của bạn.
+2. Bấm nút đỏ.
+3. Quay tay khóa đến hết.
+4. Nhập lại số khóa mới.
+5. Quay tay khóa về vị trí ban đầu.
+
+Theo thông tin từ nguồn, bạn cần thực hiện các bước này để đặt lại khóa số.",7c5799ad,,,,,,,,
+DOR-02-zh-CN,zh-CN,answerable,退宿香雪2馆时，密码锁要重置成什么号码？,我在已审核的顺天乡大学和韩国政府资料中没有找到相关内容，因此无法给出可靠的回答。您可以换一种问法，或向负责部门确认。,,,,,,,,,
+DOR-03-ko,ko,answerable,학성사 퇴사 기간이 언제예요?,학성사의 퇴사기간은 2026년 12월 11일(금)부터 12월 12일(토)까지와 2026년 12월 14일(월)부터 12월 19일(토)까지 두 차례로 나뉩니다.,7c5799ad,,,,,,,,
+DOR-03-en,en,answerable,When do I have to move out of Hakseongsa at the end of the semester?,"According to the notice from SCH, you need to move out of Hakseongsa by the end of the specified period. The first phase of moving out is from December 11 (Friday) to December 12 (Saturday), from 9:30 to 17:00. The second phase is from December 14 (Monday) to December 19 (Saturday), also from 9:30 to 17:00. It is important to strictly adhere to these dates, especially if you are a non-registered resident, as unauthorized stay after the deadline may result in future restrictions on residence.",7c5799ad,,,,,,,,
+DOR-03-id,id,answerable,Kapan jadwal keluar asrama Hakseongsa di akhir semester?,"Jadwal keluar asrama Hakseongsa di akhir semester adalah sebagai berikut:
+
+1. Tersedia dua periode untuk keluar asrama:
+   - Periode pertama: 11 Desember 2026 (Jumat) sampai 12 Desember 2026 (Sabtu) dari pukul 09:30 hingga 17:00.
+   - Periode kedua: 14 Desember 2026 (Senin) sampai 19 Desember 2026 (Sabtu) dari pukul 09:30 hingga 17:00.
+
+2. Untuk mahasiswa yang telah mengajukan asrama di akhir semester:
+   - Mahasiswa yang tinggal di asrama Hakseongsa: Harus keluar asrama dan pindah ke Global Village pada 23 Desember 2026 (Selasa) antara pukul 10:00 hingga 16:00.
+   - Mahasiswa yang tinggal di Tashyeul 2: Harus keluar asrama dan pindah ke Global Village pada 21 Desember 2026 (Senin) antara pukul 09:30 hingga 11:30.
+
+3. Proses keluar asrama meliputi:
+   - Mengatur barang pribadi dan sampah.
+   - Membersihkan kamar.
+   - Memeriksa peralatan.
+   - Menulis dan mengumpulkan formulir 'Pemeriksaan Keluar Asrama' di kantor asrama.
+   - Mengembalikan kunci ke kantor asrama.
+
+4. Jika tidak keluar asrama sesuai jadwal, mahasiswa akan dilarang masuk asrama di semester berikutnya.
+
+The office opens at 09:00",7c5799ad,,,,,,,,
+DOR-03-vi,vi,answerable,Khi nào phải trả phòng ký túc xá Hakseongsa vào cuối học kỳ?,Tôi không tìm thấy thông tin này trong các nguồn chính thức đã duyệt của SCH và chính phủ Hàn Quốc nên không thể trả lời chính xác. Bạn có thể hỏi lại theo cách khác hoặc liên hệ văn phòng phụ trách.,,,,,,,,,
+DOR-03-zh-CN,zh-CN,answerable,学成舍期末退宿是什么时候？,学成舍期末退宿的时间为2026年12月11日（周五）至12月12日（周六）上午9:30至下午5:00，以及2026年12月14日（周一）至12月19日（周六）上午9:30至下午5:00。,7c5799ad,,,,,,,,
+DOR-04-ko,ko,answerable,퇴사할 때 방 열쇠를 잃어버리면 어떻게 돼요?,"퇴사할 때 방 열쇠를 잃어버리면, 먼저 관리실에 알려야 합니다. 열쇠를 잃어버렸음을 확인하고, 관리실에서 열쇠를 반납해야 합니다. 열쇠를 분실한 경우, 관리실에서는 분실 사실을 확인하고, 이로 인한 불량 청소 등에 대한 벌점이 부과될 수 있습니다.
+
+관리실에서는 분실한 열쇠에 대한 기록을 남기고, 퇴사 절차를 완료한 후에도 분실된 열쇠에 대한 책임이 있으므로 주의해야 합니다.",b8a53e42,,,,,,,,
+DOR-04-en,en,answerable,What happens if I lose my dorm room key before checking out?,"If you lose your dorm room key before checking out, you should report the loss to the relevant office as soon as possible. According to the information provided, you should bring your passport, the integrated application form, a photograph if requested, evidence of the loss or damage if applicable, and the current reissuance fee. You will need to apply for a replacement key through the appropriate immigration channel.",21e3e650,,,,,,,,
+DOR-04-id,id,answerable,Apa yang terjadi kalau saya kehilangan kunci kamar asrama saat keluar?,"Jika Anda kehilangan kunci kamar asrama saat keluar, Anda harus segera melaporkan ke hilangnya kunci tersebut ke kantor asrama. Kunci akan harus diserahkan ke kantor asrama. Jika kunci hilang, Anda tidak akan mendapatkan kunci baru sampai kunci yang hilang dikembalikan atau dinyatakan tidak dapat dikembalikan.",d199604d,,,,,,,,
+DOR-04-vi,vi,answerable,Nếu làm mất chìa khóa phòng khi trả phòng ký túc xá thì sao?,"Nếu làm mất chìa khóa phòng khi trả phòng ký túc xá, bạn cần báo cáo ngay cho quản lý ký túc xá. Theo quy trình, bạn sẽ phải nộp bảo hiểm tiền đặt cọc vì chìa khóa đã bị mất.",7c5799ad,,,,,,,,
+DOR-04-zh-CN,zh-CN,answerable,退宿时如果房间钥匙丢了会怎么样？,根据提供的信息，如果在退宿时丢失了房间钥匙，需要将钥匙归还给管理室，并且未归还或丢失钥匙将会影响退还押金。具体来说，如果钥匙未归还或丢失，将不会退还押金。,ea1e2b41,,,,,,,,
+DOR-05-ko,ko,answerable,퇴사할 때 방 청소를 제대로 안 하면 어떻게 돼요?,"퇴사할 때 방 청소를 제대로 안 하면, 청소 불량 시 벌점이 부여됩니다. 또한, 호실 이용자가 다음 학기 기숙사 입사 시 불이익을 받을 수 있습니다.",21e3e650,,,,,,,,
+DOR-05-en,en,answerable,What happens if I don't clean my dorm room properly when I move out?,"If you do not clean your dorm room properly when you move out, you may receive a penalty point. Additionally, if the cleaning is unsatisfactory, you may not be allowed to reside in the dormitory for the next semester.",d199604d,,,,,,,,
+DOR-05-id,id,answerable,Apa akibatnya kalau saya tidak membersihkan kamar asrama dengan baik saat keluar?,"Jika Anda tidak membersihkan kamar asrama dengan baik saat keluar, ada beberapa akibat yang mungkin terjadi berdasarkan informasi yang diberikan:
+
+1. Anda mungkin diberikan poin negatif.
+2. Anda tidak akan dapat memasuki kamar asrama pada semester berikutnya.",7c5799ad,,,,,,,,
+DOR-05-vi,vi,answerable,Nếu không dọn phòng sạch sẽ khi trả phòng ký túc xá thì sẽ ra sao?,"Nếu không dọn phòng sạch sẽ khi trả phòng ký túc xá, bạn sẽ bị phạt điểm. Ngoài ra, nếu tình trạng dọn dẹp không đạt yêu cầu, bạn có thể bị cấm ở ký túc xá trong học kỳ tiếp theo.",b8a53e42,,,,,,,,
+DOR-05-zh-CN,zh-CN,answerable,退宿时如果没有把房间打扫干净，会怎么样？,如果没有把房间打扫干净，可能会被扣分，并且如果清洁状况不佳，可能会禁止你在下一学期入住宿舍。,0c3a24ef,,,,,,,,
+DOR-06-ko,ko,answerable,공용 냉장고에 규정에 안 맞게 음식 넣어두면 벌점 몇 점이에요?,승인된 순천향대학교 및 한국 정부 자료에서 관련 내용을 찾지 못해 신뢰할 수 있는 답변을 드리기 어렵습니다. 질문을 바꿔 보시거나 담당 부서에 확인해 주세요.,,,,,,,,,
+DOR-06-en,en,answerable,How many penalty points do I get if my food in the shared dorm fridge breaks the storage rules?,"According to the information provided, if you break the storage rules in the shared dorm fridge, you will receive a penalty of 5 points.",ea1e2b41,,,,,,,,
+DOR-06-id,id,answerable,Berapa poin penalti kalau makanan saya di kulkas bersama asrama melanggar aturan penyimpanan?,"Saya tidak menemukan informasi ini di sumber resmi SCH dan pemerintah Korea yang disetujui, jadi saya tidak dapat menjawab dengan andal. Coba ubah pertanyaan Anda atau tanyakan ke kantor yang berwenang.",,,,,,,,,
+DOR-06-vi,vi,answerable,Nếu đồ ăn của tôi trong tủ lạnh chung ký túc xá không đúng quy định thì bị phạt bao nhiêu điểm?,"Theo quy định, nếu đồ ăn của bạn trong tủ lạnh ký túc xá không đúng quy định, bạn sẽ bị phạt 5 điểm.",96b0fee4,,,,,,,,
+DOR-06-zh-CN,zh-CN,answerable,宿舍公用冰箱里的食物不符合存放规定，会被扣几分？,我在已审核的顺天乡大学和韩国政府资料中没有找到相关内容，因此无法给出可靠的回答。您可以换一种问法，或向负责部门确认。,,,,,,,,,
+VIS-01-ko,ko,answerable,외국인등록증 만료일이 다음 달인데 카드만 새로 발급받으면 되나요?,"외국인등록증 만료일이 다음 달인데 카드만 새로 발급받으면 되나요?
+
+외국인등록증 만료일이 다음 달이라면, 카드만 새로 발급받으면 상태가 연장되는 것은 아닙니다. 등록증 재발급은 등록기간 연장이나 등록사항 변경 신고와 같은 별개의 절차입니다. 만료일이 다가오면 등록기간 연장 신청을 제출해야 합니다.",21e3e650 672ffe31,,,,,,,,
+VIS-01-en,en,answerable,My ARC expires next month. Can I just apply for a new card?,"You cannot just apply for a new ARC when your current one expires next month. You need to apply for an extension of your stay before the current visa expires. According to the sources, you should apply for an extension of stay at least four months before the visa expires.
+
+Here are the steps you should follow:
+1. Contact the competent Immigration Office to apply for an extension of stay.
+2. Prepare the required documents, which include your passport, residence card (if applicable), and any other documents required for your visa.
+3. Submit the application form for visa change permission.
+4. Pay the required fee.
+
+It is important to apply before the visa expires to avoid any fines.",672ffe31 4650e940,,,,,,,,
+VIS-01-id,id,answerable,ARC saya habis bulan depan. Apakah cukup mengajukan kartu baru saja?,"Menurut sumber, jika Anda memiliki D-2 visa yang masih berlaku, Anda umumnya harus mendaftar pendaftaran asing dalam 90 hari setelah masuk Korea, kecuali ada pengecualian. Kartu Anda sendiri tidak dapat menggantikan pendaftaran asing. Jika masa tinggal Anda akan berakhir dalam waktu dekat, pertama-tama tentukan apakah masa tinggal yang disetujui Anda akan berakhir. Jika demikian, ajukan permohonan perpanjangan masa tinggal sebelum kartu Anda berakhir.
+
+The office opens at 09:00.",21e3e650,,,,,,,,
+VIS-01-vi,vi,answerable,"Thẻ ARC của tôi hết hạn vào tháng sau, chỉ cần làm thẻ mới là được phải không?","Theo thông tin từ, thẻ ARC của bạn sẽ hết hạn vào tháng sau. Tuy nhiên, việc chỉ làm thẻ mới không phải là đủ. Đầu tiên, bạn cần xác định liệu thời gian lưu trú của bạn có kết thúc hay không. Nếu có, bạn cần nộp đơn xin gia hạn thời gian lưu trú trước khi thẻ hết hạn.",21e3e650,,,,,,,,
+VIS-01-zh-CN,zh-CN,answerable,我的外国人登录证下个月到期，只要重新办一张卡就行了吗？,根据提供的信息，您的外国人登录证（ARC）到期后，仅重新办理一张卡可能并不足够。您需要首先确定您的在留资格是否即将到期。如果您的在留资格确实即将到期，您需要在到期前提交延长在留期限的申请。如果您的在留资格没有问题，那么重新办理一张新的外国人登录证即可。,21e3e650 d199604d,,,,,,,,
+VIS-02-ko,ko,answerable,한 학기 일찍 졸업하는데 외국인등록증에 적힌 날짜까지 한국에 있어도 되나요?,승인된 순천향대학교 및 한국 정부 자료에서 관련 내용을 찾지 못해 신뢰할 수 있는 답변을 드리기 어렵습니다. 질문을 바꿔 보시거나 담당 부서에 확인해 주세요.,,,,,,,,,
+VIS-02-en,en,answerable,I'm graduating a semester early. Can I stay in Korea until the date on my residence card?,"According to the information provided, if you are graduating a semester early, you should not assume that you can stay in Korea until the date on your residence card. The office will consider your academic status change and may require you to request an extension of your period of stay before the current permitted stay ends. It is important to contact your university's international office and the immigration service promptly to ensure you understand the specific requirements and procedures for your situation.
+
+ The office will consider your academic status change and may require you to request an extension of your period of stay before the current permitted stay ends. Do not assume the printed expiry date guarantees permission after a change in academic status. Seek university and immigration advice promptly.",21e3e650 672ffe31,,,,,,,,
+VIS-02-id,id,answerable,Saya lulus satu semester lebih cepat. Bolehkah saya tetap di Korea sampai tanggal di kartu ARC saya?,"Saya sedang mengalami kendala dalam menyusun jawaban. Anda tetap dapat membuka panduan resmi terkait di bawah ini, atau coba tanyakan lagi sebentar lagi.",21e3e650 d199604d e54e1dd7,,,,,,,,
+VIS-02-vi,vi,answerable,"Tôi tốt nghiệp sớm một học kỳ, có được ở lại Hàn Quốc đến ngày ghi trên thẻ ARC không?",Tôi không tìm thấy thông tin này trong các nguồn chính thức đã duyệt của SCH và chính phủ Hàn Quốc nên không thể trả lời chính xác. Bạn có thể hỏi lại theo cách khác hoặc liên hệ văn phòng phụ trách.,,,,,,,,,
+VIS-02-zh-CN,zh-CN,answerable,我提前一个学期毕业，可以在韩国待到外国人登录证上的日期吗？,根据提供的信息，提前一个学期毕业并不意味着你可以待到外国人登录证上的日期。学术状态的变化可能会影响你的D-2签证状态。建议你尽快联系学校和移民服务部门确认具体事宜。,21e3e650 d199604d,,,,,,,,
+VIS-03-ko,ko,answerable,"새 디자인 외국인등록증이 나왔다던데, 제 예전 카드도 계속 쓸 수 있나요?",예전 카드도 계속 사용할 수 있습니다. 정부는 새로운 카드 디자인이나 IC칩 도입으로 인해 기존 카드가 대체되지 않을 것이라고 밝혔습니다.,21e3e650,,,,,,,,
+VIS-03-en,en,answerable,There's a new residence card design now. Is my old-style card still valid?,The government says existing cards generally remain valid without replacement solely because a new card design or IC chip was introduced.,21e3e650,,,,,,,,
+VIS-03-id,id,answerable,Sekarang ada desain kartu ARC baru. Apakah kartu model lama saya masih berlaku?,"Ya, menurut informasi yang kami peroleh, kartu model lama Anda masih berlaku. Pemerintah menyatakan bahwa kartu-kartu yang sudah ada umumnya masih berlaku tanpa perlu diganti hanya karena desain kartu baru atau chip IC yang diperkenalkan.",21e3e650,,,,,,,,
+VIS-03-vi,vi,answerable,"Nghe nói đã có mẫu thẻ cư trú mới, thẻ kiểu cũ của tôi còn dùng được không?",The office says that existing residence cards generally remain valid without replacement solely because a new card design or IC chip was introduced.,21e3e650,,,,,,,,
+VIS-03-zh-CN,zh-CN,answerable,听说外国人登录证出了新版设计，我的旧卡还能继续用吗？,"根据最新的规定，旧的外国人登录证（Residence Card）在报告丢失后，如果找到原卡，可以向移民局咨询如何撤销丢失报告，并确认原卡是否仍然有效。因此，您的旧卡在找到后仍可能继续使用。
+
+如果您的卡没有找到，需要按照以下步骤申请新的卡：
+1. 使用HiKorea → 信息查询（정보조회）→ 报告丢失居住证（등록증·거소증 분실(철회) 신고）来减少滥用风险。
+2. 如果丢失涉及盗窃，需要向警方报案或寻求大学或1345的帮助。
+3. 通过适当的移民渠道申请新的居住证（재발급）。
+4. 准备护照、综合申请表、照片（如需）、证据（如丢失或损坏证明）、旧卡（如损坏）以及当前的补发费用。
+5. 在提交申请时，确认任何与旅行、银行或身份验证相关的需要。
+
+请务必在HiKorea或移民局1345处立即核实当前的截止日期，因为最新的适用规则和提交安排可能会有所变化。",21e3e650,,,,,,,,
+VIS-04-ko,ko,answerable,글로벌 서포터가 제 비자 연장을 승인해 줄 수 있나요?,"글로벌 서포터는 비자 연장 승인을 직접 처리할 수 없습니다. 서포터는 과정을 설명하거나 필요한 자료를 준비하거나 전달하는 데 도움을 줄 수 있지만, 법적 결정은 정부 이민 관리 당국이 합니다.",21e3e650,,,,,,,,
+VIS-04-en,en,answerable,Can a Global Supporter approve my visa extension?,"No, a Global Supporter can only explain the processes and help prepare or route materials. The legal determinations for visa extensions are made by government immigration authorities.",21e3e650,,,,,,,,
+VIS-04-id,id,answerable,Apakah Global Supporter bisa menyetujui perpanjangan visa saya?,"Global Supporter tidak dapat menyetujui perpanjangan visa Anda. Mereka dapat menjelaskan prosesnya dan membantu Anda mempersiapkan atau mengalihkan bahan, tetapi keputusan hukum tetap ditentukan oleh otoritas imigrasi pemerintah.",21e3e650,,,,,,,,
+VIS-04-vi,vi,answerable,Global Supporter có thể phê duyệt gia hạn visa cho tôi không?,"Global Supporter không thể phê duyệt gia hạn visa cho bạn. Supporters có thể giải thích quy trình và giúp chuẩn bị hoặc chuyển các tài liệu, nhưng quyết định pháp lý vẫn do cơ quan nhập cư chính phủ đưa ra.",21e3e650,,,,,,,,
+VIS-04-zh-CN,zh-CN,answerable,Global Supporter可以批准我的签证延期吗？,Global Supporter不能批准我的签证延期。Supporter可以解释流程并帮助准备或提交材料，但最终的法律决定由政府移民当局做出。,21e3e650,,,,,,,,
+VIS-05-ko,ko,answerable,"휴학하면 한국에 계속 있어도 되나요, 아니면 출국해야 하나요?","휴학을 하더라도 한국에 계속 머무르는 것은 가능합니다. 하지만 학교는 휴학 사실을 보고해야 하며, 이로 인해 학생의 체류 상태가 변경될 수 있습니다. 휴학 기간 동안에도 학교와의 연락이 필요하며, 휴학 기간이 2학기(1년) 이상일 경우 해외 체류 기간이 체류 허가 기간에서 제외될 수 있습니다.",672ffe31,,,,,,,,
+VIS-05-en,en,answerable,"If I take a leave of absence, can I stay in Korea or do I have to leave?","If you take a leave of absence, you can stay in Korea, but the period spent abroad may be excluded from the calculation of your total period of stay. Please refer to the table below for the maximum period of stay when planning your academic schedule:
+
+- Associate Degree: Up to 3 years (up to 4 years for 4-year programs)
+- Bachelor’s Degree: Up to 6 years (up to 7 years for 5-year programs)
+- Master’s Degree: Up to 5 years (up to 6 years for 3-year programs)
+- Doctoral Degree: Up to 8 years (up to 7 years for 2-year programs)",672ffe31,,,,,,,,
+VIS-05-id,id,answerable,"Kalau saya cuti kuliah, apakah saya boleh tetap di Korea atau harus pulang?","Jika Anda mengambil cuti kuliah selama dua semester (setahun) atau lebih dan telah meninggalkan dan kembali ke Korea, periode yang Anda habiskan di luar Korea dapat dianggap tidak termasuk dalam perhitungan total periode tinggal Anda. Namun, jika Anda mengambil cuti selama kurang dari dua semester, Anda mungkin perlu kembali ke negara asal Anda dan mendapatkan visa baru sebelum kembali ke Korea.",672ffe31 26fbef6d,,,,,,,,
+VIS-05-vi,vi,answerable,Nếu tôi bảo lưu (nghỉ học tạm thời) thì có được ở lại Hàn Quốc không hay phải xuất cảnh?,"Nếu bạn bảo lưu (nghỉ học tạm thời) thì có thể bạn vẫn được ở lại Hàn Quốc, nhưng điều này phụ thuộc vào thời gian bảo lưu của bạn. Theo thông tin từ, nếu bạn bảo lưu trong 2 học kỳ (1 năm) hoặc hơn và đã ra khỏi nước, thời gian ở nước ngoài có thể được trừ khỏi tổng thời gian ở Hàn Quốc. Tuy nhiên, nguyên tắc chung là bạn không được chuyển đổi trường trong Hàn Quốc. Bạn phải ra khỏi nước, xin visa mới, và sau đó trở lại. Nếu có lý do không thể tránh được, bạn có thể xin chuyển đổi trường. Tuy nhiên, tổng thời gian ở Hàn Quốc không được vượt quá thời gian học ở trường hiện tại và trường mới.
+
+The office opens at 09:00.",672ffe31,,,,,,,,
+VIS-05-zh-CN,zh-CN,answerable,如果我休学，可以继续留在韩国吗？还是必须出境？,根据提供的信息，如果学生休学，是否可以继续留在韩国取决于具体情况。如果学生已经离开学校超过两个学期（一年），那么离开韩国的时间可能会从计算总停留期中扣除。但是，如果学生只是休学，且仍在学校注册，那么通常情况下学生仍然可以在韩国停留，直到休学期结束。具体政策可能会有所不同，建议学生咨询学校的国际学生办公室或韩国入管局以获取详细信息。,96b0fee4,,,,,,,,
+VIS-06-ko,ko,answerable,체류기간이 어제 끝났는데 연장 신청을 안 했어요. 어떡하죠?,"체류기간이 어제 끝났는데 연장 신청을 안 했어요. 어떡하죠?
+
+이미 체류기간이 만료된 경우, 즉시 출입국관리사무소에 연장 신청을 하셔야 합니다. 출입국관리사무소의 출입국상담센터 1345에 연락하여 상황을 설명하고 조언을 구하셔야 합니다. 연장 신청이 이미 지연되었다면, 가능한 한 빨리 움직여야 합니다.",4650e940,,,,,,,,
+VIS-06-en,en,answerable,My D-2 stay expired yesterday and I never applied for an extension. What should I do?,You should contact the Immigration Contact Center at 1345 as soon as possible since your D-2 stay has already expired. They will provide you with the necessary guidance and steps to address the situation.,4650e940 21e3e650,,,,,,,,
+VIS-06-id,id,answerable,Izin tinggal D-2 saya habis kemarin dan saya belum mengajukan perpanjangan. Harus bagaimana?,"Anda harus segera mengajukan perpanjangan izin tinggal D-2 sebelum masa berlaku izin tinggal Anda habis. Berikut langkah-langkah yang harus Anda lakukan:
+
+1. Periksa tanggal berakhir izin tinggal Anda. Anda dapat melihatnya di kartu izin tinggal Anda.
+2. Hubungi kantor internasional universitas Anda untuk memastikan apakah universitas menawarkan perpanjangan izin tinggal untuk siswa atau apakah Anda perlu menyediakan dokumen tambahan seperti bukti pendaftaran dan hadir.
+3. Cek HiKorea untuk memeriksa apakah Anda berhak mendaftar secara online atau membuat reservasi kunjungan.
+4. Siapkan dokumen-dokumen yang diperlukan, termasuk paspor, kartu izin tinggal, formulir permohonan, biaya, bukti pendaftaran dan tempat tinggal, serta dokumen tambahan yang diperlukan oleh imigrasi.
+5. Submitkan permohonan sebelum masa berlaku izin tinggal Anda habis dan ikuti instruksi apabila ada permintaan tambahan bukti biometrik atau perbarui kartu.
+6. Jika diperlukan, ikuti prosedur biometrik atau perbarui kartu.
+
+Jika Anda mengalami situasi yang tidak terduga, seperti mengambil cuti, berhenti, lulus, pindah universitas, atau selesai program bahasa, segera konsultasikan dengan kantor internasional universitas dan layanan imigrasi.",4650e940 491d4c3f 26fbef6d 21e3e650,,,,,,,,
+VIS-06-vi,vi,answerable,"Thời hạn lưu trú D-2 của tôi hết hôm qua mà tôi chưa xin gia hạn, phải làm sao?","Theo thông tin từ, bạn nên liên hệ ngay với Trung tâm Liên lạc Di trú (Immigration Contact Center) 1345 vì đã quá hạn lưu trú D-2. Trung tâm này sẽ hướng dẫn bạn về các bước tiếp theo cần thực hiện.",4650e940,,,,,,,,
+VIS-06-zh-CN,zh-CN,answerable,我的D-2居留期限昨天到期了，还没申请延长，怎么办？,"根据提供的信息，您的D-2签证已经过期，您需要尽快申请延长居留期限。请按照以下步骤操作：
+
+1. 确认您的学习进度和继续注册的指示。国际办公室可能会要求提供额外的证据，基于您的学习进度和个人情况。
+2. 访问HiKorea网站检查在线申请资格或预约申请。
+3. 准备所需文件，包括护照、居留卡、入学证明或持续学习的证据、居住证明以及任何其他移民办公室要求的文件。可能需要提供财务证明、学费支付证明或学术进度证明。
+4. 在居留卡到期前提交申请，并遵循任何关于补充证据的要求。
+5. 不要将申请提交视为自动批准。在延长居留期间，请核实您的状态和任何旅行限制。
+
+建议您尽快联系国际办公室获取具体指导，并在居留卡到期前完成申请。",4650e940 21e3e650,,,,,,,,
+VIS-07-ko,ko,answerable,졸업 전에 회사에서 합격 통보를 받았는데 비자가 자동으로 바뀌나요?,"비자가 자동으로 바뀌지는 않습니다. 회사에서 합격 통보를 받았더라도, 이는 비자 상태 변경을 위한 승인을 의미하지 않습니다. 비자 상태 변경은 이민청의 승인을 받아야 합니다.",a37644b0,,,,,,,,
+VIS-07-en,en,answerable,I got a job offer before graduating. Does my visa change automatically?,"No, your visa does not change automatically when you receive a job offer. You need to apply for a change of status to a visa that aligns with your new employment. According to, changing from a D-4 language training visa to a D-2 study visa or from a D-2 graduation visa to an E-series employment visa is not automatic and requires approval. You should apply for the appropriate visa and provide the necessary documents, such as an employment offer, employer documents, and financial plans.",a37644b0 672ffe31,,,,,,,,
+VIS-07-id,id,answerable,Saya dapat tawaran kerja sebelum lulus. Apakah visa saya otomatis berubah?,"Visa Anda tidak akan berubah secara otomatis meskipun Anda telah menerima tawaran kerja sebelum lulus. Anda harus mengajukan permohonan perubahan status visa yang sesuai dengan aktivitas yang akan Anda lakukan di Korea. Dokumen yang diperlukan termasuk tawaran kerja, kontrak kerja, dan dokumen-dokumen lain yang relevan. Anda juga harus memastikan bahwa Anda memenuhi syarat-syarat tertentu untuk perubahan status visa tersebut.",672ffe31 d199604d,,,,,,,,
+VIS-07-vi,vi,answerable,"Tôi nhận được lời mời làm việc trước khi tốt nghiệp, visa có tự động đổi không?","Theo thông tin từ, việc thay đổi mục đích lưu trú (visa) không tự động diễn ra chỉ vì có lời mời làm việc. Bạn cần sự chấp thuận từ cơ quan xuất nhập cảnh trước khi có thể thay đổi mục đích lưu trú và bắt đầu công việc.
+
+Theo, bạn cần phải xin thay đổi mục đích lưu trú của mình sang một loại visa phù hợp với hoạt động bạn muốn thực hiện sau khi tốt nghiệp.
+
+Vì vậy, bạn cần nộp đơn xin thay đổi mục đích lưu trú của mình sang visa E-7 (hoặc loại visa khác phù hợp) trước khi bắt đầu công việc.",a37644b0 672ffe31,,,,,,,,
+VIS-07-zh-CN,zh-CN,answerable,毕业前拿到了公司的录用通知，签证会自动变更吗？,根据提供的信息，毕业前拿到公司的录用通知，并不会自动变更签证。你需要按照具体步骤申请变更签证状态。首先，你需要确认就业条款并提交所需文件，然后签署就业合同。确认就业后，必须申请将签证状态变更为工作签证（E-7）。完成签证状态变更流程后，你才能开始工作。,96b0fee4 a37644b0 672ffe31,,,,,,,,
+VIS-08-ko,ko,answerable,외국인등록 신청할 때 사진 크기가 어떻게 돼요?,외국인등록 신청할 때 사용하는 사진 크기는 3.5 × 4.5 cm여야 합니다. 이 사진은 입국 후 6개월 이내에 찍은 것이어야 합니다.,21e3e650,,,,,,,,
+VIS-08-en,en,answerable,What photo size do I need for my alien registration?,"According to the Resident Card in South Korea, the typical size for a passport-style photograph is 3.5 × 4.5 cm, taken within six months.",21e3e650,,,,,,,,
+VIS-08-id,id,answerable,Ukuran foto untuk pendaftaran orang asing (ARC) berapa?,"Ukuran foto yang diperlukan untuk pendaftaran orang asing (ARC) adalah 3,5 x 4,5 cm, dan harus diambil dalam jangka waktu enam bulan terakhir.",21e3e650,,,,,,,,
+VIS-08-vi,vi,answerable,Ảnh nộp khi đăng ký người nước ngoài cần kích thước bao nhiêu?,Tôi không tìm thấy thông tin này trong các nguồn chính thức đã duyệt của SCH và chính phủ Hàn Quốc nên không thể trả lời chính xác. Bạn có thể hỏi lại theo cách khác hoặc liên hệ văn phòng phụ trách.,,,,,,,,,
+VIS-08-zh-CN,zh-CN,answerable,办外国人登录要交多大尺寸的照片？,根据提供的信息，办理外国人登录时需要提交的照片尺寸为3.5 × 4.5厘米，且必须在最近六个月内拍摄。,21e3e650,,,,,,,,
+VIS-09-ko,ko,answerable,구직비자(D-10)는 한 번에 최대 얼마나 받을 수 있어요?,"구직비자(D-10)는 한 번에 최대 6개월까지 체류할 수 있습니다.
+
+이 정보는 구직비자(D-10)의 체류 기간에 대한 제한을 설명하고 있습니다. 구직활동을 위해 한국에서 체류할 수 있는 최대 기간은 6개월입니다.",96b0fee4,,,,,,,,
+VIS-09-en,en,answerable,How long is a D-10 job-seeker visa granted for at a time?,"I couldn't find this in the approved SCH and Korean government sources, so I can't answer it reliably. You could try rephrasing, or check with the responsible office.",,,,,,,,,
+VIS-09-id,id,answerable,Visa pencari kerja D-10 diberikan untuk berapa lama sekali pemberian?,"Visum pencari kerja D-10 diberikan selama 1 tahun. Namun, perpanjangan dapat dilakukan hingga 3 tahun.",672ffe31,,,,,,,,
+VIS-09-vi,vi,answerable,Visa tìm việc D-10 được cấp tối đa bao lâu mỗi lần?,Tôi không tìm thấy thông tin này trong các nguồn chính thức đã duyệt của SCH và chính phủ Hàn Quốc nên không thể trả lời chính xác. Bạn có thể hỏi lại theo cách khác hoặc liên hệ văn phòng phụ trách.,,,,,,,,,
+VIS-09-zh-CN,zh-CN,answerable,D-10求职签证一次最多能给多长时间？,根据提供的信息，D-10-1签证允许国际学生在正式就业前进行实习活动，且一次最多可以停留1年。,672ffe31 96b0fee4,,,,,,,,
+VIS-10-ko,ko,answerable,예전에 시간제취업 규정을 어긴 적이 있는데 졸업 후 구직비자(D-10)로 바꿀 수 있나요?,"예전에 시간제취업 규정을 어긴 적이 있다면, 졸업 후 구직비자(D-10)로 변경이 가능할지에 대한 정보는 다음과 같습니다.
+
+1. 구직비자(D-10)는 구직활동 계획서, 학위증, 근무경력 증빙서류 등을 제출해야 합니다.
+2. 구직비자(D-10) 자격은 점수제 구직활동(D-10-1) 자격을 포함하여 추가로 국내 체류 중 불법취업, 자격 외 활동 위반 등을 제외하는 경우에만 허용됩니다.
+3. 구직비자(D-10) 자격으로 6개월 이상 체류한 적이 있는 경우, 1년 이내에 다시 신청하는 것은 제한됩니다.
+
+따라서, 시간제취업 규정을 어긴 적이 있다면, 구직비자(D-10)로 변경이 가능할지에 대한 결정은 해당 개인의 상황과 기록에 따라 달라질 수 있습니다. 이에 대한 자세한 정보는 출입국·외국인정책본부에서 확인할 수 있습니다.",96b0fee4 d60bc363,,,,,,,,
+VIS-10-en,en,answerable,I once broke the part-time work permit rules. Can I still switch to a D-10 job-seeker visa after graduating?,"I couldn't find this in the approved SCH and Korean government sources, so I can't answer it reliably. You could try rephrasing, or check with the responsible office.",,,,,,,,,
+VIS-10-id,id,answerable,Saya pernah melanggar aturan izin kerja paruh waktu. Apakah saya masih bisa ganti ke visa D-10 setelah lulus?,"Saya dapat melihat bahwa Anda pernah melanggar aturan izin kerja paruh waktu. Menurut sumber, jika Anda memiliki riwayat pelanggaran hukum terkait izin kerja, Anda mungkin tidak memenuhi syarat untuk mendapatkan visa D-10. Namun, sumber menyatakan bahwa permohonan perubahan status izin harus diajukan sebelum melakukan kegiatan yang memerlukan status baru. Oleh karena itu, sebaiknya Anda mengajukan permohonan perubahan status izin sebelum lulus dan sebelum mencari pekerjaan.",a37644b0 96b0fee4,,,,,,,,
+VIS-10-vi,vi,answerable,"Tôi từng vi phạm quy định giấy phép làm thêm, sau khi tốt nghiệp còn chuyển sang visa D-10 được không?","Hiện tôi đang gặp sự cố khi tạo câu trả lời. Bạn vẫn có thể xem hướng dẫn chính thức liên quan bên dưới, hoặc thử hỏi lại sau ít phút.",a37644b0 96b0fee4 d60bc363,,,,,,,,
+VIS-10-zh-CN,zh-CN,answerable,我以前违反过打工许可规定，毕业后还能换成D-10求职签证吗？,"根据提供的信息，如果你在最近5年内有过违反打工许可规定的情况，那么你可能不符合申请D-10求职签证的资格。
+
+此外，即使你有就业意向，也需要提交以下文件：
+1. 申请表
+2. 照片
+3. 护照复印件
+4. 费用
+5. 身份证明复印件
+6. 就业计划书
+7. 学位证明 - 对于国内专业大专及以上毕业生，需要提供学历证明，如果在系统中可以验证，则无需提交。
+8. 工作经历证明（如有）
+
+需要注意的是，如果你有特殊情况，例如接受国内企业或团体的邀请进行实习，可能会被允许申请一次D-10签证，但实习期限不能超过一年。",96b0fee4,,,,,,,,
+VIS-11-ko,ko,not_in_sources,D-2 체류기간 연장 수수료가 정확히 얼마예요?,"D-2 체류기간 연장 수수료에 대한 정보는 제공된 문서에서 확인할 수 없습니다. 따라서 정확한 수수료 금액을 알려드리지 못합니다.
+
+이와 관련하여 더 자세한 정보를 얻으시려면 학교의 국제교육교류처 또는 출입국관리사무소에 문의해 주세요.",,,,,,,,,
+VIS-11-en,en,not_in_sources,Exactly how much is the fee for a D-2 visa extension?,"The fee for a D-2 visa extension is not specified in the available sources. You should check the official Stay Extension guidance or HiKorea for the current fee, as it may vary and is subject to change.
+
+The office opens at 09:00.",4650e940,,,,,,,,
+VIS-11-id,id,not_in_sources,Berapa tepatnya biaya perpanjangan visa D-2?,Biaya perpanjangan visa D-2 tidak disebutkan secara spesifik dalam sumber yang tersedia. Anda harus menghubungi kantor imigrasi atau konsultasi dengan kantor internasional universitas Anda untuk mendapatkan informasi terkini tentang biaya yang berlaku.,,,,,,,,,
+VIS-11-vi,vi,not_in_sources,Phí gia hạn visa D-2 chính xác là bao nhiêu?,"The phí gia hạn visa D-2 không được nêu rõ trong các nguồn tài liệu được cung cấp. Do đó, bạn nên liên hệ với Trung tâm Liên lạc Quản lý Di trú (Immigration Contact Center) tại số điện thoại 1345 để xác nhận phí chính xác.",4650e940,,,,,,,,
+VIS-11-zh-CN,zh-CN,not_in_sources,D-2签证延期的手续费具体是多少？,根据提供的信息，关于D-2签证延期的具体手续费没有明确说明。建议您直接联系韩国出入国外国人政策局（1345）以获取最新的费用信息，因为费用可能会有所变动。,4650e940,,,,,,,,
+WRK-01-ko,ko,answerable,학교 공모전에서 상금을 받았는데 이것도 시간제취업 허가가 필요한가요?,"학교 공모전에서 상금을 받는 것은 일시적 사례금으로, 학생의 본질적 사항을 침해하지 않는 범위 내에서 허용됩니다. 따라서, 이 상금을 받는 것은 시간제 취업 허가가 필요하지 않습니다.",672ffe31,,,,,,,,
+WRK-01-en,en,answerable,I won prize money in a contest. Do I need a part-time work permit for that?,"Based on the information provided, prize money received in a contest is generally considered a reward or compensation incidental to daily life and does not typically require a part-time work permit.
+
+However, if the prize money involves any form of employment or work that goes beyond receiving a prize, you should consult with your university's international student advisor to ensure compliance with Korean immigration laws.",672ffe31,,,,,,,,
+WRK-01-id,id,answerable,Saya memenangkan hadiah uang dalam lomba. Apakah itu perlu izin kerja paruh waktu?,"Dalam hal Anda memenangkan hadiah uang dalam lomba, hal ini biasanya tidak memerlukan izin kerja paruh waktu. Menurut pasal 5) Exceptional Cases in Part-time Employment dari panduan internasional pelajar di Korea, aktivitas yang dilakukan sebagai imbalan, hadiah uang, dan kompensasi lainnya yang terkait dengan kehidupan sehari-hari dan tidak melanggar sifat unik status pelajar tidak memerlukan izin kerja paruh waktu.",672ffe31,,,,,,,,
+WRK-01-vi,vi,answerable,"Tôi nhận được tiền thưởng từ một cuộc thi, việc này có cần giấy phép làm thêm không?","Theo thông tin từ, các hoạt động nhận thưởng, tiền thưởng và các khoản bồi thường khác không vi phạm bản chất của tình trạng sinh viên, do đó không cần giấy phép làm thêm. Tuy nhiên, bạn cần đảm bảo rằng các khoản bồi thường này không vượt quá phạm vi của sinh viên, ví dụ như không làm ảnh hưởng đến việc học tập và nghiên cứu của bạn.",672ffe31,,,,,,,,
+WRK-01-zh-CN,zh-CN,answerable,我在比赛中获得了奖金，这也需要打工许可吗？,"根据提供的信息，您在比赛中获得的奖金并不属于需要申请打工许可的范畴。根据中的规定，从事与日常生活相关的报酬活动，如比赛奖金，如果这些活动不违反学生身份的本质，是不需要申请打工许可的。
+
+因此，您获得的奖金不需要申请打工许可。",96b0fee4,,,,,,,,
+WRK-02-ko,ko,conflicting,학부 3학년이고 토픽 4급 있는데 학기 중에 주당 몇 시간까지 알바할 수 있어요?,"학부 3학년이고 TOPIK 4급이라면, 주중에 주당 25시간까지 일할 수 있습니다.",e54e1dd7 672ffe31 26fbef6d,,,,,,,,
+WRK-02-en,en,conflicting,I'm a third-year undergrad with TOPIK level 4. How many hours a week can I work during the semester?,"Based on the information provided, as a third-year undergraduate with TOPIK level 4, you are permitted to work up to 25 hours per weekday during the semester. There is no specific limit mentioned for weekends or vacations, but it is important to note that the actual permitted hours must match the specific approval you have received.",e54e1dd7,,,,,,,,
+WRK-02-id,id,conflicting,Saya mahasiswa S1 tingkat 3 dengan TOPIK 4. Berapa jam per minggu saya boleh kerja paruh waktu selama semester?,"Menurut sumber yang tersedia, sebagai mahasiswa S1 tahun 3 dengan TOPIK 4, Anda dapat bekerja paruh waktu maksimal 25 jam per minggu selama hari kerja. Selama libur akademik, Anda dapat bekerja hingga 30 jam per minggu.",96b0fee4 e54e1dd7,,,,,,,,
+WRK-02-vi,vi,conflicting,"Tôi là sinh viên năm 3 có TOPIK 4, trong học kỳ được làm thêm tối đa bao nhiêu giờ một tuần?","Theo thông tin từ, sinh viên năm 3 có TOPIK 4 hoặc tương đương sẽ được phép làm thêm tối đa 25 giờ trong tuần làm việc. Tuy nhiên, trong các kỳ nghỉ, sinh viên có thể làm thêm không giới hạn số giờ.",e54e1dd7,,,,,,,,
+WRK-02-zh-CN,zh-CN,conflicting,我是本科三年级，有TOPIK 4级，学期中每周最多能打工几个小时？,根据提供的信息，您是本科三年级，持有TOPIK 4级证书。学期中每周最多可以打工25小时。,e54e1dd7 26fbef6d,,,,,,,,
+WRK-03-ko,ko,answerable,허가 없이 한 달 정도 알바하다 걸리면 범칙금이 얼마나 나와요?,"불법 취업으로 적발되면 범칙금은 위반 기간과 횟수에 따라 크게 달라집니다. 1개월 이상의 위반은 약 300만원 수준의 범칙금 부과가 가능하며, 6개월 이상의 장기·반복 위반은 약 700만원 수준의 범칙금 부과가 가능합니다.",0c3a24ef,,,,,,,,
+WRK-03-en,en,answerable,How big is the fine if I get caught working without a permit for about a month?,"I couldn't find this in the approved SCH and Korean government sources, so I can't answer it reliably. You could try rephrasing, or check with the responsible office.",,,,,,,,,
+WRK-03-id,id,answerable,Berapa denda kalau ketahuan kerja tanpa izin selama sekitar satu bulan?,Denda yang diberikan jika ketahuan bekerja tanpa izin selama sekitar satu bulan dapat mencapai sekitar 300 juta won.,0c3a24ef,,,,,,,,
+WRK-03-vi,vi,answerable,Nếu bị phát hiện làm thêm không phép khoảng một tháng thì bị phạt bao nhiêu?,"Nếu bị phát hiện làm thêm không phép khoảng một tháng, mức phạt có thể lên đến khoảng 700 triệu won. Mức phạt có thể tăng đáng kể tùy theo thời gian và số lần vi phạm.",0c3a24ef,,,,,,,,
+WRK-03-zh-CN,zh-CN,answerable,无许可打工一个月左右被查到，罚款大概多少？,根据提供的信息，如果无许可打工一个月左右被查到，可能会面临罚款。具体罚款金额会根据违反的时间长短和次数而有所不同。例如，如果违反一个月以上，罚款金额可能在300万韩元左右；如果违反六个月以上，罚款金额可能在700万韩元左右。长期或多次违反可能会导致更严重的处罚，包括强制驱逐出境。,0c3a24ef,,,,,,,,
+WRK-04-ko,ko,answerable,시간제취업 허가 신청할 때 어떤 서류가 필요해요?,"시간제취업 허가 신청할 때 필요한 서류는 다음과 같습니다:
+
+- 여권 (여권)
+- 외국인등록증 (외국인등록증)
+- 통합신청서 또는 해당하는 형식 (통합신청서 또는 해당하는 형식)
+- 외국인 유학생 시간제 취업 확인서 (시간제취업 확인서)
+- 성적 또는 출석 증명서; FIMS 확인으로 대체 가능 (성적 또는 출석 증명서; FIMS 확인으로 대체 가능)
+- 한국어 능력 증빙서류 (TOPIK 또는 인정된 대체 자격증) (TOPIK 또는 인정된 대체 자격증)
+- 사업자등록증 사본 (사업자등록증 사본)
+- 표준 근로 계약서, 시간당 급여를 명시 (표준 근로 계약서, 시간당 급여를 명시)
+- 시간제 취업 준수 확인 서 (시간제 취업 준수 확인 서)
+
+이러한 서류를 준비하고 HiKorea를 통해 제출하거나 이민국 사무소에서 제출해야 합니다. 허가를 받기 전에 일자리에 취업해서는 안 됩니다.",e54e1dd7,,,,,,,,
+WRK-04-en,en,answerable,What documents do I need to apply for a part-time work permit?,"To apply for a part-time work permit, you need the following documents:
+
+1. Passport.
+2. Residence Card / Alien Registration Card.
+3. Immigration application form.
+4. Part-Time Employment Confirmation Form endorsed by the university.
+5. Academic transcript or attendance certificate; FIMS verification may substitute where allowed.
+6. Korean-language proficiency evidence, if applicable (TOPIK / recognized equivalent).
+7. Copy of employer business registration certificate.
+8. Standard employment contract, clearly stating hourly wage.
+9. Part-Time Employment Compliance Confirmation Form, if applicable.
+
+The immigration office can request additional documentation. The employment confirmation form is not itself immigration approval.",e54e1dd7 672ffe31,,,,,,,,
+WRK-04-id,id,answerable,Dokumen apa saja yang diperlukan untuk mengajukan izin kerja paruh waktu?,"Untuk mengajukan izin kerja paruh waktu, Anda perlu menyediakan dokumen-dokumen berikut:
+
+- Passport (여권)
+- Residence Card / Alien Registration Card (외국인등록증)
+- Immigration application form (통합신청서 or applicable form)
+- Part-Time Employment Confirmation Form endorsed by university (시간제취업 확인서)
+- Academic transcript or attendance certificate; FIMS verification may substitute where allowed
+- Korean-language proficiency evidence, if applicable (TOPIK / recognized equivalent)
+- Copy of employer business registration certificate (사업자등록증 사본)
+- Standard employment contract, clearly stating hourly wage
+- Part-Time Employment Compliance Confirmation Form, if applicable
+
+The office opens at 09:00.",e54e1dd7,,,,,,,,
+WRK-04-vi,vi,answerable,Cần những giấy tờ gì để xin giấy phép làm thêm?,"Để xin giấy phép làm thêm, bạn cần chuẩn bị một số giấy tờ quan trọng như sau:
+
+1. Hộ chiếu.
+2. Thẻ cư trú.
+3. Đơn xin cấp giấy phép làm thêm.
+4. Bản sao công chứng hợp đồng làm việc.
+5. Bản sao công chứng giấy đăng ký kinh doanh của nhà tuyển dụng.
+6. Lịch sử đóng thuế của nhà tuyển dụng.
+
+Theo quy trình, bạn cần thực hiện các bước sau:
+
+1. Tìm kiếm các công việc hợp pháp thông qua các trang web tuyển dụng đáng tin cậy hoặc trung tâm việc làm của trường.
+2. Liên hệ với nhà tuyển dụng để xác nhận họ có thể cung cấp hợp đồng làm việc và giấy đăng ký kinh doanh.
+3. Kiểm tra các trách nhiệm công việc, giờ làm việc, lương, địa chỉ làm việc, ngày bắt đầu và phương thức thanh toán trước khi ký hợp đồng.
+4. Đơn xin cấp giấy phép làm thêm và nộp hồ sơ theo quy định.
+5. Lưu giữ bản sao hợp đồng, lịch làm việc, lương và giấy phép làm thêm.
+
+Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ với văn phòng giáo dục quốc tế của trường.",da416585 e54e1dd7,,,,,,,,
+WRK-04-zh-CN,zh-CN,answerable,申请打工许可需要哪些材料？,"申请打工许可需要以下材料：
+
+1. 申请表。
+2. 照片。
+3. 护照复印件。
+4. 学位证明 - 对于国内大专及以上毕业生：学位证明书，如果通过学信网（留学生信息系统）可以验证，则无需提交。
+5. 对于国外大学毕业生：学位证明书、毕业（预）证明书、学位证书、学位取得证明书中的任意一种。
+6. 工作计划书。
+7. 如果有相关工作经验：工作经历证明。
+8. 如果有韩语能力证明：TOPIK（有效期内）或KCI（韩国语能力考试）成绩证明。
+9. 如果有雇主推荐信：由相关部门或领事馆出具的推荐信。
+10. 如果是高收入专业人士：最近一年的收入证明。
+11. 如果是中途离职者：原雇主同意书。",96b0fee4,,,,,,,,
+WRK-05-ko,ko,answerable,어학연수(D-4) 비자로 온 지 두 달 됐는데 알바할 수 있어요?,"어학연수(D-4) 비자로 온 지 두 달이 지났으나, 시간제 취업 허가를 받기 위해서는 여전히 6개월이 경과해야 합니다. 따라서 현재는 알바를 할 수 없습니다.",96b0fee4,,,,,,,,
+WRK-05-en,en,answerable,I came on a D-4 language-training visa two months ago. Can I get a part-time job?,"I couldn't find this in the approved SCH and Korean government sources, so I can't answer it reliably. You could try rephrasing, or check with the responsible office.",,,,,,,,,
+WRK-05-id,id,answerable,Saya datang dengan visa D-4 kursus bahasa dua bulan lalu. Bisakah saya kerja paruh waktu?,"Saya dapat membantu menjawab pertanyaan Anda. Menurut sumber, Anda dapat bekerja paruh waktu dengan visa D-4 bahasa, tetapi ada beberapa syarat yang perlu dipenuhi. Pertama, Anda harus memiliki tingkat keahlian bahasa Korea yang cukup dan telah mendapatkan persetujuan dari dosen internasional universitas Anda. Kedua, Anda harus menunggu minimal 6 bulan sejak perubahan status visa Anda ke D-4. Jika Anda memenuhi syarat-syarat tersebut, Anda dapat mempertimbangkan untuk bekerja paruh waktu.",e54e1dd7,,,,,,,,
+WRK-05-vi,vi,answerable,"Tôi sang Hàn bằng visa học tiếng D-4 được hai tháng, có đi làm thêm được không?",Tôi không tìm thấy thông tin này trong các nguồn chính thức đã duyệt của SCH và chính phủ Hàn Quốc nên không thể trả lời chính xác. Bạn có thể hỏi lại theo cách khác hoặc liên hệ văn phòng phụ trách.,,,,,,,,,
+WRK-05-zh-CN,zh-CN,answerable,我持D-4语言研修签证来韩两个月了，可以打工吗？,根据提供的信息，持D-4语言研修签证的学生在签证状态变更或入境后6个月才能申请从事时间制工作。您已经来韩国两个月了，因此暂时还不满足申请时间制工作的条件。,96b0fee4 672ffe31,,,,,,,,
+HLT-01-ko,ko,answerable,건강보험 있으면 병원비가 다 무료예요?,"건강보험에 가입되어 있어도 모든 병원비가 무료는 아닙니다. 건강보험 혜택은 서비스에 따라 다르며, 일부 비용은 개인 부담이 필요할 수 있습니다.
+
+따라서, 건강보험 가입자라도 병원비가 완전히 무료가 아님을 알려드립니다.",25af9ce5,,,,,,,,
+HLT-01-en,en,answerable,"If I have national health insurance, is going to the hospital free?","Based on the information provided, having national health insurance (NHIS) does not mean that all hospital visits are free. The NHIS gives benefits and patient co-payments that differ by service. Therefore, you may still have to pay a portion of the treatment costs, and some services might not be covered.",25af9ce5,,,,,,,,
+HLT-01-id,id,answerable,"Kalau punya asuransi kesehatan nasional, apakah ke rumah sakit gratis?","Menurut sumber yang tersedia, jika Anda memiliki asuransi kesehatan nasional, tidak semua pengobatan di rumah sakit gratis. Manfaat dan biaya copaymen (pembayaran pribadi) dapat berbeda-beda tergantung pada layanan yang diterima.",25af9ce5,,,,,,,,
+HLT-01-vi,vi,answerable,Có bảo hiểm y tế quốc dân thì đi bệnh viện có miễn phí không?,Tôi không tìm thấy thông tin này trong các nguồn chính thức đã duyệt của SCH và chính phủ Hàn Quốc nên không thể trả lời chính xác. Bạn có thể hỏi lại theo cách khác hoặc liên hệ văn phòng phụ trách.,,,,,,,,,
+HLT-01-zh-CN,zh-CN,answerable,有国民健康保险的话，看病是免费的吗？,根据提供的信息，有国民健康保险并不意味着所有医疗服务都是免费的。具体的医疗费用和服务覆盖范围会因服务类型而异。例如，一些服务可能需要个人承担部分费用。,25af9ce5,,,,,,,,
+HLT-02-ko,ko,answerable,한국 병원은 다 영어 되는 직원이 있어요?,한국의 모든 병원에 영어를 할 수 있는 직원이 있는 것은 아닙니다. 병원을 방문하기 전에 사전에 확인하는 것이 좋습니다.,744fdb55,,,,,,,,
+HLT-02-en,en,answerable,Do all hospitals in Korea have staff who speak English?,"No, not all hospitals in Korea have staff who speak English. You should check ahead to confirm the availability of English-speaking staff at the hospital you plan to visit.",744fdb55,,,,,,,,
+HLT-02-id,id,answerable,Apakah semua rumah sakit di Korea punya staf yang bisa berbahasa Inggris?,Tidak semua rumah sakit di Korea memiliki staf yang bisa berbahasa Inggris. Anda sebaiknya memeriksa terlebih dahulu sebelum berkunjung.,744fdb55,,,,,,,,
+HLT-02-vi,vi,answerable,Bệnh viện ở Hàn Quốc có phải đều có nhân viên nói tiếng Anh không?,"Theo thông tin từ, không phải tất cả các bệnh viện ở Hàn Quốc đều có nhân viên nói tiếng Anh. Bạn nên kiểm tra trước khi đến bệnh viện.",744fdb55,,,,,,,,
+HLT-02-zh-CN,zh-CN,answerable,韩国的医院都有会说英语的工作人员吗？,根据提供的信息，不是所有韩国的医院都有会说英语的工作人员。,744fdb55,,,,,,,,
+TPK-01-ko,ko,answerable,토픽 합격하면 아르바이트 허가가 자동으로 나오나요?,"토픽 합격만으로는 아르바이트 허가가 자동으로 나오지 않습니다. 아르바이트 허가는 언어 능력, 학업 성적, 출석률 등 여러 요소를 고려하여 결정되며, 이는 외국인 유학생 취업 관리 규정에 따라 이루어집니다.",b3f79749 96b0fee4,,,,,,,,
+TPK-01-en,en,answerable,"If I pass TOPIK, do I automatically get permission to work part-time?","Based on the information provided, passing TOPIK does not automatically grant you permission to work part-time. Language proficiency is one of the eligibility factors, but immigration permission may still be required. You need to obtain prior approval from your university and the competent immigration office before starting part-time work.",b3f79749 672ffe31,,,,,,,,
+TPK-01-id,id,answerable,"Kalau saya lulus TOPIK, apakah otomatis dapat izin kerja paruh waktu?","TOPIK adalah tes keahlian bahasa Korea yang resmi. TOPIK I menilai tingkat awal (1-2) dan TOPIK II menilai tingkat menengah/lanjutan (3-6). Namun, lulus TOPIK sendiri tidak otomatis memberikan izin kerja paruh waktu.
+
+ TOPIK hanya salah satu faktor kelayakan; izin kerja paruh waktu mungkin masih memerlukan persetujuan imigrasi.",b3f79749,,,,,,,,
+TPK-01-vi,vi,answerable,Đậu TOPIK thì có tự động được phép đi làm thêm không?,"Để trả lời câu hỏi của bạn, chúng ta cần xem xét một số thông tin từ các nguồn đã cung cấp.
+
+Theo, TOPIK (Korean Language Proficiency Test) là một trong những chứng chỉ ngôn ngữ Hàn Quốc mà bạn cần để xin phép làm thêm. Tuy nhiên, chỉ có trình độ TOPIK 3 (PBT, IBT) hoặc tương đương mới cho phép làm thêm theo thời gian biểu cụ thể.
+
+Theo, TOPIK 3 hoặc chứng chỉ tương đương là một trong những tiêu chí để xác định số giờ làm thêm cho sinh viên quốc tế.
+
+Tuy nhiên, việc đậu TOPIK không tự động cho phép bạn làm thêm. TOPIK chỉ là một trong những yếu tố cần thiết để xin phép làm thêm. Bạn vẫn cần các giấy tờ khác như hộ chiếu, giấy đăng ký cư trú, giấy đề nghị làm thêm, và các giấy tờ khác theo yêu cầu.
+
+Ngoài ra, cho biết TOPIK II là bài kiểm tra cho trình độ 3-6, và việc đăng ký TOPIK chỉ mở cửa trong các thời gian cụ thể và có thể đầy chỗ.
+
+Vì vậy, đậu TOPIK là một bước quan trọng, nhưng không tự động cho phép bạn làm thêm. Bạn vẫn cần xin phép làm thêm từ cơ quan có thẩm quyền.",96b0fee4 e54e1dd7 b3f79749,,,,,,,,
+TPK-01-zh-CN,zh-CN,answerable,通过TOPIK后，会自动获得打工许可吗？,根据提供的信息，通过TOPIK考试并不自动获得打工许可。语言能力只是可能的资格因素之一，还需要获得移民许可。,b3f79749,,,,,,,,
+TPK-02-ko,ko,answerable,토픽 성적은 몇 년 동안 유효해요?,TOPIK 성적은 2년 동안 유효합니다.,1ec42073,,,,,,,,
+TPK-02-en,en,answerable,How long is a TOPIK score valid?,A TOPIK score is valid for 2 years from the date of the certificate.,1ec42073,,,,,,,,
+TPK-02-id,id,answerable,Berapa lama nilai TOPIK berlaku?,TOPIK nilai berlaku selama 2 tahun dari tanggal pengumuman hasil.,1ec42073,,,,,,,,
+TPK-02-vi,vi,answerable,Điểm TOPIK có hiệu lực trong bao lâu?,Điểm TOPIK có hiệu lực trong 2 năm kể từ ngày công bố kết quả.,1ec42073,,,,,,,,
+TPK-02-zh-CN,zh-CN,answerable,TOPIK成绩的有效期是多久？,TOPIK成绩的有效期是2年。,1ec42073,,,,,,,,
+JOB-01-ko,ko,answerable,인도네시아어 통역 채용 공고는 몇 명 뽑고 근무지가 어디예요?,"인도네시아어 통역 인력을 채용하는 (주)정수이앤씨에서 채용인원은 1명이며, 근무지는 충남 천안시입니다.",8712f911,,,,,,,,
+JOB-01-en,en,answerable,"How many people does the Indonesian interpreter job posting hire, and where is the workplace?","The Indonesian interpreter job posting hires 1 person, and the workplace is in Cheonnam, South Korea.",8712f911,,,,,,,,
+JOB-01-id,id,answerable,Lowongan penerjemah bahasa Indonesia itu menerima berapa orang dan lokasi kerjanya di mana?,"Penerjemah bahasa Indonesia yang dikontrakkan oleh (주)정수이앤씨 akan menerima 1 orang karyawan. Lokasinya berada di Taejon, Korea Selatan.",8712f911,,,,,,,,
+JOB-01-vi,vi,answerable,Tin tuyển phiên dịch tiếng Indonesia tuyển mấy người và làm việc ở đâu?,"The office is recruiting 1 Indonesian interpreter. The work location is in Cheonan, South Korea. The expected start date is around January 2027.",8712f911,,,,,,,,
+JOB-01-zh-CN,zh-CN,answerable,那个印尼语翻译招聘招几个人？工作地点在哪里？,我在已审核的顺天乡大学和韩国政府资料中没有找到相关内容，因此无法给出可靠的回答。您可以换一种问法，或向负责部门确认。,,,,,,,,,
+ADM-01-ko,ko,answerable,외국인도 순천향대 간호학과에 지원할 수 있나요?,"순천향대학교 간호학과에 지원할 수 있는 것은 일반적으로 가능합니다. 지원자는 모집요강에 따라 필요한 서류를 제출해야 하며, 지원 자격과 관련된 모든 정보는 모집요강을 참조해야 합니다.
+
+이러한 지원은 일반적으로 외국인도 포함되지만, 특정 전형이나 조건이 있을 수 있으므로 모집요강을 꼭 확인해야 합니다.",da416585,,,,,,,,
+ADM-01-en,en,answerable,Can international students apply to the nursing department at SCH?,"I couldn't find this in the approved SCH and Korean government sources, so I can't answer it reliably. You could try rephrasing, or check with the responsible office.",,,,,,,,,
+ADM-01-id,id,answerable,Apakah mahasiswa asing bisa mendaftar ke jurusan keperawatan di SCH?,"Saya tidak menemukan informasi ini di sumber resmi SCH dan pemerintah Korea yang disetujui, jadi saya tidak dapat menjawab dengan andal. Coba ubah pertanyaan Anda atau tanyakan ke kantor yang berwenang.",,,,,,,,,
+ADM-01-vi,vi,answerable,Sinh viên quốc tế có thể nộp hồ sơ vào khoa Điều dưỡng của SCH không?,"Theo thông tin từ, sinh viên quốc tế có thể nộp hồ sơ vào khoa Điều dưỡng của SCH. Tuy nhiên, yêu cầu về trình độ tiếng Hàn hoặc tiếng Anh có thể thay đổi tùy theo chương trình. Khoa Điều dưỡng có thể yêu cầu chứng chỉ tiếng Hàn hoặc tiếng Anh theo quy định cụ thể.",da416585,,,,,,,,
+ADM-01-zh-CN,zh-CN,answerable,外国留学生可以申请顺天乡大学的护理学专业吗？,顺天乡大学的护理学专业属于国际教育学院内的所有外国留学生专属专业之一，因此外国留学生可以申请该专业。,da416585,,,,,,,,
+ADM-02-ko,ko,answerable,합격했는데 비자가 거절되면 낸 등록금은 어떻게 돼요?,"등록금은 비자가 거절되면 반환되지 않습니다. 등록금에 관한 규칙에 따르면, 비자가 거절된 경우에는 반환되지 않으며, 등록금은 낸 것으로 처리됩니다.",da416585,,,,,,,,
+ADM-02-en,en,answerable,"If I'm admitted but my student visa is refused, what happens to the tuition I paid?","The tuition you paid will generally be non-refundable if your student visa is refused after you have been admitted. This is a common practice for most universities, as the tuition covers the cost of your education and related services, and the university has already incurred costs based on your admission.
+
+However, it is important to check the specific refund policy of Soonchunhyang University, as the terms and conditions can vary. You should contact the university's international office or the admissions department for detailed information on tuition refunds in such cases.",21e3e650,,,,,,,,
+ADM-02-id,id,answerable,"Kalau saya diterima tapi visa saya ditolak, bagaimana dengan uang kuliah yang sudah saya bayar?","Jika Anda diterima di universitas tetapi visa Anda ditolak, biasanya uang kuliah yang telah dibayarkan tidak akan dikembalikan. Namun, peraturan spesifik dapat bervariasi tergantung pada kebijakan universitas dan jenis visa yang Anda ajukan. Menurut, jika ada perubahan status visa yang kompleks, seperti ini, sebaiknya Anda menghubungi pihak berwenang untuk mendapatkan informasi yang lebih detail.",a37644b0,,,,,,,,
+ADM-02-vi,vi,answerable,Nếu tôi trúng tuyển nhưng bị từ chối cấp visa thì học phí đã đóng sẽ thế nào?,"Nếu bạn trúng tuyển nhưng bị từ chối cấp visa, học phí đã đóng sẽ được hoàn lại theo quy định. Cụ thể, quy định về việc hoàn lại học phí được nêu rõ trong.",da416585,,,,,,,,
+ADM-02-zh-CN,zh-CN,answerable,如果被录取了但签证被拒，已交的学费怎么办？,我在已审核的顺天乡大学和韩国政府资料中没有找到相关内容，因此无法给出可靠的回答。您可以换一种问法，或向负责部门确认。,,,,,,,,,
+JOB-02-ko,ko,answerable,회사가 외국인 직원을 뽑을 때 표준근로계약서를 꼭 써야 하나요?,"사용자는 회사가 외국인 직원을 채용할 때 표준근로계약서를 반드시 작성해야 한다는 질문을 하셨습니다. 이는에서 확인할 수 있습니다.
+
+- **2 Preparation of Standard Employment Contracts**: 외국인 직원을 채용할 때는 표준 근로계약서를 사용해야 합니다. 위반 시에는 최대 5백만 원의 벌금이 부과될 수 있습니다.
+
+이 정보는 충분히 확인되었습니다.",1ec42073,,,,,,,,
+JOB-02-en,en,answerable,Does an employer have to use a standard employment contract when hiring a foreign worker?,"According to the National Institute for International Education (NIIED) / Study in Korea, employers must use a standard employment contract when hiring foreign workers. Violations may result in a fine of up to 5 million KRW.",1ec42073,,,,,,,,
+JOB-02-id,id,answerable,Apakah perusahaan wajib memakai kontrak kerja standar saat mempekerjakan pekerja asing?,Perusahaan wajib menggunakan kontrak kerja standar saat mempekerjakan pekerja asing. Hal ini bertujuan untuk memastikan bahwa pekerja asing mendapatkan perlakuan yang adil dan kondisi kerja yang sesuai. Pelanggaran aturan ini dapat dikenakan denda hingga 5 juta won.,1ec42073,,,,,,,,
+JOB-02-vi,vi,answerable,Doanh nghiệp có bắt buộc dùng hợp đồng lao động mẫu khi tuyển người lao động nước ngoài không?,"Theo, khi tuyển dụng người lao động nước ngoài, chủ sử dụng lao động phải sử dụng hợp đồng lao động mẫu. Điều này đảm bảo rằng các điều khoản và điều kiện lao động được tuân thủ theo luật pháp Hàn Quốc.",1ec42073,,,,,,,,
+JOB-02-zh-CN,zh-CN,answerable,公司雇用外国员工时必须使用标准劳动合同吗？,"根据提供的信息，公司雇用外国员工时必须使用标准劳动合同。标准劳动合同是法律要求，以确保工资支付和其他工作条件符合规定。
+
+>>>META<<<
+{""evidence"": ""sufficient"", ""needs_human"": ""none"", ""in_scope"": true}",1ec42073,,,,,,,,
+UNA-01-ko,ko,unanswerable,학생도 교내 주차 등록할 수 있어요? 주차비는 얼마예요?,"국내 주차 등록은 가능하지 않습니다. 주차 관련 정보는 교내 시설 관리나 주차 관련 회사에서 확인해야 합니다. 주차비는 각각의 주차장에서 다를 수 있으므로, 해당 주차장의 안내를 확인해보세요.
+
+이 정보는 충분히 확인된 내용이므로, 추가적인 정보가 필요하지 않습니다.",,,,,,,,,
+UNA-01-en,en,unanswerable,"Can students get a campus parking permit, and how much does it cost?","The information provided does not include details about campus parking permits or their costs. Therefore, I cannot provide a specific answer based on the available sources.
+
+However, typically, campus parking permits are managed by the university administration, and the cost and availability can vary. You may need to check with the university's administration office or the student affairs department for the most accurate and up-to-date information.",,,,,,,,,
+UNA-01-id,id,unanswerable,"Apakah mahasiswa bisa dapat izin parkir di kampus, dan berapa biayanya?","Maaf, informasi tentang izin parkir di kampus dan biayanya tidak tersedia dalam sumber yang diberikan. Sumber-sumber yang ada lebih banyak membahas tentang tempat tinggal, biaya studi, dan prosedur pendaftaran. Mohon periksa situs web kampus atau kontak pihak administrasi kampus untuk mendapatkan informasi yang lebih spesifik tentang izin parkir dan biayanya.",,,,,,,,,
+UNA-01-vi,vi,unanswerable,"Sinh viên có đăng ký đỗ xe trong trường được không, phí bao nhiêu?","The thông tin về việc đăng ký đỗ xe trong trường không được đề cập trong các nguồn tài liệu được cung cấp. Do đó, tôi không thể xác nhận liệu sinh viên có thể đăng ký đỗ xe trong trường và phí bao nhiêu.",,,,,,,,,
+UNA-01-zh-CN,zh-CN,unanswerable,学生可以办校内停车证吗？停车费多少？,根据提供的信息，关于在校内办理停车证以及停车费用的问题，文档中没有相关信息。因此，我无法提供具体的答案。,,,,,,,,,
+UNA-02-ko,ko,unanswerable,등록금을 몇 번에 나눠서 낼 수 있어요?,"등록금은 단 한번에 납부해야 합니다. 등록금 납부는 지정된 기간 내에 INVOICE를 통해 국내/외 은행에서 순천향대학교 계좌로 해당 등록금을 송금해야 합니다. 미납 시 등록 포기로 처리되며, 납부한 등록금과 실제 등록금의 차액은 입학 첫 학기 종료 전까지 본인 은행계좌로 반환 처리됩니다.",da416585,,,,,,,,
+UNA-02-en,en,unanswerable,Can I pay my tuition in installments?,"I couldn't find this in the approved SCH and Korean government sources, so I can't answer it reliably. You could try rephrasing, or check with the responsible office.",,,,,,,,,
+UNA-02-id,id,unanswerable,Bisakah uang kuliah dibayar dengan cicilan?,"Saya tidak menemukan informasi ini di sumber resmi SCH dan pemerintah Korea yang disetujui, jadi saya tidak dapat menjawab dengan andal. Coba ubah pertanyaan Anda atau tanyakan ke kantor yang berwenang.",,,,,,,,,
+UNA-02-vi,vi,unanswerable,Có thể đóng học phí theo nhiều đợt không?,"Theo thông tin từ văn bản, học phí tại Đại học Soonchunhyang không được chia thành nhiều đợt thanh toán. Học sinh cần thanh toán toàn bộ học phí theo quy định của trường.",d032674b,,,,,,,,
+UNA-02-zh-CN,zh-CN,unanswerable,学费可以分期付款吗？,学费可以分期付款的信息在提供的文档中没有明确说明。根据中的信息，学费需要一次性支付，但没有提到分期付款的具体安排。因此，关于学费是否可以分期付款，我们无法从现有信息中得出结论。,672ffe31,,,,,,,,
+UNA-03-ko,ko,unanswerable,신입 유학생 공항 픽업 서비스 있어요?,"신입 유학생 공항 픽업 서비스는 제공되지 않습니다. 한국 내에서는 공항 픽업 서비스와 관련된 정보는 제공되지 않았습니다. 대신 공항에서 직접 택시나 개인 차량을 이용하거나, 가까운 친구나 가족에게 도움을 청하는 것이 일반적입니다.",,,,,,,,,
+UNA-03-en,en,unanswerable,Does SCH pick new international students up at the airport?,"The information provided does not include specific details about SCH picking up new international students at the airport. Therefore, based on the available sources, I cannot confirm whether SCH provides airport pickup services for new international students.",,,,,,,,,
+UNA-03-id,id,unanswerable,Apakah SCH menjemput mahasiswa asing baru di bandara?,SCH International Student Hub tidak menyediakan layanan menjemput mahasiswa asing baru di bandara. Informasi ini didasarkan pada sumber yang tersedia dan tidak ada petunjuk spesifik tentang layanan menjemput di bandara.,491d4c3f,,,,,,,,
+UNA-03-vi,vi,unanswerable,Trường SCH có đón sinh viên quốc tế mới ở sân bay không?,Tôi không tìm thấy thông tin này trong các nguồn chính thức đã duyệt của SCH và chính phủ Hàn Quốc nên không thể trả lời chính xác. Bạn có thể hỏi lại theo cách khác hoặc liên hệ văn phòng phụ trách.,,,,,,,,,
+UNA-03-zh-CN,zh-CN,unanswerable,顺天乡大学会到机场接新留学生吗？,顺天乡大学（Soonchunhyang University）是否会到机场接新留学生没有明确说明。根据提供的信息，学校没有直接提到机场接机服务。,672ffe31,,,,,,,,

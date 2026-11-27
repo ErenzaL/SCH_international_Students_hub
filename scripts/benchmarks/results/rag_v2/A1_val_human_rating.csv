@@ -1,0 +1,430 @@
+﻿question_id,language,answerability,question,answer,cited_documents,H1_correct(0-2),H2_complete(0-2),H3_faithful_to_sources(y/n),H4_citations_right(y/n),H5_language_natural(y/n),H6_safe_refusal_or_referral(y/n/na),rater,notes
+H01-en,en,answerable,Can I go to a hospital in Korea if I am not enrolled in NHIS yet?,"If you are not enrolled in NHIS yet, you can still go to a hospital in Korea for emergency care. However, payment and eligibility for non-emergency services may vary. It is recommended to verify your own coverage and payment status directly with NHIS. Keep in mind that you should bring identification, your residence card or passport, and insurance information when seeking medical care. Clinics and hospitals may verify NHIS eligibility through identity checks.",25af9ce5 96b0fee4,,,,,,,,
+H01-ko,ko,answerable,아직 국민건강보험에 가입하지 않았는데 병원에 갈 수 있나요?,"국민건강보험에 가입하지 않았더라도 급한 병이나 다치는 경우에는 119에 연락하여 응급실에 가야 합니다.
+
+하지만 일상적인 건강 문제나 예방적 관리를 위해서는 NHIS에 가입하지 않은 상태에서도 병원을 방문할 수 있습니다. 병원을 방문할 때는 신분증(거주증, 여권 등), 보험 정보 등을 준비해야 합니다. 병원은 신분 확인을 통해 NHIS 가입 여부를 확인할 수 있습니다.
+
+주의해야 할 점은, 병원 방문 시 부담금이 발생할 수 있다는 것입니다. NHIS 가입자와 비가입자의 혜택은 다릅니다. 따라서 병원에서 치료 비용과 약값 중 일부는 개인 부담이 될 수 있으므로, 병원에서 치료 비용과 약값 중 개인 부담 비용, 그리고 특정 서비스를 받기 위한 예약 여부를 미리 확인하는 것이 좋습니다.",744fdb55 672ffe31 25af9ce5,,,,,,,,
+H01-id,id,answerable,Apakah saya bisa ke rumah sakit di Korea jika belum terdaftar NHIS?,"Jika Anda belum terdaftar dalam NHIS, Anda masih dapat pergi ke rumah sakit di Korea untuk perawatan darurat. Namun, untuk perawatan rutin, sebaiknya Anda mencari klinik atau rumah sakit yang sesuai dengan gejala Anda, memastikan jam operasional dan persyaratan pendaftaran, serta meminta bantuan terjemahan jika diperlukan.
+
+Bawa identifikasi diri, kartu residen atau paspor, dan informasi asuransi Anda. Rumah sakit dan klinik dapat memverifikasi keanggotaan Anda dalam NHIS melalui cek identitas. Tanyakan kepada penyedia layanan apa bagian dari perawatan dan obat-obatan yang ditanggung, apa yang harus dibayar secara pribadi, dan apakah referensi diperlukan untuk layanan rumah sakit tertentu.",744fdb55,,,,,,,,
+H01-vi,vi,answerable,Tôi chưa tham gia NHIS thì có đi bệnh viện ở Hàn Quốc được không?,"Theo thông tin từ,, và, nếu bạn chưa tham gia NHIS, bạn vẫn có thể đi bệnh viện ở Hàn Quốc nhưng có một số điểm cần lưu ý:
+
+- Đối với tình trạng khẩn cấp như tai nạn, bệnh nặng, hoặc mất ý thức, hãy gọi 119 ngay lập tức.
+- Đối với việc chăm sóc thông thường, hãy tìm đến phòng khám (의원) hoặc bệnh viện (병원) phù hợp với triệu chứng của bạn, xác nhận giờ làm việc và yêu cầu hẹn trước, và hỏi về dịch vụ dịch thuật nếu cần.
+- Mang theo giấy tờ tùy thân, thẻ cư trú hoặc hộ chiếu, và thông tin về bảo hiểm của bạn. Các phòng khám và bệnh viện có thể xác minh quyền lợi của bạn thông qua việc kiểm tra giấy tờ tùy thân.
+- NHIS cung cấp hướng dẫn về việc tham gia bảo hiểm cho người nước ngoài, bao gồm các trường hợp có bảo hiểm thay thế. Hãy kiểm tra quyền lợi và tình trạng thanh toán của bạn trực tiếp với NHIS.
+- Hỏi nhà cung cấp dịch vụ về phần nào của điều trị và thuốc được bảo hiểm, phần nào phải trả tiền cá nhân, và liệu có cần giới thiệu đến các dịch vụ y tế của bệnh viện không.
+- Giữ lại các hóa đơn, giấy chứng nhận khám bệnh, và các chứng từ khác nếu cần thiết cho việc vắng học tại trường hoặc yêu cầu bồi thường từ công ty bảo hiểm.
+
+Theo,, và, việc tham gia NHIS là bắt buộc cho tất cả sinh viên quốc tế ở Hàn Quốc từ 6 tháng trở lên. Tuy nhiên, nếu bạn chưa tham gia NHIS, bạn vẫn có thể đi bệnh viện nhưng cần lưu ý về chi phí và quy trình bồi thường.",744fdb55 25af9ce5 672ffe31 d60bc363,,,,,,,,
+H01-zh-CN,zh-CN,answerable,还没有加入国民健康保险，可以在韩国去医院吗？,"根据提供的信息，未加入国民健康保险的情况下，您仍然可以在韩国去医院，但可能会面临一些限制和额外费用。紧急医疗情况可以拨打119急救电话。对于非紧急情况，建议您尽快加入国民健康保险（NHIS），因为这将有助于减轻医疗费用负担，并确保您能够获得全面的医疗服务。
+
+指出，医疗就诊时需要出示有效的身份证明，如居住证、护照或韩国颁发的驾照。说明，未加入国民健康保险的国际学生在入学后将被要求进行国民健康保险的注册，并在注册前必须先加入私人保险。
+
+因此，建议您尽快办理国民健康保险，以确保您的医疗需求得到满足。",672ffe31 da416585,,,,,,,,
+H02-en,en,answerable,How much is the National Health Insurance premium for international students and how do I pay it?,"The National Health Insurance (NHIS) premium for international students is calculated under the same standards applied to local Korean subscribers, considering each student as a single household. However, students holding a residency status eligible for abatement, such as the Student (D-2) visa, and whose monthly income and assets are below the standards set by NHIS may receive a 50% discount on the monthly premium.
+
+To pay the premium, NHIS sends a notification letter regarding registration and payment to the registered address. You should check whether NHIS has sent a notice or premium bill to the registered address and pay the premiums by the deadline, keeping payment records.",25af9ce5 672ffe31 744fdb55,,,,,,,,
+H02-ko,ko,answerable,유학생 국민건강보험료는 얼마이고 어떻게 내나요?,"국민건강보험료는 국제학생의 경우 일반적으로 한국 국민과 동일한 기준으로 결정됩니다. 보험료는 학생의 개인 상황에 따라 달라질 수 있으며, 일부 학생은 50% 할인을 받을 수 있습니다. 보험료는 일반적으로 월별로 납부되며, 납부 기한을 지키는 것이 중요합니다.
+
+具体的来说，国际学生的国民健康保险费根据个人情况有所不同，部分学生可以享受50%的减免。保险费通常按月缴纳，按时缴纳非常重要。",25af9ce5 672ffe31,,,,,,,,
+H02-id,id,answerable,Berapa iuran Asuransi Kesehatan Nasional untuk mahasiswa internasional dan bagaimana cara membayarnya?,"Saya tidak menemukan informasi ini di sumber resmi SCH dan pemerintah Korea yang disetujui, jadi saya tidak dapat menjawab dengan andal. Coba ubah pertanyaan Anda atau tanyakan ke kantor yang berwenang.",,,,,,,,,
+H02-vi,vi,answerable,Phí bảo hiểm y tế quốc gia cho du học sinh là bao nhiêu và đóng như thế nào?,Tôi không tìm thấy thông tin này trong các nguồn chính thức đã duyệt của SCH và chính phủ Hàn Quốc nên không thể trả lời chính xác. Bạn có thể hỏi lại theo cách khác hoặc liên hệ văn phòng phụ trách.,,,,,,,,,
+H02-zh-CN,zh-CN,answerable,留学生的国民健康保险费是多少？怎么缴纳？,"根据提供的信息，国际学生在韩国居住六个月或更长时间后，会自动加入国民健康保险（NHIS）。保险费用根据学生的具体情况而定，例如签证类型和收入状况。对于符合条件的学生，NHIS会按照与韩国居民相同的标准计算保险费用，通常情况下，学生会被视为单户家庭进行计算。如果学生持有符合条件的签证类型（如D-2），并且月收入和资产低于NHIS设定的标准，可以享受50%的保险费用减免。
+
+缴纳保险费用的方式是，NHIS会发送通知信件告知注册和支付事宜。学生需要按时支付保险费用，以避免失去保险覆盖和增加医疗费用。具体的保险费用金额和支付方式可以参考NHIS的通知信件。",672ffe31 da416585,,,,,,,,
+H03-en,en,answerable,What TOPIK levels are there and how often is the test held?,"TOPIK is divided into two levels: TOPIK I for beginner levels (1-2) and TOPIK II for intermediate/advanced levels (3-6). The test is typically held twice a year, but the exact schedule may vary by country.",b3f79749,,,,,,,,
+H03-ko,ko,answerable,TOPIK 등급은 어떻게 나뉘고 시험은 얼마나 자주 있나요?,"TOPIK는 한국어 능력 시험으로, TOPIK I는 초급 수준(1-2)을 평가하고 TOPIK II는 중급/고급 수준(3-6)을 평가합니다. TOPIK 시험은 일반적으로 두 가지 형식으로 제공됩니다: 종이 기반 시험(PBT)과 인터넷 기반 시험(IBT).
+
+TOPIK 시험은 일반적으로 각 학기마다 열립니다. 정확한 일정은 공식 TOPIK 공지사항을 참조해야 합니다.",b3f79749,,,,,,,,
+H03-id,id,answerable,Ada tingkat TOPIK apa saja dan seberapa sering ujiannya diadakan?,"TOPIK memiliki dua tingkat ujian, yaitu TOPIK I yang menilai tingkat awal (1-2) dan TOPIK II yang menilai tingkat menengah/lanjutan (3-6).
+
+Ujian TOPIK diselenggarakan dengan jadwal yang berbeda untuk format ujian berbasis kertas dan berbasis internet. Waktu pendaftaran dan tempat ujian juga berbeda untuk setiap putaran ujian dan negara.",b3f79749,,,,,,,,
+H03-vi,vi,answerable,TOPIK có những cấp độ nào và bao lâu thi một lần?,"TOPIK có hai cấp độ chính: TOPIK I và TOPIK II. TOPIK I đánh giá trình độ cơ bản (cấp 1-2), trong khi TOPIK II đánh giá trình độ trung cấp và cao cấp (cấp 3-6). Theo thông tin từ nguồn, TOPIK được tổ chức theo các vòng thi khác nhau, và lịch thi và quy trình đăng ký có thể thay đổi tùy theo vòng thi và quốc gia.",b3f79749,,,,,,,,
+H03-zh-CN,zh-CN,answerable,TOPIK分为哪些级别？多久考一次？,我在已审核的顺天乡大学和韩国政府资料中没有找到相关内容，因此无法给出可靠的回答。您可以换一种问法，或向负责部门确认。,,,,,,,,,
+H04-en,en,answerable,Can I travel abroad while my visa extension application is pending?,"You should consult the immigration office before booking travel while your visa extension application is pending. According to the official guidance, you must check your current authorized stay and any pending visa/status application before departure. The immigration office may require additional evidence based on your study progress and personal circumstances.",4650e940,,,,,,,,
+H04-ko,ko,answerable,비자 연장 신청이 처리 중일 때 해외여행을 가도 되나요?,해외여행을 계획 중이면 비자 연장 신청이 처리 중일 때도 미리 이민국에 문의해보는 것이 좋습니다.,491d4c3f,,,,,,,,
+H04-id,id,answerable,Bolehkah saya bepergian ke luar negeri saat permohonan perpanjangan visa masih diproses?,"Sebelum Anda pergi ke luar negeri saat permohonan perpanjangan visa Anda masih diproses, Anda harus berkonsultasi dengan pihak imigrasi. Jangan asumsikan bahwa status Anda atau permohonan perpanjangan visa Anda akan otomatis memberi Anda izin masuk kembali ke Korea.",491d4c3f,,,,,,,,
+H04-vi,vi,answerable,Tôi có thể đi nước ngoài khi hồ sơ gia hạn visa đang được xử lý không?,"Theo thông tin từ, bạn nên tham khảo ý kiến của cơ quan xuất nhập cảnh trước khi đặt vé đi du lịch. Việc này rất quan trọng để đảm bảo rằng bạn không vi phạm quy định về visa.
+
+Theo thông tin từ, bạn không nên giả định rằng việc có thẻ cư trú hết hạn hoặc đang xin gia hạn sẽ đảm bảo bạn có thể nhập cảnh trở lại Hàn Quốc. Bạn nên liên hệ với cơ quan xuất nhập cảnh (số điện thoại 1345) trước khi đi du lịch quốc tế nếu tình trạng visa của bạn đang thay đổi, đang chờ gia hạn, thẻ cư trú bị mất hoặc bạn sẽ ở nước ngoài trong một thời gian dài.",491d4c3f 21e3e650,,,,,,,,
+H04-zh-CN,zh-CN,answerable,签证延期申请还在审理中时可以出国旅行吗？,根据提供的信息，在签证延期申请还在审理中时，您不能出国旅行。在您离开韩国之前，必须确认您的签证延期申请已经获得批准。建议您在预订旅行前咨询移民局。,4650e940,,,,,,,,
+H05-en,en,answerable,What happens if my period of stay expires while I am outside Korea?,"If your period of stay expires while you are outside Korea, you should check the re-entry permit policy. According to the Ministry of Justice, many registered foreigners returning within one year are exempt from re-entry permits, but this exemption is limited by the remaining period of authorized stay and immigration exceptions. Therefore, you should confirm whether the policy still applies to your status and travel dates before your return.
+
+Additionally, you should carry your passport and residence card (if applicable) and evidence of your student status when returning to Korea. Border officials make the final entry determination.",491d4c3f,,,,,,,,
+H05-ko,ko,answerable,해외에 있는 동안 체류기간이 만료되면 어떻게 되나요?,"해외에 있는 동안 체류기간이 만료되면, 한국으로 돌아올 때 출입국사무소와 한국 대사관에 문의해야 합니다.",491d4c3f,,,,,,,,
+H05-id,id,answerable,Apa yang terjadi jika masa tinggal saya habis saat saya berada di luar Korea?,"Jika masa tinggal Anda habis saat berada di luar Korea, Anda tidak boleh menganggap otomatis dapat kembali ke Korea. Anda harus menghubungi kantor imigrasi dan konsulat Korea di negara Anda sebelum pergi. Pastikan juga untuk memeriksa persyaratan masuk atau visa untuk negara tujuan Anda dan persyaratan dokumen perjalanan Anda.",491d4c3f,,,,,,,,
+H05-vi,vi,answerable,Nếu thời hạn lưu trú hết khi tôi đang ở nước ngoài thì sao?,"Nếu thời hạn lưu trú của bạn hết khi bạn đang ở nước ngoài, bạn không nên giả định rằng bạn có thể trở về Hàn Quốc mà không gặp vấn đề. Bạn nên liên hệ với cơ quan di trú và đại sứ quán của bạn trước khi đi du lịch quốc tế.
+
+ The office opens at 09:00.",4650e940 491d4c3f,,,,,,,,
+H05-zh-CN,zh-CN,answerable,如果我在国外期间滞留期限到期了会怎样？,我在已审核的顺天乡大学和韩国政府资料中没有找到相关内容，因此无法给出可靠的回答。您可以换一种问法，或向负责部门确认。,,,,,,,,,
+H06-en,en,answerable,How do I change from a D-2 visa to the D-10 job-seeking visa after graduation?,"To change from a D-2 visa to the D-10 job-seeking visa after graduation, you need to apply for a change of stay status before engaging in activities that require the new status. The process is not automatic and depends on your current visa subtype, academic achievements, and immigration history. You should secure approval from the university's international office and prepare the necessary documents, which may include evidence of enrollment or ongoing study, proof of residence, and any additional items specified for your D-2 subtype. The university's international office may require additional evidence based on your study progress and personal circumstances.",a37644b0,,,,,,,,
+H06-ko,ko,answerable,졸업 후 D-2에서 D-10 구직비자로 변경하려면 어떻게 하나요?,"D-2에서 D-10 구직비자로 변경하려면, 첫째, 변경 신청 전에 새로운 체류 자격이 필요한 활동을 시작하지 않는 것이 중요합니다. 둘째, D-2에서 D-10으로 변경하는 것은 자동적이지 않으며, 변경 가능성과 지원 자료는 현재 체류 자격, 목적 체류 자격, 학업 성과 및 이민 기록에 따라 달라집니다. 셋째, 대학 입학 또는 고용 제안은 이민 승인 없이는 유효하지 않습니다.
+
+주요 절차는 다음과 같습니다:
+1. 변경 신청을 하기 전에 대학에서 발급받은 학위 증명서와 같은 관련 서류를 준비합니다.
+2. 구직 활동을 시작하기 전에 관할 사무소에 신청합니다.
+3. 필요한 경우, 우수 인재 증빙 자료를 제출하여 재외공관장의 재량으로 사증 발급을 받을 수 있습니다.",a37644b0 96b0fee4,,,,,,,,
+H06-id,id,answerable,Bagaimana cara mengubah visa D-2 ke visa pencari kerja D-10 setelah lulus?,"Untuk mengubah visa D-2 menjadi visa pencari kerja D-10 setelah lulus, Anda perlu memperhatikan beberapa langkah dan persyaratan:
+
+1. **Periksa Kelayakan dan Persyaratan**: Sebelum mengajukan permohonan, pastikan Anda memenuhi syarat-syarat yang diperlukan. D-2 status change to D-10 is not automatic and depends on your academic achievements and immigration history.
+
+2. **Konsultasikan dengan Pihak Berwenang**: Konsultasikan dengan kantor internasional universitas Anda untuk memastikan Anda memahami semua persyaratan dan prosedur yang diperlukan.
+
+3. **Persyaratan Dokumen**: Anda perlu menyediakan beberapa dokumen, termasuk:
+   - Bukti pendaftaran atau terus-menerus berkuliah.
+   - Bukti keberadaan.
+   - Bukti keahlian bahasa Korea (misalnya, TOPIK atau KIIP).
+   - Surat rekomendasi pekerjaan (jika diperlukan).
+
+4. **Aplikasi**: Aplikasikan melalui jalur yang ditentukan oleh pihak berwenang. Jangan asumsikan bahwa pendaftaran online tersedia untuk semua kasus.
+
+5. **Pembayaran Biaya**: Siapkan biaya yang dikenakan untuk permohonan.
+
+6. **Pengiriman Permohonan**: Kirimkan permohonan sebelum tanggal berakhir izin Anda.
+
+Proses ini memerlukan persetujuan dari pihak berwenang, jadi jangan menganggap bahwa pendaftaran otomatis akan diterima.",a37644b0 4650e940,,,,,,,,
+H06-vi,vi,answerable,"Sau khi tốt nghiệp, làm thế nào để chuyển từ visa D-2 sang visa tìm việc D-10?",Tôi không tìm thấy thông tin này trong các nguồn chính thức đã duyệt của SCH và chính phủ Hàn Quốc nên không thể trả lời chính xác. Bạn có thể hỏi lại theo cách khác hoặc liên hệ văn phòng phụ trách.,,,,,,,,,
+H06-zh-CN,zh-CN,answerable,毕业后如何从D-2签证变更为D-10求职签证？,"根据提供的信息，从D-2签证变更为D-10求职签证需要满足一定的条件。首先，您需要符合以下资格要求：
+
+1. 拥有学士学位或以上学位，并且所从事的职业属于E-1至E-7资格类别中的一个领域。
+2. 满足评分标准，即在附表中获得190分中的20分以上，并且总得分为60分以上。
+3. 您的就业愿望与所学专业直接相关或密切相关。
+
+此外，特别具备特殊专业知识或技能的情况下，可以提交额外的证明文件，如推荐信或媒体报道等，以获得签证发放的考虑。
+
+需要注意的是，变更签证状态并非自动进行，您需要向相关部门申请并获得批准。建议您在申请前咨询学校国际学生办公室或相关机构，以确保所有文件齐全并符合要求。",96b0fee4,,,,,,,,
+H07-en,en,answerable,What is the D-2-7 work-learning linked study visa?,"The D-2-7 work-learning linked study visa is a special type of visa for government-sponsored international students in Korea. Graduates with this visa status are exempt from the national employment ratio and company size restrictions when changing to an E-7 (Specific Activity) visa status. This means they can engage in broader job categories and are not subject to the same employment limitations as other visa holders. For more detailed information, you can visit the Hi Korea website or the Korea Visa Portal.",26fbef6d 96b0fee4,,,,,,,,
+H07-ko,ko,answerable,D-2-7 일-학습 연계 유학 비자는 무엇인가요?,D-2-7 일-학습 연계 유학 비자는 학생이 학업과 취업을 병행할 수 있도록 발급되는 비자입니다. 이 비자는 학생이 학업과 동시에 시간제 취업을 할 수 있게 해줍니다.,96b0fee4,,,,,,,,
+H07-id,id,answerable,Apa itu visa studi D-2-7 yang terhubung dengan kerja-belajar?,"Saya tidak menemukan informasi ini di sumber resmi SCH dan pemerintah Korea yang disetujui, jadi saya tidak dapat menjawab dengan andal. Coba ubah pertanyaan Anda atau tanyakan ke kantor yang berwenang.",,,,,,,,,
+H07-vi,vi,answerable,Visa du học D-2-7 kết hợp vừa học vừa làm là gì?,"Visa du học D-2-7 kết hợp vừa học vừa làm là một loại visa cho sinh viên quốc tế tại Hàn Quốc, cho phép họ làm việc part-time trong khi học. Theo thông tin từ, sinh viên với visa D-2-7 được miễn từ các quy định về tỷ lệ việc làm và quy mô công ty khi chuyển sang visa E-7 (Sự hoạt động cụ thể).
+
+Theo, sinh viên với visa D-2-7 có thể làm việc part-time với các loại công việc như hỗ trợ nhà hàng, hỗ trợ văn phòng, hỗ trợ du lịch, và bán hàng tại cửa hàng bán lẻ hoặc cửa hàng miễn thuế, nhưng cần sự chấp thuận cá nhân.
+
+Theo, visa D-2-7 cho phép sinh viên tham gia vào các công việc tương tự như công việc chuyên nghiệp, bán chuyên nghiệp và công việc kỹ năng chung mà không bị ràng buộc bởi tỷ lệ việc làm quốc gia và quy mô công ty.
+
+Theo, visa D-2-7 cho phép sinh viên làm việc part-time với số giờ được quy định, tùy theo trình độ tiếng Hàn và chương trình học.",26fbef6d e54e1dd7 672ffe31 96b0fee4,,,,,,,,
+H07-zh-CN,zh-CN,answerable,D-2-7工学结合留学签证是什么？,我在已审核的顺天乡大学和韩国政府资料中没有找到相关内容，因此无法给出可靠的回答。您可以换一种问法，或向负责部门确认。,,,,,,,,,
+H08-en,en,answerable,Which kinds of part-time jobs are international students not allowed to do?,"International students are generally not allowed to engage in the following types of part-time jobs:
+
+- Delivery work, platform/gig work, construction work, and freelance work.
+- Work at a second workplace.
+- Private tutoring, which is especially restricted.
+
+Additionally, changing the employer, worksite, role, or schedule can affect authorization, so it is important to check reporting or new-permit requirements before making any changes.",e54e1dd7 672ffe31,,,,,,,,
+H08-ko,ko,answerable,유학생이 할 수 없는 아르바이트 업종은 무엇인가요?,"유학생이 할 수 없는 아르바이트 업종은 다음과 같습니다.
+
+1. **제2종 취업 허가 없이 근로 진행**: 제2종 취업 허가 없이 아르바이트를 진행하는 것은 불법입니다.
+2. **허가받은 근무시간 초과 근로**: 허가된 근무시간을 초과하여 근무하는 것은 불법입니다.
+3. **허가받지 않은 업종·사업장 근무**: 허가받지 않은 업종이나 사업장에서 근무하는 것은 불법입니다.
+4. **Face One 등 외국인 대상 구인 플랫폼을 통한 단기 아르바이트 참여**: 이러한 플랫폼을 통해 단기 아르바이트를 참여하는 것은 불법입니다.
+5. **현금 지급 형태의 무신고 근로**: 현금 지급 형태의 무신고 근로는 불법입니다.
+6. **행사 보조, 통역, 판매, 홍보, 물류 업무 등 일용성 단기 근로**: 이러한 일용성 단기 근로는 불법입니다.
+7. **SNS·오픈채팅을 통한 아르바이트 참여**: 이러한 형태의 아르바이트 참여도 불법입니다.
+
+이러한 불법 아르바이트는 범칙금 부과, 출입국사무소 출석 및 조사, 시간제취업 허가 제한, 체류기간 연장 제한, 비자 변경 및 체류 심사 불이익, 강제퇴거(추방) 조치 등의 불이익을 초래할 수 있습니다.",0c3a24ef 672ffe31,,,,,,,,
+H08-id,id,answerable,Jenis kerja paruh waktu apa yang tidak boleh dilakukan mahasiswa internasional?,"Berikut adalah jenis kerja paruh waktu yang tidak boleh dilakukan oleh mahasiswa internasional berdasarkan sumber yang diberikan:
+
+1. Pekerjaan yang tidak memerlukan persetujuan dari kantor imigrasi sebelumnya, seperti pekerjaan paruh waktu tanpa izin.
+2. Pekerjaan di luar kategori pekerjaan yang diperbolehkan.
+3. Pekerjaan di tempat kerja yang tidak diperbolehkan.
+4. Pekerjaan melalui platform atau aplikasi gig economy seperti Face One tanpa persetujuan.
+5. Pekerjaan dengan pembayaran tunai tanpa laporan pajak.
+6. Pekerjaan sementara atau jangka pendek seperti bantuan acara, penerjemah, penjualan, pemasaran, atau logistik yang tidak memerlukan kontrak kerja standar.
+7. Pekerjaan di luar jam kerja yang diperbolehkan.",96b0fee4 0c3a24ef e54e1dd7,,,,,,,,
+H08-vi,vi,answerable,Du học sinh không được làm những loại việc làm thêm nào?,"Du học sinh không được làm những loại việc làm thêm như công việc giao hàng, công việc tự do (gig work), công việc xây dựng, công việc tự do (freelance work), hoặc công việc tại nơi làm việc thứ hai. Thay vào đó, họ có thể làm công việc thời vụ thông thường như hỗ trợ nhà hàng, hỗ trợ văn phòng chung, hỗ trợ du lịch, hoặc bán hàng tại cửa hàng miễn thuế, nhưng cần sự chấp thuận cá nhân.
+
+Ngoài ra, việc thay đổi nhà tuyển dụng, địa điểm làm việc, vai trò hoặc lịch làm việc có thể ảnh hưởng đến sự chấp thuận.
+
+Nếu bạn muốn làm việc thời vụ, bạn cần xin phép tại văn phòng quản lý nhập cư và chỉ có thể bắt đầu làm việc sau khi được chấp thuận.",e54e1dd7,,,,,,,,
+H08-zh-CN,zh-CN,answerable,留学生不能做哪些类型的兼职？,我现在暂时无法生成回答。您仍可以查看下方相关的官方指南，或稍后再试一次。,e54e1dd7 0c3a24ef 96b0fee4,,,,,,,,
+H09-en,en,answerable,Can I start working while my part-time work permit application is still pending?,"According to the information provided, you are not allowed to start working while your part-time work permit application is still pending. You must wait for an approval decision before undertaking the proposed work.
+
+Additionally, you should ensure that you have all the necessary documents and complete the application process properly. This includes preparing the employment contract, the part-time of foreign student confirmation form, and submitting the application online or in person at the competent immigration office.",e54e1dd7 672ffe31,,,,,,,,
+H09-ko,ko,answerable,시간제 취업 허가 신청이 처리 중일 때 일을 시작해도 되나요?,"시간제 취업 허가 신청이 처리 중일 때는 아직 허가를 받지 못했으므로 일할 수 없습니다. 허가를 받기 전에 일하는 것은 불법 취업으로 간주되며, 이는 매우 위험한 상황입니다. 허가를 받기 위해 다음 단계를 따르세요:
+
+1. 적합한 고용주를 찾고, 고용주가 취업 계약서와 사업 등록증을 제공할 수 있는지 확인합니다.
+2. 취업 계약서를 작성하고, 근로 시간, 급여, 근무 장소, 시작 날짜, 지급 방법 등을 확인합니다.
+3. 국제학생 담당자의 확인을 받은 시간제 취업 확인서를 작성합니다.
+4. HiKorea나 이민국 사무소를 통해 필요한 서류를 제출합니다.
+5. 허가를 받은 후에만 일할 수 있습니다. 허가를 받기 전에 일하는 것은 절대 금지입니다.",e54e1dd7,,,,,,,,
+H09-id,id,answerable,Bolehkah saya mulai bekerja saat permohonan izin kerja paruh waktu masih diproses?,"Menurut sumber yang tersedia, Anda tidak dapat mulai bekerja saat permohonan izin kerja paruh waktu Anda masih diproses. Anda harus menunggu hingga persetujuan dari imigrasi telah diberikan sebelum Anda dapat mulai bekerja.
+
+Proses permohonan izin kerja paruh waktu meliputi beberapa langkah:
+1. Temukan karyawan yang bersedia menerima mahasiswa internasional; pastikan kategori pekerjaan yang diperbolehkan.
+2. Tandatangani kontrak kerja (근로계약서) yang standar yang mencantumkan gaji per jam, tanggung jawab, lokasi, jam kerja, dan tanggal.
+3. Isi Formulir Konfirmasi Kerja Paruh Waktu (외국인 유학생 시간제취업 확인서) dengan tanda tangan atau persetujuan dari konselor internasional universitas.
+4. Kirim aplikasi dan dokumen mendukung melalui HiKorea (jika layanan online tersedia) atau ke kantor imigrasi.
+5. Terima persetujuan (stiker persetujuan atau cetak online, sesuai kasus) sebelum Anda dapat mulai bekerja. Hanya bekerja dalam kondisi yang diperbolehkan.",e54e1dd7 0c3a24ef,,,,,,,,
+H09-vi,vi,answerable,Tôi có được bắt đầu làm khi đơn xin phép làm thêm còn đang chờ xử lý không?,"Theo quy định, bạn không được bắt đầu làm việc ngay cả khi đơn xin phép làm thêm của bạn đang được xử lý. Bạn phải chờ cho đến khi có sự chấp thuận từ cơ quan xuất nhập cảnh trước khi bắt đầu làm việc.",e54e1dd7 0c3a24ef,,,,,,,,
+H09-zh-CN,zh-CN,answerable,兼职许可申请还在审批时可以开始工作吗？,根据提供的信息，在兼职许可申请还在审批时，您不能开始工作。您必须等待审批决定后再进行提议的工作。,e54e1dd7,,,,,,,,
+H10-en,en,answerable,How much does it cost to get a new residence card?,"The cost to get a new residence card in South Korea is KRW 35,000 since January 1, 2025. Other application fees may be separate.",21e3e650,,,,,,,,
+H10-ko,ko,answerable,외국인등록증을 새로 발급받는 데 비용이 얼마인가요?,"외국인등록증을 새로 발급받는 데는 KRW 35,000의 수수료가 부과됩니다.",21e3e650,,,,,,,,
+H10-id,id,answerable,Berapa biaya untuk membuat kartu registrasi orang asing yang baru?,"Biaya untuk membuat kartu registrasi orang asing yang baru adalah KRW 35,000 sejak 1 Januari 2025.",21e3e650,,,,,,,,
+H10-vi,vi,answerable,Làm lại thẻ cư trú mới tốn bao nhiêu tiền?,"Theo thông tin từ, phí cấp lại thẻ cư trú mới là 35.000 won Hàn Quốc. Các khoản phí khác có thể được áp dụng riêng lẻ.",21e3e650,,,,,,,,
+H10-zh-CN,zh-CN,answerable,补办新的外国人登录证需要多少钱？,"根据提供的信息，补办新的外国人登录证的费用为35,000韩元，自2025年1月1日起生效。其他相关费用可能适用。
+
+>>>META<<<
+{""evidence"": ""sufficient"", ""needs_human"": ""none"", ""in_scope"": true}",21e3e650,,,,,,,,
+H11-en,en,answerable,I received a new passport. Do I need to report it for my residence card?,"According to the information provided, if you received a new passport, you need to report it to the immigration office. The current reporting deadline and proof rules can be checked on HiKorea or by contacting 1345.
+
+The office opens at 09:00.",21e3e650,,,,,,,,
+H11-ko,ko,answerable,여권을 새로 발급받았는데 외국인등록 사항을 변경 신고해야 하나요?,"새로 발급받은 여권의 정보가 변경되었으므로, 외국인등록 사항을 변경 신고해야 합니다. 변경 신고는 HiKorea e-service, 지역 행정청, 또는 이민청을 통해 할 수 있으며, 여권 발급 후 45일 이내에 신고해야 합니다.",21e3e650 8ba959a0,,,,,,,,
+H11-id,id,answerable,Saya mendapat paspor baru. Apakah saya harus melaporkannya untuk kartu registrasi orang asing?,"Saya harus melaporkan perubahan paspor baru Anda ke pihak imigrasi. Menurut sumber, perubahan informasi paspor harus dilaporkan melalui layanan HiKorea atau kantor pemerintah setempat. Anda harus memeriksa batas waktu laporan yang berlaku dan bukti yang diterima.",21e3e650,,,,,,,,
+H11-vi,vi,answerable,Tôi vừa được cấp hộ chiếu mới. Tôi có cần khai báo cho thẻ cư trú không?,"Theo thông tin từ, bạn cần khai báo cho thẻ cư trú nếu bạn đã nhận được hộ chiếu mới. Deadline và chứng cứ cần cung cấp có thể thay đổi, vì vậy bạn nên kiểm tra thông tin mới nhất trên HiKorea hoặc liên hệ với số điện thoại 1345.
+
+Theo thông tin từ, bạn cần chuẩn bị:
+- Hộ chiếu và/hoặc thẻ cư trú hợp lệ (ARC): hãy mang cả hai khi có thể.
+- Đơn hoặc báo cáo (thay đổi địa điểm cư trú), nếu yêu cầu bởi văn phòng/canaux.",21e3e650 d199604d,,,,,,,,
+H11-zh-CN,zh-CN,answerable,我换了新护照，需要为外国人登录证申报变更吗？,根据提供的信息，您更换了新护照，需要向外国人登录厅报告这一变更。具体来说，您应在护照签发后45天内提交变更报告。建议您通过HiKorea在线服务或直接联系外国人登录厅确认当前的具体报告期限和所需证明材料。,21e3e650,,,,,,,,
+H12-en,en,answerable,What happens if I report my change of address after the 15-day deadline?,"Late reporting can result in a fine of up to KRW 1,000,000. Contact immigration or 1345 promptly for individual guidance.",d199604d,,,,,,,,
+H12-ko,ko,answerable,15일이 지나서 체류지 변경 신고를 하면 어떻게 되나요?,"15일이 지나서 체류지 변경 신고를 하면, 지연 신고로 간주되어 최대 1,000,000원의 벌금이 부과될 수 있습니다. 즉시 신고를 하는 것이 좋습니다.",21e3e650 d199604d 26fbef6d,,,,,,,,
+H12-id,id,answerable,Apa yang terjadi jika saya melaporkan perubahan alamat setelah batas 15 hari?,"Jika Anda melaporkan perubahan alamat setelah batas 15 hari, Anda dapat dikenakan denda hingga KRW 1,000,000. Sarankan untuk segera menghubungi imigrasi atau 1345 untuk mendapatkan bantuan individual.",d199604d,,,,,,,,
+H12-vi,vi,answerable,Nếu tôi khai báo đổi địa chỉ sau thời hạn 15 ngày thì sao?,"Nếu bạn khai báo đổi địa chỉ sau thời hạn 15 ngày, bạn có thể bị phạt tiền lên đến 1 triệu won. Bạn nên liên hệ với cơ quan quản lý xuất nhập cảnh hoặc gọi điện thoại 1345 để nhận sự hướng dẫn cụ thể.",d199604d,,,,,,,,
+H12-zh-CN,zh-CN,answerable,如果超过15天才申报地址变更会怎样？,"根据提供的信息，如果超过15天才申报地址变更，可能会面临行政罚款，罚款金额最高可达1,000,000韩元。
+
+>>>META<<<
+{""evidence"": ""sufficient"", ""needs_human"": ""none"", ""in_scope"": true}",d199604d,,,,,,,,
+H13-en,en,answerable,Does my university report my dormitory address change automatically?,"The school does not automatically report your dormitory address change to immigration. You need to verify whether the change in your residential address has been reported and update your university record if necessary.
+
+If you have moved from your university dorm to an apartment, you should report the new address within 15 days of moving. You will need to prepare your residence card, passport, lease, and any required forms. You can apply via an eligible online service or at the local community center/immigration office.",d199604d 21e3e650,,,,,,,,
+H13-ko,ko,answerable,기숙사로 이사하면 학교가 체류지 변경을 대신 신고해 주나요?,"기숙사로 이사하면 학교가 체류지 변경을 대신 신고해 주지 않습니다. 체류지 변경은 학생 본인이 직접 신청해야 합니다.
+
+에 따르면, 외국인 유학생은 체류지 변경을 위해 필요한 서류를 준비하고 직접 신청해야 합니다.",96b0fee4,,,,,,,,
+H13-id,id,answerable,Apakah universitas otomatis melaporkan perubahan alamat asrama saya?,"Universitas tidak akan melaporkan perubahan alamat asrama Anda secara otomatis. Anda harus memverifikasi apakah persyaratan laporan ke pemerintahan imigrasi terpenuhi dan mengupdate catatan universitas Anda jika diperlukan.
+
+Jika alamat yang terdaftar berubah, Anda harus melaporkan perubahan tersebut, bahkan jika Anda tetap tinggal di area universitas yang sama. Anda dapat memeriksa dengan pihak administrasi asrama untuk mendapatkan sertifikat tempat tinggal. Universitas juga mungkin meminta Anda untuk memperbarui profil alamat secara terpisah.
+
+Perubahan alamat harus dilaporkan dalam 15 hari setelah pindah. Melaporkan terlambat dapat menimbulkan denda administratif yang dapat mencapai KRW 1.000.000. Pastikan untuk menggunakan alamat tempat Anda tinggal yang sebenarnya. Laporan perubahan alamat ke pemerintahan imigrasi berbeda dari perubahan alamat untuk layanan bank, sekolah, penyedia layanan telepon, atau aplikasi pengiriman.",d199604d,,,,,,,,
+H13-vi,vi,answerable,Trường có tự động khai báo thay đổi địa chỉ ký túc xá cho tôi không?,"Theo thông tin từ, trường không tự động khai báo thay đổi địa chỉ ký túc xá cho bạn. Bạn cần xác nhận liệu yêu cầu khai báo thay đổi địa chỉ đã được đáp ứng và nếu cần, hãy cập nhật hồ sơ tại trường của bạn riêng biệt.
+
+Nếu bạn chuyển từ một phòng ký túc xá này sang phòng ký túc xá khác hoặc từ ký túc xá sang nhà trọ ngoài trường, bạn cần báo cáo thay đổi địa chỉ ngay cả khi bạn vẫn ở cùng trường. Hãy liên hệ với bộ phận quản lý ký túc xá để nhận giấy chứng nhận nơi ở. Trường cũng có thể yêu cầu bạn cập nhật hồ sơ địa chỉ riêng biệt.",d199604d,,,,,,,,
+H13-zh-CN,zh-CN,answerable,搬进宿舍后，学校会自动帮我申报地址变更吗？,根据提供的信息，学校不会自动帮你申报地址变更。你需要亲自通过HiKorea电子服务、当地政府部门或移民局进行申报，并提供新的居住证明。,d199604d,,,,,,,,
+H14-en,en,answerable,How much does public transportation cost in Korea?,"The cost of public transportation in Korea varies depending on the mode of transportation and the region. Here are the approximate costs:
+
+- **Subway and Bus**: 
+  - Seoul: 
+    - Subway: **₩1,500** per trip
+    - Bus: **₩1,500** per trip
+  - Other cities: The costs can be higher or lower depending on the specific city, but Seoul's rates are a good reference.
+
+- **Taxi**: 
+  - Seoul: **₩1,000** per kilometer
+  - Other cities: The cost per kilometer can vary, but Seoul's rate is a common reference point.
+
+These costs can help you budget for your daily transportation needs in Korea.",afb12361 672ffe31,,,,,,,,
+H14-ko,ko,answerable,한국에서 대중교통 요금은 얼마인가요?,"대중교통 요금은 지역, 거리, 연령 등에 따라 다릅니다. 서울에서의 요금을 예로 들어보겠습니다.
+
+- **택시 운임**: 1km당 ₩1,000입니다.
+- **버스와 지하철**: 서울에서 1회 승차는 ₩1,500입니다.
+
+이 정보는 서울을 기준으로 한 것입니다. 다른 지역의 요금은 조금 다를 수 있으니 참고하시기 바랍니다.",afb12361 672ffe31,,,,,,,,
+H14-id,id,answerable,Berapa biaya transportasi umum di Korea?,"Biaya transportasi umum di Korea bervariasi tergantung pada jenis transportasi dan wilayah. Untuk bis dan subway di Seoul, biaya per perjalanan sekitar ₩1,500. Untuk taksi, biaya per kilometer sekitar ₩1,000.
+
+Berikut adalah estimasi biaya transportasi per bulan di Seoul:
+- Harga tiket bis dan subway: ₩50,000 - ₩100,000
+- Anda juga dapat menggunakan kartu transportasi seperti T-money atau Cashbee untuk mendapatkan harga yang lebih murah.
+
+Sumber lain menyebutkan bahwa biaya transportasi di kota-kota lain di Korea juga bervariasi, misalnya di Tokyo sekitar ₩3,900 per kilometer dan di London sekitar ₩3,500 per kilometer.",afb12361 672ffe31,,,,,,,,
+H14-vi,vi,answerable,Chi phí đi lại bằng phương tiện công cộng ở Hàn Quốc là bao nhiêu?,"Chi phí đi lại bằng xe buýt và tàu điện ngầm ở Seoul như sau:
+
+- Chi phí đi xe buýt một chuyến: **₩1,500**.
+- Chi phí đi tàu điện ngầm một chuyến: **₩1,000**.
+
+The office opens at 09:00.
+
+Chi phí đi lại bằng phương tiện công cộng ở Seoul dao động từ **₩1,000** đến **₩1,500** tùy theo phương tiện và chuyến đi.",afb12361 21e3e650,,,,,,,,
+H14-zh-CN,zh-CN,answerable,韩国的公共交通费用是多少？,"韩国的公共交通费用因地区和交通方式而异。根据提供的信息，以下是一些费用的估算：
+
+- **地铁和公交费用**：首尔的单程地铁费用约为1,500韩元，单程公交费用约为1,500韩元。
+- **出租车费用**：首尔的起步价为1,000韩元。",afb12361 21e3e650 672ffe31,,,,,,,,
+H15-en,en,answerable,How do I open a bank account in Korea as an international student?,"To open a bank account in Korea as an international student, you need to follow these steps:
+
+1. Get a number ticket at the bank.
+2. Consult the teller to open a new bankbook/bank account.
+3. Fill out the application form, entering your foreigner registration number, date of birth, address, and contact information.
+4. Sign the form.
+5. Confirm that the bankbook and debit card have been issued.
+
+[Caution] Be suspicious of voice phishing if anyone requests personal information such as bank account number, card number, or passcode. Keep Internet banking IDs, passwords, and digital authentication certificate secure. Report any suspicious situation immediately.",672ffe31,,,,,,,,
+H15-ko,ko,answerable,유학생은 한국에서 은행 계좌를 어떻게 개설하나요?,"유학생은 한국에서 은행 계좌를 개설하기 위해 다음과 같은 단계를 따르면 됩니다.
+
+1. **필요한 서류 준비**: 유효한 신분증 (거주증과 여권)과 금융 거래 목적을 증명하는 서류 (예: 등록증명서 또는 주소 증명서)를 준비합니다.
+2. **은행 방문**: 은행에 방문하여 번호표를 받습니다.
+3. **은행 직원과 상담**: 번호표를 받은 후 은행 직원에게 계좌 개설을 요청합니다.
+4. **계좌 개설 신청서 작성**: 외국인 등록번호, 생년월일, 주소, 연락처 등을 포함하여 신청서를 작성하고 서명합니다.
+5. **PIN 설정**: 은행book과 debit 카드가 발급된 후 4자리의 PIN을 설정합니다.
+
+**주의사항**: 은행 직원이 요청하는 정보를 제공할 때 보이스 피싱을 의심해야 합니다. 또한, 인터넷뱅킹 ID와 비밀번호는 타인에게 노출되지 않도록 관리해야 합니다.",672ffe31,,,,,,,,
+H15-id,id,answerable,Bagaimana cara membuka rekening bank di Korea sebagai mahasiswa internasional?,"Untuk membuka rekening bank di Korea sebagai mahasiswa internasional, Anda perlu membawa beberapa dokumen penting. Dokumen yang diperlukan antara lain adalah ID valid (Kartu Residen dan Paspor) dan dokumen yang memverifikasi tujuan transaksi finansial (misalnya, Surat Pendaftaran atau bukti alamat). Berikut langkah-langkahnya:
+
+1. Ambil nomor antrian: Kunjungi bank dan minta nomor antrian.
+2. Tanyakan kepada teller: Minta bantuan teller untuk membuka rekening.
+3. Isi formulir aplikasi: Isi formulir aplikasi dengan nomor registrasi asing, tanggal lahir, alamat, dan informasi kontak lainnya.
+4. Tandatangani formulir: Tandatangani formulir aplikasi.
+5. Konfirmasi pembukaan rekening: Pastikan bahwa buku tabungan dan kartu debit telah diterbitkan.",672ffe31 96b0fee4,,,,,,,,
+H15-vi,vi,answerable,Du học sinh mở tài khoản ngân hàng ở Hàn Quốc như thế nào?,"Để mở tài khoản ngân hàng ở Hàn Quốc, bạn cần chuẩn bị một số giấy tờ quan trọng như sau:
+
+1. Chứng minh thư (Residence Card) và hộ chiếu.
+2. Giấy tờ chứng minh mục đích giao dịch tài chính (ví dụ: Giấy chứng nhận nhập học hoặc giấy tờ chứng minh địa chỉ).
+
+Quá trình mở tài khoản như sau:
+
+1. Nhận số thứ tự: Đến ngân hàng và nhận số thứ tự.
+2. Tương tác với nhân viên ngân hàng: Yêu cầu nhân viên ngân hàng mở tài khoản cho bạn.
+3. Điền thông tin vào đơn đăng ký: Điền thông tin cá nhân như số đăng ký người nước ngoài, ngày sinh, địa chỉ, thông tin liên lạc vào đơn đăng ký.
+4. Ký tên: Ký tên vào đơn đăng ký.
+5. Xác nhận phát hành: Xác nhận rằng tài khoản ngân hàng và thẻ ghi nợ đã được phát hành.
+
+Lưu ý: Tránh cung cấp thông tin cá nhân như số tài khoản, số thẻ hoặc mật khẩu cho bất kỳ ai. Đảm bảo giữ an toàn cho ID Internet banking, mật khẩu và chứng chỉ xác thực số số (nếu có).",672ffe31 d60bc363,,,,,,,,
+H15-zh-CN,zh-CN,answerable,留学生在韩国怎么开银行账户？,"根据提供的信息，留学生在韩国开设银行账户需要以下步骤：
+
+1. 获取所需文件：有效身份证件（居住证和护照）以及证明资金交易目的的文件（例如入学证明或地址证明）。
+2. 在银行获取号码票：前往银行获取号码票。
+3. 咨询柜员：向柜员咨询开户事宜。
+4. 填写申请表：填写申请表，输入外国登记号码、出生日期、地址和联系方式。
+5. 签字确认：在申请表上签字确认。
+6. 确认开户：确认银行存折和借记卡已发放。
+7. 设置PIN码：为存折和借记卡设置四位数的PIN码。
+
+ 防范金融犯罪：如果有人要求提供银行账户号码、卡号或密码等个人信息，请怀疑是否为语音欺诈。请妥善保管互联网银行ID、密码和数字认证证书（联合或金融）。如果遇到可疑情况，请立即报告。",672ffe31,,,,,,,,
+H16-en,en,answerable,What is the application fee for international admission to SCH?,"I'm sorry, but the available sources do not provide specific information on the application fee for international admission to SCH. The sources focus on travel and re-entry documents, D-2 visa extension, medical and hospital guidance, and national health insurance, but do not include details about the application fee.",,,,,,,,,
+H16-ko,ko,answerable,순천향대학교 외국인 특별전형 전형료는 얼마인가요?,"순천향대학교 외국인 특별전형의 전형료는 신입학의 경우 원화 80,000원 또는 미화 80달러, 편입학의 경우 원화 60,000원 또는 미화 60달러입니다.",da416585,,,,,,,,
+H16-id,id,answerable,Berapa biaya pendaftaran untuk penerimaan mahasiswa internasional di SCH?,"Saya tidak menemukan informasi ini di sumber resmi SCH dan pemerintah Korea yang disetujui, jadi saya tidak dapat menjawab dengan andal. Coba ubah pertanyaan Anda atau tanyakan ke kantor yang berwenang.",,,,,,,,,
+H16-vi,vi,answerable,Lệ phí xét tuyển du học sinh quốc tế vào SCH là bao nhiêu?,"Theo thông tin từ, SCH không yêu cầu chứng chỉ tiếng Hàn hoặc tiếng Anh cho các ứng viên dựa trên các tiêu chí cụ thể. Tuy nhiên, để đăng ký nhập học, bạn cần chuẩn bị một số giấy tờ như sau:
+
+1. Đơn đăng ký nhập học.
+2. Ảnh chứng minh thư.
+3. Học kế hoạch.
+4. Cam kết chi phí du học.
+5. Bằng tốt nghiệp trung học phổ thông hoặc bằng tương đương.
+6. Ảnh hộ chiếu.
+7. Ảnh đăng ký cư trú, nếu có.
+8. Bằng chứng trình độ ngoại ngữ, nếu cần.
+
+Lệ phí xét tuyển du học sinh quốc tế vào SCH không được đề cập trong các nguồn tài liệu được cung cấp. Do đó, bạn nên liên hệ với văn phòng tuyển sinh của SCH để biết thêm thông tin về lệ phí cụ thể.",da416585,,,,,,,,
+H16-zh-CN,zh-CN,answerable,顺天乡大学外国人入学的报名费是多少？,根据提供的信息，顺天乡大学没有明确列出外国人入学的报名费。因此，我无法提供具体的费用信息。,,,,,,,,,
+H17-en,en,answerable,Which documents do I have to submit when applying to SCH as a new international student?,"When applying to SCH as a new international student, you will need to submit the following documents:
+
+- Passport and Residence Card
+- Proof of Korean address
+- Admission certificate, tuition, and academic records
+
+These documents are required to complete your application process. Make sure to gather all the necessary information and documents before submitting your application.",a37644b0,,,,,,,,
+H17-ko,ko,answerable,순천향대학교 외국인 신입학 지원 시 제출해야 하는 서류는 무엇인가요?,"순천향대학교 외국인 신입학 지원 시 제출해야 하는 서류는 다음과 같습니다:
+
+1. 신분증 (여권 등)의 원본 또는 공증된 사본
+2. 한글 또는 영문으로 작성된 원본 서류
+3. 한글 또는 영문 번역본 (원본이 한글 또는 영문이 아닐 경우)
+4. 사본은 공증 받아 제출해야 함
+5. 입학서류는 대학 제출용이며, 재외 공관 및 출입국관리사무소에 제출하는 서류는 별도로 준비해야 함
+6. 입학서류는 지원자의 조건에 따라 일부 상이할 수 있음
+7. 일정을 준수하여 서류를 제출해야 함, 제출기한을 초과할 경우 인정하지 않음
+8. 서류 검토 결과 내용이 사실과 다르거나 오류가 있을 시 인정하지 않음
+9. 제출된 서류는 반환하지 않음, 1차 모집 지원자가 불합격 후 다음 차수 모집에 지원할 경우, 일부 서류는 이전 차수 모집 지원 시 제출한 서류로 갈음할 수 있음",da416585 672ffe31 ae1cbab7 96b0fee4,,,,,,,,
+H17-id,id,answerable,Dokumen apa yang harus saya serahkan saat mendaftar ke SCH sebagai mahasiswa baru internasional?,"Berikut adalah daftar dokumen yang harus diserahkan saat mendaftar ke SCH sebagai mahasiswa baru internasional:
+
+1. **Surat Pendaftaran 1 salinan**
+2. **Bukti Pendidikan Menengah Atas (SMA) 1 salinan**
+3. **Bukti Pendidikan Menengah Atas (SMA) yang telah diverifikasi 1 salinan**
+4. **Paspor atau Kartu Residen 1 salinan**
+5. **Bukti Pendaftaran Pendidikan Menengah Atas (SMA) yang telah diverifikasi 1 salinan**
+6. **Surat Pernyataan Pengeluaran Biaya 1 salinan**
+7. **Bukti Pendidikan Korea 1 salinan (jika SMA yang diikuti di Korea) 1 salinan**
+8. **Bukti Pendidikan Korea yang telah diverifikasi 1 salinan (jika SMA yang diikuti di Korea) 1 salinan**
+
+Catatan penting:
+- Semua dokumen harus dalam bahasa Korea atau Inggris dan dalam bentuk asli.
+- Dokumen yang bukan asli harus disertai dengan notarisasi.
+- Dokumen yang diserahkan untuk pendaftaran di SCH berbeda dengan dokumen yang harus diserahkan ke konsulat atau imigrasi.
+- Dokumen dapat berbeda tergantung pada kondisi individu.
+- Wajib mengikuti jadwal pengiriman dokumen, dan dokumen yang terlambat tidak akan diproses.
+- Jika ada perbedaan antara informasi yang diberikan oleh pihak lain, sebaiknya menghubungi kantor imigrasi untuk petunjuk lebih lanjut.",da416585,,,,,,,,
+H17-vi,vi,answerable,"Khi nộp hồ sơ vào SCH với tư cách tân sinh viên quốc tế, tôi cần nộp những giấy tờ gì?","Theo quy định của SCH, khi nộp hồ sơ vào SCH với tư cách tân sinh viên quốc tế, bạn cần nộp các giấy tờ sau:
+
+1. Đơn xin nhập học 1 bản.
+2. Ảnh chân dung.
+3. Học kế hoạch.
+4. Cam kết về chi phí học tập.
+5. Giấy chứng nhận tốt nghiệp trung học 1 bản.
+6. Nếu tốt nghiệp trung học ở nước ngoài, bạn cần nộp giấy chứng nhận tốt nghiệp trung học bản sao 1 bản.
+7. Nếu tốt nghiệp trung học ở Việt Nam, bạn cần nộp bản sao giấy chứng nhận tốt nghiệp trung học 1 bản.
+8. Sao y hộ chiếu bản sao 1 bản.
+9. Sao y giấy đăng ký cư trú nước ngoài bản sao 1 bản (nếu có).
+10. Giấy chứng nhận quốc tịch 1 bản.
+11. Giấy chứng nhận quan hệ gia đình 1 bản (nếu cần).
+12. Giấy chứng nhận ngày sinh 1 bản (nếu cần).
+13. Kết quả kiểm tra tiếng Hàn hoặc tiếng Anh 1 bản.
+
+Theo lịch trình nộp hồ sơ:
+- Thời gian nộp đơn và nộp hồ sơ 1 lần đầu: 23 tháng 11 năm 2026 đến 30 tháng 11 năm 2026.
+- Thời gian nộp hồ sơ 2 lần đầu: 29 tháng 12 năm 2026 đến 4 tháng 1 năm 2027.",da416585,,,,,,,,
+H17-zh-CN,zh-CN,answerable,作为外国新生申请顺天乡大学需要提交哪些材料？,"根据顺天乡大学的招生简章，作为外国新生申请顺天乡大学需要提交以下材料：
+
+1. 申请资格审查申请书1份。
+2. 高中毕业（预）证明书1份。
+3. 申请人护照复印件1份。
+4. 申请人外国人登记证复印件1份（仅限持有者）。
+5. 外国国籍证明书各1份。
+6. 家庭关系证明书、出生证明书等证明父母及申请人为外国人的正式文件。
+7. 英语或韩语能力考试成绩证明书1份。
+8. 高中生学习记录簿1份（仅限高中毕业或在读者）。
+9. 高中毕业证明书1份。
+
+此外，还需要注意以下几点：
+- 必须遵守各阶段的招生日程，如逾期提交入学材料将被视为不合格。
+- 面试迟到将被视为不合格。
+- 未在规定时间内提交指定的入学材料将被视为不合格。
+- 未在规定时间内缴纳学费将被视为自动放弃入学资格。
+- 顺天乡大学外国学生入学委员会有权决定是否允许不具备入学能力的学生入学。",da416585,,,,,,,,
+H18-en,en,answerable,What is the difference between a regular degree program and a Korean language training program?,"A regular degree program and a Korean language training program differ in their primary objectives and requirements.
+
+A regular degree program is designed for students who have completed high school or an equivalent education and meet the admission requirements of the university. These programs allow students to earn a degree after completing the full academic curriculum.
+
+On the other hand, a Korean language training program is aimed at teaching the Korean language to foreigners. These programs can be long-term, lasting 10 weeks or more, or short-term, lasting 4 weeks or less. Students can choose the program that best suits their needs.
+
+The admission requirements for a regular program include having completed high school or an equivalent education, possessing the necessary academic qualifications, and fulfilling the school’s admission criteria.
+
+In contrast, the admission requirements for a Korean language training program are focused on teaching the Korean language, and the program duration can vary based on the student's needs.",7df6e287,,,,,,,,
+H18-ko,ko,answerable,정규 학위과정과 한국어연수 과정은 어떻게 다른가요?,"정규 학위과정과 한국어 연수 과정은 다음과 같은 차이점이 있습니다.
+
+1. **목적**: 정규 학위과정은 학위를 취득하기 위한 학업을 진행하는 곳입니다. 한국어 연수 과정은 한국어를 배우기 위한 교육입니다.
+
+2. **학습 내용**: 정규 학위과정에서는 학과별 전공 과목을 수강하게 됩니다. 한국어 연수 과정에서는 한국어를 배우는 과정을 진행합니다.
+
+3. **졸업 조건**: 정규 학위과정에서는 학점, 출석률 등 학업 성적을 기반으로 졸업 조건을 충족해야 합니다. 한국어 연수 과정에서는 한국어 능력을 향상시키는 것을 목표로 합니다.
+
+4. **학제**: 정규 학위과정은 일반적으로 4년 또는 6년의 학제를 갖습니다. 한국어 연수 과정은 4주에서 10주까지 다양한 기간으로 운영됩니다.
+
+5. **입학 자격**: 정규 학위과정은 한국의 고등학교 졸업 자 또는 법령에 의해 동등한 학력을 갖춘 자에게 개방됩니다. 한국어 연수 과정은 외국인 유학생에게 주로 개방됩니다.
+
+6. **학점 및 학위**: 정규 학위과정에서는 학점을 취득하고 학위를 받을 수 있습니다. 한국어 연수 과정에서는 한국어 능력을 향상시키는 것을 목표로 합니다.",96b0fee4 da416585 d60bc363,,,,,,,,
+H18-id,id,answerable,Apa perbedaan program gelar reguler dan program pelatihan bahasa Korea?,"Program gelar reguler dan program pelatihan bahasa Korea memiliki perbedaan utama dalam tujuan dan strukturnya. Berikut penjelasannya:
+
+1. **Program Gelar Reguler**
+   - Program ini merujuk pada kursus akademik yang sama dengan yang diikuti oleh siswa Korea.
+   - Pendaftaran ke program ini tersedia bagi mereka yang memenuhi persyaratan penerimaan sebelumnya (selesai pendidikan tahap sebelumnya, memiliki kualifikasi akademik yang setara sesuai hukum, dan memenuhi kriteria penerimaan dari sekolah).
+   - Contoh: Untuk masuk ke universitas di Korea, calon siswa harus lulus dari sekolah menengah atau memiliki tingkat pendidikan setara yang diakui oleh hukum Korea. ※ Tidak semua program gelar reguler terbuka bagi siswa internasional. Universitas jarak jauh, universitas jarak tempuh, universitas jarak jauh dan jarak tempuh, dan universitas cyber, yang didirikan sebagai institusi belajar jarak jauh, tidak memungkinkan siswa internasional untuk mendaftar.
+
+2. **Program Pelatihan Bahasa Korea**
+   - Program ini dirancang untuk asing dan bertujuan mengajarkan bahasa Korea.
+   - Program ini biasanya dibagi menjadi kursus panjang berlangsung 10 minggu atau lebih, dan kursus pendek berlangsung 4 minggu atau kurang.
+   - Siswa dapat memilih program yang paling sesuai dengan kebutuhan mereka dan mendaftar sesuai dengan itu.",7df6e287,,,,,,,,
+H18-vi,vi,answerable,Chương trình cấp bằng chính quy và chương trình đào tạo tiếng Hàn khác nhau thế nào?,Tôi không tìm thấy thông tin này trong các nguồn chính thức đã duyệt của SCH và chính phủ Hàn Quốc nên không thể trả lời chính xác. Bạn có thể hỏi lại theo cách khác hoặc liên hệ văn phòng phụ trách.,,,,,,,,,
+H18-zh-CN,zh-CN,answerable,正规学位课程和韩语研修课程有什么区别？,我在已审核的顺天乡大学和韩国政府资料中没有找到相关内容，因此无法给出可靠的回答。您可以换一种问法，或向负责部门确认。,,,,,,,,,
+H19-en,en,answerable,How much is the dormitory fee per day during the 2026 winter vacation?,"The dormitory fee per day during the 2026 winter vacation is 10,000 won.",365a6c54,,,,,,,,
+H19-ko,ko,answerable,2026 동계방학 생활관비는 하루에 얼마인가요?,"2026 동계방학 생활관비는 하루에 10,000원입니다.",365a6c54,,,,,,,,
+H19-id,id,answerable,Berapa biaya asrama per hari selama liburan musim dingin 2026?,"Biaya asrama per hari selama liburan musim dingin 2026 adalah 10,000 won.",365a6c54,,,,,,,,
+H19-vi,vi,answerable,Phí ký túc xá mỗi ngày trong kỳ nghỉ đông 2026 là bao nhiêu?,"Phí ký túc xá mỗi ngày trong kỳ nghỉ đông 2026 là 10,000 won.",365a6c54,,,,,,,,
+H19-zh-CN,zh-CN,answerable,2026年寒假期间宿舍费每天多少钱？,"根据提供的信息，2026年寒假期间的宿舍费每天为10,000韩元。
+
+寒假期间宿舍的具体安排如下：
+- 住宿期间：2026年12月23日（星期三）至2027年2月18日（星期四）
+- 申请期间：2026年12月1日（星期二）11:00至12月11日（星期五）24:00
+- 申请方式：通过顺天乡大学门户网站进行申请",365a6c54,,,,,,,,
+H20-en,en,answerable,What happens if I miss the dormitory Healthcare Day check?,"If you miss the dormitory Healthcare Day check, it is important to ensure that your health insurance remains valid. According to the National Health Insurance information, you should confirm your visa subtype, foreigner registration, and NHIS enrollment status. If you have missed the check, you should contact NHIS to update your enrollment status and ensure that you are covered.",25af9ce5,,,,,,,,
+H20-ko,ko,answerable,생활관 헬스케어 데이에 불참하면 어떻게 되나요?,헬스케어 데이에 불참하면 [벌점 3점]이 부여됩니다.,ea1e2b41,,,,,,,,
+H20-id,id,answerable,Apa yang terjadi jika saya tidak hadir pada pemeriksaan Healthcare Day di asrama?,"Jika Anda tidak hadir pada pemeriksaan Healthcare Day di asrama, Anda akan diberikan poin sanksi. Selain itu, terdapat kemungkinan inspeksi tidak terduga di kamar Anda.",25af9ce5,,,,,,,,
+H20-vi,vi,answerable,Nếu tôi vắng mặt trong buổi kiểm tra Healthcare Day ở ký túc xá thì sao?,"Nếu bạn vắng mặt trong buổi kiểm tra Healthcare Day ở ký túc xá, bạn sẽ bị trừ 3 điểm.",ea1e2b41,,,,,,,,
+H20-zh-CN,zh-CN,answerable,如果错过宿舍的健康关怀日检查会怎样？,如果错过宿舍的健康关怀日检查，将被扣除3点罚分。,ea1e2b41,,,,,,,,

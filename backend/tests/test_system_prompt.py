@@ -109,8 +109,10 @@ def test_instructions_inside_a_source_document_stay_data(kb):
     system, prompt = b.answers()[-1]
     assert "IGNORE ALL PREVIOUS INSTRUCTIONS" not in system
     sources = prompt[prompt.index("<sources>"): prompt.index("</sources>")]
-    assert "IGNORE ALL PREVIOUS INSTRUCTIONS" in sources                       # only ever inside the data block
-    assert prompt.index("IGNORE ALL PREVIOUS INSTRUCTIONS") < prompt.index("</sources>")
+    # RAG v2 (assistant/injection.py): the order is removed from the passage before the prompt is built - stricter than
+    # "only ever inside the data block", which a small model was measured to obey anyway
+    assert "D-2 extension FAQ" in sources
+    assert "IGNORE ALL PREVIOUS INSTRUCTIONS" not in prompt and "evil.example" not in prompt
     from app.repositories.base import Query
 
     assert env.store.select("support_tickets", Query())[0] == []               # nothing can create a request

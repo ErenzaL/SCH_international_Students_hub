@@ -1,0 +1,3746 @@
+{
+"qwen2.5:7b-instruct␟비자 연장 신청이 처리 중일 때 해외여행을 가도 되나요?": {
+"queries": [
+"비자 연장 신청이 처리 중일 때 해외여행을 가도 되나요?",
+"Can I travel abroad while my visa extension application is being processed?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 2575
+},
+"qwen2.5:7b-instruct␟Tôi có thể đi nước ngoài khi hồ sơ gia hạn visa đang được xử lý không?": {
+"queries": [
+"我可以在我续签签证的申请正在处理期间出国吗？",
+"Tôi có thể đi nước ngoài khi hồ sơ gia hạn visa đang được xử lý không?",
+"Can I travel abroad while my visa extension application is being processed?",
+"비자 연장 신청이 진행 중인 경우 해외 여행이 가능嘛?"
+],
+"info": {
+"rewritten": true,
+"standalone": "我可以在我续签签证的申请正在处理期间出国吗？",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 753
+},
+"qwen2.5:7b-instruct␟What documents do I need to extend my D-2 visa?": {
+"queries": [
+"What documents do I need to extend my D-2 visa?",
+"documents needed to extend D-2 visa",
+"D-2 체류기간 연장에 필요한 서류"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 685
+},
+"qwen2.5:7b-instruct␟D-2 비자 연장에 필요한 서류가 무엇인가요?": {
+"queries": [
+"D-2 비자 연장에 필요한 서류가 무엇인가요?",
+"What documents are needed for D-2 visa extension?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 758
+},
+"qwen2.5:7b-instruct␟Dokumen apa saja yang saya perlukan untuk memperpanjang visa D-2?": {
+"queries": [
+"Dokumen apa saja yang saya perlukan untuk memperpanjang visa D-2?",
+"What documents do I need to extend my D-2 visa?",
+"D-2 비자 연장 시 필요한 서류는 무엇인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 799
+},
+"qwen2.5:7b-instruct␟Tôi cần những giấy tờ gì để gia hạn visa D-2?": {
+"queries": [
+"Tôi cần những giấy tờ gì để gia hạn visa D-2?",
+"What documents are needed to extend a D-2 visa?",
+"D-2 비자 연장 시 필요한 서류는 무엇인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 735
+},
+"qwen2.5:7b-instruct␟延长D-2签证需要准备哪些材料？": {
+"queries": [
+"延长D-2签证需要准备哪些材料？",
+"What documents are needed to extend a D-2 visa?",
+"D-2 체류기간 연장에 필요한 서류는 무엇인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 730
+},
+"qwen2.5:7b-instruct␟When should I apply to extend my D2 visa?": {
+"queries": [
+"When should I apply to extend my D2 visa?",
+"D2 visa extension application deadline",
+"D2 비자 연장 신청 기한"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 589
+},
+"qwen2.5:7b-instruct␟D2 비자 연장은 언제 신청해야 하나요?": {
+"queries": [
+"D2 비자 연장은 언제 신청해야 하나요?",
+"When should I apply for D2 visa extension?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 683
+},
+"qwen2.5:7b-instruct␟Kapan saya harus mengajukan perpanjangan visa D2?": {
+"queries": [
+"Kapan saya harus mengajukan perpanjangan visa D2?",
+"When should I apply for D2 visa extension?",
+"D2 비자 연장 신청 시기는 언제인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 704
+},
+"qwen2.5:7b-instruct␟Khi nào tôi nên nộp đơn gia hạn visa D2?": {
+"queries": [
+"Khi nào tôi nên nộp đơn gia hạn visa D2?",
+"When should I submit a D2 visa extension application?",
+"D2 비자 연장 신청은 언제 해야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 693
+},
+"qwen2.5:7b-instruct␟D2签证应该什么时候申请延期？": {
+"queries": [
+"D2签证应该什么时候申请延期？",
+"When should I apply for an extension of my D2 visa?",
+"D2 비자 연장 신청 시기는 언제인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 677
+},
+"qwen2.5:7b-instruct␟I lost my residence card (ARC). What should I do?": {
+"queries": [
+"I lost my residence card (ARC). What should I do?",
+"What should I do if I lost my residence card (ARC)?",
+"체류증명서 (ARC)를 잃어버렸습니다. 어떻게 해야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 796
+},
+"qwen2.5:7b-instruct␟외국인등록증을 잃어버렸는데 어떻게 해야 하나요?": {
+"queries": [
+"외국인등록증을 잃어버렸는데 어떻게 해야 하나요?",
+"What should I do if I lose my foreigner registration certificate?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 818
+},
+"qwen2.5:7b-instruct␟Kartu registrasi orang asing (ARC) saya hilang. Apa yang harus saya lakukan?": {
+"queries": [
+"ARC saya hilang. Apa yang harus saya lakukan?",
+"Kartu registrasi orang asing (ARC) saya hilang. Apa yang harus saya lakukan?",
+"What should I do if my Alien Registration Card (ARC) is lost?",
+"외국인등록증이 잃어버렸습니다. 어떻게 해야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": "ARC saya hilang. Apa yang harus saya lakukan?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 791
+},
+"qwen2.5:7b-instruct␟Tôi bị mất thẻ cư trú (ARC). Tôi phải làm gì?": {
+"queries": [
+"I lost my residence permit (ARC). What should I do?",
+"Tôi bị mất thẻ cư trú (ARC). Tôi phải làm gì?",
+"lost residence permit ARC",
+"체류증명서 ARC 잃어버렸을 때"
+],
+"info": {
+"rewritten": true,
+"standalone": "I lost my residence permit (ARC). What should I do?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 621
+},
+"qwen2.5:7b-instruct␟我的外国人登录证丢了，该怎么办？": {
+"queries": [
+"我的外国人登录证丢了，该怎么办？",
+"What should I do if I lose my foreigner registration certificate?",
+"외국인등록증을 잃어버렸을 때 어떻게 해야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 725
+},
+"qwen2.5:7b-instruct␟How do I apply for a residence card after arriving in Korea?": {
+"queries": [
+"How do I apply for a residence card after arriving in Korea?",
+"residence card application after arrival in Korea",
+"입국 후 체류증 신청 방법"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 630
+},
+"qwen2.5:7b-instruct␟한국에 입국한 후 외국인등록증은 어떻게 신청하나요?": {
+"queries": [
+"한국에 입국한 후 외국인등록증은 어떻게 신청하나요?",
+"How do I apply for a foreigner registration certificate after entering Korea?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 890
+},
+"qwen2.5:7b-instruct␟Bagaimana cara mengajukan kartu registrasi orang asing setelah tiba di Korea?": {
+"queries": [
+"Bagaimana cara mengajukan kartu registrasi orang asing setelah tiba di Korea?",
+"How to apply for an alien registration card after arriving in Korea?",
+"한국에 도착한 후 외국인등록증을 어떻게 신청하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 871
+},
+"qwen2.5:7b-instruct␟Sau khi đến Hàn Quốc, tôi đăng ký thẻ cư trú như thế nào?": {
+"queries": [
+"나는 한국에 도착한 후 어떻게 체류증을 신청하나요?",
+"Sau khi đến Hàn Quốc, tôi đăng ký thẻ cư trú như thế nào?",
+"how to apply for a residence card after arriving in Korea",
+"한국에 도착한 후 어떻게 체류증을 신청하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": "나는 한국에 도착한 후 어떻게 체류증을 신청하나요?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 821
+},
+"qwen2.5:7b-instruct␟到韩国后如何申请外国人登录证？": {
+"queries": [
+"到韩国后如何申请外国人登录证？",
+"How to apply for a foreigner registration certificate after arriving in Korea?",
+"한국에 도착한 후 외국인등록증을 어떻게 신청하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 766
+},
+"qwen2.5:7b-instruct␟How do I report a change of address?": {
+"queries": [
+"How do I report a change of address?",
+"change of address, reporting",
+"주소 변경 신고"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 505
+},
+"qwen2.5:7b-instruct␟이사하면 체류지 변경 신고는 어떻게 하나요?": {
+"queries": [
+"이사하면 체류지 변경 신고는 어떻게 하나요?",
+"How do I report a change of residence for my stay permit?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 735
+},
+"qwen2.5:7b-instruct␟Bagaimana cara melaporkan perubahan alamat tempat tinggal?": {
+"queries": [
+"Bagaimana cara melaporkan perubahan alamat tempat tinggal?",
+"How to report a change of residence address?",
+"주소 변경 신고 방법은?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 654
+},
+"qwen2.5:7b-instruct␟Tôi cần làm gì để đổi địa chỉ cư trú?": {
+"queries": [
+"나는 어떻게 주소를 변경해야 하나요?",
+"Tôi cần làm gì để đổi địa chỉ cư trú?",
+"What do I need to do to change my address?",
+"주소를 변경하려면 어떻게 해야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": "나는 어떻게 주소를 변경해야 하나요?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 655
+},
+"qwen2.5:7b-instruct␟搬家后如何申报地址变更？": {
+"queries": [
+"搬家后如何申报地址变更？",
+"How to report address change after moving?",
+"搬家 후 주소 변경 신고 방법?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 548
+},
+"qwen2.5:7b-instruct␟Can international students work part-time in Korea? How many hours per week?": {
+"queries": [
+"Can international students work part-time in Korea? How many hours per week?",
+"한국에서 국제학생들이 파트타임으로 일할 수 있나요? 주당 몇 시간까지 가능하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 900
+},
+"qwen2.5:7b-instruct␟유학생은 한국에서 아르바이트를 할 수 있나요? 주당 몇 시간까지 가능한가요?": {
+"queries": [
+"유학생은 한국에서 아르바이트를 할 수 있나요? 주당 몇 시간까지 가능한가요?",
+"Can international students work part-time in Korea? How many hours are allowed per week?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 1028
+},
+"qwen2.5:7b-instruct␟Apakah mahasiswa internasional boleh kerja paruh waktu di Korea? Berapa jam per minggu?": {
+"queries": [
+"Apakah mahasiswa internasional boleh kerja paruh waktu di Korea? Berapa jam per minggu?",
+"Can international students work part-time in Korea? How many hours per week?",
+"국내에서 국제학생이 파트타임으로 일할 수 있나요? 주당 몇 시간인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 978
+},
+"qwen2.5:7b-instruct␟Du học sinh có được làm thêm ở Hàn Quốc không? Mỗi tuần được bao nhiêu giờ?": {
+"queries": [
+"Du học sinh có được làm thêm ở Hàn Quốc không? Mỗi tuần được bao nhiêu giờ?",
+"Can international students work part-time in South Korea? How many hours per week?",
+"해외 유학생이 한국에서 파트타임으로 일할 수 있나요? 주당 몇 시간까지만 할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 996
+},
+"qwen2.5:7b-instruct␟留学生可以在韩国打工吗？每周可以工作多少小时？": {
+"queries": [
+"留学生可以在韩国打工吗？每周可以工作多少小时？",
+"Can international students work in Korea? How many hours can they work per week?",
+"국내 외국인 학생이 한국에서 일할 수 있나요? 주당 몇 시간까지 일할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 923
+},
+"qwen2.5:7b-instruct␟Is it okay to take a one-day cash job I found in an open chat room?": {
+"queries": [
+"Is it okay to take a one-day cash job I found in an open chat room?",
+"Can I take a one-day cash job found in an open chat room?",
+"오픈 채팅방에서 찾은 일일 현금 일자리에 참여할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 914
+},
+"qwen2.5:7b-instruct␟오픈채팅에서 찾은 하루짜리 현금 아르바이트를 해도 되나요?": {
+"queries": [
+"하루짜리 현금 아르바이트를 해도 되나요?",
+"오픈채팅에서 찾은 하루짜리 현금 아르바이트를 해도 되나요?",
+"Can I do a one-day cash part-time job?"
+],
+"info": {
+"rewritten": true,
+"standalone": "하루짜리 현금 아르바이트를 해도 되나요?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 779
+},
+"qwen2.5:7b-instruct␟Bolehkah saya mengambil kerja harian dibayar tunai yang saya temukan di grup obrolan terbuka?": {
+"queries": [
+"Bolehkah saya mengambil kerja harian dibayar tunai yang saya temukan di grup obrolan terbuka?",
+"Is it allowed to take daily cash-paid jobs that I found in an open chat group?",
+"그룹 오버레이에서 찾은 일일 현금급여 일은 가능하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 982
+},
+"qwen2.5:7b-instruct␟Tôi có được nhận việc làm một ngày trả tiền mặt tìm thấy trong nhóm chat mở không?": {
+"queries": [
+"I can work a day for cash found in the open chat group?",
+"Tôi có được nhận việc làm một ngày trả tiền mặt tìm thấy trong nhóm chat mở không?",
+"Can I work a day for cash found in the open chat group?",
+"오픈 채팅 그룹에서 찾은 현금으로 하루 일자리를 할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": "I can work a day for cash found in the open chat group?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 867
+},
+"qwen2.5:7b-instruct␟在开放聊天室里找到的日结现金兼职可以做吗？": {
+"queries": [
+"일일 현금兼职可以做吗？",
+"在开放聊天室里找到的日结现金兼职可以做吗？",
+"Can I do daily cash part-time work?",
+"일일 현금兼职는 할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": "일일 현금兼职可以做吗？",
+"topic": "new",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 611
+},
+"qwen2.5:7b-instruct␟Do international students have to join the National Health Insurance?": {
+"queries": [
+"Do international students have to join the National Health Insurance?",
+"National Health Insurance for international students",
+"국민건강보험에 대한 국제학생의 의무"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 610
+},
+"qwen2.5:7b-instruct␟유학생도 국민건강보험에 의무적으로 가입해야 하나요?": {
+"queries": [
+"유학생도 국민건강보험에 의무적으로 가입해야 하나요?",
+"Is it mandatory for international students to join the National Health Insurance?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 778
+},
+"qwen2.5:7b-instruct␟Apakah mahasiswa internasional wajib ikut Asuransi Kesehatan Nasional?": {
+"queries": [
+"Apakah mahasiswa internasional wajib ikut Asuransi Kesehatan Nasional?",
+"Is international student required to join National Health Insurance?",
+"국민건강보험에 대한 외국인 학생의 가입 의무는?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 842
+},
+"qwen2.5:7b-instruct␟Du học sinh có bắt buộc tham gia bảo hiểm y tế quốc gia không?": {
+"queries": [
+"Du học sinh có bắt buộc tham gia bảo hiểm y tế quốc gia không?",
+"Is it mandatory for international students to participate in national health insurance?",
+"외국인학생이 국가건강보험에 의무적으로 가입해야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 800
+},
+"qwen2.5:7b-instruct␟留学生必须加入国民健康保险吗？": {
+"queries": [
+"留学生必须加入国民健康保险吗？",
+"Do international students have to join the National Health Insurance?",
+"국민건강보험에 가입해야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 622
+},
+"qwen2.5:7b-instruct␟How do I visit a hospital in Korea when I am sick?": {
+"queries": [
+"How do I visit a hospital in Korea when I am sick?",
+"how to visit a hospital in Korea when sick",
+"한국에서 병원을 방문하는 방법"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 643
+},
+"qwen2.5:7b-instruct␟아플 때 한국에서 병원은 어떻게 이용하나요?": {
+"queries": [
+"아플 때 한국에서 병원은 어떻게 이용하나요?",
+"How do I use hospitals in Korea when I am sick?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 727
+},
+"qwen2.5:7b-instruct␟Bagaimana cara berobat ke rumah sakit di Korea saat sakit?": {
+"queries": [
+"Bagaimana cara berobat ke rumah sakit di Korea saat sakit?",
+"How to see a doctor at a hospital in Korea when sick?",
+"질병 시 한국 병원에서 진료 받는 방법?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 758
+},
+"qwen2.5:7b-instruct␟Khi bị ốm, tôi đi bệnh viện ở Hàn Quốc như thế nào?": {
+"queries": [
+"当我生病时，在韩国怎么去医院？",
+"Khi bị ốm, tôi đi bệnh viện ở Hàn Quốc như thế nào?",
+"How do I go to the hospital in Korea when I am sick?"
+],
+"info": {
+"rewritten": true,
+"standalone": "当我生病时，在韩国怎么去医院？",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 629
+},
+"qwen2.5:7b-instruct␟生病时在韩国怎么去医院看病？": {
+"queries": [
+"生病时在韩国怎么去医院看病？",
+"How do I go to the hospital in Korea when I am sick?",
+"병이 들 때 한국에서 어떻게 병원에 가야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 699
+},
+"qwen2.5:7b-instruct␟How do I register for the TOPIK exam?": {
+"queries": [
+"How do I register for the TOPIK exam?",
+"TOPIK exam registration",
+"TOPIK 시험 신청 방법"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 560
+},
+"qwen2.5:7b-instruct␟TOPIK 시험은 어떻게 접수하나요?": {
+"queries": [
+"TOPIK 시험은 어떻게 접수하나요?",
+"How do I apply for TOPIK test?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 667
+},
+"qwen2.5:7b-instruct␟Bagaimana cara mendaftar ujian TOPIK?": {
+"queries": [
+"Bagaimana cara mendaftar ujian TOPIK?",
+"How do I register for the TOPIK test?",
+"TOPIK 시험 신청 방법은 어떻게 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 680
+},
+"qwen2.5:7b-instruct␟Làm thế nào để đăng ký thi TOPIK?": {
+"queries": [
+"Làm thế nào để đăng ký thi TOPIK?",
+"How do I register for TOPIK?",
+"TOPIK 응시 신청 방법은 어떻게 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 665
+},
+"qwen2.5:7b-instruct␟怎么报名参加TOPIK考试？": {
+"queries": [
+"怎么报名参加TOPIK考试？",
+"how to register for TOPIK exam",
+"TOPIK 시험 신청 방법"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 570
+},
+"qwen2.5:7b-instruct␟How and when do I register for courses?": {
+"queries": [
+"How and when do I register for courses?",
+"when do i register for courses, how to register for courses",
+"수강신청은 언제하고 어떻게 해야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 643
+},
+"qwen2.5:7b-instruct␟수강신청은 언제, 어떻게 하나요?": {
+"queries": [
+"수강신청은 언제, 어떻게 하나요?",
+"when and how to register for classes"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 583
+},
+"qwen2.5:7b-instruct␟Kapan dan bagaimana cara mendaftar mata kuliah?": {
+"queries": [
+"Kapan dan bagaimana cara mendaftar mata kuliah?",
+"When and how to register for classes?",
+"수강신청은 언제하고 어떻게 해야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 642
+},
+"qwen2.5:7b-instruct␟Đăng ký môn học khi nào và như thế nào?": {
+"queries": [
+"수강신청은 언제하고 어떻게 해야 하나요?",
+"Đăng ký môn học khi nào và như thế nào?",
+"when and how to register for classes"
+],
+"info": {
+"rewritten": true,
+"standalone": "수강신청은 언제하고 어떻게 해야 하나요?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 623
+},
+"qwen2.5:7b-instruct␟什么时候、怎么选课？": {
+"queries": [
+"什么时候、怎么选课？",
+"when and how to register for classes",
+"何时와 어떻게 수강신청을 하는지"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 548
+},
+"qwen2.5:7b-instruct␟How do I apply to stay in the dormitory during winter vacation?": {
+"queries": [
+"How do I apply to stay in the dormitory during winter vacation?",
+"how to apply for dormitory stay during winter vacation",
+"겨울 방학 동안 생활관 이용 신청 방법"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 692
+},
+"qwen2.5:7b-instruct␟겨울방학 동안 생활관 입사 신청은 어떻게 하나요?": {
+"queries": [
+"겨울방학 동안 생활관 입사 신청은 어떻게 하나요?",
+"How do I apply for residence hall admission during winter break?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 788
+},
+"qwen2.5:7b-instruct␟Bagaimana cara mendaftar tinggal di asrama selama liburan musim dingin?": {
+"queries": [
+"Bagaimana cara mendaftar tinggal di asrama selama liburan musim dingin?",
+"How to apply for dormitory stay during winter break?",
+"동계방학 동안 아르바이트를 위해 생활관에 머무르는 방법은 어떻게 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 914
+},
+"qwen2.5:7b-instruct␟Làm thế nào để đăng ký ở ký túc xá trong kỳ nghỉ đông?": {
+"queries": [
+"How do I apply for dormitory during winter break?",
+"Làm thế nào để đăng ký ở ký túc xá trong kỳ nghỉ đông?",
+"dormitory application during winter break",
+"동계방학 기간에 생활관 신청 방법"
+],
+"info": {
+"rewritten": true,
+"standalone": "How do I apply for dormitory during winter break?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 634
+},
+"qwen2.5:7b-instruct␟寒假期间如何申请住宿舍？": {
+"queries": [
+"寒假期间如何申请住宿舍？",
+"How to apply for dormitory stay during winter break?",
+"겨울 방학 동안 생활관 이용 신청 방법은?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 643
+},
+"qwen2.5:7b-instruct␟Can I store my luggage on campus during the vacation?": {
+"queries": [
+"Can I store my luggage on campus during the vacation?",
+"방학 중에 캠퍼스에 짐을 보관할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 746
+},
+"qwen2.5:7b-instruct␟방학 중에 교내에 짐을 보관할 수 있나요?": {
+"queries": [
+"방학 중에 교내에 짐을 보관할 수 있나요?",
+"Can I store my luggage on campus during the winter break?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 789
+},
+"qwen2.5:7b-instruct␟Bisakah saya menitipkan barang di kampus selama liburan?": {
+"queries": [
+"Bisakah saya menitipkan barang di kampus selama liburan?",
+"Can I store my belongings on campus during winter break?",
+"겨울 방학 동안 캠퍼스에 물건을 보관할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 830
+},
+"qwen2.5:7b-instruct␟Tôi có thể gửi đồ đạc trong trường trong kỳ nghỉ không?": {
+"queries": [
+"我可以放假期间把物品寄放在学校吗？",
+"Tôi có thể gửi đồ đạc trong trường trong kỳ nghỉ không?",
+"Can I store my belongings at the school during the winter break?",
+"동계방학 때 학교에 짐을 보관할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": "我可以放假期间把物品寄放在学校吗？",
+"topic": "new",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 751
+},
+"qwen2.5:7b-instruct␟放假期间可以把行李存放在学校吗？": {
+"queries": [
+"放假期间可以把行李存放在学校吗？",
+"Can I store my luggage on campus during winter break?",
+"겨울 방학 기간에 학교에 짐을 보관할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 737
+},
+"qwen2.5:7b-instruct␟What do I need to travel abroad and re-enter Korea?": {
+"queries": [
+"What do I need to travel abroad and re-enter Korea?",
+"requirements for traveling abroad and re-entering Korea",
+"해외 여행 후 재입국을 위한 필요한 사항"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 659
+},
+"qwen2.5:7b-instruct␟해외여행 후 한국에 재입국하려면 무엇이 필요한가요?": {
+"queries": [
+"해외여행 후 한국에 재입국하려면 무엇이 필요한가요?",
+"What do I need to do to re-enter Korea after traveling abroad?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 845
+},
+"qwen2.5:7b-instruct␟Apa yang saya perlukan untuk bepergian ke luar negeri lalu masuk kembali ke Korea?": {
+"queries": [
+"Apa yang saya perlukan untuk bepergian ke luar negeri lalu masuk kembali ke Korea?",
+"What do I need to do to travel abroad and then re-enter Korea?",
+"해외 여행 후 한국에 다시 들어올 때 필요한 절차는?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 890
+},
+"qwen2.5:7b-instruct␟Tôi cần gì để đi nước ngoài rồi tái nhập cảnh Hàn Quốc?": {
+"queries": [
+"Tôi cần gì để đi nước ngoài rồi tái nhập cảnh Hàn Quốc?",
+"What do I need to do to go abroad and then re-enter Korea?",
+"외국에 가서 다시 한국에 들어올 때 필요한 것이 무엇인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 789
+},
+"qwen2.5:7b-instruct␟出国旅行后再入境韩国需要什么？": {
+"queries": [
+"出国旅行后再入境韩国需要什么？",
+"What do I need to do to re-enter South Korea after traveling abroad?",
+"해외 여행 후 다시 입국할 때 필요한 절차는 무엇인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 738
+},
+"qwen2.5:7b-instruct␟How do I change my visa status from D-4 to D-2?": {
+"queries": [
+"How do I change my visa status from D-4 to D-2?",
+"change visa status from D-4 to D-2",
+"D-4에서 D-2로 비자 상태 변경 방법"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 726
+},
+"qwen2.5:7b-instruct␟D-4에서 D-2로 체류자격 변경은 어떻게 하나요?": {
+"queries": [
+"D-4에서 D-2로 체류자격 변경은 어떻게 하나요?",
+"How to change stay qualification from D-4 to D-2",
+"D-4에서 D-2로 체류자격 변경 방법"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 778
+},
+"qwen2.5:7b-instruct␟Bagaimana cara mengubah status visa dari D-4 ke D-2?": {
+"queries": [
+"Bagaimana cara mengubah status visa dari D-4 ke D-2?",
+"How to change visa status from D-4 to D-2?",
+"D-4 비자 상태를 D-2로 변경하는 방법은?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 778
+},
+"qwen2.5:7b-instruct␟Làm thế nào để chuyển đổi visa từ D-4 sang D-2?": {
+"queries": [
+"Làm thế nào để chuyển đổi visa từ D-4 sang D-2?",
+"How to change D-4 visa to D-2 visa?",
+"D-4 비자에서 D-2 비자로 변경하는 방법은?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 787
+},
+"qwen2.5:7b-instruct␟如何把签证从D-4变更为D-2？": {
+"queries": [
+"如何把签证从D-4变更为D-2？",
+"How to change a D-4 visa to a D-2 visa?",
+"D-4 비자에서 D-2 비자로 변경하는 방법은?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 766
+},
+"qwen2.5:7b-instruct␟How much does it cost to live in Korea as a student?": {
+"queries": [
+"How much does it cost to live in Korea as a student?",
+"cost of living for a student in Korea",
+"한국에서 학생으로 생활하는 비용"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 651
+},
+"qwen2.5:7b-instruct␟유학생 생활비는 한 달에 얼마 정도 드나요?": {
+"queries": [
+"유학생 생활비는 한 달에 얼마 정도 드나요?",
+"How much does it cost for a foreign student's monthly living expenses?",
+"유학생 생활비는 한 달에 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 767
+},
+"qwen2.5:7b-instruct␟Berapa biaya hidup mahasiswa di Korea?": {
+"queries": [
+"Berapa biaya hidup mahasiswa di Korea?",
+"How much does it cost to live as a student in Korea?",
+"한국에서 생활비는 얼마나 되나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 663
+},
+"qwen2.5:7b-instruct␟Chi phí sinh hoạt của du học sinh ở Hàn Quốc là bao nhiêu?": {
+"queries": [
+"Chi phí sinh hoạt của du học sinh ở Hàn Quốc là bao nhiêu?",
+"What is the cost of living for a foreign student in Korea?",
+"한국에서의 생활비는 얼마나 되나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 725
+},
+"qwen2.5:7b-instruct␟留学生在韩国的生活费大概多少？": {
+"queries": [
+"留学生在韩国的生活费大概多少？",
+"How much does it cost to live in Korea for a student?",
+"한국에서 생활비는 대략 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 661
+},
+"qwen2.5:7b-instruct␟What are the admission requirements for international students at SCH?": {
+"queries": [
+"What are the admission requirements for international students at SCH?",
+"admission requirements for international students at SCH",
+"SCH 해외학생 입학요건"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 598
+},
+"qwen2.5:7b-instruct␟순천향대학교 외국인 유학생 입학 지원 자격은 무엇인가요?": {
+"queries": [
+"순천향대학교 외국인 유학생 입학 지원 자격은 무엇인가요?",
+"eligibility for foreign student admission at Soonchunhyang University",
+"순천대학교 외국인 유학생 입학 지원 자격"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 810
+},
+"qwen2.5:7b-instruct␟Apa persyaratan penerimaan mahasiswa internasional di SCH?": {
+"queries": [
+"Apa persyaratan penerimaan mahasiswa internasional di SCH?",
+"What are the admission requirements for international students at SCH?",
+"SCH의 국제학생 입학 자격 조건은 무엇인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 746
+},
+"qwen2.5:7b-instruct␟Điều kiện tuyển sinh du học sinh quốc tế của SCH là gì?": {
+"queries": [
+"SCH의 국제학생 모집 자격 조건은 무엇인가요?",
+"Điều kiện tuyển sinh du học sinh quốc tế của SCH là gì?",
+"admission requirements for international students at SCH",
+"SCH의 국제학생 모집 자격 조건"
+],
+"info": {
+"rewritten": true,
+"standalone": "SCH의 국제학생 모집 자격 조건은 무엇인가요?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 676
+},
+"qwen2.5:7b-instruct␟顺天乡大学外国留学生的入学申请条件是什么？": {
+"queries": [
+"顺天乡大学外国留学生的入学申请条件是什么？",
+"What are the admission requirements for foreign students at Soonchunhyang University?",
+"순천대학교 외국인 학생의 입학 신청 조건은 무엇인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 835
+},
+"qwen2.5:7b-instruct␟How is the Korean higher education system structured?": {
+"queries": [
+"How is the Korean higher education system structured?",
+"Korean higher education system structure",
+"한국 고등 교육 체계 구조"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 579
+},
+"qwen2.5:7b-instruct␟한국의 고등교육 제도는 어떻게 구성되어 있나요?": {
+"queries": [
+"한국의 고등교육 제도는 어떻게 구성되어 있나요?",
+"How is the higher education system structured in Korea?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 728
+},
+"qwen2.5:7b-instruct␟Bagaimana struktur sistem pendidikan tinggi di Korea?": {
+"queries": [
+"Bagaimana struktur sistem pendidikan tinggi di Korea?",
+"What is the structure of the higher education system in Korea?",
+"한국의 고등 교육 체계 구조는 어떻게 되나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 749
+},
+"qwen2.5:7b-instruct␟Hệ thống giáo dục đại học của Hàn Quốc được tổ chức như thế nào?": {
+"queries": [
+"Hệ thống giáo dục đại học của Hàn Quốc được tổ chức như thế nào?",
+"How is the university education system organized in Korea?",
+"한국의 대학 교육 시스템은 어떻게 조직되어 있는가?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 751
+},
+"qwen2.5:7b-instruct␟韩国的高等教育体系是怎样的？": {
+"queries": [
+"韩国的高等教育体系是怎样的？",
+"What is the higher education system in Korea like?",
+"한국의 고등 교육 체계는 어떻게 되나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 655
+},
+"qwen2.5:7b-instruct␟How can I find a job in Korea after graduation?": {
+"queries": [
+"How can I find a job in Korea after graduation?",
+"how to find a job in Korea after graduation, part-time work, job search",
+"졸업 후 한국에서 일자리를 찾는 방법, 시간제 일, 구직"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 779
+},
+"qwen2.5:7b-instruct␟졸업 후 한국에서 취업하려면 어떻게 해야 하나요?": {
+"queries": [
+"졸업 후 한국에서 취업하려면 어떻게 해야 하나요?",
+"What should I do to work in Korea after graduation?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 739
+},
+"qwen2.5:7b-instruct␟Bagaimana cara mencari kerja di Korea setelah lulus?": {
+"queries": [
+"Bagaimana cara mencari kerja di Korea setelah lulus?",
+"How to find a job in Korea after graduation?",
+"졸업 후 한국에서 일자리를 찾는 방법은?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 686
+},
+"qwen2.5:7b-instruct␟Làm thế nào để tìm việc ở Hàn Quốc sau khi tốt nghiệp?": {
+"queries": [
+"Làm thế nào để tìm việc ở Hàn Quốc sau khi tốt nghiệp?",
+"How to find a job in Korea after graduation?",
+"학번 끝나고 한국에서 어떻게 취업할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 748
+},
+"qwen2.5:7b-instruct␟毕业后怎样在韩国找工作？": {
+"queries": [
+"毕业后怎样在韩国找工作？",
+"How can I find a job in Korea after graduation?",
+"졸업 후 한국에서 어떻게 취업할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 626
+},
+"qwen2.5:7b-instruct␟When is the dormitory healthcare day and refrigerator inspection?": {
+"queries": [
+"When is the dormitory healthcare day and refrigerator inspection?",
+"When is the dormitory health check day and refrigerator inspection?",
+"학舍 건강검진 날짜와 냉장고 점검 날짜는 언제인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 811
+},
+"qwen2.5:7b-instruct␟생활관 헬스케어 데이와 냉장고 점검은 언제인가요?": {
+"queries": [
+"생활관 헬스케어 데이와 냉장고 점검은 언제인가요?",
+"When are the dorm health day and refrigerator inspection?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 916
+},
+"qwen2.5:7b-instruct␟Kapan hari layanan kesehatan dan pemeriksaan kulkas di asrama?": {
+"queries": [
+"Kapan hari layanan kesehatan dan pemeriksaan kulkas di asrama?",
+"When are the health services and refrigerator inspection days at the dorm?",
+"아스레마에서 건강 서비스와 냉장고 점검은 언제 이루어집니까?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 897
+},
+"qwen2.5:7b-instruct␟Ngày chăm sóc sức khỏe và kiểm tra tủ lạnh ở ký túc xá là khi nào?": {
+"queries": [
+"체류지 변경 시 생활관에서 건강검진과 냉장고 점검은 언제 하는지 알려주세요.",
+"Ngày chăm sóc sức khỏe và kiểm tra tủ lạnh ở ký túc xá là khi nào?",
+"When do we do health check-ups and refrigerator inspections at the dormitory when changing residence?"
+],
+"info": {
+"rewritten": true,
+"standalone": "체류지 변경 시 생활관에서 건강검진과 냉장고 점검은 언제 하는지 알려주세요.",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 1081
+},
+"qwen2.5:7b-instruct␟宿舍的健康关怀日和冰箱检查是什么时候？": {
+"queries": [
+"宿舍的健康关怀日和冰箱检查是什么时候？",
+"When are the health care day and refrigerator check in the dormitory?",
+"생활관 건강 케어 날과 냉장고 점검은 언제인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 821
+},
+"qwen2.5:7b-instruct␟Can I go to a hospital in Korea if I am not enrolled in NHIS yet?": {
+"queries": [
+"Can I go to a hospital in Korea if I am not enrolled in NHIS yet?",
+"NHIS에 가입되어 있지 않아도 한국에서 병원에 가실 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 925
+},
+"qwen2.5:7b-instruct␟아직 국민건강보험에 가입하지 않았는데 병원에 갈 수 있나요?": {
+"queries": [
+"아직 국민건강보험에 가입하지 않았는데 병원에 갈 수 있나요?",
+"Can I go to the hospital if I haven't joined the National Health Insurance yet?",
+"국민건강보험에 가입하지 않았는데 병원에 갈 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 934
+},
+"qwen2.5:7b-instruct␟Apakah saya bisa ke rumah sakit di Korea jika belum terdaftar NHIS?": {
+"queries": [
+"我可以去韩国的医院看病吗，如果我没有加入国民健康保险NHIS？",
+"Apakah saya bisa ke rumah sakit di Korea jika belum terdaftar NHIS?",
+"Can I go to the hospital in Korea if I haven't joined NHIS?",
+"NHIS에 가입하지 않았는데 한국 병원에 가서 치료받을 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": "我可以去韩国的医院看病吗，如果我没有加入国民健康保险NHIS？",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 903
+},
+"qwen2.5:7b-instruct␟Tôi chưa tham gia NHIS thì có đi bệnh viện ở Hàn Quốc được không?": {
+"queries": [
+"Tôi chưa tham gia NHIS thì có đi bệnh viện ở Hàn Quốc được không?",
+"Can I go to a hospital in Korea without joining NHIS?",
+"NHIS에 가입하지 않았는데 한국 병원에 가도 되나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 808
+},
+"qwen2.5:7b-instruct␟还没有加入国民健康保险，可以在韩国去医院吗？": {
+"queries": [
+"还没有加入国民健康保险，可以在韩国去医院吗？",
+"Can I go to the hospital in Korea without joining the National Health Insurance?",
+"국민건강보험에 가입하지 않아도 한국에서 병원에 갈 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 831
+},
+"qwen2.5:7b-instruct␟How much is the National Health Insurance premium for international students and how do I pay it?": {
+"queries": [
+"How much is the National Health Insurance premium for international students and how do I pay it?",
+"National Health Insurance premium for international students, how to pay",
+"국민건강보험료 국제학생 비용, 어떻게 납부하나요"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 799
+},
+"qwen2.5:7b-instruct␟유학생 국민건강보험료는 얼마이고 어떻게 내나요?": {
+"queries": [
+"유학생 국민건강보험료는 얼마이고 어떻게 내나요?",
+"How much is the national health insurance premium for international students and how do I pay it?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 788
+},
+"qwen2.5:7b-instruct␟Berapa iuran Asuransi Kesehatan Nasional untuk mahasiswa internasional dan bagaimana cara membayarnya?": {
+"queries": [
+"Berapa iuran Asuransi Kesehatan Nasional untuk mahasiswa internasional dan bagaimana cara membayarnya?",
+"How much is the NHIS premium for international students and how do they pay it?",
+"국민건강보험료는 외국인 학생들에게 얼마인가요? 그리고 어떻게 납부하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 1069
+},
+"qwen2.5:7b-instruct␟Phí bảo hiểm y tế quốc gia cho du học sinh là bao nhiêu và đóng như thế nào?": {
+"queries": [
+"Phí bảo hiểm y tế quốc gia cho du học sinh là bao nhiêu và đóng như thế nào?",
+"How much is the national health insurance fee for international students and how do I pay it?",
+"국민건강보험료는 국제학생에게 얼마이고 어떻게 납부하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 913
+},
+"qwen2.5:7b-instruct␟留学生的国民健康保险费是多少？怎么缴纳？": {
+"queries": [
+"留学生的国民健康保险费是多少？怎么缴纳？",
+"How much is the national health insurance fee for international students and how do they pay it?",
+"국민건강보험료는 외국인 학생들에게 얼마인가요? 어떻게 납부하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 891
+},
+"qwen2.5:7b-instruct␟What TOPIK levels are there and how often is the test held?": {
+"queries": [
+"TOPIK의 등급은 무엇이며 얼마나 자주 시험이 진행됩니까?",
+"What TOPIK levels are there and how often is the test held?",
+"TOPIK levels and frequency of the test",
+"TOPIK 등급과 시험 주기"
+],
+"info": {
+"rewritten": true,
+"standalone": "TOPIK의 등급은 무엇이며 얼마나 자주 시험이 진행됩니까?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 704
+},
+"qwen2.5:7b-instruct␟TOPIK 등급은 어떻게 나뉘고 시험은 얼마나 자주 있나요?": {
+"queries": [
+"TOPIK 등급은 어떻게 나뉘고 시험은 얼마나 자주 있나요?",
+"What are the levels of TOPIK and how often is the test held?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 871
+},
+"qwen2.5:7b-instruct␟Ada tingkat TOPIK apa saja dan seberapa sering ujiannya diadakan?": {
+"queries": [
+"Ada tingkat TOPIK apa saja dan seberapa sering ujiannya diadakan?",
+"What are the levels of TOPIK and how often are the tests held?",
+"TOPIK의 레벨은 무엇이며 얼마나 자주 시험을 치르나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 903
+},
+"qwen2.5:7b-instruct␟TOPIK có những cấp độ nào và bao lâu thi một lần?": {
+"queries": [
+"TOPIK有哪些级别，多久考一次？",
+"TOPIK có những cấp độ nào và bao lâu thi một lần?",
+"TOPIK levels and frequency",
+"TOPIK 등급과 주기"
+],
+"info": {
+"rewritten": true,
+"standalone": "TOPIK有哪些级别，多久考一次？",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 567
+},
+"qwen2.5:7b-instruct␟TOPIK分为哪些级别？多久考一次？": {
+"queries": [
+"TOPIK分为哪些级别？多久考一次？",
+"What levels is TOPIK divided into? How often is it offered?",
+"TOPIK은 몇 개의 단계로 나누어져 있나요? 얼마나 자주 시행됩니까?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 846
+},
+"qwen2.5:7b-instruct␟Can I travel abroad while my visa extension application is pending?": {
+"queries": [
+"Can I travel abroad while my visa extension application is pending?",
+"비자 연장 신청이 진행 중인 상태에서 해외 여행이 가능하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 758
+},
+"qwen2.5:7b-instruct␟Bolehkah saya bepergian ke luar negeri saat permohonan perpanjangan visa masih diproses?": {
+"queries": [
+"Bolehkah saya bepergian ke luar negeri saat permohonan perpanjangan visa masih diproses?",
+"Is it allowed to travel abroad while my visa extension application is being processed?",
+"비자 연장 신청이 진행 중인 상태에서 해외 여행이 가능하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 954
+},
+"qwen2.5:7b-instruct␟签证延期申请还在审理中时可以出国旅行吗？": {
+"queries": [
+"签证延期申请还在审理中时可以出国旅行吗？",
+"Can I travel abroad while my visa extension application is under review?",
+"비자 연장 신청이 심사 중인 상태에서 해외 여행은 가능하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 799
+},
+"qwen2.5:7b-instruct␟What happens if my period of stay expires while I am outside Korea?": {
+"queries": [
+"What happens if my period of stay expires while I am outside Korea?",
+"체류기간이 만료되어Türkiye 외국인등록증이 유효하지 않을 때 어떻게 되나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 870
+},
+"qwen2.5:7b-instruct␟해외에 있는 동안 체류기간이 만료되면 어떻게 되나요?": {
+"queries": [
+"해외에 있는 동안 체류기간이 만료되면 어떻게 되나요?",
+"What happens if my stay period expires while I am abroad?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 809
+},
+"qwen2.5:7b-instruct␟Apa yang terjadi jika masa tinggal saya habis saat saya berada di luar Korea?": {
+"queries": [
+"Apa yang terjadi jika masa tinggal saya habis saat saya berada di luar Korea?",
+"What happens if my stay expires while I am outside of Korea?",
+"마지막 체류기간이 만료되어 한국 외부에서 있을 때 어떻게 되나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 881
+},
+"qwen2.5:7b-instruct␟Nếu thời hạn lưu trú hết khi tôi đang ở nước ngoài thì sao?": {
+"queries": [
+"Nếu thời hạn lưu trú hết khi tôi đang ở nước ngoài thì sao?",
+"What should I do if my stay limit expires while I am abroad?",
+"외국에 있을 때 체류기간이 만료되면 어떻게 해야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 809
+},
+"qwen2.5:7b-instruct␟如果我在国外期间滞留期限到期了会怎样？": {
+"queries": [
+"我在国外期间滞留期限到期了会怎样？",
+"如果我在国外期间滞留期限到期了会怎样？",
+"What happens if my stay period expires while I am abroad?",
+"외국에 있을 때 체류기간이 만료되면 어떻게 되나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": "我在国外期间滞留期限到期了会怎样？",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 729
+},
+"qwen2.5:7b-instruct␟How do I change from a D-2 visa to the D-10 job-seeking visa after graduation?": {
+"queries": [
+"How do I change from a D-2 visa to the D-10 job-seeking visa after graduation?",
+"change D-2 visa to D-10 visa after graduation",
+"D-2 체류비자에서 D-10 취업비자로 변경 방법"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 894
+},
+"qwen2.5:7b-instruct␟졸업 후 D-2에서 D-10 구직비자로 변경하려면 어떻게 하나요?": {
+"queries": [
+"졸업 후 D-2에서 D-10 구직비자로 변경하려면 어떻게 하나요?",
+"How to change from D-2 to D-10 employment visa after graduation?",
+"졸업 후 D-2에서 D-10 구직비자로 변경하는 방법은?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 935
+},
+"qwen2.5:7b-instruct␟Bagaimana cara mengubah visa D-2 ke visa pencari kerja D-10 setelah lulus?": {
+"queries": [
+"Bagaimana cara mengubah visa D-2 ke visa pencari kerja D-10 setelah lulus?",
+"How to change D-2 visa to D-10 employment-seeking visa after graduation?",
+"D-2 비자에서 취업을 위한 D-10 비자를 변경하는 방법은?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 957
+},
+"qwen2.5:7b-instruct␟Sau khi tốt nghiệp, làm thế nào để chuyển từ visa D-2 sang visa tìm việc D-10?": {
+"queries": [
+"Sau khi tốt nghiệp, làm thế nào để chuyển từ visa D-2 sang visa tìm việc D-10?",
+"How to change from D-2 visa to D-10 job search visa after graduation?",
+"학위를 받은 후 D-2 비자에서 D-10 구직 비자로 어떻게 변경하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 1027
+},
+"qwen2.5:7b-instruct␟毕业后如何从D-2签证变更为D-10求职签证？": {
+"queries": [
+"毕业后如何从D-2签证变更为D-10求职签证？",
+"How to change from D-2 visa to D-10 job search visa after graduation?",
+"졸업 후 D-2 비자에서 D-10 구직 비자로 변경하는 방법은?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 915
+},
+"qwen2.5:7b-instruct␟What is the D-2-7 work-learning linked study visa?": {
+"queries": [
+"What is the D-2-7 work-learning linked study visa?",
+"D-2-7 work-learning linked study visa"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 2,
+"dropped_variants": 1,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 712
+},
+"qwen2.5:7b-instruct␟D-2-7 일-학습 연계 유학 비자는 무엇인가요?": {
+"queries": [
+"D-2-7 일-학습 연계 유학 비자는 무엇인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 2,
+"dropped_variants": 1,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 861
+},
+"qwen2.5:7b-instruct␟Apa itu visa studi D-2-7 yang terhubung dengan kerja-belajar?": {
+"queries": [
+"Apa itu visa studi D-2-7 yang terhubung dengan kerja-belajar?",
+"What is D-2-7 visa related to work-study?",
+"D-2-7 비자와 관련된 워크스테이트는 무엇인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 904
+},
+"qwen2.5:7b-instruct␟Visa du học D-2-7 kết hợp vừa học vừa làm là gì?": {
+"queries": [
+"Visa du học D-2-7 kết hợp vừa học vừa làm là gì?",
+"What is D-2-7 visa for study and part-time work?",
+"D-2-7 비자(학업과 파트타임 일 simultaneously)는 무엇인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 895
+},
+"qwen2.5:7b-instruct␟D-2-7工学结合留学签证是什么？": {
+"queries": [
+"D-2-7工学结合留学签证是什么？",
+"What is D-2-7 Special Research Student visa?",
+"D-2-7 특별연구생 비자는 무엇인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 727
+},
+"qwen2.5:7b-instruct␟Which kinds of part-time jobs are international students not allowed to do?": {
+"queries": [
+"Which kinds of part-time jobs are international students not allowed to do?",
+"part-time jobs international students cannot do",
+"국내외 유학생이 할 수 없는 파트타임 일자리"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 708
+},
+"qwen2.5:7b-instruct␟유학생이 할 수 없는 아르바이트 업종은 무엇인가요?": {
+"queries": [
+"유학생이 할 수 없는 아르바이트 업종은 무엇인가요?",
+"What types of part-time jobs are not allowed for international students?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 854
+},
+"qwen2.5:7b-instruct␟Jenis kerja paruh waktu apa yang tidak boleh dilakukan mahasiswa internasional?": {
+"queries": [
+"Jenis kerja paruh waktu apa yang tidak boleh dilakukan mahasiswa internasional?",
+"What part-time jobs are not allowed for international students?",
+"국내외 학생들이 할 수 없는 파트타임 일자리有哪些兼职工作是国际学生不允许做的？"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 902
+},
+"qwen2.5:7b-instruct␟Du học sinh không được làm những loại việc làm thêm nào?": {
+"queries": [
+"Du học sinh không được làm những loại việc làm thêm nào?",
+"What types of part-time jobs are not allowed for international students?",
+"국내에서 유학생이 할 수 없는 파트타임 일자리 유형은?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 776
+},
+"qwen2.5:7b-instruct␟留学生不能做哪些类型的兼职？": {
+"queries": [
+"留学生不能做哪些类型的兼职？",
+"What types of part-time jobs cannot foreign students do?",
+"외국인 학생이 할 수 없는 파트타임 일자리有哪些类型？"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 708
+},
+"qwen2.5:7b-instruct␟Can I start working while my part-time work permit application is still pending?": {
+"queries": [
+"Can I start working while my part-time work permit application is still pending?",
+"부업 허가 신청이 아직 처리 중인 상태에서 일할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 830
+},
+"qwen2.5:7b-instruct␟시간제 취업 허가 신청이 처리 중일 때 일을 시작해도 되나요?": {
+"queries": [
+"시간제 취업 허가 신청이 처리 중일 때 일을 시작해도 되나요?",
+"Can I start working part-time when my application for part-time employment permit is being processed?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 960
+},
+"qwen2.5:7b-instruct␟Bolehkah saya mulai bekerja saat permohonan izin kerja paruh waktu masih diproses?": {
+"queries": [
+"Bolehkah saya mulai bekerja saat permohonan izin kerja paruh waktu masih diproses?",
+"Is it allowed to start working while the part-time work permit application is being processed?",
+"이민청의 시간제 취업 허가 신청이 진행 중인 경우 일할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 991
+},
+"qwen2.5:7b-instruct␟Tôi có được bắt đầu làm khi đơn xin phép làm thêm còn đang chờ xử lý không?": {
+"queries": [
+"I can start working even though my part-time job application is still being processed, right?",
+"Tôi có được bắt đầu làm khi đơn xin phép làm thêm còn đang chờ xử lý không?",
+"Can I start working while my part-time job application is still being processed?",
+"부업 승인 요청이 아직 처리 중이라도 일할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": "I can start working even though my part-time job application is still being processed, right?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 830
+},
+"qwen2.5:7b-instruct␟兼职许可申请还在审批时可以开始工作吗？": {
+"queries": [
+"兼职许可申请还在审批时可以开始工作吗？",
+"Can I start working while my part-time work permit application is still under review?",
+"부업 허가 신청이 아직 심사 중인 상태에서 일할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 830
+},
+"qwen2.5:7b-instruct␟How much does it cost to get a new residence card?": {
+"queries": [
+"How much does it cost to get a new residence card?",
+"cost of a new residence card",
+"신분등록증 발급 비용"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 591
+},
+"qwen2.5:7b-instruct␟외국인등록증을 새로 발급받는 데 비용이 얼마인가요?": {
+"queries": [
+"외국인등록증을 새로 발급받는 데 비용이 얼마인가요?",
+"How much does it cost to get a new foreigner registration certificate?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 896
+},
+"qwen2.5:7b-instruct␟Berapa biaya untuk membuat kartu registrasi orang asing yang baru?": {
+"queries": [
+"Berapa biaya untuk membuat kartu registrasi orang asing yang baru?",
+"How much does it cost to make a new foreigner registration card?",
+"새로운 외국인등록증을 만들 때 비용은 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 824
+},
+"qwen2.5:7b-instruct␟Làm lại thẻ cư trú mới tốn bao nhiêu tiền?": {
+"queries": [
+"Làm lại thẻ cư trú mới tốn bao nhiêu tiền?",
+"How much does it cost to renew a residence card?",
+"새로운 체류증을 만들 때 비용은 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 748
+},
+"qwen2.5:7b-instruct␟补办新的外国人登录证需要多少钱？": {
+"queries": [
+"补办新的外国人登录证需要多少钱？",
+"How much does it cost to get a new foreigner registration certificate?",
+"새로운 외국인등록증을 재발급하는데多少钱？"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 727
+},
+"qwen2.5:7b-instruct␟I received a new passport. Do I need to report it for my residence card?": {
+"queries": [
+"I received a new passport. Do I need to report it for my residence card?",
+"Do I need to report a new passport for my residence card?",
+"새로운 여권을 받았는데 거주증에 신고해야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 802
+},
+"qwen2.5:7b-instruct␟여권을 새로 발급받았는데 외국인등록 사항을 변경 신고해야 하나요?": {
+"queries": [
+"여권을 새로 발급받았는데 외국인등록 사항을 변경 신고해야 하나요?",
+"Do I need to report changes to my foreigner registration after getting a new passport?",
+"새로운 여권을 발급받았으니 외국인등록 사항을 변경 신고해야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 1022
+},
+"qwen2.5:7b-instruct␟Saya mendapat paspor baru. Apakah saya harus melaporkannya untuk kartu registrasi orang asing?": {
+"queries": [
+"Saya mendapat paspor baru. Apakah saya harus melaporkannya untuk kartu registrasi orang asing?",
+"I got a new passport. Do I need to report it for my foreigner registration card?",
+"새로운 여권을 받았습니다. 외국인등록증에 대해 신고해야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 1012
+},
+"qwen2.5:7b-instruct␟Tôi vừa được cấp hộ chiếu mới. Tôi có cần khai báo cho thẻ cư trú không?": {
+"queries": [
+"Tôi vừa được cấp hộ chiếu mới. Tôi có cần khai báo cho thẻ cư trú không?",
+"I just got a new passport. Do I need to report to my residence permit?",
+"나 vừa 새 여권을 받았습니다. 거주비자 신고는 필요하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 904
+},
+"qwen2.5:7b-instruct␟我换了新护照，需要为外国人登录证申报变更吗？": {
+"queries": [
+"我换了新护照，需要为外国人登录证申报变更吗？",
+"Do I need to report a change for my alien registration certificate after getting a new passport?",
+"신분증을 바꾸니 외국인등록증 변경 신고해야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 850
+},
+"qwen2.5:7b-instruct␟What happens if I report my change of address after the 15-day deadline?": {
+"queries": [
+"What happens if I report my change of address after the 15-day deadline?",
+"consequence of reporting change of address after 15-day deadline",
+"15일 이내에 주소 변경 신고를 안하면 어떤 일이 발생하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 830
+},
+"qwen2.5:7b-instruct␟15일이 지나서 체류지 변경 신고를 하면 어떻게 되나요?": {
+"queries": [
+"15일이 지나서 체류지 변경 신고를 하면 어떻게 되나요?",
+"What happens if I report a change of residence after 15 days?",
+"체류지 변경 신고를 15일 후에 하면 어떻게 되나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 897
+},
+"qwen2.5:7b-instruct␟Apa yang terjadi jika saya melaporkan perubahan alamat setelah batas 15 hari?": {
+"queries": [
+"Apa yang terjadi jika saya melaporkan perubahan alamat setelah batas 15 hari?",
+"What happens if I report a change of address after the 15-day limit?",
+"15일 경과 후 주소 변경을 신고하면 어떻게 됩니까?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 918
+},
+"qwen2.5:7b-instruct␟Nếu tôi khai báo đổi địa chỉ sau thời hạn 15 ngày thì sao?": {
+"queries": [
+"Nếu tôi khai báo đổi địa chỉ sau thời hạn 15 ngày thì sao?",
+"What happens if I report a change of address after 15 days?",
+"15일 후에 주소 변경을 신고하면 어떻게 됩니까?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 832
+},
+"qwen2.5:7b-instruct␟如果超过15天才申报地址变更会怎样？": {
+"queries": [
+"15일 이상 지연시 주소 변경 신고의 후속 조치는?",
+"如果超过15天才申报地址变更会怎样？",
+"What happens if address change reporting is delayed by more than 15 days?"
+],
+"info": {
+"rewritten": true,
+"standalone": "15일 이상 지연시 주소 변경 신고의 후속 조치는?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 853
+},
+"qwen2.5:7b-instruct␟Does my university report my dormitory address change automatically?": {
+"queries": [
+"Does my university report my dormitory address change automatically?",
+"Does the university report dormitory address change automatically?",
+"대학이 주거지 변경을 자동으로 보고하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 672
+},
+"qwen2.5:7b-instruct␟기숙사로 이사하면 학교가 체류지 변경을 대신 신고해 주나요?": {
+"queries": [
+"기숙사로 이사하면 학교가 체류지 변경을 대신 신고해 주나요?",
+"Does the school report a change of residence to the immigration authorities on my behalf if I move into the dorm?",
+"기숙사로 이사하면 학교가 체류지 변경을 대신 신고해 줍니까?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 1060
+},
+"qwen2.5:7b-instruct␟Apakah universitas otomatis melaporkan perubahan alamat asrama saya?": {
+"queries": [
+"Apakah universitas otomatis melaporkan perubahan alamat asrama saya?",
+"Does the university automatically report changes to my dorm address?",
+"대학교가 주소 변경을 자동으로 보고하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 767
+},
+"qwen2.5:7b-instruct␟Trường có tự động khai báo thay đổi địa chỉ ký túc xá cho tôi không?": {
+"queries": [
+"Trường có tự động khai báo thay đổi địa chỉ ký túc xá cho tôi không?",
+"Does the school automatically report changes to my dorm address?",
+"학교가 제 주택식당 주소 변경을 자동으로 신고해 줄까요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 854
+},
+"qwen2.5:7b-instruct␟搬进宿舍后，学校会自动帮我申报地址变更吗？": {
+"queries": [
+"搬进宿舍后，学校会自动帮我申报地址变更吗？",
+"Will the school automatically report address change after moving into the dormitory?",
+"학원에 입주한 후 주소 변경을 자동으로 신고해 줄까요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 809
+},
+"qwen2.5:7b-instruct␟How much does public transportation cost in Korea?": {
+"queries": [
+"How much does public transportation cost in Korea?",
+"public transportation cost in Korea",
+"한국의 대중교통 요금"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 539
+},
+"qwen2.5:7b-instruct␟한국에서 대중교통 요금은 얼마인가요?": {
+"queries": [
+"한국에서 대중교통 요금은 얼마인가요?",
+"How much does public transportation cost in Korea?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 675
+},
+"qwen2.5:7b-instruct␟Berapa biaya transportasi umum di Korea?": {
+"queries": [
+"Berapa biaya transportasi umum di Korea?",
+"How much does public transportation cost in Korea?",
+"한국의 공공교통 요금은 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 645
+},
+"qwen2.5:7b-instruct␟Chi phí đi lại bằng phương tiện công cộng ở Hàn Quốc là bao nhiêu?": {
+"queries": [
+"Chi phí đi lại bằng phương tiện công cộng ở Hàn Quốc là bao nhiêu?",
+"How much does it cost to use public transportation in Korea?",
+"한국에서 공공교통을 이용하는 비용은 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 767
+},
+"qwen2.5:7b-instruct␟韩国的公共交通费用是多少？": {
+"queries": [
+"韩国的公共交通费用是多少？",
+"How much does public transportation cost in Korea?",
+"한국의 공공교통 요금은 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 600
+},
+"qwen2.5:7b-instruct␟How do I open a bank account in Korea as an international student?": {
+"queries": [
+"How do I open a bank account in Korea as an international student?",
+"how to open a bank account in Korea for international students",
+"국내 은행 계좌 개설 방법"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 673
+},
+"qwen2.5:7b-instruct␟유학생은 한국에서 은행 계좌를 어떻게 개설하나요?": {
+"queries": [
+"유학생은 한국에서 은행 계좌를 어떻게 개설하나요?",
+"How can international students open a bank account in Korea?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 777
+},
+"qwen2.5:7b-instruct␟Bagaimana cara membuka rekening bank di Korea sebagai mahasiswa internasional?": {
+"queries": [
+"Bagaimana cara membuka rekening bank di Korea sebagai mahasiswa internasional?",
+"How can international students open a bank account in Korea?",
+"국내에서 국제학생으로서 은행 계좌를 개설하는 방법은?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 787
+},
+"qwen2.5:7b-instruct␟Du học sinh mở tài khoản ngân hàng ở Hàn Quốc như thế nào?": {
+"queries": [
+"Du học sinh mở tài khoản ngân hàng ở Hàn Quốc như thế nào?",
+"How can a foreign student open a bank account in Korea?",
+"한국에서 외국인 학생이 은행 계좌를 개설하는 방법은?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 809
+},
+"qwen2.5:7b-instruct␟留学生在韩国怎么开银行账户？": {
+"queries": [
+"留学生在韩国怎么开银行账户？",
+"How can international students open a bank account in Korea?",
+"해외학생이 한국에서 은행 계좌를 개설하는 방법은?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 681
+},
+"qwen2.5:7b-instruct␟What is the application fee for international admission to SCH?": {
+"queries": [
+"What is the application fee for international admission to SCH?",
+"application fee for international admission to SCH",
+"국제학생으로서 Soonchunhyang University의 입학금은 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 704
+},
+"qwen2.5:7b-instruct␟순천향대학교 외국인 특별전형 전형료는 얼마인가요?": {
+"queries": [
+"순천향대학교 외국인 특별전형 전형료는 얼마인가요?",
+"How much is the application fee for the Special Admission Type for Foreigners at Soonchunhyang University?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 955
+},
+"qwen2.5:7b-instruct␟Berapa biaya pendaftaran untuk penerimaan mahasiswa internasional di SCH?": {
+"queries": [
+"Berapa biaya pendaftaran untuk penerimaan mahasiswa internasional di SCH?",
+"What is the application fee for international students at SCH?",
+"SCH 국제학생 모집 접수료는 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 772
+},
+"qwen2.5:7b-instruct␟Lệ phí xét tuyển du học sinh quốc tế vào SCH là bao nhiêu?": {
+"queries": [
+"Lệ phí xét tuyển du học sinh quốc tế vào SCH là bao nhiêu?",
+"What is the admission fee for international students applying to SCH?",
+"국제학생으로 SCH에 지원하는 입학시험 수수료는 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 801
+},
+"qwen2.5:7b-instruct␟顺天乡大学外国人入学的报名费是多少？": {
+"queries": [
+"顺天乡大学外国人入学的报名费是多少？",
+"What is the application fee for foreign students at Soonchunhyang University?",
+"순천향대학교 외국인 입학 신청비는 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 776
+},
+"qwen2.5:7b-instruct␟Which documents do I have to submit when applying to SCH as a new international student?": {
+"queries": [
+"Which documents do I have to submit when applying to SCH as a new international student?",
+"documents for international student application at SCH",
+"국제학생 신청 시 제출해야 하는 서류"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 684
+},
+"qwen2.5:7b-instruct␟순천향대학교 외국인 신입학 지원 시 제출해야 하는 서류는 무엇인가요?": {
+"queries": [
+"순천향대학교 외국인 신입학 지원 시 제출해야 하는 서류는 무엇인가요?",
+"What documents are required for foreign new students applying to Soonchunhyang University?",
+"순천대학교 외국인 신입생 지원 시 제출해야 하는 서류는 무엇인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 977
+},
+"qwen2.5:7b-instruct␟Dokumen apa yang harus saya serahkan saat mendaftar ke SCH sebagai mahasiswa baru internasional?": {
+"queries": [
+"Dokumen apa yang harus saya serahkan saat mendaftar ke SCH sebagai mahasiswa baru internasional?",
+"What documents do I need to submit when applying to SCH as a new international student?",
+"신입 국제학생으로 SCH에 지원할 때 제출해야 하는 서류는 무엇인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 934
+},
+"qwen2.5:7b-instruct␟Khi nộp hồ sơ vào SCH với tư cách tân sinh viên quốc tế, tôi cần nộp những giấy tờ gì?": {
+"queries": [
+"当我作为新国际学生申请进入SCH，我需要提交哪些文件？",
+"Khi nộp hồ sơ vào SCH với tư cách tân sinh viên quốc tế, tôi cần nộp những giấy tờ gì?",
+"What documents do I need to submit when applying to SCH as a new international student?",
+"신입 국제학생으로 SCH에 지원할 때 필요한 서류는 무엇인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": "当我作为新国际学生申请进入SCH，我需要提交哪些文件？",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 841
+},
+"qwen2.5:7b-instruct␟作为外国新生申请顺天乡大学需要提交哪些材料？": {
+"queries": [
+"作为外国新生申请顺天乡大学需要提交哪些材料？",
+"What documents are required for a foreign freshman applying to Soonchunhyang University?",
+"외국인 신입생으로서 숭실대학교에 지원하기 위해 제출해야 하는 서류는 무엇인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 901
+},
+"qwen2.5:7b-instruct␟What is the difference between a regular degree program and a Korean language training program?": {
+"queries": [
+"What is the difference between a regular degree program and a Korean language training program?",
+"difference between regular degree program and Korean language training program",
+"정규 학위 과정과 한국어 교육 과정의 차이"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 782
+},
+"qwen2.5:7b-instruct␟정규 학위과정과 한국어연수 과정은 어떻게 다른가요?": {
+"queries": [
+"정규 학위과정과 한국어 연수 과정은 어떻게 다른가요?",
+"정규 학위과정과 한국어연수 과정은 어떻게 다른가요?",
+"What is the difference between regular degree program and Korean language program?",
+"정규 학위 과정과 한국어 연수 과정은 어떻게 다릅니까?"
+],
+"info": {
+"rewritten": true,
+"standalone": "정규 학위과정과 한국어 연수 과정은 어떻게 다른가요?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 870
+},
+"qwen2.5:7b-instruct␟Apa perbedaan program gelar reguler dan program pelatihan bahasa Korea?": {
+"queries": [
+"Apa perbedaan program gelar reguler dan program pelatihan bahasa Korea?",
+"Difference between regular degree program and Korean language training program",
+"정규학위 과정과 한국어 교육 과정의 차이"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 801
+},
+"qwen2.5:7b-instruct␟Chương trình cấp bằng chính quy và chương trình đào tạo tiếng Hàn khác nhau thế nào?": {
+"queries": [
+"Chương trình cấp bằng chính quy và chương trình đào tạo tiếng Hàn khác nhau thế nào?",
+"What is the difference between regular degree programs and Korean language training programs?",
+"정규 학위 취득 프로그램과 한국어 교육 프로그램은 어떻게 다릅니까?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 896
+},
+"qwen2.5:7b-instruct␟正规学位课程和韩语研修课程有什么区别？": {
+"queries": [
+"正规学位课程和韩语研修课程有什么区别？",
+"What is the difference between regular degree programs and Korean language study programs?",
+"정규 학위 과정과 한국어 연구 과정 사이의 차이점은 무엇인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 843
+},
+"qwen2.5:7b-instruct␟How much is the dormitory fee per day during the 2026 winter vacation?": {
+"queries": [
+"2026년 동계방학 기간 동안 생활관 요금은 하루에 얼마인가요?",
+"How much is the dormitory fee per day during the 2026 winter vacation?",
+"dormitory fee during winter vacation 2026",
+"2026년 동계방학 기간 생활관 요금"
+],
+"info": {
+"rewritten": true,
+"standalone": "2026년 동계방학 기간 동안 생활관 요금은 하루에 얼마인가요?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 882
+},
+"qwen2.5:7b-instruct␟2026 동계방학 생활관비는 하루에 얼마인가요?": {
+"queries": [
+"2026 동계방학 생활관비는 하루에 얼마인가요?",
+"How much is the dorm fee per day during the winter break in 2026?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 924
+},
+"qwen2.5:7b-instruct␟Berapa biaya asrama per hari selama liburan musim dingin 2026?": {
+"queries": [
+"Berapa biaya asrama per hari selama liburan musim dingin 2026?",
+"How much does it cost per day for dormitory during winter break 2026?",
+"2026년 동계방학 동안 주택비는 하루에 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 955
+},
+"qwen2.5:7b-instruct␟Phí ký túc xá mỗi ngày trong kỳ nghỉ đông 2026 là bao nhiêu?": {
+"queries": [
+"Phí ký túc xá mỗi ngày trong kỳ nghỉ đông 2026 là bao nhiêu?",
+"How much is the dormitory fee per day during winter break 2026?",
+"동계방학 2026년에 휴학원 비용은 하루에 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 999
+},
+"qwen2.5:7b-instruct␟2026年寒假期间宿舍费每天多少钱？": {
+"queries": [
+"2026年寒假期间宿舍费每天多少钱？",
+"How much is the dormitory fee per day during the winter break in 2026?",
+"2026년 동계방학 기간에 생활관 요금은 하루에 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 903
+},
+"qwen2.5:7b-instruct␟What happens if I miss the dormitory Healthcare Day check?": {
+"queries": [
+"What happens if I miss the dormitory Healthcare Day check?",
+"What if I miss the dormitory Healthcare Day check?",
+"호관 건강검진 날짜를 놓치면 어떻게 되나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 736
+},
+"qwen2.5:7b-instruct␟생활관 헬스케어 데이에 불참하면 어떻게 되나요?": {
+"queries": [
+"생활관 헬스케어 데이에 불참하면 어떻게 되나요?",
+"What happens if I don't attend the residence hall healthcare day?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 817
+},
+"qwen2.5:7b-instruct␟Apa yang terjadi jika saya tidak hadir pada pemeriksaan Healthcare Day di asrama?": {
+"queries": [
+"Apa yang terjadi jika saya tidak hadir pada pemeriksaan Healthcare Day di asrama?",
+"What happens if I miss the Healthcare Day check-up at the dorm?",
+"건강검진 날에 아르마에서 빠지면 어떻게 되나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 880
+},
+"qwen2.5:7b-instruct␟Nếu tôi vắng mặt trong buổi kiểm tra Healthcare Day ở ký túc xá thì sao?": {
+"queries": [
+"Nếu tôi vắng mặt trong buổi kiểm tra Healthcare Day ở ký túc xá thì sao?",
+"What if I miss the Healthcare Day check-in at the dorm?",
+"건강검진 날짜에 ký túc xá에 미루면 어떻게 해야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 894
+},
+"qwen2.5:7b-instruct␟如果错过宿舍的健康关怀日检查会怎样？": {
+"queries": [
+"만약 생활관 건강 관리일 검사에 참여하지 않으면 어떤 문제가 발생할까요?",
+"如果错过宿舍的健康关怀日检查会怎样？",
+"what happens if I don't participate in the dormitory health management day check?",
+"생활관 건강 관리일 검사에 참여하지 않으면 어떤 문제가 발생할까요?"
+],
+"info": {
+"rewritten": true,
+"standalone": "만약 생활관 건강 관리일 검사에 참여하지 않으면 어떤 문제가 발생할까요?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 902
+},
+"qwen2.5:7b-instruct␟SCH 2027년 2월 졸업식은 언제 해요?": {
+"queries": [
+"SCH 2027년 2월 졸업식은 언제 해요?",
+"When is the graduation ceremony in February 2027 at SCH?",
+"2027년 2월 졸업식은 언제인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 885
+},
+"qwen2.5:7b-instruct␟When is SCH's graduation ceremony in February 2027?": {
+"queries": [
+"When is SCH's graduation ceremony in February 2027?",
+"SCH graduation ceremony in February 2027",
+"2027년 2월 SCH 졸업식은 언제인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 771
+},
+"qwen2.5:7b-instruct␟Kapan upacara wisuda SCH bulan Februari 2027?": {
+"queries": [
+"Kapan upacara wisuda SCH bulan Februari 2027?",
+"When is the graduation ceremony at SCH in February 2027?",
+"2027년 2월 SCH 졸업식은 언제인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 857
+},
+"qwen2.5:7b-instruct␟Lễ tốt nghiệp của SCH vào tháng 2 năm 2027 là ngày nào?": {
+"queries": [
+"Lễ tốt nghiệp của SCH vào tháng 2 năm 2027 là ngày nào?",
+"When is the graduation ceremony of SCH in February 2027?",
+"2027년 2월 SCH 졸업식은 언제인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 871
+},
+"qwen2.5:7b-instruct␟顺天乡大学2027年2月的毕业典礼是哪天？": {
+"queries": [
+"顺天乡大学2027年2月的毕业典礼是哪天？",
+"When is the graduation ceremony at Soonchunhyang University in February 2027?",
+"순천대학교 2027년 2월 졸업식은 언제인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 948
+},
+"qwen2.5:7b-instruct␟학교 이메일 계정은 어떻게 만들어요?": {
+"queries": [
+"학교 이메일 계정은 어떻게 만들어요?",
+"How do I create a school email account?",
+"학교 이메일 계정은 어떻게 만들까요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 613
+},
+"qwen2.5:7b-instruct␟How do I set up my SCH student email account?": {
+"queries": [
+"How do I set up my SCH student email account?",
+"SCH student email account setup",
+"SCH 학생 이메일 계정 설정 방법"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 612
+},
+"qwen2.5:7b-instruct␟Bagaimana cara membuat akun email mahasiswa SCH?": {
+"queries": [
+"Bagaimana cara membuat akun email mahasiswa SCH?",
+"How to create a SCH student email account?",
+"SCH 학생 이메일 계정 만들기 방법?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 655
+},
+"qwen2.5:7b-instruct␟Làm sao để tạo tài khoản email sinh viên của SCH?": {
+"queries": [
+"Làm sao để tạo tài khoản email sinh viên của SCH?",
+"How to create a SCH student email account?",
+"SCH 학생 이메일 계정을 만들려면 어떻게 해야 하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 752
+},
+"qwen2.5:7b-instruct␟怎么开通顺天乡大学的学生邮箱账号？": {
+"queries": [
+"怎么开通顺天乡大学的学生邮箱账号？",
+"How to activate an email account for Soonchunhyang University students?",
+"순천대학교 학생 이메일 계정을 어떻게 개설하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 764
+},
+"qwen2.5:7b-instruct␟유학생 버디 프로그램은 어떻게 신청해요?": {
+"queries": [
+"유학생 버디 프로그램은 어떻게 신청해요?",
+"How do I apply for the international student buddy program?",
+"유학생 버디 프로그램은 어떻게 신청하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 710
+},
+"qwen2.5:7b-instruct␟How do I sign up for the international student buddy program?": {
+"queries": [
+"How do I sign up for the international student buddy program?",
+"international student buddy program sign up",
+"국제학생 친구 프로그램 신청"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 613
+},
+"qwen2.5:7b-instruct␟Bagaimana cara mendaftar program buddy untuk mahasiswa asing?": {
+"queries": [
+"Bagaimana cara mendaftar program buddy untuk mahasiswa asing?",
+"How to register for the buddy program for international students?",
+"국내 대학생과의 친구 프로그램에 어떻게 등록하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 772
+},
+"qwen2.5:7b-instruct␟Đăng ký chương trình buddy cho du học sinh như thế nào?": {
+"queries": [
+"Du học sinh đăng ký chương trình buddy như thế nào?",
+"Đăng ký chương trình buddy cho du học sinh như thế nào?",
+"How do international students sign up for the buddy program?",
+"국내외 학생이 버디 프로그램에 어떻게 신청하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": "Du học sinh đăng ký chương trình buddy như thế nào?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 739
+},
+"qwen2.5:7b-instruct␟留学生伙伴（buddy）项目怎么报名？": {
+"queries": [
+"留学生伙伴（buddy）项目怎么报名？",
+"How do I sign up for the Overseas Student Buddy Program?",
+"해외학생 파트너 프로그램에 어떻게 신청하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 717
+},
+"qwen2.5:7b-instruct␟캠퍼스에서 사물함을 빌릴 수 있어요?": {
+"queries": [
+"캠퍼스에서 사물함을 빌릴 수 있어요?",
+"Can I rent a locker on campus?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 751
+},
+"qwen2.5:7b-instruct␟Can I rent a locker on campus?": {
+"queries": [
+"Can I rent a locker on campus?",
+"campus locker rental",
+"캠퍼스 금고 대여"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 538
+},
+"qwen2.5:7b-instruct␟Bisakah saya menyewa loker di kampus?": {
+"queries": [
+"Bisakah saya menyewa loker di kampus?",
+"Can I rent a locker on campus?",
+"캠퍼스에서 락커를 빌릴 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 719
+},
+"qwen2.5:7b-instruct␟Tôi có thể thuê tủ đồ (locker) trong trường không?": {
+"queries": [
+"我可以租用学校的储物柜吗？",
+"Tôi có thể thuê tủ đồ (locker) trong trường không?",
+"Can I rent a locker at the school?",
+"학교에서 휴대품 보관함을 대여할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": "我可以租用学校的储物柜吗？",
+"topic": "new",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 684
+},
+"qwen2.5:7b-instruct␟在校园里可以租储物柜吗？": {
+"queries": [
+"校园里可以租储物柜吗？",
+"在校园里可以租储物柜吗？",
+"Can we rent storage lockers on campus?",
+"캠퍼스에서 스토리지 락커를 대여할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": "校园里可以租储物柜吗？",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 747
+},
+"qwen2.5:7b-instruct␟학교 와이파이는 어떻게 연결해요?": {
+"queries": [
+"학교 와이파이는 어떻게 연결해요?",
+"How do I connect to the school Wi-Fi?",
+"학교 와이파이는 어떻게 연결하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 632
+},
+"qwen2.5:7b-instruct␟How do I connect to the campus Wi-Fi?": {
+"queries": [
+"How do I connect to the campus Wi-Fi?",
+"campus Wi-Fi connection",
+"캠퍼스 Wi-Fi 연결 방법"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 559
+},
+"qwen2.5:7b-instruct␟Bagaimana cara terhubung ke Wi-Fi kampus?": {
+"queries": [
+"Bagaimana cara terhubung ke Wi-Fi kampus?",
+"How do I connect to the campus Wi-Fi?",
+"캠퍼스 Wi-Fi에 어떻게 연결할 수 있나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 700
+},
+"qwen2.5:7b-instruct␟Làm sao để kết nối Wi-Fi của trường?": {
+"queries": [
+"Làm sao để kết nối Wi-Fi của trường?",
+"How to connect to the school's Wi-Fi?",
+"학교 Wi-Fi를 어떻게 연결하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 645
+},
+"qwen2.5:7b-instruct␟怎么连接学校的Wi-Fi？": {
+"queries": [
+"怎么连接学校的Wi-Fi？",
+"How do I connect to the school's Wi-Fi?",
+"학교 Wi-Fi는 어떻게 연결하나요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 585
+},
+"qwen2.5:7b-instruct␟학생증을 잃어버렸는데 재발급 비용이 얼마예요?": {
+"queries": [
+"학생증을 잃어버렸는데 재발급 비용이 얼마예요?",
+"How much does it cost to replace a student ID?",
+"학생증 재발급 비용은 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 742
+},
+"qwen2.5:7b-instruct␟I lost my SCH student ID card. How much is the replacement fee?": {
+"queries": [
+"I lost my SCH student ID card. How much is the replacement fee?",
+"replacement fee for SCH student ID card",
+"SCH 학생증 재발급 비용"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 652
+},
+"qwen2.5:7b-instruct␟Kartu mahasiswa SCH saya hilang. Berapa biaya penggantiannya?": {
+"queries": [
+"Kartu mahasiswa SCH saya hilang. Berapa biaya penggantinya?",
+"Kartu mahasiswa SCH saya hilang. Berapa biaya penggantiannya?",
+"What is the cost of replacing a SCH student card?",
+"학번 카드가 분실되었습니다. 대체 비용은 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": "Kartu mahasiswa SCH saya hilang. Berapa biaya penggantinya?",
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 814
+},
+"qwen2.5:7b-instruct␟Tôi làm mất thẻ sinh viên SCH, phí làm lại là bao nhiêu?": {
+"queries": [
+"Tôi làm mất thẻ sinh viên SCH, phí làm lại là bao nhiêu?",
+"How much is the fee to replace a SCH student card?",
+"SCH 학생증을 잃어버렸는데 재발급 비용은 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 821
+},
+"qwen2.5:7b-instruct␟我的学生证丢了，补办要多少钱？": {
+"queries": [
+"我的学生证丢了，补办要多少钱？",
+"How much does it cost to replace a student ID?",
+"학생증을 새로 발급하는 데 비용이 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 697
+},
+"qwen2.5:7b-instruct␟기숙사 세탁기는 한 번에 얼마예요?": {
+"queries": [
+"기숙사 세탁기는 한 번에 얼마예요?",
+"How much does it cost to use the laundry machine in the dorm?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 709
+},
+"qwen2.5:7b-instruct␟How much does one load in the dorm washing machine cost?": {
+"queries": [
+"How much does one load in the dorm washing machine cost?",
+"how much does it cost to use the dorm washing machine",
+"학舍 세탁기 이용 비용은?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 645
+},
+"qwen2.5:7b-instruct␟Berapa biaya sekali pakai mesin cuci di asrama?": {
+"queries": [
+"Berapa biaya sekali pakai mesin cuci di asrama?",
+"How much does it cost for a one-time use of a washing machine in the dormitory?",
+"세탁기 한 번 사용하는 비용은 얼마인가요?"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 813
+},
+"qwen2.5:7b-instruct␟Giặt một lần bằng máy giặt ký túc xá mất bao nhiêu tiền?": {
+"queries": [
+"Giặt một lần bằng máy giặt ký túc xá mất bao nhiêu tiền?",
+"How much does it cost to wash one load in the dorm laundry?",
+"기숙사 세탁기로 한 번 세탁하는 데多少钱？"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 817
+},
+"qwen2.5:7b-instruct␟宿舍洗衣机洗一次多少钱？": {
+"queries": [
+"宿舍洗衣机洗一次多少钱？",
+"How much does it cost to wash clothes once in the dormitory laundry machine?",
+"학사실 세탁기로 한 번 세탁하는 데多少钱？"
+],
+"info": {
+"rewritten": true,
+"standalone": null,
+"topic": "same",
+"variants": 3,
+"dropped_variants": 0,
+"rewrite_model": "qwen2.5:7b-instruct"
+},
+"ms": 707
+}
+}

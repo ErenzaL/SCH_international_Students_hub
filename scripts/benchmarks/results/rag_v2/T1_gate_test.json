@@ -1,0 +1,46 @@
+{
+ "baseline": {
+  "frr": 0.105,
+  "frr_with_quote": 0.068,
+  "trr_unanswerable": 0.267,
+  "trr_not_in_sources": 0.0,
+  "n": [
+   190,
+   15,
+   5
+  ]
+ },
+ "hub0.1": {
+  "frr": 0.121,
+  "frr_with_quote": 0.068,
+  "trr_unanswerable": 0.333,
+  "trr_not_in_sources": 0.0,
+  "n": [
+   190,
+   15,
+   5
+  ]
+ },
+ "llm_rewrite": {
+  "frr": 0.184,
+  "frr_with_quote": 0.137,
+  "trr_unanswerable": 0.4,
+  "trr_not_in_sources": 0.0,
+  "n": [
+   190,
+   15,
+   5
+  ]
+ },
+ "hub0.1_llm_rewrite": {
+  "frr": 0.184,
+  "frr_with_quote": 0.137,
+  "trr_unanswerable": 0.4,
+  "trr_not_in_sources": 0.0,
+  "n": [
+   190,
+   15,
+   5
+  ]
+ }
+}

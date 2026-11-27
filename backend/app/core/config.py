@@ -49,6 +49,8 @@ class Settings(BaseSettings):
     chunk_target_tokens: int = 320
     chunk_max_tokens: int = 420
     chunk_overlap_tokens: int = 48
+    # v1 = release behaviour; v2 never drops a heading line that has no body; v2b also reads PDF `#` marks as text
+    chunker_version: str = "v1"
 
     # --- Embeddings ---------------------------------------------------------
     embedding_provider: str = "e5"  # "e5" (sentence-transformers) | "hash" (dev/test only, NOT semantic)
@@ -138,6 +140,12 @@ class Settings(BaseSettings):
     # ``evidence_check`` report in the response's retrieval metadata (still-missing information is recorded).
     assistant_verify_local: bool = True        # a short second look at answers with figures, small local models only
     assistant_evidence_check: bool = False
+    # deterministic evidence-sufficiency gate before generation (assistant/gate.py): off | log | enforce
+    assistant_evidence_gate: str = "log"
+    assistant_gate_similarity: float = 0.82              # without an LLM rewrite (DEV/VAL/negatives sweep)
+    assistant_gate_lexical: float = 0.6
+    assistant_gate_similarity_rewritten: float = 0.86    # after a rewrite (measured with a local proxy model)
+    assistant_gate_lexical_rewritten: float = 0.7
     assistant_evidence_adjacent: bool = True
     assistant_evidence_second_search: bool = True
     assistant_evidence_max_added_passages: int = 4

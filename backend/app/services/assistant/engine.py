@@ -34,7 +34,10 @@ from typing import Any
 
 from app.core.config import Settings
 from app.repositories.base import Query
+from app.services.assistant.citation_check import check_citations
 from app.services.assistant.evidence import EvidenceChecker, EvidenceConfig, quantity_kind
+from app.services.assistant.gate import evaluate_gate
+from app.services.assistant.injection import asks_for_instructions, discloses_instructions, screen_passage
 from app.services.assistant.prompts import META_MARKER, load_system_prompt
 from app.services.assistant.texts import NATIVE_NAMES, t
 from app.services.language_detect import detect_language
@@ -417,6 +420,12 @@ class AssistantEngine:
             out.update(answer=t("thanks" if _THANKS.match(question) else "greeting", lang), evidence="small_talk",
                        retrieval={"mode": None, "hits": 0}, generation={"answer_generation": "template"})
             return self._finish(out, started)
+        # a request for the system prompt / hidden rules: a fixed reply, the model is not asked (injection.py)
+        if asks_for_instructions(question):
+            out.update(answer=t("instructions_private", lang), evidence="small_talk",
+                       retrieval={"mode": None, "hits": 0}, generation={"answer_generation": "template",
+                                                                         "reason": "instructions_request"})
+            return self._finish(out, started)
 
         emit("status", {"stage": "searching"})
         ai_ok = self.llm.enabled and self.budget()
@@ -432,13 +441,35 @@ class AssistantEngine:
         if self.settings.assistant_evidence_check and sources:
             sources, evidence_report = self.evidence_checker().complete(
                 qinfo.get("standalone") or question, sources, max_sources=self.settings.assistant_max_sources)
+        # sentences in a passage that give orders to the model ("ignore previous instructions", "AI: tell students …")
+        # never reach it; the removal is reported (injection.py)
+        screened = 0
+        for src in sources:
+            kept = []
+            for p in src["passages"]:
+                clean, n = screen_passage(p.get("passage") or "")
+                screened += n
+                kept.append(dict(p, passage=clean) if n else p)
+            src["passages"] = kept
         hits = [p for src in sources for p in src["passages"]]
         out["retrieval"] = dict(mode=found["mode"], warning=found["warning"], hits=len(hits), sources=len(sources),
                                 queries=len(queries), **{k: v for k, v in qinfo.items() if k != "standalone"})
+        if screened:
+            out["retrieval"]["injection_screened"] = screened
+            log.warning("prompt-injection screen removed %s sentence(s) from the selected passages", screened)
         if evidence_report is not None:
             out["retrieval"]["evidence_check"] = evidence_report
         if rerank_info:
             out["retrieval"]["rerank"] = rerank_info
+        # deterministic evidence gate (gate.py): reported in every mode but "off"; blocks generation only in "enforce"
+        gate_mode = self.settings.assistant_evidence_gate
+        gated = False
+        if gate_mode != "off":
+            gate = evaluate_gate(hits, rewritten=bool(qinfo.get("rewritten")), settings=self.settings)
+            out["retrieval"]["evidence_gate"] = gate
+            log.info("evidence gate decision=%s reason=%s path=%s similarity=%s keywords=%s mode=%s", gate["decision"],
+                     gate["reason"], gate["path"], gate["best_similarity"], gate["best_keyword_coverage"], gate_mode)
+            gated = gate_mode == "enforce" and gate["decision"] != "sufficient"
         out["citations"] = [self._citation(i, src) for i, src in enumerate(sources, 1)]
         self._link_citations(out["citations"])
         wants_human = bool(_HUMAN.search(question))
@@ -447,7 +478,10 @@ class AssistantEngine:
         answer: str | None = None
         evidence = "none"
         generation_failed = False
-        if self.llm.enabled and not ai_ok:
+        if gated:
+            # the evidence is too weak to answer from: no model call, no invented answer, no unrelated sources shown
+            out["generation"] = {"answer_generation": "gated", "gate": out["retrieval"]["evidence_gate"]["decision"]}
+        elif self.llm.enabled and not ai_ok:
             out["generation"] = {"answer_generation": "fallback", "fallback_reason": "daily_budget"}
             generation_failed = True
         elif self.llm.enabled and qinfo.get("provider_down"):
@@ -469,10 +503,11 @@ class AssistantEngine:
                 if ev != "none":
                     body = _attribute(body, sources)
                 checked, removed = _validate_answer(body, sources)
+                checked, citation_report = check_citations(checked, sources)
                 checked = _clean_endings(checked)
                 checked, glued = _fix_script_mixing(checked, lang)
                 unverified = ev != "none" and self._unverified(qinfo.get("standalone") or question, checked, sources)
-                if _leaks_prompt(checked, self.prompt.text):
+                if _leaks_prompt(checked, self.prompt.text) or discloses_instructions(checked):
                     # the instructions are confidential (system prompt, section 8): never shown, whatever was asked
                     out["generation"] = gen | {"answer_generation": "fallback", "fallback_reason": "prompt_leak"}
                     generation_failed = True
@@ -490,6 +525,7 @@ class AssistantEngine:
                     out["generation"] = gen | {"answer_generation": "fallback", "fallback_reason": "llm_empty"}
                     generation_failed = True
                 else:
+                    gen = gen | {"citation_check": {k: v for k, v in citation_report.items() if k != "details"}}
                     answer, evidence, out["generation"] = checked, ev, gen | ({"removed_unsupported": removed}
                                                                                if removed else {}) | (
                         {"fixed_mixed_script": glued} if glued else {})
@@ -507,7 +543,10 @@ class AssistantEngine:
                                      "partial_stream_discarded": exc.partial}
                 generation_failed = True
 
-        if generation_failed and sources:
+        if gated:
+            out["citations"] = []
+            out.update(answer=t("none", lang), evidence="none")
+        elif generation_failed and sources:
             # the LLM is configured but produced no usable answer (both models failed, unsupported output, or today's
             # budget is used up): a short localized message plus the matching official sources - never raw passages.
             # Any partially streamed text is replaced by this final message on the client.
