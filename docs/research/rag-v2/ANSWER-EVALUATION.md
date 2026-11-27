@@ -31,21 +31,55 @@ value of retrieval. The fair baseline asks real questions about the real corpus,
 address report, TOPIK levels) can be known without sources and SCH-specific facts (dates, fees, rooms) cannot.
 
 The refusal headline did not survive either. On real-corpus negatives the proxy abstained on **60 %** (DEV-negatives)
-and 60 % (TEST unanswerable + not-in-sources), not 100 %. The synthetic unanswerable questions were far from every
+and 60 % (TEST unanswerable + not-in-sources), not 100 %, although on TEST it stated no invented figure. The synthetic unanswerable questions were far from every
 document, while real ones sit next to related text (home internet for campus Wi-Fi, the residence-card fee for a
 student-ID fee).
 
 ## 3. Results
 
-ANSWER_RESULTS
+TEST (frozen, 210 questions; `A9_test_memory_answers.json`), retrieval = RC configuration, real rewrite step with the
+proxy model; 95 % intervals over needs:
+
+| Answerable + conflicting (190) | with retrieval | closed book (same model, no sources) |
+|---|---|---|
+| **figure recall** (gold figures stated in the answer) | **0.59 [0.38, 0.78]** | **0.02 [0.00, 0.07]** |
+| abstained | 0.163 [0.10, 0.23] | 0.00 (never abstains; "not known" phrases in 15 %) |
+| cited sources that are grade-2 / grade ≥ 1 | 0.751 / 0.802 | — |
+| a cited passage contains a gold quote | 0.733 [0.61, 0.84] | — |
+| wrong language | 0.000 | 0.116 (English questions: 47 %, answered in Korean or Japanese) |
+| fallbacks (no citations 1, output truncated 1) | 2 | — |
+
+| Unanswerable (15) + not in sources (5) | with retrieval | closed book |
+|---|---|---|
+| abstained (formal "not in the approved sources" class) | 12 / 20 (unanswerable 10 / 15, not-in-sources 2 / 5) | 0 / 20 |
+| stated an invented fee / figure | **0 / 20** (the automatic metric flags 2 Vietnamese / Chinese answers to the D-2-fee question; the only figure in them is the immigration number 1345, checked by hand) | 2 / 5 not-in-sources (KRW 30,000–40,000; "10–20") |
+
+By language, with retrieval (figure recall / abstained): en 0.68 / 0.21, id 0.67 / 0.13, ko 0.66 / 0.11,
+**vi 0.37 / 0.24**, zh-CN 0.57 / 0.13. Vietnamese is the weakest, in line with the proxy's Vietnamese rewrites
+(MULTILINGUAL-RESULTS §3).
+
+DEV + VALIDATION + DEV-negatives (A1; no gold figures in DEV / VAL): abstained 0.07 / 0.13 on answerable, 0.60 on
+negatives; invented figure 3 / 35 negatives (the residence-card fee given as a student-ID fee); wrong language 0.
+
+**Reading.** Retrieval is what makes figures right: 59 % against 2 % closed book on the same real questions. The
+remaining gap is partly abstention (16 % of answerable questions, more in Vietnamese) and partly passages that never
+reach the model (RETRIEVAL-RESULTS §6).
 
 ## 4. Conflicting and missing information
 
-ANSWER_CONFLICT
+- **WRK-02** (25 weekday hours in the 2026-reviewed article vs 20 in the 2021 guidebook): all five answers state
+  **25 hours**, the newer value, and **none mentions the older source or the disagreement** (0 / 5 surfaced the
+  conflict). The answer is the better-supported one, but the student is not told that an older official text says
+  otherwise. The prompt's conflict instruction was not followed by the proxy; Gemini is unmeasured.
+- **VIS-11** (D-2 extension fee, deliberately not stated by the sources): **no answer gives a fee** (5 / 5). Two are
+  formal abstentions; three say in their own words that the fee is not specified and point to HiKorea / 1345.
 
 ## 5. Evidence gate on answers (simulated `enforce`)
 
-ANSWER_GATE
+Recomputed from the TEST answer rows (gate decision logged per answer): enforcing the frozen thresholds would raise
+abstention on **answerable** questions from 31 to **60 of 190** (16 % → 32 %) and on unanswerable / not-in-sources
+from 12 to 14 of 20. On DEV / VAL the same simulation added only 2–3 refusals. **Do not enforce**; the logged decision
+stays useful for monitoring (PRODUCTION-READINESS §4).
 
 ## 6. Gemini: blocked, prepared
 

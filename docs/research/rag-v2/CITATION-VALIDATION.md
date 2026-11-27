@@ -26,8 +26,9 @@ DEV + VALIDATION + DEV-negatives (A1, 235 turns; 212 with a generated, cited ans
 | sentences with figures but no marker, in an answer that cites elsewhere | 86 (their figures still had to appear in some selected source) |
 | answers replaced by the fallback (unsupported 1, no citations 1, wrong language 2, truncated 1) | 5 |
 
-TEST results: ANSWER-EVALUATION.md §3 (citation precision against the graded labels and "a cited passage contains a
-gold quote").
+TEST (A9, 210 turns, local proxy): 39 cited figure sentences checked, 38 supported, 1 re-attributed, 0 ambiguous; 53
+uncited figure sentences. Against the graded labels: **75.1 %** of cited sources are grade-2 documents (80.2 % grade
+≥ 1), and in **73.3 % [61, 84]** of answered questions a cited passage contains a gold quote.
 
 ## 3. What these checks cannot catch
 
@@ -37,8 +38,8 @@ gold quote").
 - **Wording without figures** (procedures, yes / no answers) is not checked; that needs human rating
   (`A*_human_rating.csv`).
 - **Contradicting sources.** The checks keep a figure if any cited source states it. For the one genuine conflict in
-  TEST (WRK-02: 25 weekday hours in the 2026-reviewed article vs 20 in the 2021 guidebook), whether the answer mentions
-  both values is reported in ANSWER-EVALUATION.md.
+  TEST (WRK-02: 25 weekday hours in the 2026-reviewed article vs 20 in the 2021 guidebook), all five proxy answers gave
+  25 hours and none mentioned the older value (ANSWER-EVALUATION §4).
 
 ## 4. Recommendation
 

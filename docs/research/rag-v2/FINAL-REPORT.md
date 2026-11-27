@@ -27,7 +27,14 @@ What did **not** work, and was therefore not adopted: **hub scaling** (won on DE
 
 ## 2. Git status
 
-ANSWER_GIT_STATUS
+- Branch `research/rag-reliability-v2` in the worktree `~/projects/sch-hub-rag-v2`, created from the release candidate
+  `school/rc-2026-11-27` @ `8fd791b`; all work is in local commits on top (`git log --oneline 8fd791b..HEAD`). The commit that
+  adds this report is the latest one.
+- **No upstream is configured and nothing was pushed** (`git rev-parse @{u}` → "no upstream configured"). No merge, no
+  deploy, no migration (none was written), no production database, schedule, credential or announcement was touched.
+- The RC branch is unchanged; its backup tag `backup/2026-11-28/school-rc-2026-11-27` exists.
+- Not committed on purpose: the corpus snapshot and the validation set (`backend/.eval-cache/`, gitignored because the
+  repository is public), and the local rewrite cache (its content is copied to `results/rag_v2/rewrites_qwen2.5-7b.json`).
 
 ## 3. Baseline reproduction
 
@@ -91,11 +98,39 @@ and still gives the largest gain. Release 1 translation scope (ko / en / id) is 
 
 ## 8. Gemini RAG evaluation
 
-ANSWER_SECTION_8
+**Gemini: blocked.** There is no Gemini key on the school server and production secrets must not be copied here, so
+**no Gemini answer and no Gemini rewrite was measured.** A capped command is prepared (ANSWER-EVALUATION §6). It refuses
+to run without the key, a question cap, owner-supplied prices and `--confirm-paid-run`. A full TEST run is about
+1.2 M input and 0.06 M output tokens before thinking tokens.
+
+**Measured instead, with a local proxy (Qwen 2.5 7B for rewrite and answer), the full production pipeline** on TEST:
+
+| | with retrieval (RC configuration) | closed book, same model |
+|---|---|---|
+| gold figures stated in the answer (answerable, 190) | **0.59 [0.38, 0.78]** | 0.02 [0.00, 0.07] |
+| abstained on answerable questions | 0.163 | 0.00 |
+| a cited passage contains a gold quote | 0.733 [0.61, 0.84] | — |
+| wrong-language answers | 0.000 | 0.116 |
+| unanswerable / not-in-sources: abstained, invented figure | 12 / 20, **0 / 20** | 0 / 20, 2 / 5 invented fees |
+
+The release candidate's "0 % without sources" was an artefact of synthetic documents with invented figures; on real
+questions it is 2 %. Its "100 % refusal" was also synthetic: on real negatives the proxy abstained on 60 %.
 
 ## 9. Faithfulness and citation reliability
 
-ANSWER_SECTION_9
+Method: deterministic checks only (ANSWER-EVALUATION §1, CITATION-VALIDATION §1). Unsupported figures are removed, a figure
+cited to the wrong source is re-attributed (new), links not in the evidence are neutralised, and an answer without valid
+citations falls back to the sources. Results (proxy): DEV / VAL 104 of 112 cited figure sentences supported, 7
+re-attributed, 1 ambiguous; TEST 38 of 39 supported, 1 re-attributed; 75 % of cited sources are grade-2 documents; 73 %
+of answers cite a passage with a gold quote.
+
+Outstanding risks:
+1. **Entity substitution**: a figure that is correct for another thing (residence-card fee for a student-ID fee)
+   passes every figure check.
+2. **Conflicts are not surfaced**: for the one real conflict, all five answers gave the newer value and none mentioned the
+   older source.
+3. Uncited sentences with figures (53 on TEST) are only checked against "some" source.
+4. No human faithfulness rating yet.
 
 ## 10. Safety and source integrity
 
@@ -117,7 +152,17 @@ model would not fit in 512 MB. Hosted latency: not measured. PERFORMANCE.md.
 
 ## 12. Test results
 
-ANSWER_SECTION_12
+| Suite | Passed | Failed | Skipped | Notes |
+|---|---|---|---|---|
+| backend unit / component (`pytest tests/`) | **1,073** | 0 | 53 | the 53 skipped need a scratch database and run in the next row |
+| PostgreSQL integration (`pytest tests/integration` on a scratch stack) | **100** | 0 | 9 | RC 94 + 6 new visibility tests; the 9 skips are as in the RC |
+| SQL behaviour suites | **15** | 0 | 0 | run by `scratch_db.sh start` |
+| prompt-injection suite (proxy) | 11 | 0 | 0 | 7 / 11 before the screens |
+| regression script / negative control | exit 0 / exit 1 | — | — | as intended |
+| test-set freeze check | OK | — | — | hash unchanged |
+| web (Next.js) | — | — | — | **untested here**: no frontend change on this branch (RC: 261 passed) |
+| browser journeys | — | — | — | **untested here**: no UI change (RC: 168 / 168) |
+| hosted staging, production, Gemini | — | — | — | **untested** (blocked) |
 
 ## 13. Research artifacts
 
@@ -158,4 +203,28 @@ ANSWER_SECTION_12
 
 ## 16. Final recommendation
 
-ANSWER_SECTION_16
+**Configuration for the application** (no new cost, no new memory):
+
+| Part | Setting | Evidence |
+|---|---|---|
+| retrieval ranking | unchanged RC weighted hybrid (vector 1.0, keyword 0.35, glossary bridge 0.75, min similarity 0.80), **hub scaling off** | hub scaling lost 0.112 MRR on guide-answered TEST needs |
+| query rewrite | **keep Gemini Flash-Lite rewrite on every turn** (already in production); monitor failures | biggest measured gain: gold passage reaches the model 64 % → 86 % (proxy) |
+| chunking | **chunker v2 after a staging re-index** | 13 % of approved text becomes searchable; neutral where the rewrite runs |
+| safety | injection screens + per-citation check (always on); evidence gate **`log`** | 11 / 11 injection cases; gate not reliable enough to enforce (would refuse 32 % of answerable TEST questions) |
+| reranker / larger embeddings | **no** | do not fit 512 MB |
+
+Trade-off: everything recommended runs in the existing API process for < 1 ms per answer, needs no model, no paid
+service and no university GPU. The rewrite already costs one Flash-Lite call per turn, and that call is where the
+quality comes from. The price of keeping hub scaling off is a lower first-position rank for specific documents when a
+guidebook also answers; the TEST evidence says students lose more when guides are pushed down.
+
+**Classification**
+
+| Level | What |
+|---|---|
+| Locally implemented | chunker v2 / v2b, evidence gate (log), per-citation check, injection screens, monitoring fields, evaluation framework, frozen TEST set, DEV-negatives, regression script, visibility test, `scratch_db.sh` fix |
+| Locally evaluated | everything above, on DEV / VAL / TEST in memory and on real PostgreSQL + pgvector; answers with a **local proxy** model only |
+| Human-validated | **nothing** (labels, questions, answers unreviewed) |
+| Hosted staging verified | **nothing** |
+| Production verified | **nothing** (production untouched) |
+| Blocked | Gemini rewrite and answer quality (no key, paid run needs approval); human validation; staging; production re-index |
