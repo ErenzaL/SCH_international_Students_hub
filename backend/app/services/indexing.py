@@ -18,7 +18,7 @@ from typing import Any
 from app.core.config import Settings
 from app.core.errors import EmbeddingUnavailable
 from app.repositories.base import Query, Store, get_one
-from app.services.chunking import CHUNKER_VERSION, ChunkerConfig, chunk_text
+from app.services.chunking import ChunkerConfig, chunk_text, chunker_version
 from app.services.document_titles import version_title
 from app.services.embeddings.base import EmbeddingError, EmbeddingProvider
 from app.services.ingestion.normalize import text_fingerprint
@@ -33,7 +33,8 @@ class IndexingService:
         self.embedder = embedder
         self.settings = settings
         self.dimensions = settings.embedding_dimensions
-        self.cfg = ChunkerConfig(settings.chunk_target_tokens, settings.chunk_max_tokens, settings.chunk_overlap_tokens)
+        self.cfg = ChunkerConfig(settings.chunk_target_tokens, settings.chunk_max_tokens, settings.chunk_overlap_tokens,
+                                 settings.chunker_version)
 
     def index_version(self, version_id: str, *, raise_on_embedding_error: bool = False, embed: bool | None = None,
                       progress: Callable[[int, int], None] | None = None) -> dict[str, Any]:
@@ -88,7 +89,7 @@ class IndexingService:
                 dict(
                     version_id=version_id, chunk_index=c.index, heading=c.heading, content=c.content,
                     content_hash=hashes[i], token_count=c.token_count, page_start=c.page_start, page_end=c.page_end,
-                    chunk_strategy=CHUNKER_VERSION, embedding=emb,
+                    chunk_strategy=chunker_version(self.cfg), embedding=emb,
                     embedding_model=self.embedder.model_id if emb is not None else None,
                 )
             )

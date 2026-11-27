@@ -249,7 +249,7 @@ def evaluate_split(split: str, svc, l2p: dict[str, str], iinfo: dict[str, Any], 
                bootstrap="percentile, resampling information needs, 5000 resamples", results=results,
                paired_vs_baseline=comparisons)
     RESULTS.mkdir(parents=True, exist_ok=True)
-    path = RESULTS / f"{a.tag}_{split}_{a.backend}.json"
+    path = RESULTS / f"{a.tag}_{split}_{a.backend}{'' if a.chunker == 'v1' else '_' + a.chunker}.json"
     path.write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"wrote {path.relative_to(ROOT)}")
     for c in comparisons:
@@ -267,7 +267,9 @@ def main() -> int:
     ap.add_argument("--tag", required=True, help="experiment id, used in the result file name (see EXPERIMENT-LOG.md)")
     ap.add_argument("--final", action="store_true", help="required for TEST: the final, pre-registered run")
     ap.add_argument("--reuse-index", action="store_true", help="postgres: reuse the index this script built on the stack")
+    ap.add_argument("--chunker", choices=["v1", "v2", "v2b"], default="v1", help="chunker version of the index")
     a = ap.parse_args()
+    os.environ["CHUNKER_VERSION"] = a.chunker      # read by Settings when the index is built
     splits = a.split.split(",")
     if any(sp not in ("dev", "val", "test") for sp in splits):
         raise SystemExit("--split: dev, val, test")
@@ -276,6 +278,7 @@ def main() -> int:
     corpus = json.loads(CORPUS.read_text(encoding="utf-8"))
     cfgs = [resolve(c) for c in a.configs.split(",")]
     svc, l2p, iinfo = build_memory(corpus, a.seed) if a.backend == "memory" else build_postgres(corpus, a.reuse_index)
+    iinfo = dict(iinfo, chunker=a.chunker)
     print(f"index: {iinfo}", flush=True)
     for sp in splits:
         evaluate_split(sp, svc, l2p, iinfo, corpus, cfgs, a)

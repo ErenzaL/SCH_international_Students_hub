@@ -49,6 +49,8 @@ class Settings(BaseSettings):
     chunk_target_tokens: int = 320
     chunk_max_tokens: int = 420
     chunk_overlap_tokens: int = 48
+    # v1 = release behaviour; v2 never drops a heading line that has no body; v2b also reads PDF `#` marks as text
+    chunker_version: str = "v1"
 
     # --- Embeddings ---------------------------------------------------------
     embedding_provider: str = "e5"  # "e5" (sentence-transformers) | "hash" (dev/test only, NOT semantic)

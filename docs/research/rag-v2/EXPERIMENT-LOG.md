@@ -12,6 +12,19 @@ Runs on TEST are marked **TEST LOOK** and are allowed only in the final pre-regi
 | E1s | 2026-11-27 | baseline, memory, chunk-id seeds 1 / 2 / 3 (tie-break sensitivity) | DEV, VALIDATION | `E1seed{1,2,3}_{dev,val}_memory.json` | first-relevant rank changes for 2 / 100 (DEV) and 1 / 100 (VAL) questions; hit@1 ± 0.01 |
 | E2 | 2026-11-27 | **real PostgreSQL 17.12 + pgvector 0.8.1 (HNSW) + PostgREST + all migrations**, configs baseline / vector / keyword / no_bridge / hybrid_legacy | DEV, VALIDATION | `E2_{dev,val}_postgres.json` | baseline DEV hit@1 0.69, MRR 0.782; VAL 0.52, 0.655 [0.536, 0.767] (lenient 0.735 [0.635, 0.825]; question-level would give [0.660, 0.803]); same first-relevant rank as memory for 98 / 100 on both |
 | F1 | 2026-11-27 | finding, not a run: chunker drops consecutive heading lines | corpus | BASELINE-AUDIT.md §2 stage 3 | 57.7 % of the Korean guidebook's text and 13.3 % of the corpus in no chunk; 3 / 57 test quotes affected |
+| E3 | 2026-11-27 | chunker v2 / v2b (no text lost) with the baseline ranking, memory | DEV, VALIDATION | `E3_{dev,val}_memory_v2{,b}.json` | v2 − v1: hit@1 −0.09 [−0.16, −0.03] DEV, −0.11 [−0.21, −0.03] VAL; primary in context +0.02 / +0.02. The now complete Korean guidebook ranks first more often (some of those passages answer the question but are unlabelled in DEV/VAL, others are noise) |
+| E4 | 2026-11-27 | hub scaling sweep β ∈ {0.05 … 1.0} × chunker v1 / v2 / v2b, memory | **DEV only** | `E4*_dev_memory*.json` | best on DEV: small β. v1+β0.05 hit@1 0.79 MRR 0.849 ctx 0.92; v2+β0.05 0.77 / 0.838 / 0.96; v2+β0.1 0.76 / 0.836 / 0.96; v2b+β0.1 0.77 / 0.839 / 0.96; β ≥ 0.5 worse |
+
+### P1 — selection rule for chunker × hub scaling, written BEFORE the VALIDATION run of E5
+
+Candidates: chunker {v1, v2, v2b} × hub β {0, 0.05, 0.1} (9 cells; all reported).
+Primary metric: `ctx_doc_hit` (the primary document is among the sources the answer model reads); secondary: strict MRR.
+A candidate may replace the baseline (v1, β 0) only if, on VALIDATION, paired against the baseline:
+the 95 % interval of the `ctx_doc_hit` difference has a lower bound > −0.03 **and** that of the MRR difference > −0.02.
+Among qualifying candidates: the v2 family is preferred to v1 when their VALIDATION MRR differs by < 0.02 (v1 drops
+text, a correctness defect independent of these metrics); then the highest VALIDATION MRR; ties → smaller β.
+If no candidate qualifies, the baseline stays and chunker v2 is reported as a correctness fix with its measured cost.
+The chosen configuration and the baseline are the two configurations run on TEST in the final run.
 
 Notes
 - E0: ties in the in-memory store are broken by random chunk UUIDs, so results can differ between

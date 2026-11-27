@@ -19,6 +19,9 @@ CONFIGS: dict[str, dict[str, Any]] = {
     "keyword": dict(mode="keyword", settings={}, desc="full-text leg only (to_tsvector('simple') + ILIKE + exact terms)"),
     "hybrid_legacy": dict(mode="hybrid_legacy", settings={}, desc="RRF fusion inside the SQL function (before Release A)"),
     "no_bridge": dict(mode="hybrid", settings={"retrieval_bridge_weight": 0.0}, desc="baseline without the glossary bridge"),
+    # long documents scaled by (median chunks per document / their chunks) ** beta (RetrievalService, exists, off)
+    **{f"hub{b}": dict(mode="hybrid", settings={"retrieval_hub_beta": float(b)},
+                       desc=f"baseline + hub scaling beta {b}") for b in ("0.05", "0.1", "0.15", "0.2", "0.25", "0.5", "1.0")},
 }
 
 
