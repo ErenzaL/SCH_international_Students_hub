@@ -55,6 +55,12 @@ No Render access from here. The production services' environment differs from `r
 `EMBEDDING_PROVIDER` is `e5` live and `e5_onnx` in the blueprint). Values were set by hand, so **a deploy changes the code
 only, not the environment variables.** Settings to change by hand: FINAL-PRODUCTION-CHECKLIST §3.
 
-## 5. Hosted smoke tests after the deploy
+## 5. Local tests of the release
+
+Backend 1,072 passed / 0 failed; frontend 261 passed, type check and lint clean; PostgreSQL integration 100 passed (all
+migrations) and 93 passed (schema 0015 only); SQL suites 15 / 15; browser journeys 114 / 115 (one 60-second timeout of the
+local model on the Chinese desk), re-run of the chat journey 15 / 15. Details: TEST-REPORT.md.
+
+## 6. Hosted smoke tests after the deploy
 
 Not run (nothing deployed). The checklist §4 lists them, and the read-only part can be repeated from any computer.
