@@ -25,6 +25,8 @@ Among qualifying candidates: the v2 family is preferred to v1 when their VALIDAT
 text, a correctness defect independent of these metrics); then the highest VALIDATION MRR; ties → smaller β.
 If no candidate qualifies, the baseline stays and chunker v2 is reported as a correctness fix with its measured cost.
 The chosen configuration and the baseline are the two configurations run on TEST in the final run.
+| E5 | 2026-11-27 | **P1 run**: chunker {v1, v2, v2b} × hub β {0, 0.05, 0.1}, memory | VALIDATION | `E5_val_memory{,_v2,_v2b}.json` | qualifying under P1: v1+β0.05 (MRR 0.729), **v1+β0.1 (0.737)**, v2+β0.1 (0.715). v2 trails the best v1 by 0.022 ≥ 0.02, so **P1 selects v1 + β0.1** (ctx +0.05 [+0.01, +0.10], MRR +0.081 [+0.016, +0.153] vs baseline). v2+β0.1 − v1+β0.1: VAL ctx 0.00 [−0.03, +0.03], MRR −0.022 [−0.047, +0.002], hit@1 −0.05 [−0.09, −0.01]; DEV ctx +0.04 [+0.01, +0.08], MRR 0.000 |
+| E6 | 2026-11-27 | query variants in the assistant stage: oracle en / en+ko (the same need's other-language question), local rewrite proxy (engine `_queries` with Qwen 2.5 7B on loopback Ollama, temperature 0, cached in `backend/.eval-cache/rag_v2_rewrites.json`), each with and without hub β0.1 | DEV, then VALIDATION | `E6_{dev,val}_memory.json` | VAL vs baseline: Qwen rewrite ctx +0.08 [+0.01, +0.16], fused MRR +0.107 [+0.042, +0.178]; **hub β0.1 + Qwen rewrite ctx 0.94 (+0.14 [+0.04, +0.25]), fused MRR 0.808 (+0.168 [+0.056, +0.284])**; oracle en/ko + β0.1 ctx 0.98. DEV agrees (β0.1 + rewrite ctx 0.98, fused MRR +0.105 [+0.02, +0.198]) |
 
 Notes
 - E0: ties in the in-memory store are broken by random chunk UUIDs, so results can differ between

@@ -153,10 +153,63 @@ def passage_text(h: dict[str, Any]) -> str:
     return f"{h.get('heading') or ''}\n{h.get('passage') or ''}"
 
 
-def run_config(svc, l2p: dict[str, str], records: list[dict[str, Any]], cfg: dict[str, Any]) -> list[dict[str, Any]]:  # type: ignore[no-untyped-def]
+REWRITE_CACHE = ROOT / "backend" / ".eval-cache" / "rag_v2_rewrites.json"
+F_KEYS = ("hit@1", "hit@3", "hit@10", "mrr", "mrr_len", "ndcg@10", "rank")
+
+
+class Rewriter:
+    """The engine's own rewrite step (_queries) with a local model on loopback Ollama, cached per question."""
+
+    def __init__(self, model: str) -> None:
+        from app.services.llm.ollama import OllamaProvider
+        self.model = model
+        self.llm = OllamaProvider(model, temperature=0.0, seed=7, keep_alive="30m")
+        self.cache: dict[str, Any] = json.loads(REWRITE_CACHE.read_text(encoding="utf-8")) if REWRITE_CACHE.exists() else {}
+        self.calls = 0
+
+    def queries(self, engine, question: str) -> tuple[list[str], dict[str, Any]]:  # type: ignore[no-untyped-def]
+        key = f"{self.model}\u241f{question}"
+        if key not in self.cache:
+            saved, engine.llm = engine.llm, self.llm
+            try:
+                t0 = time.perf_counter()
+                qs, info = engine._queries(question, [], use_llm=True)
+                info = {k: v for k, v in info.items() if isinstance(v, (str, int, float, bool, type(None)))}
+                self.cache[key] = dict(queries=qs, info=info, ms=round((time.perf_counter() - t0) * 1000))
+                self.calls += 1
+            finally:
+                engine.llm = saved
+            REWRITE_CACHE.write_text(json.dumps(self.cache, ensure_ascii=False, indent=0), encoding="utf-8")
+        c = self.cache[key]
+        return list(c["queries"]), dict(c["info"])
+
+
+def make_queries(cfg: dict[str, Any], r: dict[str, Any], siblings: dict[str, dict[str, str]], engine,  # type: ignore[no-untyped-def]
+                 rewriter: Rewriter | None) -> tuple[list[str], bool]:
+    """Retrieval queries for the assistant stage. Returns (queries, rewritten): rewritten turns the bridge off, as
+    production does after a successful rewrite."""
+    v = cfg.get("variants")
+    q = r["question"]
+    if not v:
+        return [q], False
+    if v in ("oracle_en", "oracle_en_ko"):   # the same need asked in English / Korean = a perfect translation
+        langs = ("en",) if v == "oracle_en" else ("en", "ko")
+        return list(dict.fromkeys([q] + [siblings[r["need"]][lg] for lg in langs if lg in siblings[r["need"]]])), True
+    if v == "llm_rewrite":
+        assert rewriter is not None
+        qs, info = rewriter.queries(engine, q)
+        return qs, bool(info.get("rewritten"))
+    raise SystemExit(f"unknown variants {v!r}")
+
+
+def run_config(svc, l2p: dict[str, str], records: list[dict[str, Any]], cfg: dict[str, Any],  # type: ignore[no-untyped-def]
+               rewriter: Rewriter | None = None) -> list[dict[str, Any]]:
     from app.services.retrieval.query_analysis import find_codes, normalize_codes
     s = svc.retrieval.settings
     engine = svc.conversations.engine
+    siblings: dict[str, dict[str, str]] = {}
+    for r in records:
+        siblings.setdefault(r["need"], {})[r["language"].split("-")[0]] = r["question"]
     saved = {k: getattr(s, k) for k in cfg["settings"]}
     for k, v in cfg["settings"].items():
         setattr(s, k, v)
@@ -181,21 +234,27 @@ def run_config(svc, l2p: dict[str, str], records: list[dict[str, Any]], cfg: dic
                                        top_similarity=round(max(sims), 4) if sims else None, ms=round(ms, 1))
             if 2 in r["relevant"].values():
                 row |= doc_metrics(docs, r["relevant"])
-            # what the answer model reads (no LLM rewrite); hybrid configurations only
+            # what the answer model reads: the assistant's retrieve + evidence selection; hybrid configurations only
             if mode == "hybrid":
+                queries, rewritten = make_queries(cfg, r, siblings, engine, rewriter)
+                std = queries[0] if rewritten else q
                 t1 = time.perf_counter()
-                found = engine._retrieve([q], top_k=10, bridge=True)
-                sources = engine._select(found["hits"], find_codes(normalize_codes(q)), q)
+                found = engine._retrieve(queries, top_k=10, bridge=not rewritten)
+                sources = engine._select(found["hits"], find_codes(normalize_codes(std)), " ".join(dict.fromkeys([q, std])))
                 row["assistant_ms"] = round((time.perf_counter() - t1) * 1000, 1)
+                row["queries"] = len(queries)
                 context = [p for src in sources for p in src["passages"]]
                 row["context_docs"] = [l2p.get(src["document_id"], src["document_id"])[:8] for src in sources]
                 row["context_chars"] = sum(len(p.get("passage") or "") for p in context)
+                fused = list(dict.fromkeys(l2p.get(h["document_id"], h["document_id"]) for h in found["hits"]))
+                row["fused_top_docs"] = [d[:8] for d in fused[:5]]
                 if r["quotes"]:
                     row |= passage_metrics([passage_text(h) for h in found["hits"]], [passage_text(p) for p in context],
                                            r["quotes"])
                 if 2 in r["relevant"].values():
                     strict = {d[:8] for d, g in r["relevant"].items() if g == 2}
                     row["ctx_doc_hit"] = float(bool(strict & set(row["context_docs"])))
+                    row |= {f"f_{k}": v for k, v in doc_metrics(fused, r["relevant"]).items() if k in F_KEYS}
             rows.append(row)
         return rows
     finally:
@@ -209,11 +268,12 @@ def evaluate_split(split: str, svc, l2p: dict[str, str], iinfo: dict[str, Any], 
     qcov = quote_coverage(svc, l2p, records) if split == "test" else None
     results: dict[str, Any] = {}
     rows_by: dict[str, list[dict[str, Any]]] = {}
-    metrics = DOC_METRICS + PASSAGE_METRICS + ["ctx_doc_hit"]
+    metrics = DOC_METRICS + PASSAGE_METRICS + ["ctx_doc_hit"] + [f"f_{k}" for k in F_KEYS if k != "rank"]
+    rewriter = Rewriter(a.rewrite_model) if any(c.get("variants") == "llm_rewrite" for c in cfgs) else None
     print(f"== {split}: {dinfo['questions']} questions, {dinfo['needs']} needs", flush=True)
     for cfg in cfgs:
         t0 = time.perf_counter()
-        rows = run_config(svc, l2p, records, cfg)
+        rows = run_config(svc, l2p, records, cfg, rewriter)
         rows_by[cfg["name"]] = rows
         ans = [r for r in rows if r["answerability"] in ("answerable", "conflicting")]
         noans = [r for r in rows if r["answerability"] not in ("answerable", "conflicting")]
@@ -231,7 +291,8 @@ def evaluate_split(split: str, svc, l2p: dict[str, str], iinfo: dict[str, Any], 
             rows=rows)
         o = results[cfg["name"]]["overall"]
         print(f"{cfg['name']:14} hit@1 {o.get('hit@1')}  hit@10 {o.get('hit@10')}  mrr {o.get('mrr')}  "
-              f"ndcg@10 {o.get('ndcg@10')}  ctx_doc_hit {o.get('ctx_doc_hit')}  ctx_hit {o.get('ctx_hit')}", flush=True)
+              f"ndcg@10 {o.get('ndcg@10')}  ctx_doc_hit {o.get('ctx_doc_hit')}  ctx_hit {o.get('ctx_hit')}  "
+              f"f_hit@1 {o.get('f_hit@1')}  f_mrr {o.get('f_mrr')}", flush=True)
     comparisons = []
     if "baseline" in rows_by:
         base = [r for r in rows_by["baseline"] if r["answerability"] in ("answerable", "conflicting")]
@@ -239,7 +300,7 @@ def evaluate_split(split: str, svc, l2p: dict[str, str], iinfo: dict[str, Any], 
             if name == "baseline":
                 continue
             other = [r for r in rows if r["answerability"] in ("answerable", "conflicting")]
-            for m in ("mrr", "hit@1", "ndcg@10", "ctx_hit", "ctx_doc_hit"):
+            for m in ("mrr", "hit@1", "ndcg@10", "ctx_hit", "ctx_doc_hit", "f_hit@1", "f_mrr", "ctx_qrecall"):
                 if base and base[0].get(m) is not None and other[0].get(m) is not None:
                     comparisons.append(dict(a="baseline", b=name, **paired(base, other, m)))
     out = dict(tag=a.tag, split=split, final_test_run=a.final, at=datetime.now(UTC).isoformat(timespec="seconds"),
@@ -268,6 +329,7 @@ def main() -> int:
     ap.add_argument("--final", action="store_true", help="required for TEST: the final, pre-registered run")
     ap.add_argument("--reuse-index", action="store_true", help="postgres: reuse the index this script built on the stack")
     ap.add_argument("--chunker", choices=["v1", "v2", "v2b"], default="v1", help="chunker version of the index")
+    ap.add_argument("--rewrite-model", default="qwen2.5:7b-instruct", help="local model (loopback Ollama) for llm_rewrite")
     a = ap.parse_args()
     os.environ["CHUNKER_VERSION"] = a.chunker      # read by Settings when the index is built
     splits = a.split.split(",")
