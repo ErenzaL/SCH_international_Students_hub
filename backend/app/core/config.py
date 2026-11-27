@@ -228,9 +228,11 @@ class Settings(BaseSettings):
     llm_request_deadline_seconds: float = 45.0  # interactive calls: no new attempt starts after this much time
     llm_fast_timeout_seconds: float = 12.0    # query rewriting: one quick attempt (fast model first)
     # --- AI usage budgets (in-process, reset at 00:00 KST; one instance) -------------------------------------
-    ai_daily_limit_per_client: int = 40      # anonymous visitors, per client IP
-    ai_daily_limit_per_user: int = 150       # signed-in students
-    ai_daily_limit_global: int = 1500        # all generated answers; beyond it answers degrade, never fail open
+    # small-budget defaults (final release): about US$0.012 per answer at the standard Gemini 3.6 Flash price, so 60 a day
+    # is at most ~US$0.70; raise them only together with a Google Cloud budget alert (docs/owner/FINAL-PRODUCTION-CHECKLIST.md)
+    ai_daily_limit_per_client: int = 10      # anonymous visitors, per client IP
+    ai_daily_limit_per_user: int = 20        # signed-in students
+    ai_daily_limit_global: int = 60          # all generated answers; beyond it answers degrade, never fail open
     # translation drafts: documents are translated in chunks of about this many characters (one job per language)
     translation_chunk_chars: int = 6000
     # create AI drafts automatically when a new original version is approved (needs an LLM provider)

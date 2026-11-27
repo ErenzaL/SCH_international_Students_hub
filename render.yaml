@@ -33,9 +33,9 @@ services:
       - { key: ASSISTANT_PROMPT_VERSION, value: system_v2 }  # backend/app/services/assistant/prompts/system_v2.txt (v1 kept)
       - { key: LLM_REQUEST_TIMEOUT_SECONDS, value: "30" }
       - { key: LLM_MAX_ATTEMPTS_PER_MODEL, value: "2" }
-      - { key: AI_DAILY_LIMIT_PER_CLIENT, value: "40" }   # anonymous visitors, per client IP
-      - { key: AI_DAILY_LIMIT_PER_USER, value: "150" }    # signed-in students
-      - { key: AI_DAILY_LIMIT_GLOBAL, value: "1500" }     # all generated answers per KST day
+      - { key: AI_DAILY_LIMIT_PER_CLIENT, value: "10" }   # anonymous visitors, per client IP
+      - { key: AI_DAILY_LIMIT_PER_USER, value: "20" }    # signed-in students
+      - { key: AI_DAILY_LIMIT_GLOBAL, value: "60" }       # all generated answers per KST day (≈ US$0.70/day at most; see FINAL-PRODUCTION-CHECKLIST)
       - { key: CLIENT_IP_HEADER, value: "" }              # set (e.g. true-client-ip) ONLY after the client-ip check passes
       - { key: TRUSTED_PROXY_HOPS, value: "1" }
       # Phase 2 ---------------------------------------------------------------------------------

@@ -180,9 +180,9 @@ The worker refuses to start when a Supabase, Gemini or cron secret is set on tha
 | `LLM_RETRY_MAX_DELAY_SECONDS` | setting | optional | `8.0` | — | a server-requested delay above this is not waited for (fail over) |
 | `LLM_REQUEST_DEADLINE_SECONDS` | setting | optional | `45.0` | — | interactive calls: no new attempt starts after this much time |
 | `LLM_FAST_TIMEOUT_SECONDS` | setting | optional | `12.0` | — | query rewriting: one quick attempt (fast model first) |
-| `AI_DAILY_LIMIT_PER_CLIENT` | setting | optional | `40` | render.yaml, .env.example | anonymous visitors, per client IP |
-| `AI_DAILY_LIMIT_PER_USER` | setting | optional | `150` | render.yaml, .env.example | signed-in students |
-| `AI_DAILY_LIMIT_GLOBAL` | setting | optional | `1500` | render.yaml, .env.example | all generated answers; beyond it answers degrade, never fail open |
+| `AI_DAILY_LIMIT_PER_CLIENT` | setting | optional | `10` | render.yaml, .env.example | anonymous visitors, per client IP |
+| `AI_DAILY_LIMIT_PER_USER` | setting | optional | `20` | render.yaml, .env.example | signed-in students |
+| `AI_DAILY_LIMIT_GLOBAL` | setting | optional | `60` | render.yaml, .env.example | all generated answers; beyond it answers degrade, never fail open |
 | `TRANSLATION_CHUNK_CHARS` | setting | optional | `6000` | — | translation drafts: documents are translated in chunks of about this many characters (one job per language) |
 | `AUTO_TRANSLATE_DOCUMENTS` | setting | optional | `False` | — | create AI drafts automatically when a new original version is approved (needs an LLM provider) |
 | `PUBLIC_MACHINE_TRANSLATIONS` | setting | optional | `False` | — | show unreviewed machine drafts to students (clearly labelled as machine translation). Off = original only. |
