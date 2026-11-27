@@ -113,6 +113,8 @@ to run without the key, a question cap, owner-supplied prices and `--confirm-pai
 | wrong-language answers | 0.000 | 0.116 |
 | unanswerable / not-in-sources: abstained, invented figure | 12 / 20, **0 / 20** | 0 / 20, 2 / 5 invented fees |
 
+With hub scaling instead (A9h) no answer metric changed significantly (figure recall +0.043 [−0.074, +0.156]).
+
 The release candidate's "0 % without sources" was an artefact of synthetic documents with invented figures; on real
 questions it is 2 %. Its "100 % refusal" was also synthetic: on real negatives the proxy abstained on 60 %.
 

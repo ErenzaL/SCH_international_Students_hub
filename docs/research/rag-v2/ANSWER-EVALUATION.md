@@ -61,6 +61,11 @@ By language, with retrieval (figure recall / abstained): en 0.68 / 0.21, id 0.67
 DEV + VALIDATION + DEV-negatives (A1; no gold figures in DEV / VAL): abstained 0.07 / 0.13 on answerable, 0.60 on
 negatives; invented figure 3 / 35 negatives (the residence-card fee given as a student-ID fee); wrong language 0.
 
+With hub scaling 0.1 instead of the RC ranking (A9h, registered in P2) nothing changes significantly: figure recall
+0.633 (+0.043 [−0.074, +0.156]), abstained 0.147, cited passage with a gold quote 0.716 (−0.020 [−0.067, +0.026]);
+negatives abstained 15 / 20, again 0 invented fees (three automatic flags, all the 1345 number). Hub scaling stays off
+(it lost on TEST retrieval, RETRIEVAL-RESULTS §3).
+
 **Reading.** Retrieval is what makes figures right: 59 % against 2 % closed book on the same real questions. The
 remaining gap is partly abstention (16 % of answerable questions, more in Vietnamese) and partly passages that never
 reach the model (RETRIEVAL-RESULTS §6).
