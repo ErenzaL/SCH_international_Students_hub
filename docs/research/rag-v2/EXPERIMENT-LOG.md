@@ -58,6 +58,10 @@ the real rewrite step; closed-book baseline. Metrics as in A1 plus figure recall
 `enforce` of the gate.
 Recommendation rules: hub scaling 0.1 for production if R1 − R0 `ctx_doc_hit` has a lower bound ≥ −0.03 and the MRR
 difference is positive. Gate `enforce` only after a check on Gemini traffic, whatever TEST shows.
+| **T1** | 2026-11-27 | **TEST LOOK (P2)**: R0 baseline, R1 hub0.1, R2 llm_rewrite, R3 hub0.1_llm_rewrite, memory, chunker v1 | **TEST** | `T1_test_memory.json` | gold quote in model context: R0 0.642, R1 0.632, **R2 0.858**, R3 0.816. R1 − R0: MRR −0.024 [−0.08, +0.028], ctx_doc_hit −0.005 [−0.037, +0.021] → **hub scaling NOT confirmed** (P2 rule fails). R2 − R0: ctx_hit **+0.216 [+0.147, +0.284]**, ctx_doc_hit +0.132 [+0.079, +0.184] → confirmed. R3 − R2: ctx_hit −0.042 [−0.095, −0.011]. Hub scaling: +0.008 MRR where no hub is grade 2 (140 q), −0.112 where a hub is (50 q) |
+| T2 | 2026-11-27 | TEST, chunker v2: hub0.1 / hub0.1_llm_rewrite (registered exploratory) + baseline / llm_rewrite (**post-hoc**) | TEST | `T2_test_memory_v2.json` | all 57 quotes indexable (v1: 54). v2 − v1, rewrite path: ctx_hit +0.016 [−0.021, +0.053], fused MRR +0.009; single-query MRR −0.049 [−0.080, −0.019] |
+| T3 | 2026-11-27 | TEST, R0 and R1 on real PostgreSQL + pgvector | TEST | `T3_test_postgres.json` | R0 MRR 0.742 (= memory), ctx_hit 0.653; R1 − R0 MRR −0.026 [−0.085, +0.027]; same first-relevant rank as memory for 208 / 210 |
+| G-T | 2026-11-27 | frozen gate G1 scored on TEST | TEST | `T1_gate_test.json` | **does not generalise**: rewritten path FRR 0.184 (0.137 with the gold quote in context; DEV/VAL 0.02–0.03), TRR unanswerable 0.40 (negatives 0.77), not_in_sources 0.00. TEST answerable questions have lower similarity (median 0.872 vs 0.889) and keyword coverage (0.566 vs 0.763): they do not echo the documents' wording |
 
 Notes
 - E0: ties in the in-memory store are broken by random chunk UUIDs, so results can differ between

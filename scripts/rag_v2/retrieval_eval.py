@@ -139,10 +139,12 @@ def build_postgres(corpus: list[dict[str, Any]], reuse: bool = False):  # type: 
 def quote_coverage(svc, l2p: dict[str, str], records: list[dict[str, Any]]) -> dict[str, Any]:  # type: ignore[no-untyped-def]
     """Can each gold quote be found inside ONE chunk at all (a quote across a chunk boundary can never be a hit)?"""
     from app.repositories.base import Query
-    rows, _ = svc.store.select("document_chunks", Query(cols="document_id,heading,content", limit=100000))
+    rows, _ = svc.store.select("document_chunks", Query(cols="version_id,heading,content", limit=100000))
+    v2d = {v["id"]: v["document_id"] for v in svc.store.select("document_versions", Query(cols="id,document_id", limit=100000))[0]}
     by_doc: dict[str, list[str]] = {}
     for c in rows:
-        by_doc.setdefault(l2p.get(c["document_id"], c["document_id"]), []).append(norm(f"{c.get('heading') or ''}\n{c['content']}"))
+        doc = v2d.get(c["version_id"], "")
+        by_doc.setdefault(l2p.get(doc, doc), []).append(norm(f"{c.get('heading') or ''}\n{c['content']}"))
     quotes = {(q["document_id"], q["quote"]) for r in records for q in r["quotes"]}
     split = sorted(f"{d[:8]}: {q[:70]}" for d, q in quotes if not any(q in t for t in by_doc.get(d, [])))
     return dict(quotes=len(quotes), within_one_chunk=len(quotes) - len(split), across_chunks=split)
