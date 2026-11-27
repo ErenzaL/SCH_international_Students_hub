@@ -38,7 +38,7 @@ question ─▶ reply language, small-talk check, daily AI budget
 | 12 | Generation | `_generate`: `system_v2`, sources as `[n]` blocks with title / organisation / URL / language / verified / published / valid-until / deadline / "may be outdated"; Gemini 3.6 Flash primary, 3.5 Flash-Lite fallback, thinking low, ≤ 2,048 output tokens | sources + question → answer + META | per-answer Gemini cost (RC COST-EVALUATION.md); budgets and emergency stop (migration 0018) | quality **unmeasured for Gemini** (only Qwen 2.5 7B locally) | passages are wrapped and stripped of tags (`_untagged`); system prompt marked confidential | LLM error → fallback with sources | assistant suites (mocked) | Phase 9 (capped, owner-approved run) |
 | 13 | Post-generation checks | `_attribute`, `_validate_answer` (removes invalid `[n]`, links not in the sources, **sentences whose figures appear in no source**), `_fix_script_mixing`, `_unverified` (second look, local models only), `_leaks_prompt`, `_wrong_language`, citation presence | answer → checked answer or fallback | none | the figure check accepts a number found in **any** source, not in the cited one; no claim-level support check; one bounded retry only for wrong language | — | fallback message + sources | `test_assistant*.py`, `test_citation_links.py` | per-citation support validator (Phase 7) |
 | 14 | Monitoring | `rag_health.py` (index / model consistency), usage and budget tables (0018), structured logs of tokens and latency | — | — | **no retrieval-quality monitoring, no regression script** | admin-only views | — | rag_health tests | Phase 11 |
-| 15 | Evaluation tooling before v2 | `rag_research_eval.py`, `rag_lab.py`, answer benchmark | — | — | question-level bootstrap (the 5 language versions of a need counted as independent → intervals too narrow: VALIDATION MRR [0.663, 0.807] vs need-level [0.536, 0.767]); lenient labels only; no passage level; in-memory store only; random tie-breaks; the answer benchmark's synthetic documents made "0 % without sources" an artefact (invented figures cannot be known without the documents) | — | — | — | replaced by `scripts/rag_v2/` (this mission) |
+| 15 | Evaluation tooling before v2 | `rag_research_eval.py`, `rag_lab.py`, answer benchmark | — | — | question-level bootstrap (the 5 language versions of a need counted as independent → intervals too narrow: VALIDATION lenient MRR 0.735, question-level [0.660, 0.803] vs need-level [0.635, 0.825], one third wider); lenient labels only; no passage level; in-memory store only; random tie-breaks; the answer benchmark's synthetic documents made "0 % without sources" an artefact (invented figures cannot be known without the documents) | — | — | — | replaced by `scripts/rag_v2/` (this mission) |
 
 ## 3. Baseline numbers (measured, no LLM rewrite)
 
@@ -50,9 +50,9 @@ lenient = any labelled document. Intervals resample information needs.
 | DEV (100 q, 20 needs) | memory | 0.69 | 0.97 | 0.782 | 0.853 | 0.820 | 0.90 | `E1seed1_dev_memory.json` |
 | DEV | **PostgreSQL + pgvector** | 0.69 | 0.98 | 0.782 | 0.853 | 0.823 | 0.90 | `E2_dev_postgres.json` |
 | VALIDATION (100 q, 20 needs) | memory | 0.52 | 0.95 | 0.656 | 0.735 | 0.753 | 0.80 | `E1seed1_val_memory.json` |
-| VALIDATION | **PostgreSQL + pgvector** | 0.52 | 0.95 | 0.655 [0.536, 0.767]* | 0.735 | 0.752 | 0.80 | `E2_val_postgres.json` |
+| VALIDATION | **PostgreSQL + pgvector** | 0.52 | 0.95 | 0.655 [0.536, 0.767] | 0.735 [0.635, 0.825] | 0.752 | 0.80 | `E2_val_postgres.json` |
 
-\* need-level interval of the lenient MRR; the strict one is in the file.
+Intervals: 95 %, resampling information needs.
 
 - The lenient DEV numbers reproduce the RC result (`rag_research_dev.json`: R@1 0.75, R@10 0.99, MRR 0.848) within
   tie-break noise (0.76 / 0.99 / 0.853); nDCG differs because labels pointing outside the corpus (5) are now dropped.
