@@ -36,6 +36,7 @@ Rule in `backend/app/services/assistant/gate.py`. Thresholds: original path τ 0
 rewritten path τ 0.86 / λ 0.7 (FRR 0.02–0.03, TRR 0.77). On TEST the gate is reported for the configurations run there:
 FRR on answerable questions (and FRR with the gold quote in context), TRR on `unanswerable` and on `not_in_sources`.
 Default mode `log` (no behaviour change); `enforce` is an owner decision after a check on real (Gemini) traffic.
+| A1 | 2026-11-27 | answer evaluation, full `respond()` turn with **local Qwen 2.5 7B as rewrite AND answer model (proxy, not Gemini)**, retrieval hub0.1, gate in log mode; plus closed-book baseline (same model, same questions, no sources) | DEV, VALIDATION, DEV-negatives | `A1_{dev,val,neg}_memory_answers.json`, `A1_*_human_rating.csv` | answerable: abstained 0.07 DEV / 0.13 VAL, cited sources grade-2 0.70 / 0.67, wrong language 0.00 (closed book 0.15). Negatives: abstained 0.60, invented figure 0.086 (3 / 35: the residence-card fee given as a student-ID fee). Simulated `enforce`: negatives abstained 32 / 35; +2 (DEV) / +3 (VAL) refusals of answerable questions |
 
 Notes
 - E0: ties in the in-memory store are broken by random chunk UUIDs, so results can differ between

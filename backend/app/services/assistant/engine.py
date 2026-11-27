@@ -34,6 +34,7 @@ from typing import Any
 
 from app.core.config import Settings
 from app.repositories.base import Query
+from app.services.assistant.citation_check import check_citations
 from app.services.assistant.evidence import EvidenceChecker, EvidenceConfig, quantity_kind
 from app.services.assistant.gate import evaluate_gate
 from app.services.assistant.prompts import META_MARKER, load_system_prompt
@@ -482,6 +483,7 @@ class AssistantEngine:
                 if ev != "none":
                     body = _attribute(body, sources)
                 checked, removed = _validate_answer(body, sources)
+                checked, citation_report = check_citations(checked, sources)
                 checked = _clean_endings(checked)
                 checked, glued = _fix_script_mixing(checked, lang)
                 unverified = ev != "none" and self._unverified(qinfo.get("standalone") or question, checked, sources)
@@ -503,6 +505,7 @@ class AssistantEngine:
                     out["generation"] = gen | {"answer_generation": "fallback", "fallback_reason": "llm_empty"}
                     generation_failed = True
                 else:
+                    gen = gen | {"citation_check": {k: v for k, v in citation_report.items() if k != "details"}}
                     answer, evidence, out["generation"] = checked, ev, gen | ({"removed_unsupported": removed}
                                                                                if removed else {}) | (
                         {"fixed_mixed_script": glued} if glued else {})

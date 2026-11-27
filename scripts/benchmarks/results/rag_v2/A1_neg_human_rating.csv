@@ -1,0 +1,58 @@
+﻿question_id,language,answerability,question,answer,cited_documents,H1_correct(0-2),H2_complete(0-2),H3_faithful_to_sources(y/n),H4_citations_right(y/n),H5_language_natural(y/n),H6_safe_refusal_or_referral(y/n/na),rater,notes
+NEG-01-ko,ko,unanswerable,SCH 2027년 2월 졸업식은 언제 해요?,"죄송합니다, 2027년 2월 졸업식의 정확한 날짜에 대한 정보가 제공된 문서에는 포함되어 있지 않습니다. 졸업식 날짜는 일반적으로 학교 측에서 공지하는 것이 일반적입니다. 학교 홈페이지나 국제교육교류처에서 공지된 정보를 확인해 보시는 것이 좋을 것 같습니다.",,,,,,,,,
+NEG-01-en,en,unanswerable,When is SCH's graduation ceremony in February 2027?,"I'm sorry, but the information about SCH's graduation ceremony in February 2027 is not available in the provided sources. The sources contain details about admission procedures and class schedules, but do not mention any specific graduation ceremony dates.",,,,,,,,,
+NEG-01-id,id,unanswerable,Kapan upacara wisuda SCH bulan Februari 2027?,"Maaf, informasi tentang upacara wisuda di SCH pada bulan Februari 2027 tidak dapat ditemukan dalam sumber yang tersedia. Sumber yang kami miliki berfokus pada informasi penerimaan mahasiswa baru, syarat-syarat pendaftaran, dan jadwal kuliah. Untuk informasi lebih lanjut tentang upacara wisuda, Anda dapat menghubungi bagian akademik atau bagian perpustakaan di universitas.",,,,,,,,,
+NEG-01-vi,vi,unanswerable,Lễ tốt nghiệp của SCH vào tháng 2 năm 2027 là ngày nào?,"Xin lỗi, nhưng thông tin về lễ tốt nghiệp của SCH vào tháng 2 năm 2027 không có trong các nguồn tài liệu được cung cấp. Các nguồn tài liệu chủ yếu đề cập đến thông tin tuyển dụng, lịch học kỳ và hướng dẫn đăng ký học. Bạn có thể cần liên hệ với văn phòng quốc tế hoặc bộ phận tổ chức sự kiện của trường để biết thông tin chính xác về lễ tốt nghiệp.",,,,,,,,,
+NEG-01-zh-CN,zh-CN,unanswerable,顺天乡大学2027年2月的毕业典礼是哪天？,根据提供的信息，顺天乡大学2027年2月的毕业典礼日期没有明确提及。因此，我无法确认具体的日期。,,,,,,,,,
+NEG-02-ko,ko,unanswerable,학교 이메일 계정은 어떻게 만들어요?,지금은 답변을 생성하는 데 문제가 있습니다. 아래의 관련 공식 안내를 확인하시거나 잠시 후 다시 질문해 주세요.,b3f79749 7c5799ad d032674b,,,,,,,,
+NEG-02-en,en,unanswerable,How do I set up my SCH student email account?,"I'm sorry, but the information you're asking for about setting up your SCH student email account is not included in the provided sources. The sources focus on D-2 visa extension, course registration, and travel documents. For setting up your SCH student email account, you might want to visit the IT Help Desk or check the official SCH website for detailed instructions.",,,,,,,,,
+NEG-02-id,id,unanswerable,Bagaimana cara membuat akun email mahasiswa SCH?,"Maaf, informasi yang Anda minta tentang membuat akun email mahasiswa SCH tidak terdapat dalam sumber yang disediakan. Sumber-sumber yang ada berfokus pada prosedur pendaftaran dan pengajuan mata kuliah, serta informasi TOPIK. Untuk informasi lebih lanjut tentang membuat akun email, Anda dapat menghubungi layanan IT universitas atau pergi ke kantor IT di kampus.",,,,,,,,,
+NEG-02-vi,vi,unanswerable,Làm sao để tạo tài khoản email sinh viên của SCH?,"Hiện tôi đang gặp sự cố khi tạo câu trả lời. Bạn vẫn có thể xem hướng dẫn chính thức liên quan bên dưới, hoặc thử hỏi lại sau ít phút.",ae1cbab7 d032674b da416585,,,,,,,,
+NEG-02-zh-CN,zh-CN,unanswerable,怎么开通顺天乡大学的学生邮箱账号？,根据提供的信息，关于开通顺天乡大学的学生邮箱账号的具体步骤没有直接提及。因此，我们无法直接从这些文档中获取详细信息。,,,,,,,,,
+NEG-03-ko,ko,unanswerable,유학생 버디 프로그램은 어떻게 신청해요?,유학생 버디 프로그램에 대한 정보는 제공된 문서에서 확인할 수 없습니다. 이 프로그램에 대한 자세한 내용은 국제교육교류처에서 확인해 보시는 것이 좋을 것 같습니다.,,,,,,,,,
+NEG-03-en,en,unanswerable,How do I sign up for the international student buddy program?,"The International Student Buddy Program is not directly mentioned in the provided sources. However, the Guide for International Students in Korea lists several support programs, including the Busan International Student Ambassador Program, which involves acting as an ambassador for Busan universities and participating in local events. For more detailed information on the International Student Buddy Program, you may want to contact the relevant office or visit the Busan Global City Foundation website.",672ffe31,,,,,,,,
+NEG-03-id,id,unanswerable,Bagaimana cara mendaftar program buddy untuk mahasiswa asing?,"Saat ini, informasi tentang program buddy untuk mahasiswa asing tidak disebutkan dalam sumber-sumber yang tersedia. Namun, Anda dapat menghubungi kantor konseling internasional atau bagian kemitraan universitas Anda untuk mendapatkan informasi lebih lanjut tentang program-program yang tersedia.",,,,,,,,,
+NEG-03-vi,vi,unanswerable,Đăng ký chương trình buddy cho du học sinh như thế nào?,"The thông tin về đăng ký chương trình buddy cho du học sinh không được cung cấp trong các nguồn tài liệu được cung cấp. Do đó, tôi không thể cung cấp chi tiết cụ thể về quy trình đăng ký chương trình buddy.
+
+Tuy nhiên, thông thường, bạn có thể đăng ký chương trình buddy thông qua trang web của trường hoặc bộ phận hỗ trợ du học sinh. Bạn cũng có thể liên hệ trực tiếp với bộ phận hỗ trợ du học sinh để được hướng dẫn cụ thể.",d60bc363 672ffe31,,,,,,,,
+NEG-03-zh-CN,zh-CN,unanswerable,留学生伙伴（buddy）项目怎么报名？,我在已审核的顺天乡大学和韩国政府资料中没有找到相关内容，因此无法给出可靠的回答。您可以换一种问法，或向负责部门确认。,,,,,,,,,
+NEG-04-ko,ko,unanswerable,캠퍼스에서 사물함을 빌릴 수 있어요?,"캠퍼스에서 사물함을 빌릴 수는 없습니다. 방학 중에는 글로벌빌리지 내에서 개인 물품을 보관할 수 없으며, 대신 교외 짐 보관 서비스를 이용해야 합니다.",b8a53e42,,,,,,,,
+NEG-04-en,en,unanswerable,Can I rent a locker on campus?,"Based on the available information, the sources do not provide specific details about renting a locker on campus. Therefore, I cannot confirm whether you can rent a locker on campus or not.",,,,,,,,,
+NEG-04-id,id,unanswerable,Bisakah saya menyewa loker di kampus?,"Menyewa loker di kampus mungkin tidak tersedia karena loker biasanya disediakan oleh pihak kampus untuk keperluan administrasi atau penyimpanan pribadi. Menurut sumber, international students memiliki pilihan hunian yang berbeda, termasuk dormitory, private rental housing, dan homestay. Namun, tidak disebutkan tentang loker khusus untuk penyimpanan.
+
+Jika Anda membutuhkan tempat penyimpanan, Anda mungkin perlu mencari solusi alternatif di luar kampus, seperti menyewa loker di area sekitar kampus atau di pusat penyewaan loker. Anda juga dapat berkonsultasi dengan kantor pelayanan siswa internasional di kampus untuk mendapatkan informasi lebih lanjut.",672ffe31,,,,,,,,
+NEG-04-vi,vi,unanswerable,Tôi có thể thuê tủ đồ (locker) trong trường không?,"The office does not provide information about renting school lockers. Therefore, you may need to find alternative storage solutions, such as external storage services.",672ffe31,,,,,,,,
+NEG-04-zh-CN,zh-CN,unanswerable,在校园里可以租储物柜吗？,在校园里可以租储物柜。根据提供的信息，由于寒假期间校园设施运营和管理政策的调整，全球村内个人物品及储物柜的存放已经全面禁止。但是，学生可以在校外使用储物柜服务，具体可以参考学校提供的“校外寄存储物柜服务介绍（艾姆盒子新昌店）”。,b8a53e42,,,,,,,,
+NEG-05-ko,ko,unanswerable,학교 와이파이는 어떻게 연결해요?,"학교 와이파이를 연결하려면, 먼저 학교의 공식 와이파이 연결 방법을 확인해야 합니다. 일반적으로는 학교 홈페이지나 IT 서비스 센터에서 와이파이 연결 방법을 찾을 수 있습니다. 유선 인터넷은 유선 장비가 필요하지만, 무선 인터넷은 유선 장비와 무선 장비가 필요합니다.
+
+거주지가 가까운 PC방을 이용하면 편리하면서도 비교적 저렴한 가격에 인터넷을 사용할 수 있습니다.",d60bc363,,,,,,,,
+NEG-05-en,en,unanswerable,How do I connect to the campus Wi-Fi?,"To connect to the campus Wi-Fi, you need to have either a wired internet device or a wireless internet device. The installation service will be provided by a service technician visiting your residence.",d60bc363,,,,,,,,
+NEG-05-id,id,unanswerable,Bagaimana cara terhubung ke Wi-Fi kampus?,"Untuk terhubung ke Wi-Fi kampus, Anda perlu memiliki perangkat yang mendukung koneksi internet dan mengikuti langkah-langkah berikut:
+
+1. Pastikan perangkat Anda memiliki peralatan yang diperlukan untuk koneksi Wi-Fi, baik itu peralatan kabel maupun tidak kabel.
+2. Kunjungi kantor layanan kampus atau hubungi call center untuk mendapatkan bantuan pemasangan.",d60bc363,,,,,,,,
+NEG-05-vi,vi,unanswerable,Làm sao để kết nối Wi-Fi của trường?,"Để kết nối Wi-Fi của trường, bạn cần có thiết bị hỗ trợ kết nối Wi-Fi và tuân theo các bước sau:
+
+1. Đảm bảo bạn có thiết bị internet (cả internet cáp quang và internet không dây đều cần thiết).
+2. Truy cập trang web của công ty cung cấp dịch vụ internet để đăng ký và cài đặt.
+3. Gọi đến số điện thoại hỗ trợ khách hàng hoặc truy cập trang web của công ty để đăng ký và cài đặt.
+4. Đăng ký và cài đặt thông qua trang web HiKorea (www.hikorea.go.kr) nếu trường không có quy trình đăng ký nhóm được cấp phép.",d60bc363,,,,,,,,
+NEG-05-zh-CN,zh-CN,unanswerable,怎么连接学校的Wi-Fi？,"关于如何连接学校的Wi-Fi，目前提供的信息中没有直接提到具体的连接步骤。不过，通常学校会提供详细的Wi-Fi连接指南，通常可以在学校的官方网站或国际学生办公室获取这些信息。
+
+您可以访问学校的官方网站，查找“网络服务”或“国际学生指南”等相关页面，或者直接联系国际教育交流处获取具体的连接方法和相关信息。
+
+The office provides Wi-Fi connection instructions on their official website.",da416585,,,,,,,,
+NEG-06-ko,ko,unanswerable,학생증을 잃어버렸는데 재발급 비용이 얼마예요?,"학생증을 잃어버렸다면, 재발급 비용은 KRW 35,000입니다.
+
+이 비용은 2025년 1월 1일부터 적용되었습니다.",21e3e650,,,,,,,,
+NEG-06-en,en,unanswerable,I lost my SCH student ID card. How much is the replacement fee?,"The replacement fee for a new residence card in South Korea is KRW 35,000.",21e3e650,,,,,,,,
+NEG-06-id,id,unanswerable,Kartu mahasiswa SCH saya hilang. Berapa biaya penggantiannya?,Biaya penggantian kartu mahasiswa SCH adalah KRW 35.000.,21e3e650,,,,,,,,
+NEG-06-vi,vi,unanswerable,"Tôi làm mất thẻ sinh viên SCH, phí làm lại là bao nhiêu?","Hiện tôi đang gặp sự cố khi tạo câu trả lời. Bạn vẫn có thể xem hướng dẫn chính thức liên quan bên dưới, hoặc thử hỏi lại sau ít phút.",da416585 d032674b 744fdb55,,,,,,,,
+NEG-06-zh-CN,zh-CN,unanswerable,我的学生证丢了，补办要多少钱？,我在已审核的顺天乡大学和韩国政府资料中没有找到相关内容，因此无法给出可靠的回答。您可以换一种问法，或向负责部门确认。,,,,,,,,,
+NEG-07-ko,ko,unanswerable,기숙사 세탁기는 한 번에 얼마예요?,"현재 제공된 정보로는 기숙사 세탁기의 이용 비용에 대한 자세한 내용이 포함되어 있지 않습니다. 따라서 정확한 비용을 알려드리지 못합니다.
+
+기숙사 세탁기의 이용 비용에 대한 정보를 얻으시려면, 기숙사 관리실이나 학생 서비스 센터에 문의해보시는 것이 좋습니다. 그들은 정확한 비용과 함께 세탁기 이용 방법 등에 대한 정보를 제공해줄 수 있습니다.",,,,,,,,,
+NEG-07-en,en,unanswerable,How much does one load in the dorm washing machine cost?,"The cost of loading laundry in the dorm washing machine is not specified in the provided sources. The sources focus on moving and administrative procedures, waste disposal, and living costs, but do not mention the cost of using the dorm washing machines.",,,,,,,,,
+NEG-07-id,id,unanswerable,Berapa biaya sekali pakai mesin cuci di asrama?,"Biaya sekali pakai mesin cuci di asrama tidak disebutkan dalam sumber yang tersedia. Oleh karena itu, informasi ini tidak dapat diverifikasi.",,,,,,,,,
+NEG-07-vi,vi,unanswerable,Giặt một lần bằng máy giặt ký túc xá mất bao nhiêu tiền?,"The thông tin về phí giặt máy tại ký túc xá không được cung cấp trong các nguồn tài liệu được cung cấp. Do đó, tôi không thể xác định chính xác phí giặt một lần bằng máy giặt ký túc xá.",,,,,,,,,
+NEG-07-zh-CN,zh-CN,unanswerable,宿舍洗衣机洗一次多少钱？,根据提供的信息，关于宿舍洗衣机的费用并没有具体说明。因此，我无法给出准确的价格。,,,,,,,,,
