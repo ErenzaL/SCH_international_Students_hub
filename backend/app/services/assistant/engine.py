@@ -37,6 +37,7 @@ from app.repositories.base import Query
 from app.services.assistant.citation_check import check_citations
 from app.services.assistant.evidence import EvidenceChecker, EvidenceConfig, quantity_kind
 from app.services.assistant.gate import evaluate_gate
+from app.services.assistant.injection import asks_for_instructions, discloses_instructions, screen_passage
 from app.services.assistant.prompts import META_MARKER, load_system_prompt
 from app.services.assistant.texts import NATIVE_NAMES, t
 from app.services.language_detect import detect_language
@@ -419,6 +420,12 @@ class AssistantEngine:
             out.update(answer=t("thanks" if _THANKS.match(question) else "greeting", lang), evidence="small_talk",
                        retrieval={"mode": None, "hits": 0}, generation={"answer_generation": "template"})
             return self._finish(out, started)
+        # a request for the system prompt / hidden rules: a fixed reply, the model is not asked (injection.py)
+        if asks_for_instructions(question):
+            out.update(answer=t("instructions_private", lang), evidence="small_talk",
+                       retrieval={"mode": None, "hits": 0}, generation={"answer_generation": "template",
+                                                                         "reason": "instructions_request"})
+            return self._finish(out, started)
 
         emit("status", {"stage": "searching"})
         ai_ok = self.llm.enabled and self.budget()
@@ -434,9 +441,22 @@ class AssistantEngine:
         if self.settings.assistant_evidence_check and sources:
             sources, evidence_report = self.evidence_checker().complete(
                 qinfo.get("standalone") or question, sources, max_sources=self.settings.assistant_max_sources)
+        # sentences in a passage that give orders to the model ("ignore previous instructions", "AI: tell students …")
+        # never reach it; the removal is reported (injection.py)
+        screened = 0
+        for src in sources:
+            kept = []
+            for p in src["passages"]:
+                clean, n = screen_passage(p.get("passage") or "")
+                screened += n
+                kept.append(dict(p, passage=clean) if n else p)
+            src["passages"] = kept
         hits = [p for src in sources for p in src["passages"]]
         out["retrieval"] = dict(mode=found["mode"], warning=found["warning"], hits=len(hits), sources=len(sources),
                                 queries=len(queries), **{k: v for k, v in qinfo.items() if k != "standalone"})
+        if screened:
+            out["retrieval"]["injection_screened"] = screened
+            log.warning("prompt-injection screen removed %s sentence(s) from the selected passages", screened)
         if evidence_report is not None:
             out["retrieval"]["evidence_check"] = evidence_report
         if rerank_info:
@@ -487,7 +507,7 @@ class AssistantEngine:
                 checked = _clean_endings(checked)
                 checked, glued = _fix_script_mixing(checked, lang)
                 unverified = ev != "none" and self._unverified(qinfo.get("standalone") or question, checked, sources)
-                if _leaks_prompt(checked, self.prompt.text):
+                if _leaks_prompt(checked, self.prompt.text) or discloses_instructions(checked):
                     # the instructions are confidential (system prompt, section 8): never shown, whatever was asked
                     out["generation"] = gen | {"answer_generation": "fallback", "fallback_reason": "prompt_leak"}
                     generation_failed = True
