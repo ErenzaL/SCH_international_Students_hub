@@ -210,7 +210,7 @@ model would not fit in 512 MB. Hosted latency: not measured. PERFORMANCE.md.
 | retrieval ranking | unchanged RC weighted hybrid (vector 1.0, keyword 0.35, glossary bridge 0.75, min similarity 0.80), **hub scaling off** | hub scaling lost 0.112 MRR on guide-answered TEST needs |
 | query rewrite | **keep Gemini Flash-Lite rewrite on every turn** (already in production); monitor failures | biggest measured gain: gold passage reaches the model 64 % → 86 % (proxy) |
 | chunking | **chunker v2 after a staging re-index** | 13 % of approved text becomes searchable; neutral where the rewrite runs |
-| safety | injection screens + per-citation check (always on); evidence gate **`log`** | 11 / 11 injection cases; gate not reliable enough to enforce (would refuse 32 % of answerable TEST questions) |
+| safety | injection screens + per-citation check (always on); evidence gate **`log`** | 11 / 11 injection cases; gate not reliable enough to enforce (abstentions on answerable TEST questions would rise from 16 % to 32 %) |
 | reranker / larger embeddings | **no** | do not fit 512 MB |
 
 Trade-off: everything recommended runs in the existing API process for < 1 ms per answer, needs no model, no paid
