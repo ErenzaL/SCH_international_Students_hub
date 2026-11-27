@@ -43,6 +43,7 @@ SPLITS = {
     "dev": ROOT / "scripts" / "benchmarks" / "retrieval_pilot_v0.1.json",
     "val": ROOT / "backend" / ".eval-cache" / "heldout_v0.2.json",
     "test": ROOT / "scripts" / "benchmarks" / "rag_v2" / "testset_v0.3.json",
+    "neg": ROOT / "scripts" / "benchmarks" / "rag_v2" / "dev_negatives_v0.1.json",   # DEV-only negatives (gate tuning)
 }
 RESULTS = ROOT / "scripts" / "benchmarks" / "results" / "rag_v2"
 LANGS = ("ko", "en", "id", "vi", "zh-CN")
@@ -69,7 +70,7 @@ def load_split(name: str, corpus_ids: set[str]) -> tuple[list[dict[str, Any]], d
     info: dict[str, Any] = {"split": name, "file": str(SPLITS[name].relative_to(ROOT)), "sha256": sha256_file(SPLITS[name]),
                             "dataset_version": raw.get("dataset_version"), "dropped_labels": 0}
     out = []
-    if name == "test":
+    if name in ("test", "neg"):
         for q in raw["questions"]:
             out.append(dict(id=q["id"], need=q["need_id"], language=q["language"], question=q["question"],
                             topic=q["topic"], difficulty=q["difficulty"], answerability=q["answerability"],

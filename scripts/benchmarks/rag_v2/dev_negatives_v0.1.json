@@ -1,0 +1,864 @@
+{
+ "dataset_version": "dev-negatives-0.1",
+ "split": "dev-negatives",
+ "created": "2026-11-27",
+ "provenance": "AI-drafted unanswerable questions for tuning the evidence gate (DEV only). Absence verified by exhaustive term search of the corpus snapshot 7bb1a20f19fd28bc; NEG-05..07 are hard negatives (the corpus mentions home internet, generic student ID cards and boarding-house washing machines, but not the asked SCH fact). Topics are disjoint from the TEST unanswerable needs (parking, tuition instalments, airport pickup). Not reviewed by a person.",
+ "questions_sha256": "9fd1818c64d3dcc33747feb502f928b06b7e9e8bbf3ca70aefb99a1b59dfc811",
+ "questions": [
+  {
+   "id": "NEG-01-ko",
+   "need_id": "NEG-01",
+   "language": "ko",
+   "question": "SCH 2027년 2월 졸업식은 언제 해요?",
+   "topic": "academic-procedures",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-01-en",
+   "need_id": "NEG-01",
+   "language": "en",
+   "question": "When is SCH's graduation ceremony in February 2027?",
+   "topic": "academic-procedures",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-01-id",
+   "need_id": "NEG-01",
+   "language": "id",
+   "question": "Kapan upacara wisuda SCH bulan Februari 2027?",
+   "topic": "academic-procedures",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-01-vi",
+   "need_id": "NEG-01",
+   "language": "vi",
+   "question": "Lễ tốt nghiệp của SCH vào tháng 2 năm 2027 là ngày nào?",
+   "topic": "academic-procedures",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-01-zh-CN",
+   "need_id": "NEG-01",
+   "language": "zh-CN",
+   "question": "顺天乡大学2027年2月的毕业典礼是哪天？",
+   "topic": "academic-procedures",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-02-ko",
+   "need_id": "NEG-02",
+   "language": "ko",
+   "question": "학교 이메일 계정은 어떻게 만들어요?",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-02-en",
+   "need_id": "NEG-02",
+   "language": "en",
+   "question": "How do I set up my SCH student email account?",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-02-id",
+   "need_id": "NEG-02",
+   "language": "id",
+   "question": "Bagaimana cara membuat akun email mahasiswa SCH?",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-02-vi",
+   "need_id": "NEG-02",
+   "language": "vi",
+   "question": "Làm sao để tạo tài khoản email sinh viên của SCH?",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-02-zh-CN",
+   "need_id": "NEG-02",
+   "language": "zh-CN",
+   "question": "怎么开通顺天乡大学的学生邮箱账号？",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-03-ko",
+   "need_id": "NEG-03",
+   "language": "ko",
+   "question": "유학생 버디 프로그램은 어떻게 신청해요?",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-03-en",
+   "need_id": "NEG-03",
+   "language": "en",
+   "question": "How do I sign up for the international student buddy program?",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-03-id",
+   "need_id": "NEG-03",
+   "language": "id",
+   "question": "Bagaimana cara mendaftar program buddy untuk mahasiswa asing?",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-03-vi",
+   "need_id": "NEG-03",
+   "language": "vi",
+   "question": "Đăng ký chương trình buddy cho du học sinh như thế nào?",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-03-zh-CN",
+   "need_id": "NEG-03",
+   "language": "zh-CN",
+   "question": "留学生伙伴（buddy）项目怎么报名？",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-04-ko",
+   "need_id": "NEG-04",
+   "language": "ko",
+   "question": "캠퍼스에서 사물함을 빌릴 수 있어요?",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-04-en",
+   "need_id": "NEG-04",
+   "language": "en",
+   "question": "Can I rent a locker on campus?",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-04-id",
+   "need_id": "NEG-04",
+   "language": "id",
+   "question": "Bisakah saya menyewa loker di kampus?",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-04-vi",
+   "need_id": "NEG-04",
+   "language": "vi",
+   "question": "Tôi có thể thuê tủ đồ (locker) trong trường không?",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-04-zh-CN",
+   "need_id": "NEG-04",
+   "language": "zh-CN",
+   "question": "在校园里可以租储物柜吗？",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-05-ko",
+   "need_id": "NEG-05",
+   "language": "ko",
+   "question": "학교 와이파이는 어떻게 연결해요?",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable",
+    "hard_negative"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-05-en",
+   "need_id": "NEG-05",
+   "language": "en",
+   "question": "How do I connect to the campus Wi-Fi?",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable",
+    "hard_negative"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-05-id",
+   "need_id": "NEG-05",
+   "language": "id",
+   "question": "Bagaimana cara terhubung ke Wi-Fi kampus?",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable",
+    "hard_negative"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-05-vi",
+   "need_id": "NEG-05",
+   "language": "vi",
+   "question": "Làm sao để kết nối Wi-Fi của trường?",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable",
+    "hard_negative"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-05-zh-CN",
+   "need_id": "NEG-05",
+   "language": "zh-CN",
+   "question": "怎么连接学校的Wi-Fi？",
+   "topic": "campus-life",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable",
+    "hard_negative"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-06-ko",
+   "need_id": "NEG-06",
+   "language": "ko",
+   "question": "학생증을 잃어버렸는데 재발급 비용이 얼마예요?",
+   "topic": "student-records",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable",
+    "hard_negative"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-06-en",
+   "need_id": "NEG-06",
+   "language": "en",
+   "question": "I lost my SCH student ID card. How much is the replacement fee?",
+   "topic": "student-records",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable",
+    "hard_negative"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-06-id",
+   "need_id": "NEG-06",
+   "language": "id",
+   "question": "Kartu mahasiswa SCH saya hilang. Berapa biaya penggantiannya?",
+   "topic": "student-records",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable",
+    "hard_negative"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-06-vi",
+   "need_id": "NEG-06",
+   "language": "vi",
+   "question": "Tôi làm mất thẻ sinh viên SCH, phí làm lại là bao nhiêu?",
+   "topic": "student-records",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable",
+    "hard_negative"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-06-zh-CN",
+   "need_id": "NEG-06",
+   "language": "zh-CN",
+   "question": "我的学生证丢了，补办要多少钱？",
+   "topic": "student-records",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable",
+    "hard_negative"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-07-ko",
+   "need_id": "NEG-07",
+   "language": "ko",
+   "question": "기숙사 세탁기는 한 번에 얼마예요?",
+   "topic": "dormitory",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable",
+    "hard_negative"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-07-en",
+   "need_id": "NEG-07",
+   "language": "en",
+   "question": "How much does one load in the dorm washing machine cost?",
+   "topic": "dormitory",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable",
+    "hard_negative"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-07-id",
+   "need_id": "NEG-07",
+   "language": "id",
+   "question": "Berapa biaya sekali pakai mesin cuci di asrama?",
+   "topic": "dormitory",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable",
+    "hard_negative"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-07-vi",
+   "need_id": "NEG-07",
+   "language": "vi",
+   "question": "Giặt một lần bằng máy giặt ký túc xá mất bao nhiêu tiền?",
+   "topic": "dormitory",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable",
+    "hard_negative"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  },
+  {
+   "id": "NEG-07-zh-CN",
+   "need_id": "NEG-07",
+   "language": "zh-CN",
+   "question": "宿舍洗衣机洗一次多少钱？",
+   "topic": "dormitory",
+   "difficulty": "simple",
+   "types": [
+    "unanswerable",
+    "hard_negative"
+   ],
+   "answerability": "unanswerable",
+   "source_language": null,
+   "relevant": {},
+   "primary_documents": [],
+   "evidence": [],
+   "reference_answer": "No approved source covers this; the assistant must say so.",
+   "split": "dev-negatives",
+   "label_origin": "ai_drafted_from_corpus",
+   "review_status": "draft_unreviewed",
+   "overlap_with_dev_validation": {
+    "level": "none",
+    "with": []
+   }
+  }
+ ]
+}

@@ -1,6 +1,6 @@
 # Environment variables
 
-Generated from the code by `scripts/env_inventory.py`; do not edit by hand. 180 variables of the **API service**. Whether a value is set on
+Generated from the code by `scripts/env_inventory.py`; do not edit by hand. 186 variables of the **API service**. Whether a value is set on
 Render cannot be seen from here: check with `python -m app.cli doctor` (prints "set" or "not set", never a value) or in the dashboard.
 
 After changing a variable on Render the service restarts by itself (choose *Save, rebuild and deploy* only for the web variables).
@@ -69,6 +69,7 @@ The worker refuses to start when a Supabase, Gemini or cron secret is set on tha
 | `CHUNK_TARGET_TOKENS` | setting | optional | `320` | — |  |
 | `CHUNK_MAX_TOKENS` | setting | optional | `420` | — |  |
 | `CHUNK_OVERLAP_TOKENS` | setting | optional | `48` | — |  |
+| `CHUNKER_VERSION` | setting | optional | `v1` | — | v1 = release behaviour; v2 never drops a heading line that has no body; v2b also reads PDF `#` marks as text |
 | `EMBEDDING_MODEL` | setting | optional | `intfloat/multilingual-e5-small` | render.yaml, .env.example |  |
 | `EMBEDDING_DIMENSIONS` | setting | optional | `384` | .env.example |  |
 | `EMBEDDING_BATCH_SIZE` | setting | optional | `16` | — |  |
@@ -117,6 +118,11 @@ The worker refuses to start when a Supabase, Gemini or cron secret is set on tha
 | `ASSISTANT_CONTEXT_CHARS` | setting | optional | `9000` | — | total passage text sent to the model |
 | `ASSISTANT_VERIFY_LOCAL` | setting | optional | `True` | .env.example | a short second look at answers with figures, small local models only |
 | `ASSISTANT_EVIDENCE_CHECK` | setting | optional | `False` | — |  |
+| `ASSISTANT_EVIDENCE_GATE` | setting | optional | `log` | — | deterministic evidence-sufficiency gate before generation (assistant/gate.py): off / log / enforce |
+| `ASSISTANT_GATE_SIMILARITY` | setting | optional | `0.82` | — | without an LLM rewrite (DEV/VAL/negatives sweep) |
+| `ASSISTANT_GATE_LEXICAL` | setting | optional | `0.6` | — |  |
+| `ASSISTANT_GATE_SIMILARITY_REWRITTEN` | setting | optional | `0.86` | — | after a rewrite (measured with a local proxy model) |
+| `ASSISTANT_GATE_LEXICAL_REWRITTEN` | setting | optional | `0.7` | — |  |
 | `ASSISTANT_EVIDENCE_ADJACENT` | setting | optional | `True` | — |  |
 | `ASSISTANT_EVIDENCE_SECOND_SEARCH` | setting | optional | `True` | — |  |
 | `ASSISTANT_EVIDENCE_MAX_ADDED_PASSAGES` | setting | optional | `4` | — |  |

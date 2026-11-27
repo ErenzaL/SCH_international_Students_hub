@@ -140,6 +140,12 @@ class Settings(BaseSettings):
     # ``evidence_check`` report in the response's retrieval metadata (still-missing information is recorded).
     assistant_verify_local: bool = True        # a short second look at answers with figures, small local models only
     assistant_evidence_check: bool = False
+    # deterministic evidence-sufficiency gate before generation (assistant/gate.py): off | log | enforce
+    assistant_evidence_gate: str = "log"
+    assistant_gate_similarity: float = 0.82              # without an LLM rewrite (DEV/VAL/negatives sweep)
+    assistant_gate_lexical: float = 0.6
+    assistant_gate_similarity_rewritten: float = 0.86    # after a rewrite (measured with a local proxy model)
+    assistant_gate_lexical_rewritten: float = 0.7
     assistant_evidence_adjacent: bool = True
     assistant_evidence_second_search: bool = True
     assistant_evidence_max_added_passages: int = 4

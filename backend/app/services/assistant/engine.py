@@ -35,6 +35,7 @@ from typing import Any
 from app.core.config import Settings
 from app.repositories.base import Query
 from app.services.assistant.evidence import EvidenceChecker, EvidenceConfig, quantity_kind
+from app.services.assistant.gate import evaluate_gate
 from app.services.assistant.prompts import META_MARKER, load_system_prompt
 from app.services.assistant.texts import NATIVE_NAMES, t
 from app.services.language_detect import detect_language
@@ -439,6 +440,15 @@ class AssistantEngine:
             out["retrieval"]["evidence_check"] = evidence_report
         if rerank_info:
             out["retrieval"]["rerank"] = rerank_info
+        # deterministic evidence gate (gate.py): reported in every mode but "off"; blocks generation only in "enforce"
+        gate_mode = self.settings.assistant_evidence_gate
+        gated = False
+        if gate_mode != "off":
+            gate = evaluate_gate(hits, rewritten=bool(qinfo.get("rewritten")), settings=self.settings)
+            out["retrieval"]["evidence_gate"] = gate
+            log.info("evidence gate decision=%s reason=%s path=%s similarity=%s keywords=%s mode=%s", gate["decision"],
+                     gate["reason"], gate["path"], gate["best_similarity"], gate["best_keyword_coverage"], gate_mode)
+            gated = gate_mode == "enforce" and gate["decision"] != "sufficient"
         out["citations"] = [self._citation(i, src) for i, src in enumerate(sources, 1)]
         self._link_citations(out["citations"])
         wants_human = bool(_HUMAN.search(question))
@@ -447,7 +457,10 @@ class AssistantEngine:
         answer: str | None = None
         evidence = "none"
         generation_failed = False
-        if self.llm.enabled and not ai_ok:
+        if gated:
+            # the evidence is too weak to answer from: no model call, no invented answer, no unrelated sources shown
+            out["generation"] = {"answer_generation": "gated", "gate": out["retrieval"]["evidence_gate"]["decision"]}
+        elif self.llm.enabled and not ai_ok:
             out["generation"] = {"answer_generation": "fallback", "fallback_reason": "daily_budget"}
             generation_failed = True
         elif self.llm.enabled and qinfo.get("provider_down"):
@@ -507,7 +520,10 @@ class AssistantEngine:
                                      "partial_stream_discarded": exc.partial}
                 generation_failed = True
 
-        if generation_failed and sources:
+        if gated:
+            out["citations"] = []
+            out.update(answer=t("none", lang), evidence="none")
+        elif generation_failed and sources:
             # the LLM is configured but produced no usable answer (both models failed, unsupported output, or today's
             # budget is used up): a short localized message plus the matching official sources - never raw passages.
             # Any partially streamed text is replaced by this final message on the client.

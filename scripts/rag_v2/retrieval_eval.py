@@ -204,6 +204,7 @@ def make_queries(cfg: dict[str, Any], r: dict[str, Any], siblings: dict[str, dic
 
 def run_config(svc, l2p: dict[str, str], records: list[dict[str, Any]], cfg: dict[str, Any],  # type: ignore[no-untyped-def]
                rewriter: Rewriter | None = None) -> list[dict[str, Any]]:
+    from app.services.assistant.engine import grade_passages
     from app.services.retrieval.query_analysis import find_codes, normalize_codes
     s = svc.retrieval.settings
     engine = svc.conversations.engine
@@ -246,6 +247,13 @@ def run_config(svc, l2p: dict[str, str], records: list[dict[str, Any]], cfg: dic
                 context = [p for src in sources for p in src["passages"]]
                 row["context_docs"] = [l2p.get(src["document_id"], src["document_id"])[:8] for src in sources]
                 row["context_chars"] = sum(len(p.get("passage") or "") for p in context)
+                # evidence-gate features over what the model would read (Phase 6; thresholds are swept offline)
+                sims = [float(p["similarity"]) for p in context if p.get("similarity") is not None]
+                lexs = [float(p.get("best_lexical") or p.get("lexical_coverage") or 0.0) for p in context]
+                row.update(ctx_n=len(sources), ctx_max_sim=round(max(sims), 4) if sims else None,
+                           ctx_max_lex=round(max(lexs), 3) if lexs else 0.0,
+                           ctx_exact=any(bool(p.get("exact_match")) for p in context),
+                           ctx_grade=grade_passages(context, s.assistant_strong_similarity) if context else "none")
                 fused = list(dict.fromkeys(l2p.get(h["document_id"], h["document_id"]) for h in found["hits"]))
                 row["fused_top_docs"] = [d[:8] for d in fused[:5]]
                 if r["quotes"]:
@@ -333,8 +341,8 @@ def main() -> int:
     a = ap.parse_args()
     os.environ["CHUNKER_VERSION"] = a.chunker      # read by Settings when the index is built
     splits = a.split.split(",")
-    if any(sp not in ("dev", "val", "test") for sp in splits):
-        raise SystemExit("--split: dev, val, test")
+    if any(sp not in ("dev", "val", "test", "neg") for sp in splits):
+        raise SystemExit("--split: dev, val, test, neg")
     if "test" in splits and not a.final:
         raise SystemExit("TEST is used only in the final pre-registered run: add --final and log it in EXPERIMENT-LOG.md")
     corpus = json.loads(CORPUS.read_text(encoding="utf-8"))

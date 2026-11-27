@@ -27,6 +27,15 @@ If no candidate qualifies, the baseline stays and chunker v2 is reported as a co
 The chosen configuration and the baseline are the two configurations run on TEST in the final run.
 | E5 | 2026-11-27 | **P1 run**: chunker {v1, v2, v2b} × hub β {0, 0.05, 0.1}, memory | VALIDATION | `E5_val_memory{,_v2,_v2b}.json` | qualifying under P1: v1+β0.05 (MRR 0.729), **v1+β0.1 (0.737)**, v2+β0.1 (0.715). v2 trails the best v1 by 0.022 ≥ 0.02, so **P1 selects v1 + β0.1** (ctx +0.05 [+0.01, +0.10], MRR +0.081 [+0.016, +0.153] vs baseline). v2+β0.1 − v1+β0.1: VAL ctx 0.00 [−0.03, +0.03], MRR −0.022 [−0.047, +0.002], hit@1 −0.05 [−0.09, −0.01]; DEV ctx +0.04 [+0.01, +0.08], MRR 0.000 |
 | E6 | 2026-11-27 | query variants in the assistant stage: oracle en / en+ko (the same need's other-language question), local rewrite proxy (engine `_queries` with Qwen 2.5 7B on loopback Ollama, temperature 0, cached in `backend/.eval-cache/rag_v2_rewrites.json`), each with and without hub β0.1 | DEV, then VALIDATION | `E6_{dev,val}_memory.json` | VAL vs baseline: Qwen rewrite ctx +0.08 [+0.01, +0.16], fused MRR +0.107 [+0.042, +0.178]; **hub β0.1 + Qwen rewrite ctx 0.94 (+0.14 [+0.04, +0.25]), fused MRR 0.808 (+0.168 [+0.056, +0.284])**; oracle en/ko + β0.1 ctx 0.98. DEV agrees (β0.1 + rewrite ctx 0.98, fused MRR +0.105 [+0.02, +0.198]) |
+| D2 | 2026-11-27 | DEV-negatives v0.1: 7 unanswerable needs × 5 languages (35 questions; 3 hard negatives), DEV-only, for gate tuning | — | `scripts/benchmarks/rag_v2/dev_negatives_v0.1.json` | topics disjoint from TEST's unanswerable needs |
+| E7 | 2026-11-27 | gate features (best similarity / keyword coverage / exact match over the model's passages) for baseline, hub0.1, llm_rewrite, hub0.1_llm_rewrite | DEV, VALIDATION, DEV-negatives | `E7_{dev,val,neg}_memory.json`, `E7_gate_sweep.json` | without rewrite, at ≤ 5 % false refusals the gate refuses ≤ 37 % of negatives; after a rewrite τ 0.86 / λ 0.7 refuses 3 % of answerable (2 % with evidence in context) and 77 % of negatives (80 % of hard ones) |
+
+### G1 — evidence gate frozen for TEST (written before any TEST run)
+
+Rule in `backend/app/services/assistant/gate.py`. Thresholds: original path τ 0.82 / λ 0.6 (DEV+VAL FRR 0.035, negatives TRR 0.34);
+rewritten path τ 0.86 / λ 0.7 (FRR 0.02–0.03, TRR 0.77). On TEST the gate is reported for the configurations run there:
+FRR on answerable questions (and FRR with the gold quote in context), TRR on `unanswerable` and on `not_in_sources`.
+Default mode `log` (no behaviour change); `enforce` is an owner decision after a check on real (Gemini) traffic.
 
 Notes
 - E0: ties in the in-memory store are broken by random chunk UUIDs, so results can differ between
