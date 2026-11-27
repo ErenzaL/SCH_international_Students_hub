@@ -121,7 +121,8 @@ class ConversationService:
                 "rewritten": r.get("rewritten", False), "latency_ms": out.get("latency_ms"),
                 "stale_evidence": any(c.get("is_stale") for c in out["citations"]),
                 "insufficient_evidence": out["evidence"] == "none",
-                "evidence_gate": (r.get("evidence_gate") or {}).get("decision"), **(out.get("generation") or {})}
+                "evidence_gate": (r.get("evidence_gate") or {}).get("decision"),
+                "injection_screened": r.get("injection_screened", 0), **(out.get("generation") or {})}
 
     def ask_anonymous(self, content: str, language: str, history: list[dict[str, Any]], emit: Any = None
                       ) -> dict[str, Any]:

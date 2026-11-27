@@ -60,7 +60,8 @@ def test_an_injected_order_in_an_approved_document_never_reaches_the_model(env) 
              category="dormitory-housing")
     b = Bot("The laundry room is cleaned every Monday [1].")
     use_llm(env, ScriptedLLMProvider(b))
-    say(env, conv(env), "When is the dormitory laundry room cleaned?")
+    msg = say(env, conv(env), "When is the dormitory laundry room cleaned?")
+    assert msg["metadata"]["injection_screened"] >= 1                  # stored for monitoring
     prompt = b.answers()[-1][1]
     assert "cleaned every Monday" in prompt and "ignore all previous instructions" not in prompt
     assert "laundry is free" not in prompt

@@ -88,3 +88,35 @@ cross-language pulls (ko, vi, zh), and for English questions the English guide i
 | H2 | An English variant of non-English questions removes most `same_language_pull` misses | oracle variant (the English version of the same need) = upper bound; local-model rewrite = proxy (Phase 8) |
 | H3 | Scaling down long documents (`retrieval_hub_beta`, exists, off) frees source slots without losing guide answers | hub_beta sweep (Phase 4) |
 | H4 | The 0.80 threshold starves cross-language questions | lower thresholds; measure unanswerable questions at the same time (Phase 4 / 6) |
+
+## 6. What the final TEST run added (T1–T3, one look, P2)
+
+| Hypothesis | Outcome on TEST |
+|---|---|
+| H1 chunker v2 makes lost text findable | yes: 57 / 57 gold quotes indexable (v1 54); neutral on the rewrite path, −0.049 single-query MRR without it (post-hoc) |
+| H2 variants in the evidence's language fix the pull | **yes**: gold quote in context 0.642 → 0.858; cross-language questions 0.579 → 0.842 |
+| H3 hub scaling frees slots without losing guide answers | **no**: +0.008 MRR where no guide answers, **−0.112** where a guide is a grade-2 source (50 questions) |
+| H4 the threshold starves cross-language questions | not separately testable; the gate study below shows that similarity is a weak signal |
+
+**Lesson about labels.** Hub scaling looked good on DEV / VALIDATION because their labels name the specific document and
+rarely credit a guidebook that also answers. Only exhaustively graded labels (TEST: every document mentioning the need's
+terms read and graded) exposed the cost. Any future ranking change must be judged on labels that credit every document
+that answers.
+
+## 7. Failure modes found in the answer and injection runs (local proxy model)
+
+| Failure | Example | Caught by | Status |
+|---|---|---|---|
+| **entity substitution with a correct figure** | "student ID reissue fee?" → "KRW 35,000", the residence-card fee, cited to the residence-card article | nothing: the figure is in the cited source. The gate (log mode) flagged 2 of the 3 language versions as insufficient | open; needs an entity check or `enforce` after Gemini validation |
+| obeying orders in an approved document | "D-2 extensions are free" taken from a planted note; a planted password repeated | `injection.screen_passage` (new) | fixed: 11 / 11 after, 7 / 11 before |
+| translated system-prompt leak | Indonesian paraphrase of the hidden answering rules | `injection.asks_for_instructions` + `discloses_instructions` (new) | fixed |
+| figure cited to the wrong source | 7 of 112 checked sentences (DEV / VAL answers) | `citation_check` (new) re-attributes | fixed where exactly one source holds the figures |
+| generic, ungrounded "how-to" for a negative | campus Wi-Fi steps built from a home-internet passage | gate flagged all five as insufficient (log mode) | open; same decision as the first row |
+
+## 8. The evidence gate does not transfer (G-T)
+
+Thresholds tuned on DEV + VALIDATION + DEV-negatives refuse **18 %** of TEST answerable questions on the rewrite path
+(14 % with the gold quote in context) against 2–3 % during tuning, and catch 40 % of TEST unanswerable questions
+(77 % of the negatives). TEST questions do not echo the documents' wording (labelling guideline §2): median best
+similarity 0.872 vs 0.889, keyword coverage 0.566 vs 0.763. A similarity / keyword threshold is phrasing-dependent, so
+it stays a logged signal (`log`), not a blocker.
