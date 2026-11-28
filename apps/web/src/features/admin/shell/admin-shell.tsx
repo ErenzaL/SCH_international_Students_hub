@@ -6,7 +6,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   Activity,
+  Bot,
   ClipboardCheck,
+  Cpu,
   Database,
   FileText,
   Inbox,
@@ -34,6 +36,8 @@ import type { Me } from "@/types/api";
 
 const ICONS: Record<string, LucideIcon> = {
   Activity,
+  Bot,
+  Cpu,
   LayoutDashboard,
   Database,
   FileText,

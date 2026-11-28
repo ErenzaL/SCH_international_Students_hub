@@ -54,6 +54,24 @@ describe("announcement reading language", () => {
   });
 });
 
+describe("release 1 announcement languages", () => {
+  it("Vietnamese and Chinese readers get the original with a clear 'not offered yet' note", async () => {
+    get.mockResolvedValue(base);
+    renderWithIntl(<Detail id="a1" />);
+    await screen.findByTestId("fallback-notice");
+    const user = userEvent.setup();
+    for (const lang of ["vi", "zh-CN"]) {
+      await user.selectOptions(screen.getByLabelText(/Read in/), lang);
+      expect(get).toHaveBeenLastCalledWith("/api/v1/announcements/a1", { lang });
+      const note = await screen.findByTestId("fallback-notice");
+      expect(note).toHaveTextContent(/not translated into/);
+      expect(screen.getByTestId("announcement-body")).toHaveTextContent("12월 15일");     // the approved original
+    }
+    await user.selectOptions(screen.getByLabelText(/Read in/), "id");
+    expect(await screen.findByTestId("fallback-notice")).not.toHaveTextContent(/not translated into/);
+  });
+});
+
 describe("announcement list titles", () => {
   it("shows the translated title, the original title, and a machine-translation badge", () => {
     const a: AnnouncementSummary = { ...base, display_title: "Scholarship application", display_title_status: "machine" };

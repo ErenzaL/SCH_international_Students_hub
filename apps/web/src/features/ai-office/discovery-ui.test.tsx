@@ -156,7 +156,7 @@ describe("AI Office official-source discovery (Phase 3)", () => {
     expect(within(items[0]).getByTestId("application-links").querySelector("a")).toHaveAttribute("rel", "noopener noreferrer");
     expect(within(items[0]).getByTestId("eligibility").textContent).toContain("평점 3.5");
     expect(items[0].textContent).toContain("checked");
-    expect(within(items[1]).getByTestId("open-status")).toHaveTextContent("Status unknown");
+    expect(within(items[1]).getByTestId("open-status")).toHaveTextContent("Deadline unknown – check the source");
     expect(within(items[1]).getByTestId("item-flags").textContent).toContain("no deadline found");
     expect(panel.textContent).toContain("Nothing is published automatically.");
     // students see no review buttons

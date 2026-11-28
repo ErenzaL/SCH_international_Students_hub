@@ -69,12 +69,14 @@ export interface AgentInfo {
   interface?: AgentInterfaceView;
   /** an official-source check of this agent is queued or running (public, no details) */
   monitoring_check_running?: boolean;
+  /** an administrator paused this desk: its tasks wait, nothing new starts (chat and lists still work) */
+  paused?: boolean;
 }
 
 export interface MonitoredSource {
   name: string;
   url: string;
-  kind: "sch_board" | "listing" | "page";
+  kind: "sch_board" | "listing" | "page" | "saramin_api" | "data_go_kr_jobs" | "work24_api";
   health: "ok" | "attention" | "not_checked";
   last_checked_at: string | null;
   last_success_at: string | null;
@@ -123,7 +125,7 @@ export interface FoundDate {
 
 export interface ResultItem {
   kind: "announcement" | "document" | "passage" | "external_page" | "summary" | "translation" | "ticket" | "url"
-    | "discovered";
+    | "discovered" | "term" | "translation_task" | "translation_job";
   id?: string;
   title?: string;
   href?: string | null;
@@ -145,7 +147,7 @@ export interface ResultItem {
   reliability?: Reliability | null;
   // official-source discovery (Phase 3)
   published_on?: string | null;
-  opportunity_kind?: "scholarship" | "competition" | "program" | "job" | null;
+  opportunity_kind?: "scholarship" | "competition" | "program" | "job" | "event" | null;
   open_status?: "open" | "closed" | "unknown";
   open_reason?: string | null;
   next_deadline?: string | null;
@@ -165,6 +167,19 @@ export interface ResultItem {
   source_name?: string | null;
   review_status?: "candidate" | "dismissed" | "imported";
   summary?: string | null;
+  // staff desks
+  terms?: Record<LanguageCode, string>;
+  content_kind?: "announcement" | "document";
+  ref?: string;
+  outdated?: boolean;
+  can_review?: boolean;
+  /** translation queue: false = no machine draft in this language (Release 1: announcements only ko / en / id) */
+  machine_draft?: boolean;
+  executor?: "local" | "gpu";
+  language?: string;
+  priority?: string;
+  created_at?: string | null;
+  next_date?: string | null;
 }
 
 export interface SourceRun {
@@ -205,6 +220,7 @@ export interface ToolResult {
   verified_count?: number;
   unverified_count?: number;
   sources?: SourceRun[];
+  counts?: Record<string, number>;
 }
 
 export interface TaskEvent {

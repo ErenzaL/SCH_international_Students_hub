@@ -13,7 +13,7 @@ import math
 from typing import Any
 
 from app.repositories.base import Query, get_many
-from app.services.translation.auto import auto_languages
+from app.services.translation.auto import auto_languages, machine_languages
 from app.services.translation_drafts import chunk_text
 
 # rough model tokenizer densities (characters per token) for the estimate; system prompt per request
@@ -29,6 +29,7 @@ def _tokens(chars: int, lang: str) -> int:
 def plan(svc: Any, languages: list[str] | None = None) -> dict[str, Any]:
     s = svc.settings
     langs = languages or auto_languages(s)
+    ann_langs = [x for x in langs if x in machine_languages(s)]    # Release 1: announcement drafts only ko, en, id
     items: list[dict[str, Any]] = []
     tr = svc.announcement_translator
 
@@ -37,7 +38,7 @@ def plan(svc: Any, languages: list[str] | None = None) -> dict[str, Any]:
         orig = svc.translations.original(a["id"])
         chars = len(orig["title"]) + len(orig["body"])
         parts = len(chunk_text(orig["body"], s.translation_chunk_chars))
-        for lang in langs:
+        for lang in ann_langs:
             if lang == a["original_language"]:
                 continue
             row = tr._row(a["id"], lang)
@@ -100,13 +101,13 @@ def _length_ratio(src: str, tgt: str) -> float:
     return {("ko", "en"): 1.6, ("en", "ko"): 0.45}.get((src, tgt), 1.0)
 
 
-def apply(svc: Any, limit: int, languages: list[str] | None = None) -> list[dict[str, Any]]:
+def apply(svc: Any, limit: int, languages: list[str] | None = None, *, kinds: list[str] | None = None) -> list[dict[str, Any]]:
     """Queue up to ``limit`` jobs from the plan (announcements first, then documents); returns what was queued."""
     out: list[dict[str, Any]] = []
     for it in plan(svc, languages)["items"]:
         if len(out) >= limit:
             break
-        if it["queued"] or it["too_long"]:
+        if it["queued"] or it["too_long"] or (kinds and it["kind"] not in kinds):
             continue
         if it["kind"] == "announcement":
             job = svc.announcement_translator.queue(it["id"], it["language"], None, enqueue=False)

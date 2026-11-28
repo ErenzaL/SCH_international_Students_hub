@@ -213,6 +213,11 @@ class LanguagesUpdate(BaseModel):
     languages: list[Lang]
 
 
+class BackgroundStop(BaseModel):
+    stop: bool
+    note: str | None = Field(default=None, max_length=300)
+
+
 # ----------------------------------------------------------------- responses
 class JobAccepted(BaseModel):
     job_id: str

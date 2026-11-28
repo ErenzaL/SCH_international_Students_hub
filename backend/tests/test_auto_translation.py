@@ -89,8 +89,10 @@ def test_korean_announcement_is_machine_translated_into_english_on_publication(e
     assert en["translation_status"] == "machine_draft" and en["provider"] == "scripted" and en["warnings"] == []
     assert "2026" in en["body"] and "https://sch.ac.kr/apply" in en["body"] and "041-530-1234" in en["body"]
     assert [j["payload"]["language"] for j in jobs(env)] == ["en"]           # only the missing language (not ko)
-    tr = public_ann(env, a["id"], "en")["translation"]
-    assert tr["status"] == "machine" and tr["title"] and tr["high_risk"] is True   # scholarship = money: labelled
+    # Release 1: an unreviewed machine draft of an announcement is never public, even with
+    # PUBLIC_MACHINE_TRANSLATIONS on (the fixture turns it on)
+    assert env.settings.public_machine_translations is True
+    assert public_ann(env, a["id"], "en")["translation"] is None
     assert public_ann(env, a["id"], "ko")["translation"] is None              # the original language
     assert public_ann(env, a["id"], "en")["body"].startswith("장학금")          # the original is unchanged
 
@@ -99,9 +101,9 @@ def test_english_announcement_is_machine_translated_into_korean(env, auto):
     a = publish(env, title=EN_TITLE, body=EN_BODY, original_language="en")
     ko = ann_row(env, a["id"], "ko")
     assert ko["translation_status"] == "machine_draft" and "2027-02-24" in ko["body"] and "dorm@sch.ac.kr" in ko["body"]
-    assert public_ann(env, a["id"], "ko")["translation"]["status"] == "machine"
+    assert public_ann(env, a["id"], "ko")["translation"] is None              # a draft, not reviewed: not public
     listing = env.client.get("/api/v1/announcements", params={"display_language": "ko"}).json()["items"]
-    assert listing[0]["display_title"] == ko["title"] and listing[0]["display_title_status"] == "machine"
+    assert listing[0]["display_title"] is None and listing[0]["display_title_status"] is None   # original title
 
 
 def test_machine_translations_are_hidden_unless_enabled_and_never_block_publication(env, auto):
@@ -233,8 +235,8 @@ def test_high_risk_policy_review_holds_unverified_machine_translations(env, auto
     assert ann_row(env, a["id"], "en")["translation_status"] == "machine_draft"
     assert public_ann(env, a["id"], "en")["translation"] is None
     b = publish(env, title="도서관 휴관 안내", body="도서관은 리모델링으로 다음 주 월요일 하루 휴관합니다.")
-    tr = public_ann(env, b["id"], "en")["translation"]
-    assert tr["status"] == "machine" and tr["high_risk"] is False
+    assert ann_row(env, b["id"], "en")["translation_status"] == "machine_draft"
+    assert public_ann(env, b["id"], "en")["translation"] is None   # low risk too: unreviewed drafts stay private
 
 
 # ------------------------------------------------------------------------------------- documents

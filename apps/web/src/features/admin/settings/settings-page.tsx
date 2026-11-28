@@ -7,6 +7,7 @@ import { ErrorState, LoadingState, PageHeader } from "@/components/shared/states
 import { api } from "@/lib/api";
 import { useApi } from "@/lib/use-api";
 import { AllowedDomainsCard } from "@/features/admin/settings/allowed-domains";
+import { AiUsageCard } from "@/features/admin/settings/ai-usage";
 import { LlmCheckCard } from "@/features/admin/settings/llm-check";
 import type { AdminSettings } from "@/types/api";
 
@@ -57,6 +58,7 @@ export function SettingsPage() {
           </CardContent>
         </Card>
       )}
+      <AiUsageCard />
       <LlmCheckCard />
       <AllowedDomainsCard />
     </div>

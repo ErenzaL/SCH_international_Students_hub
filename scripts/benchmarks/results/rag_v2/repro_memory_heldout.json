@@ -1,0 +1,5186 @@
+{
+ "set": "heldout",
+ "dataset_version": "retrieval-heldout-0.2",
+ "provenance": "Questions, translations and labels drafted by an AI assistant (Claude) from document headings and text, after all retrieval tuning was finished. Labels were checked automatically: each scenario's evidence_terms occur in its primary document. NOT reviewed by a human; to be promoted to retrieval-reviewed-1.0 through research/data/review/label_review_worksheet.csv.",
+ "questions": 100,
+ "languages": {
+  "en": 20,
+  "id": 20,
+  "ko": 20,
+  "vi": 20,
+  "zh-CN": 20
+ },
+ "at": "2026-11-26T23:24:44+00:00",
+ "git_commit": "8fd791b",
+ "index": {
+  "index_seconds": 15.3,
+  "documents": 27,
+  "chunks": 749,
+  "embedded_chunks": 749,
+  "embedding_model": "intfloat/multilingual-e5-small#qint8",
+  "chunk_target_tokens": 320,
+  "chunk_max_tokens": 420,
+  "chunk_overlap_tokens": 48
+ },
+ "top_k_chunks": 10,
+ "settings": {
+  "retrieval_min_similarity": 0.8,
+  "vector_weight": 1.0,
+  "keyword_weight": 0.35,
+  "bridge_weight": 0.75,
+  "candidate_pool": 30,
+  "max_chunks_per_document": 3
+ },
+ "bootstrap": {
+  "resamples": 5000,
+  "seed": 7,
+  "method": "percentile, over questions"
+ },
+ "latency_note": "in-process (school server CPU, in-memory store): NOT the hosted latency",
+ "results": {
+  "vector": {
+   "overall": {
+    "n": 100,
+    "recall@1": 0.5,
+    "recall@1_ci95": [
+     0.41,
+     0.59
+    ],
+    "recall@3": 0.78,
+    "recall@3_ci95": [
+     0.69,
+     0.86
+    ],
+    "recall@5": 0.82,
+    "recall@5_ci95": [
+     0.74,
+     0.89
+    ],
+    "recall@10": 0.83,
+    "recall@10_ci95": [
+     0.75,
+     0.9
+    ],
+    "mrr@10": 0.631,
+    "mrr@10_ci95": [
+     0.551,
+     0.708
+    ],
+    "ndcg@5": 0.619,
+    "ndcg@5_ci95": [
+     0.546,
+     0.691
+    ],
+    "ndcg@10": 0.62,
+    "ndcg@10_ci95": [
+     0.547,
+     0.692
+    ],
+    "p@5": 0.214,
+    "p@5_ci95": [
+     0.186,
+     0.242
+    ],
+    "top1_primary": 0.44,
+    "top1_primary_ci95": [
+     0.34,
+     0.54
+    ]
+   },
+   "per_language": {
+    "ko": {
+     "n": 20,
+     "recall@1": 0.2,
+     "recall@1_ci95": [
+      0.05,
+      0.4
+     ],
+     "recall@3": 0.45,
+     "recall@3_ci95": [
+      0.25,
+      0.65
+     ],
+     "recall@5": 0.45,
+     "recall@5_ci95": [
+      0.25,
+      0.65
+     ],
+     "recall@10": 0.45,
+     "recall@10_ci95": [
+      0.25,
+      0.65
+     ],
+     "mrr@10": 0.308,
+     "mrr@10_ci95": [
+      0.142,
+      0.492
+     ],
+     "ndcg@5": 0.303,
+     "ndcg@5_ci95": [
+      0.144,
+      0.476
+     ],
+     "ndcg@10": 0.303,
+     "ndcg@10_ci95": [
+      0.143,
+      0.473
+     ],
+     "p@5": 0.1,
+     "p@5_ci95": [
+      0.05,
+      0.15
+     ],
+     "top1_primary": 0.2,
+     "top1_primary_ci95": [
+      0.05,
+      0.4
+     ]
+    },
+    "en": {
+     "n": 20,
+     "recall@1": 0.75,
+     "recall@1_ci95": [
+      0.55,
+      0.95
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.6,
+      0.95
+     ],
+     "recall@5": 0.85,
+     "recall@5_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@10": 0.85,
+     "recall@10_ci95": [
+      0.7,
+      1.0
+     ],
+     "mrr@10": 0.787,
+     "mrr@10_ci95": [
+      0.613,
+      0.95
+     ],
+     "ndcg@5": 0.745,
+     "ndcg@5_ci95": [
+      0.578,
+      0.892
+     ],
+     "ndcg@10": 0.745,
+     "ndcg@10_ci95": [
+      0.582,
+      0.895
+     ],
+     "p@5": 0.26,
+     "p@5_ci95": [
+      0.18,
+      0.34
+     ],
+     "top1_primary": 0.65,
+     "top1_primary_ci95": [
+      0.45,
+      0.85
+     ]
+    },
+    "id": {
+     "n": 20,
+     "recall@1": 0.75,
+     "recall@1_ci95": [
+      0.55,
+      0.9
+     ],
+     "recall@3": 0.95,
+     "recall@3_ci95": [
+      0.85,
+      1.0
+     ],
+     "recall@5": 1.0,
+     "recall@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.846,
+     "mrr@10_ci95": [
+      0.717,
+      0.95
+     ],
+     "ndcg@5": 0.819,
+     "ndcg@5_ci95": [
+      0.716,
+      0.911
+     ],
+     "ndcg@10": 0.819,
+     "ndcg@10_ci95": [
+      0.714,
+      0.912
+     ],
+     "p@5": 0.28,
+     "p@5_ci95": [
+      0.23,
+      0.34
+     ],
+     "top1_primary": 0.65,
+     "top1_primary_ci95": [
+      0.45,
+      0.85
+     ]
+    },
+    "vi": {
+     "n": 20,
+     "recall@1": 0.35,
+     "recall@1_ci95": [
+      0.15,
+      0.55
+     ],
+     "recall@3": 0.85,
+     "recall@3_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@5": 0.9,
+     "recall@5_ci95": [
+      0.75,
+      1.0
+     ],
+     "recall@10": 0.95,
+     "recall@10_ci95": [
+      0.85,
+      1.0
+     ],
+     "mrr@10": 0.577,
+     "mrr@10_ci95": [
+      0.43,
+      0.727
+     ],
+     "ndcg@5": 0.602,
+     "ndcg@5_ci95": [
+      0.461,
+      0.743
+     ],
+     "ndcg@10": 0.609,
+     "ndcg@10_ci95": [
+      0.469,
+      0.747
+     ],
+     "p@5": 0.22,
+     "p@5_ci95": [
+      0.17,
+      0.28
+     ],
+     "top1_primary": 0.3,
+     "top1_primary_ci95": [
+      0.1,
+      0.5
+     ]
+    },
+    "zh-CN": {
+     "n": 20,
+     "recall@1": 0.45,
+     "recall@1_ci95": [
+      0.25,
+      0.65
+     ],
+     "recall@3": 0.85,
+     "recall@3_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@5": 0.9,
+     "recall@5_ci95": [
+      0.75,
+      1.0
+     ],
+     "recall@10": 0.9,
+     "recall@10_ci95": [
+      0.75,
+      1.0
+     ],
+     "mrr@10": 0.637,
+     "mrr@10_ci95": [
+      0.475,
+      0.796
+     ],
+     "ndcg@5": 0.625,
+     "ndcg@5_ci95": [
+      0.475,
+      0.761
+     ],
+     "ndcg@10": 0.625,
+     "ndcg@10_ci95": [
+      0.48,
+      0.761
+     ],
+     "p@5": 0.21,
+     "p@5_ci95": [
+      0.17,
+      0.25
+     ],
+     "top1_primary": 0.4,
+     "top1_primary_ci95": [
+      0.2,
+      0.6
+     ]
+    }
+   },
+   "per_topic": {
+    "academic-procedures": {
+     "n": 15,
+     "recall@1": 0.4,
+     "recall@1_ci95": [
+      0.2,
+      0.667
+     ],
+     "recall@3": 0.667,
+     "recall@3_ci95": [
+      0.4,
+      0.867
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.6,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.6,
+      1.0
+     ],
+     "mrr@10": 0.552,
+     "mrr@10_ci95": [
+      0.356,
+      0.75
+     ],
+     "ndcg@5": 0.614,
+     "ndcg@5_ci95": [
+      0.421,
+      0.802
+     ],
+     "ndcg@10": 0.614,
+     "ndcg@10_ci95": [
+      0.423,
+      0.797
+     ],
+     "p@5": 0.16,
+     "p@5_ci95": [
+      0.12,
+      0.2
+     ],
+     "top1_primary": 0.4,
+     "top1_primary_ci95": [
+      0.133,
+      0.667
+     ]
+    },
+    "daily-living": {
+     "n": 5,
+     "recall@1": 0.6,
+     "recall@1_ci95": [
+      0.2,
+      1.0
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "mrr@10": 0.7,
+     "mrr@10_ci95": [
+      0.3,
+      1.0
+     ],
+     "ndcg@5": 0.726,
+     "ndcg@5_ci95": [
+      0.326,
+      1.0
+     ],
+     "ndcg@10": 0.726,
+     "ndcg@10_ci95": [
+      0.326,
+      1.0
+     ],
+     "p@5": 0.16,
+     "p@5_ci95": [
+      0.08,
+      0.2
+     ],
+     "top1_primary": 0.6,
+     "top1_primary_ci95": [
+      0.2,
+      1.0
+     ]
+    },
+    "dormitory": {
+     "n": 5,
+     "recall@1": 0.0,
+     "recall@1_ci95": [
+      0.0,
+      0.0
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "mrr@10": 0.333,
+     "mrr@10_ci95": [
+      0.167,
+      0.467
+     ],
+     "ndcg@5": 0.452,
+     "ndcg@5_ci95": [
+      0.226,
+      0.605
+     ],
+     "ndcg@10": 0.452,
+     "ndcg@10_ci95": [
+      0.226,
+      0.605
+     ],
+     "p@5": 0.16,
+     "p@5_ci95": [
+      0.08,
+      0.2
+     ],
+     "top1_primary": 0.0,
+     "top1_primary_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "health-insurance": {
+     "n": 10,
+     "recall@1": 0.8,
+     "recall@1_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@3": 1.0,
+     "recall@3_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@5": 1.0,
+     "recall@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.867,
+     "mrr@10_ci95": [
+      0.667,
+      1.0
+     ],
+     "ndcg@5": 0.783,
+     "ndcg@5_ci95": [
+      0.61,
+      0.931
+     ],
+     "ndcg@10": 0.783,
+     "ndcg@10_ci95": [
+      0.608,
+      0.936
+     ],
+     "p@5": 0.44,
+     "p@5_ci95": [
+      0.36,
+      0.52
+     ],
+     "top1_primary": 0.5,
+     "top1_primary_ci95": [
+      0.2,
+      0.8
+     ]
+    },
+    "housing": {
+     "n": 5,
+     "recall@1": 0.4,
+     "recall@1_ci95": [
+      0.0,
+      0.8
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "mrr@10": 0.567,
+     "mrr@10_ci95": [
+      0.233,
+      0.9
+     ],
+     "ndcg@5": 0.476,
+     "ndcg@5_ci95": [
+      0.228,
+      0.704
+     ],
+     "ndcg@10": 0.476,
+     "ndcg@10_ci95": [
+      0.228,
+      0.704
+     ],
+     "p@5": 0.16,
+     "p@5_ci95": [
+      0.08,
+      0.2
+     ],
+     "top1_primary": 0.4,
+     "top1_primary_ci95": [
+      0.0,
+      0.8
+     ]
+    },
+    "part-time-employment": {
+     "n": 10,
+     "recall@1": 0.2,
+     "recall@1_ci95": [
+      0.0,
+      0.5
+     ],
+     "recall@3": 0.7,
+     "recall@3_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.5,
+      1.0
+     ],
+     "mrr@10": 0.425,
+     "mrr@10_ci95": [
+      0.233,
+      0.633
+     ],
+     "ndcg@5": 0.404,
+     "ndcg@5_ci95": [
+      0.226,
+      0.585
+     ],
+     "ndcg@10": 0.404,
+     "ndcg@10_ci95": [
+      0.224,
+      0.586
+     ],
+     "p@5": 0.24,
+     "p@5_ci95": [
+      0.12,
+      0.38
+     ],
+     "top1_primary": 0.0,
+     "top1_primary_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "residence-card": {
+     "n": 20,
+     "recall@1": 0.65,
+     "recall@1_ci95": [
+      0.45,
+      0.85
+     ],
+     "recall@3": 0.85,
+     "recall@3_ci95": [
+      0.65,
+      1.0
+     ],
+     "recall@5": 0.85,
+     "recall@5_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@10": 0.85,
+     "recall@10_ci95": [
+      0.65,
+      1.0
+     ],
+     "mrr@10": 0.733,
+     "mrr@10_ci95": [
+      0.55,
+      0.892
+     ],
+     "ndcg@5": 0.701,
+     "ndcg@5_ci95": [
+      0.536,
+      0.849
+     ],
+     "ndcg@10": 0.701,
+     "ndcg@10_ci95": [
+      0.539,
+      0.846
+     ],
+     "p@5": 0.24,
+     "p@5_ci95": [
+      0.18,
+      0.31
+     ],
+     "top1_primary": 0.65,
+     "top1_primary_ci95": [
+      0.45,
+      0.85
+     ]
+    },
+    "topik": {
+     "n": 5,
+     "recall@1": 1.0,
+     "recall@1_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@3": 1.0,
+     "recall@3_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@5": 1.0,
+     "recall@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 1.0,
+     "mrr@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "ndcg@5": 1.0,
+     "ndcg@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "ndcg@10": 1.0,
+     "ndcg@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "p@5": 0.2,
+     "p@5_ci95": [
+      0.2,
+      0.2
+     ],
+     "top1_primary": 1.0,
+     "top1_primary_ci95": [
+      1.0,
+      1.0
+     ]
+    },
+    "university-announcements": {
+     "n": 5,
+     "recall@1": 0.6,
+     "recall@1_ci95": [
+      0.2,
+      1.0
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "mrr@10": 0.7,
+     "mrr@10_ci95": [
+      0.3,
+      1.0
+     ],
+     "ndcg@5": 0.726,
+     "ndcg@5_ci95": [
+      0.326,
+      1.0
+     ],
+     "ndcg@10": 0.726,
+     "ndcg@10_ci95": [
+      0.326,
+      1.0
+     ],
+     "p@5": 0.16,
+     "p@5_ci95": [
+      0.08,
+      0.2
+     ],
+     "top1_primary": 0.6,
+     "top1_primary_ci95": [
+      0.2,
+      1.0
+     ]
+    },
+    "visa-immigration": {
+     "n": 20,
+     "recall@1": 0.4,
+     "recall@1_ci95": [
+      0.2,
+      0.6
+     ],
+     "recall@3": 0.65,
+     "recall@3_ci95": [
+      0.45,
+      0.85
+     ],
+     "recall@5": 0.7,
+     "recall@5_ci95": [
+      0.5,
+      0.9
+     ],
+     "recall@10": 0.75,
+     "recall@10_ci95": [
+      0.55,
+      0.9
+     ],
+     "mrr@10": 0.537,
+     "mrr@10_ci95": [
+      0.35,
+      0.725
+     ],
+     "ndcg@5": 0.493,
+     "ndcg@5_ci95": [
+      0.322,
+      0.677
+     ],
+     "ndcg@10": 0.5,
+     "ndcg@10_ci95": [
+      0.333,
+      0.673
+     ],
+     "p@5": 0.16,
+     "p@5_ci95": [
+      0.11,
+      0.21
+     ],
+     "top1_primary": 0.35,
+     "top1_primary_ci95": [
+      0.15,
+      0.55
+     ]
+    }
+   },
+   "per_difficulty": {
+    "multi-step": {
+     "n": 10,
+     "recall@1": 0.3,
+     "recall@1_ci95": [
+      0.0,
+      0.6
+     ],
+     "recall@3": 0.7,
+     "recall@3_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@5": 0.7,
+     "recall@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.5,
+      1.0
+     ],
+     "mrr@10": 0.517,
+     "mrr@10_ci95": [
+      0.283,
+      0.75
+     ],
+     "ndcg@5": 0.393,
+     "ndcg@5_ci95": [
+      0.191,
+      0.604
+     ],
+     "ndcg@10": 0.407,
+     "ndcg@10_ci95": [
+      0.219,
+      0.607
+     ],
+     "p@5": 0.18,
+     "p@5_ci95": [
+      0.1,
+      0.26
+     ],
+     "top1_primary": 0.2,
+     "top1_primary_ci95": [
+      0.0,
+      0.5
+     ]
+    },
+    "procedure": {
+     "n": 10,
+     "recall@1": 0.4,
+     "recall@1_ci95": [
+      0.1,
+      0.7
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.5,
+      1.0
+     ],
+     "mrr@10": 0.583,
+     "mrr@10_ci95": [
+      0.35,
+      0.8
+     ],
+     "ndcg@5": 0.639,
+     "ndcg@5_ci95": [
+      0.389,
+      0.852
+     ],
+     "ndcg@10": 0.639,
+     "ndcg@10_ci95": [
+      0.4,
+      0.852
+     ],
+     "p@5": 0.16,
+     "p@5_ci95": [
+      0.1,
+      0.2
+     ],
+     "top1_primary": 0.4,
+     "top1_primary_ci95": [
+      0.1,
+      0.7
+     ]
+    },
+    "simple": {
+     "n": 75,
+     "recall@1": 0.573,
+     "recall@1_ci95": [
+      0.467,
+      0.68
+     ],
+     "recall@3": 0.787,
+     "recall@3_ci95": [
+      0.693,
+      0.88
+     ],
+     "recall@5": 0.84,
+     "recall@5_ci95": [
+      0.747,
+      0.92
+     ],
+     "recall@10": 0.84,
+     "recall@10_ci95": [
+      0.747,
+      0.92
+     ],
+     "mrr@10": 0.673,
+     "mrr@10_ci95": [
+      0.582,
+      0.76
+     ],
+     "ndcg@5": 0.657,
+     "ndcg@5_ci95": [
+      0.571,
+      0.743
+     ],
+     "ndcg@10": 0.657,
+     "ndcg@10_ci95": [
+      0.573,
+      0.741
+     ],
+     "p@5": 0.229,
+     "p@5_ci95": [
+      0.195,
+      0.267
+     ],
+     "top1_primary": 0.507,
+     "top1_primary_ci95": [
+      0.4,
+      0.627
+     ]
+    },
+    "time-sensitive": {
+     "n": 5,
+     "recall@1": 0.0,
+     "recall@1_ci95": [
+      0.0,
+      0.0
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "mrr@10": 0.333,
+     "mrr@10_ci95": [
+      0.167,
+      0.467
+     ],
+     "ndcg@5": 0.452,
+     "ndcg@5_ci95": [
+      0.226,
+      0.605
+     ],
+     "ndcg@10": 0.452,
+     "ndcg@10_ci95": [
+      0.226,
+      0.605
+     ],
+     "p@5": 0.16,
+     "p@5_ci95": [
+      0.08,
+      0.2
+     ],
+     "top1_primary": 0.0,
+     "top1_primary_ci95": [
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "coverage": {
+    "relevant_documents": 15,
+    "ranked_first_somewhere": 13,
+    "share": 0.867
+   },
+   "latency_ms": {
+    "p50": 21.2,
+    "p95": 21.9,
+    "max": 22.4
+   },
+   "distinct_documents_in_list": {
+    "median": 4.0,
+    "min": 1
+   },
+   "misses": [
+    {
+     "question_id": "H01-ko",
+     "language": "ko",
+     "topic": "health-insurance",
+     "rank": 3
+    },
+    {
+     "question_id": "H02-ko",
+     "language": "ko",
+     "topic": "health-insurance",
+     "rank": 3
+    },
+    {
+     "question_id": "H04-ko",
+     "language": "ko",
+     "topic": "visa-immigration",
+     "rank": null
+    },
+    {
+     "question_id": "H04-id",
+     "language": "id",
+     "topic": "visa-immigration",
+     "rank": 4
+    },
+    {
+     "question_id": "H04-vi",
+     "language": "vi",
+     "topic": "visa-immigration",
+     "rank": null
+    },
+    {
+     "question_id": "H04-zh-CN",
+     "language": "zh-CN",
+     "topic": "visa-immigration",
+     "rank": 3
+    },
+    {
+     "question_id": "H05-ko",
+     "language": "ko",
+     "topic": "visa-immigration",
+     "rank": null
+    },
+    {
+     "question_id": "H05-id",
+     "language": "id",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H05-vi",
+     "language": "vi",
+     "topic": "visa-immigration",
+     "rank": 6
+    },
+    {
+     "question_id": "H05-zh-CN",
+     "language": "zh-CN",
+     "topic": "visa-immigration",
+     "rank": null
+    },
+    {
+     "question_id": "H06-ko",
+     "language": "ko",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H06-vi",
+     "language": "vi",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H06-zh-CN",
+     "language": "zh-CN",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H07-ko",
+     "language": "ko",
+     "topic": "visa-immigration",
+     "rank": null
+    },
+    {
+     "question_id": "H08-ko",
+     "language": "ko",
+     "topic": "part-time-employment",
+     "rank": null
+    },
+    {
+     "question_id": "H08-vi",
+     "language": "vi",
+     "topic": "part-time-employment",
+     "rank": 3
+    },
+    {
+     "question_id": "H08-zh-CN",
+     "language": "zh-CN",
+     "topic": "part-time-employment",
+     "rank": 2
+    },
+    {
+     "question_id": "H09-en",
+     "language": "en",
+     "topic": "part-time-employment",
+     "rank": 2
+    },
+    {
+     "question_id": "H09-ko",
+     "language": "ko",
+     "topic": "part-time-employment",
+     "rank": null
+    },
+    {
+     "question_id": "H09-id",
+     "language": "id",
+     "topic": "part-time-employment",
+     "rank": 3
+    },
+    {
+     "question_id": "H09-vi",
+     "language": "vi",
+     "topic": "part-time-employment",
+     "rank": 3
+    },
+    {
+     "question_id": "H09-zh-CN",
+     "language": "zh-CN",
+     "topic": "part-time-employment",
+     "rank": 4
+    },
+    {
+     "question_id": "H10-ko",
+     "language": "ko",
+     "topic": "residence-card",
+     "rank": null
+    },
+    {
+     "question_id": "H10-vi",
+     "language": "vi",
+     "topic": "residence-card",
+     "rank": 2
+    },
+    {
+     "question_id": "H10-zh-CN",
+     "language": "zh-CN",
+     "topic": "residence-card",
+     "rank": 3
+    },
+    {
+     "question_id": "H11-vi",
+     "language": "vi",
+     "topic": "residence-card",
+     "rank": 3
+    },
+    {
+     "question_id": "H11-zh-CN",
+     "language": "zh-CN",
+     "topic": "residence-card",
+     "rank": 2
+    },
+    {
+     "question_id": "H12-ko",
+     "language": "ko",
+     "topic": "residence-card",
+     "rank": null
+    },
+    {
+     "question_id": "H13-ko",
+     "language": "ko",
+     "topic": "residence-card",
+     "rank": null
+    },
+    {
+     "question_id": "H14-ko",
+     "language": "ko",
+     "topic": "housing",
+     "rank": null
+    },
+    {
+     "question_id": "H14-vi",
+     "language": "vi",
+     "topic": "housing",
+     "rank": 3
+    },
+    {
+     "question_id": "H14-zh-CN",
+     "language": "zh-CN",
+     "topic": "housing",
+     "rank": 2
+    },
+    {
+     "question_id": "H15-ko",
+     "language": "ko",
+     "topic": "daily-living",
+     "rank": null
+    },
+    {
+     "question_id": "H15-vi",
+     "language": "vi",
+     "topic": "daily-living",
+     "rank": 2
+    },
+    {
+     "question_id": "H16-en",
+     "language": "en",
+     "topic": "academic-procedures",
+     "rank": 4
+    },
+    {
+     "question_id": "H16-ko",
+     "language": "ko",
+     "topic": "academic-procedures",
+     "rank": 2
+    },
+    {
+     "question_id": "H17-en",
+     "language": "en",
+     "topic": "academic-procedures",
+     "rank": null
+    },
+    {
+     "question_id": "H17-id",
+     "language": "id",
+     "topic": "academic-procedures",
+     "rank": 3
+    },
+    {
+     "question_id": "H17-vi",
+     "language": "vi",
+     "topic": "academic-procedures",
+     "rank": 2
+    },
+    {
+     "question_id": "H17-zh-CN",
+     "language": "zh-CN",
+     "topic": "academic-procedures",
+     "rank": 2
+    },
+    {
+     "question_id": "H18-ko",
+     "language": "ko",
+     "topic": "academic-procedures",
+     "rank": null
+    },
+    {
+     "question_id": "H18-vi",
+     "language": "vi",
+     "topic": "academic-procedures",
+     "rank": 5
+    },
+    {
+     "question_id": "H18-zh-CN",
+     "language": "zh-CN",
+     "topic": "academic-procedures",
+     "rank": null
+    },
+    {
+     "question_id": "H19-en",
+     "language": "en",
+     "topic": "dormitory",
+     "rank": null
+    },
+    {
+     "question_id": "H19-ko",
+     "language": "ko",
+     "topic": "dormitory",
+     "rank": 2
+    },
+    {
+     "question_id": "H19-id",
+     "language": "id",
+     "topic": "dormitory",
+     "rank": 2
+    },
+    {
+     "question_id": "H19-vi",
+     "language": "vi",
+     "topic": "dormitory",
+     "rank": 3
+    },
+    {
+     "question_id": "H19-zh-CN",
+     "language": "zh-CN",
+     "topic": "dormitory",
+     "rank": 3
+    },
+    {
+     "question_id": "H20-en",
+     "language": "en",
+     "topic": "university-announcements",
+     "rank": null
+    },
+    {
+     "question_id": "H20-vi",
+     "language": "vi",
+     "topic": "university-announcements",
+     "rank": 2
+    }
+   ]
+  },
+  "hybrid_legacy": {
+   "overall": {
+    "n": 100,
+    "recall@1": 0.46,
+    "recall@1_ci95": [
+     0.36,
+     0.56
+    ],
+    "recall@3": 0.75,
+    "recall@3_ci95": [
+     0.66,
+     0.83
+    ],
+    "recall@5": 0.79,
+    "recall@5_ci95": [
+     0.71,
+     0.87
+    ],
+    "recall@10": 0.82,
+    "recall@10_ci95": [
+     0.74,
+     0.89
+    ],
+    "mrr@10": 0.603,
+    "mrr@10_ci95": [
+     0.523,
+     0.681
+    ],
+    "ndcg@5": 0.6,
+    "ndcg@5_ci95": [
+     0.528,
+     0.671
+    ],
+    "ndcg@10": 0.609,
+    "ndcg@10_ci95": [
+     0.538,
+     0.678
+    ],
+    "p@5": 0.214,
+    "p@5_ci95": [
+     0.184,
+     0.244
+    ],
+    "top1_primary": 0.38,
+    "top1_primary_ci95": [
+     0.28,
+     0.47
+    ]
+   },
+   "per_language": {
+    "ko": {
+     "n": 20,
+     "recall@1": 0.15,
+     "recall@1_ci95": [
+      0.0,
+      0.35
+     ],
+     "recall@3": 0.35,
+     "recall@3_ci95": [
+      0.15,
+      0.55
+     ],
+     "recall@5": 0.4,
+     "recall@5_ci95": [
+      0.2,
+      0.6
+     ],
+     "recall@10": 0.4,
+     "recall@10_ci95": [
+      0.2,
+      0.6
+     ],
+     "mrr@10": 0.254,
+     "mrr@10_ci95": [
+      0.104,
+      0.425
+     ],
+     "ndcg@5": 0.269,
+     "ndcg@5_ci95": [
+      0.113,
+      0.443
+     ],
+     "ndcg@10": 0.269,
+     "ndcg@10_ci95": [
+      0.114,
+      0.439
+     ],
+     "p@5": 0.08,
+     "p@5_ci95": [
+      0.04,
+      0.12
+     ],
+     "top1_primary": 0.15,
+     "top1_primary_ci95": [
+      0.0,
+      0.3
+     ]
+    },
+    "en": {
+     "n": 20,
+     "recall@1": 0.55,
+     "recall@1_ci95": [
+      0.35,
+      0.75
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.6,
+      0.95
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.6,
+      0.95
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.6,
+      0.95
+     ],
+     "mrr@10": 0.675,
+     "mrr@10_ci95": [
+      0.5,
+      0.85
+     ],
+     "ndcg@5": 0.667,
+     "ndcg@5_ci95": [
+      0.5,
+      0.817
+     ],
+     "ndcg@10": 0.667,
+     "ndcg@10_ci95": [
+      0.499,
+      0.815
+     ],
+     "p@5": 0.25,
+     "p@5_ci95": [
+      0.17,
+      0.33
+     ],
+     "top1_primary": 0.4,
+     "top1_primary_ci95": [
+      0.2,
+      0.6
+     ]
+    },
+    "id": {
+     "n": 20,
+     "recall@1": 0.65,
+     "recall@1_ci95": [
+      0.45,
+      0.85
+     ],
+     "recall@3": 0.9,
+     "recall@3_ci95": [
+      0.75,
+      1.0
+     ],
+     "recall@5": 0.95,
+     "recall@5_ci95": [
+      0.85,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.779,
+     "mrr@10_ci95": [
+      0.642,
+      0.908
+     ],
+     "ndcg@5": 0.777,
+     "ndcg@5_ci95": [
+      0.656,
+      0.885
+     ],
+     "ndcg@10": 0.795,
+     "ndcg@10_ci95": [
+      0.692,
+      0.891
+     ],
+     "p@5": 0.28,
+     "p@5_ci95": [
+      0.22,
+      0.35
+     ],
+     "top1_primary": 0.55,
+     "top1_primary_ci95": [
+      0.35,
+      0.75
+     ]
+    },
+    "vi": {
+     "n": 20,
+     "recall@1": 0.5,
+     "recall@1_ci95": [
+      0.3,
+      0.7
+     ],
+     "recall@3": 0.85,
+     "recall@3_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@5": 0.9,
+     "recall@5_ci95": [
+      0.75,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.668,
+     "mrr@10_ci95": [
+      0.517,
+      0.817
+     ],
+     "ndcg@5": 0.664,
+     "ndcg@5_ci95": [
+      0.532,
+      0.786
+     ],
+     "ndcg@10": 0.689,
+     "ndcg@10_ci95": [
+      0.575,
+      0.794
+     ],
+     "p@5": 0.25,
+     "p@5_ci95": [
+      0.19,
+      0.31
+     ],
+     "top1_primary": 0.4,
+     "top1_primary_ci95": [
+      0.2,
+      0.6
+     ]
+    },
+    "zh-CN": {
+     "n": 20,
+     "recall@1": 0.45,
+     "recall@1_ci95": [
+      0.25,
+      0.65
+     ],
+     "recall@3": 0.85,
+     "recall@3_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@5": 0.9,
+     "recall@5_ci95": [
+      0.75,
+      1.0
+     ],
+     "recall@10": 0.9,
+     "recall@10_ci95": [
+      0.75,
+      1.0
+     ],
+     "mrr@10": 0.637,
+     "mrr@10_ci95": [
+      0.475,
+      0.796
+     ],
+     "ndcg@5": 0.625,
+     "ndcg@5_ci95": [
+      0.475,
+      0.761
+     ],
+     "ndcg@10": 0.625,
+     "ndcg@10_ci95": [
+      0.48,
+      0.761
+     ],
+     "p@5": 0.21,
+     "p@5_ci95": [
+      0.17,
+      0.25
+     ],
+     "top1_primary": 0.4,
+     "top1_primary_ci95": [
+      0.2,
+      0.6
+     ]
+    }
+   },
+   "per_topic": {
+    "academic-procedures": {
+     "n": 15,
+     "recall@1": 0.467,
+     "recall@1_ci95": [
+      0.2,
+      0.733
+     ],
+     "recall@3": 0.667,
+     "recall@3_ci95": [
+      0.4,
+      0.867
+     ],
+     "recall@5": 0.733,
+     "recall@5_ci95": [
+      0.467,
+      0.933
+     ],
+     "recall@10": 0.733,
+     "recall@10_ci95": [
+      0.533,
+      0.933
+     ],
+     "mrr@10": 0.569,
+     "mrr@10_ci95": [
+      0.349,
+      0.78
+     ],
+     "ndcg@5": 0.61,
+     "ndcg@5_ci95": [
+      0.396,
+      0.817
+     ],
+     "ndcg@10": 0.61,
+     "ndcg@10_ci95": [
+      0.393,
+      0.817
+     ],
+     "p@5": 0.147,
+     "p@5_ci95": [
+      0.093,
+      0.187
+     ],
+     "top1_primary": 0.467,
+     "top1_primary_ci95": [
+      0.2,
+      0.733
+     ]
+    },
+    "daily-living": {
+     "n": 5,
+     "recall@1": 0.8,
+     "recall@1_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "mrr@10": 0.8,
+     "mrr@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "ndcg@5": 0.8,
+     "ndcg@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "ndcg@10": 0.8,
+     "ndcg@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "p@5": 0.16,
+     "p@5_ci95": [
+      0.08,
+      0.2
+     ],
+     "top1_primary": 0.8,
+     "top1_primary_ci95": [
+      0.4,
+      1.0
+     ]
+    },
+    "dormitory": {
+     "n": 5,
+     "recall@1": 0.0,
+     "recall@1_ci95": [
+      0.0,
+      0.0
+     ],
+     "recall@3": 0.6,
+     "recall@3_ci95": [
+      0.2,
+      1.0
+     ],
+     "recall@5": 0.6,
+     "recall@5_ci95": [
+      0.2,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "mrr@10": 0.267,
+     "mrr@10_ci95": [
+      0.133,
+      0.4
+     ],
+     "ndcg@5": 0.326,
+     "ndcg@5_ci95": [
+      0.1,
+      0.552
+     ],
+     "ndcg@10": 0.397,
+     "ndcg@10_ci95": [
+      0.197,
+      0.552
+     ],
+     "p@5": 0.12,
+     "p@5_ci95": [
+      0.04,
+      0.2
+     ],
+     "top1_primary": 0.0,
+     "top1_primary_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "health-insurance": {
+     "n": 10,
+     "recall@1": 0.8,
+     "recall@1_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.5,
+      1.0
+     ],
+     "mrr@10": 0.8,
+     "mrr@10_ci95": [
+      0.5,
+      1.0
+     ],
+     "ndcg@5": 0.675,
+     "ndcg@5_ci95": [
+      0.435,
+      0.877
+     ],
+     "ndcg@10": 0.675,
+     "ndcg@10_ci95": [
+      0.434,
+      0.879
+     ],
+     "p@5": 0.38,
+     "p@5_ci95": [
+      0.24,
+      0.5
+     ],
+     "top1_primary": 0.3,
+     "top1_primary_ci95": [
+      0.0,
+      0.6
+     ]
+    },
+    "housing": {
+     "n": 5,
+     "recall@1": 0.6,
+     "recall@1_ci95": [
+      0.2,
+      1.0
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "mrr@10": 0.7,
+     "mrr@10_ci95": [
+      0.3,
+      1.0
+     ],
+     "ndcg@5": 0.681,
+     "ndcg@5_ci95": [
+      0.296,
+      0.985
+     ],
+     "ndcg@10": 0.681,
+     "ndcg@10_ci95": [
+      0.296,
+      0.985
+     ],
+     "p@5": 0.28,
+     "p@5_ci95": [
+      0.12,
+      0.4
+     ],
+     "top1_primary": 0.6,
+     "top1_primary_ci95": [
+      0.2,
+      1.0
+     ]
+    },
+    "part-time-employment": {
+     "n": 10,
+     "recall@1": 0.3,
+     "recall@1_ci95": [
+      0.0,
+      0.6
+     ],
+     "recall@3": 0.7,
+     "recall@3_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.5,
+      1.0
+     ],
+     "mrr@10": 0.492,
+     "mrr@10_ci95": [
+      0.275,
+      0.733
+     ],
+     "ndcg@5": 0.481,
+     "ndcg@5_ci95": [
+      0.276,
+      0.682
+     ],
+     "ndcg@10": 0.481,
+     "ndcg@10_ci95": [
+      0.283,
+      0.679
+     ],
+     "p@5": 0.26,
+     "p@5_ci95": [
+      0.14,
+      0.4
+     ],
+     "top1_primary": 0.1,
+     "top1_primary_ci95": [
+      0.0,
+      0.3
+     ]
+    },
+    "residence-card": {
+     "n": 20,
+     "recall@1": 0.5,
+     "recall@1_ci95": [
+      0.3,
+      0.7
+     ],
+     "recall@3": 0.85,
+     "recall@3_ci95": [
+      0.65,
+      1.0
+     ],
+     "recall@5": 0.9,
+     "recall@5_ci95": [
+      0.75,
+      1.0
+     ],
+     "recall@10": 0.9,
+     "recall@10_ci95": [
+      0.75,
+      1.0
+     ],
+     "mrr@10": 0.679,
+     "mrr@10_ci95": [
+      0.517,
+      0.825
+     ],
+     "ndcg@5": 0.647,
+     "ndcg@5_ci95": [
+      0.517,
+      0.773
+     ],
+     "ndcg@10": 0.647,
+     "ndcg@10_ci95": [
+      0.514,
+      0.769
+     ],
+     "p@5": 0.23,
+     "p@5_ci95": [
+      0.18,
+      0.28
+     ],
+     "top1_primary": 0.45,
+     "top1_primary_ci95": [
+      0.25,
+      0.7
+     ]
+    },
+    "topik": {
+     "n": 5,
+     "recall@1": 0.6,
+     "recall@1_ci95": [
+      0.2,
+      1.0
+     ],
+     "recall@3": 1.0,
+     "recall@3_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@5": 1.0,
+     "recall@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.8,
+     "mrr@10_ci95": [
+      0.6,
+      1.0
+     ],
+     "ndcg@5": 0.852,
+     "ndcg@5_ci95": [
+      0.705,
+      1.0
+     ],
+     "ndcg@10": 0.852,
+     "ndcg@10_ci95": [
+      0.705,
+      1.0
+     ],
+     "p@5": 0.2,
+     "p@5_ci95": [
+      0.2,
+      0.2
+     ],
+     "top1_primary": 0.6,
+     "top1_primary_ci95": [
+      0.2,
+      1.0
+     ]
+    },
+    "university-announcements": {
+     "n": 5,
+     "recall@1": 0.4,
+     "recall@1_ci95": [
+      0.0,
+      0.8
+     ],
+     "recall@3": 0.6,
+     "recall@3_ci95": [
+      0.2,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "mrr@10": 0.517,
+     "mrr@10_ci95": [
+      0.167,
+      0.867
+     ],
+     "ndcg@5": 0.586,
+     "ndcg@5_ci95": [
+      0.272,
+      0.9
+     ],
+     "ndcg@10": 0.586,
+     "ndcg@10_ci95": [
+      0.272,
+      0.9
+     ],
+     "p@5": 0.16,
+     "p@5_ci95": [
+      0.08,
+      0.2
+     ],
+     "top1_primary": 0.4,
+     "top1_primary_ci95": [
+      0.0,
+      0.8
+     ]
+    },
+    "visa-immigration": {
+     "n": 20,
+     "recall@1": 0.3,
+     "recall@1_ci95": [
+      0.1,
+      0.5
+     ],
+     "recall@3": 0.7,
+     "recall@3_ci95": [
+      0.5,
+      0.9
+     ],
+     "recall@5": 0.7,
+     "recall@5_ci95": [
+      0.5,
+      0.9
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.6,
+      0.95
+     ],
+     "mrr@10": 0.492,
+     "mrr@10_ci95": [
+      0.325,
+      0.667
+     ],
+     "ndcg@5": 0.507,
+     "ndcg@5_ci95": [
+      0.338,
+      0.681
+     ],
+     "ndcg@10": 0.531,
+     "ndcg@10_ci95": [
+      0.376,
+      0.685
+     ],
+     "p@5": 0.18,
+     "p@5_ci95": [
+      0.12,
+      0.24
+     ],
+     "top1_primary": 0.3,
+     "top1_primary_ci95": [
+      0.1,
+      0.5
+     ]
+    }
+   },
+   "per_difficulty": {
+    "multi-step": {
+     "n": 10,
+     "recall@1": 0.2,
+     "recall@1_ci95": [
+      0.0,
+      0.5
+     ],
+     "recall@3": 0.7,
+     "recall@3_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@5": 0.7,
+     "recall@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.5,
+      1.0
+     ],
+     "mrr@10": 0.45,
+     "mrr@10_ci95": [
+      0.25,
+      0.667
+     ],
+     "ndcg@5": 0.45,
+     "ndcg@5_ci95": [
+      0.234,
+      0.66
+     ],
+     "ndcg@10": 0.464,
+     "ndcg@10_ci95": [
+      0.261,
+      0.662
+     ],
+     "p@5": 0.22,
+     "p@5_ci95": [
+      0.12,
+      0.32
+     ],
+     "top1_primary": 0.2,
+     "top1_primary_ci95": [
+      0.0,
+      0.5
+     ]
+    },
+    "procedure": {
+     "n": 10,
+     "recall@1": 0.7,
+     "recall@1_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.5,
+      1.0
+     ],
+     "mrr@10": 0.75,
+     "mrr@10_ci95": [
+      0.5,
+      1.0
+     ],
+     "ndcg@5": 0.763,
+     "ndcg@5_ci95": [
+      0.489,
+      1.0
+     ],
+     "ndcg@10": 0.763,
+     "ndcg@10_ci95": [
+      0.5,
+      0.963
+     ],
+     "p@5": 0.16,
+     "p@5_ci95": [
+      0.1,
+      0.2
+     ],
+     "top1_primary": 0.7,
+     "top1_primary_ci95": [
+      0.4,
+      1.0
+     ]
+    },
+    "simple": {
+     "n": 75,
+     "recall@1": 0.493,
+     "recall@1_ci95": [
+      0.387,
+      0.6
+     ],
+     "recall@3": 0.76,
+     "recall@3_ci95": [
+      0.653,
+      0.853
+     ],
+     "recall@5": 0.813,
+     "recall@5_ci95": [
+      0.72,
+      0.893
+     ],
+     "recall@10": 0.827,
+     "recall@10_ci95": [
+      0.733,
+      0.907
+     ],
+     "mrr@10": 0.626,
+     "mrr@10_ci95": [
+      0.538,
+      0.714
+     ],
+     "ndcg@5": 0.617,
+     "ndcg@5_ci95": [
+      0.534,
+      0.697
+     ],
+     "ndcg@10": 0.621,
+     "ndcg@10_ci95": [
+      0.541,
+      0.7
+     ],
+     "p@5": 0.227,
+     "p@5_ci95": [
+      0.189,
+      0.264
+     ],
+     "top1_primary": 0.387,
+     "top1_primary_ci95": [
+      0.28,
+      0.493
+     ]
+    },
+    "time-sensitive": {
+     "n": 5,
+     "recall@1": 0.0,
+     "recall@1_ci95": [
+      0.0,
+      0.0
+     ],
+     "recall@3": 0.6,
+     "recall@3_ci95": [
+      0.2,
+      1.0
+     ],
+     "recall@5": 0.6,
+     "recall@5_ci95": [
+      0.2,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "mrr@10": 0.267,
+     "mrr@10_ci95": [
+      0.133,
+      0.4
+     ],
+     "ndcg@5": 0.326,
+     "ndcg@5_ci95": [
+      0.1,
+      0.552
+     ],
+     "ndcg@10": 0.397,
+     "ndcg@10_ci95": [
+      0.197,
+      0.552
+     ],
+     "p@5": 0.12,
+     "p@5_ci95": [
+      0.04,
+      0.2
+     ],
+     "top1_primary": 0.0,
+     "top1_primary_ci95": [
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "coverage": {
+    "relevant_documents": 15,
+    "ranked_first_somewhere": 14,
+    "share": 0.933
+   },
+   "latency_ms": {
+    "p50": 25.2,
+    "p95": 34.6,
+    "max": 38.6
+   },
+   "distinct_documents_in_list": {
+    "median": 4.0,
+    "min": 1
+   },
+   "misses": [
+    {
+     "question_id": "H01-ko",
+     "language": "ko",
+     "topic": "health-insurance",
+     "rank": null
+    },
+    {
+     "question_id": "H02-ko",
+     "language": "ko",
+     "topic": "health-insurance",
+     "rank": null
+    },
+    {
+     "question_id": "H03-ko",
+     "language": "ko",
+     "topic": "topik",
+     "rank": 2
+    },
+    {
+     "question_id": "H03-vi",
+     "language": "vi",
+     "topic": "topik",
+     "rank": 2
+    },
+    {
+     "question_id": "H04-ko",
+     "language": "ko",
+     "topic": "visa-immigration",
+     "rank": null
+    },
+    {
+     "question_id": "H04-id",
+     "language": "id",
+     "topic": "visa-immigration",
+     "rank": 3
+    },
+    {
+     "question_id": "H04-vi",
+     "language": "vi",
+     "topic": "visa-immigration",
+     "rank": 6
+    },
+    {
+     "question_id": "H04-zh-CN",
+     "language": "zh-CN",
+     "topic": "visa-immigration",
+     "rank": 3
+    },
+    {
+     "question_id": "H05-en",
+     "language": "en",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H05-ko",
+     "language": "ko",
+     "topic": "visa-immigration",
+     "rank": null
+    },
+    {
+     "question_id": "H05-id",
+     "language": "id",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H05-vi",
+     "language": "vi",
+     "topic": "visa-immigration",
+     "rank": 6
+    },
+    {
+     "question_id": "H05-zh-CN",
+     "language": "zh-CN",
+     "topic": "visa-immigration",
+     "rank": null
+    },
+    {
+     "question_id": "H06-en",
+     "language": "en",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H06-ko",
+     "language": "ko",
+     "topic": "visa-immigration",
+     "rank": 3
+    },
+    {
+     "question_id": "H06-zh-CN",
+     "language": "zh-CN",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H07-en",
+     "language": "en",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H07-ko",
+     "language": "ko",
+     "topic": "visa-immigration",
+     "rank": null
+    },
+    {
+     "question_id": "H08-ko",
+     "language": "ko",
+     "topic": "part-time-employment",
+     "rank": null
+    },
+    {
+     "question_id": "H08-vi",
+     "language": "vi",
+     "topic": "part-time-employment",
+     "rank": 2
+    },
+    {
+     "question_id": "H08-zh-CN",
+     "language": "zh-CN",
+     "topic": "part-time-employment",
+     "rank": 2
+    },
+    {
+     "question_id": "H09-ko",
+     "language": "ko",
+     "topic": "part-time-employment",
+     "rank": null
+    },
+    {
+     "question_id": "H09-id",
+     "language": "id",
+     "topic": "part-time-employment",
+     "rank": 3
+    },
+    {
+     "question_id": "H09-vi",
+     "language": "vi",
+     "topic": "part-time-employment",
+     "rank": 3
+    },
+    {
+     "question_id": "H09-zh-CN",
+     "language": "zh-CN",
+     "topic": "part-time-employment",
+     "rank": 4
+    },
+    {
+     "question_id": "H10-en",
+     "language": "en",
+     "topic": "residence-card",
+     "rank": 2
+    },
+    {
+     "question_id": "H10-ko",
+     "language": "ko",
+     "topic": "residence-card",
+     "rank": null
+    },
+    {
+     "question_id": "H10-id",
+     "language": "id",
+     "topic": "residence-card",
+     "rank": 2
+    },
+    {
+     "question_id": "H10-vi",
+     "language": "vi",
+     "topic": "residence-card",
+     "rank": 2
+    },
+    {
+     "question_id": "H10-zh-CN",
+     "language": "zh-CN",
+     "topic": "residence-card",
+     "rank": 3
+    },
+    {
+     "question_id": "H11-ko",
+     "language": "ko",
+     "topic": "residence-card",
+     "rank": 2
+    },
+    {
+     "question_id": "H11-id",
+     "language": "id",
+     "topic": "residence-card",
+     "rank": 2
+    },
+    {
+     "question_id": "H11-zh-CN",
+     "language": "zh-CN",
+     "topic": "residence-card",
+     "rank": 2
+    },
+    {
+     "question_id": "H12-ko",
+     "language": "ko",
+     "topic": "residence-card",
+     "rank": 4
+    },
+    {
+     "question_id": "H13-ko",
+     "language": "ko",
+     "topic": "residence-card",
+     "rank": null
+    },
+    {
+     "question_id": "H14-ko",
+     "language": "ko",
+     "topic": "housing",
+     "rank": null
+    },
+    {
+     "question_id": "H14-zh-CN",
+     "language": "zh-CN",
+     "topic": "housing",
+     "rank": 2
+    },
+    {
+     "question_id": "H15-ko",
+     "language": "ko",
+     "topic": "daily-living",
+     "rank": null
+    },
+    {
+     "question_id": "H16-en",
+     "language": "en",
+     "topic": "academic-procedures",
+     "rank": null
+    },
+    {
+     "question_id": "H16-vi",
+     "language": "vi",
+     "topic": "academic-procedures",
+     "rank": 3
+    },
+    {
+     "question_id": "H17-en",
+     "language": "en",
+     "topic": "academic-procedures",
+     "rank": null
+    },
+    {
+     "question_id": "H17-zh-CN",
+     "language": "zh-CN",
+     "topic": "academic-procedures",
+     "rank": 2
+    },
+    {
+     "question_id": "H18-en",
+     "language": "en",
+     "topic": "academic-procedures",
+     "rank": 2
+    },
+    {
+     "question_id": "H18-ko",
+     "language": "ko",
+     "topic": "academic-procedures",
+     "rank": null
+    },
+    {
+     "question_id": "H18-vi",
+     "language": "vi",
+     "topic": "academic-procedures",
+     "rank": 5
+    },
+    {
+     "question_id": "H18-zh-CN",
+     "language": "zh-CN",
+     "topic": "academic-procedures",
+     "rank": null
+    },
+    {
+     "question_id": "H19-en",
+     "language": "en",
+     "topic": "dormitory",
+     "rank": null
+    },
+    {
+     "question_id": "H19-ko",
+     "language": "ko",
+     "topic": "dormitory",
+     "rank": 2
+    },
+    {
+     "question_id": "H19-id",
+     "language": "id",
+     "topic": "dormitory",
+     "rank": 6
+    },
+    {
+     "question_id": "H19-vi",
+     "language": "vi",
+     "topic": "dormitory",
+     "rank": 3
+    },
+    {
+     "question_id": "H19-zh-CN",
+     "language": "zh-CN",
+     "topic": "dormitory",
+     "rank": 3
+    },
+    {
+     "question_id": "H20-en",
+     "language": "en",
+     "topic": "university-announcements",
+     "rank": null
+    },
+    {
+     "question_id": "H20-id",
+     "language": "id",
+     "topic": "university-announcements",
+     "rank": 4
+    },
+    {
+     "question_id": "H20-vi",
+     "language": "vi",
+     "topic": "university-announcements",
+     "rank": 3
+    }
+   ]
+  },
+  "hybrid_nobridge": {
+   "overall": {
+    "n": 100,
+    "recall@1": 0.61,
+    "recall@1_ci95": [
+     0.51,
+     0.7
+    ],
+    "recall@3": 0.82,
+    "recall@3_ci95": [
+     0.74,
+     0.89
+    ],
+    "recall@5": 0.86,
+    "recall@5_ci95": [
+     0.79,
+     0.92
+    ],
+    "recall@10": 0.92,
+    "recall@10_ci95": [
+     0.86,
+     0.97
+    ],
+    "mrr@10": 0.727,
+    "mrr@10_ci95": [
+     0.654,
+     0.798
+    ],
+    "ndcg@5": 0.71,
+    "ndcg@5_ci95": [
+     0.641,
+     0.777
+    ],
+    "ndcg@10": 0.744,
+    "ndcg@10_ci95": [
+     0.682,
+     0.802
+    ],
+    "p@5": 0.24,
+    "p@5_ci95": [
+     0.212,
+     0.27
+    ],
+    "top1_primary": 0.53,
+    "top1_primary_ci95": [
+     0.43,
+     0.63
+    ]
+   },
+   "per_language": {
+    "ko": {
+     "n": 20,
+     "recall@1": 0.4,
+     "recall@1_ci95": [
+      0.2,
+      0.6
+     ],
+     "recall@3": 0.55,
+     "recall@3_ci95": [
+      0.35,
+      0.75
+     ],
+     "recall@5": 0.55,
+     "recall@5_ci95": [
+      0.35,
+      0.75
+     ],
+     "recall@10": 0.75,
+     "recall@10_ci95": [
+      0.55,
+      0.9
+     ],
+     "mrr@10": 0.5,
+     "mrr@10_ci95": [
+      0.309,
+      0.69
+     ],
+     "ndcg@5": 0.457,
+     "ndcg@5_ci95": [
+      0.264,
+      0.651
+     ],
+     "ndcg@10": 0.526,
+     "ndcg@10_ci95": [
+      0.351,
+      0.696
+     ],
+     "p@5": 0.14,
+     "p@5_ci95": [
+      0.08,
+      0.21
+     ],
+     "top1_primary": 0.35,
+     "top1_primary_ci95": [
+      0.15,
+      0.55
+     ]
+    },
+    "en": {
+     "n": 20,
+     "recall@1": 0.65,
+     "recall@1_ci95": [
+      0.45,
+      0.85
+     ],
+     "recall@3": 0.85,
+     "recall@3_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@5": 0.9,
+     "recall@5_ci95": [
+      0.75,
+      1.0
+     ],
+     "recall@10": 0.9,
+     "recall@10_ci95": [
+      0.75,
+      1.0
+     ],
+     "mrr@10": 0.76,
+     "mrr@10_ci95": [
+      0.595,
+      0.9
+     ],
+     "ndcg@5": 0.784,
+     "ndcg@5_ci95": [
+      0.634,
+      0.915
+     ],
+     "ndcg@10": 0.784,
+     "ndcg@10_ci95": [
+      0.632,
+      0.913
+     ],
+     "p@5": 0.29,
+     "p@5_ci95": [
+      0.22,
+      0.37
+     ],
+     "top1_primary": 0.6,
+     "top1_primary_ci95": [
+      0.4,
+      0.8
+     ]
+    },
+    "id": {
+     "n": 20,
+     "recall@1": 0.85,
+     "recall@1_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@3": 0.95,
+     "recall@3_ci95": [
+      0.85,
+      1.0
+     ],
+     "recall@5": 1.0,
+     "recall@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.912,
+     "mrr@10_ci95": [
+      0.812,
+      1.0
+     ],
+     "ndcg@5": 0.892,
+     "ndcg@5_ci95": [
+      0.814,
+      0.958
+     ],
+     "ndcg@10": 0.897,
+     "ndcg@10_ci95": [
+      0.819,
+      0.96
+     ],
+     "p@5": 0.29,
+     "p@5_ci95": [
+      0.24,
+      0.35
+     ],
+     "top1_primary": 0.75,
+     "top1_primary_ci95": [
+      0.55,
+      0.95
+     ]
+    },
+    "vi": {
+     "n": 20,
+     "recall@1": 0.4,
+     "recall@1_ci95": [
+      0.2,
+      0.6
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.6,
+      0.95
+     ],
+     "recall@5": 0.9,
+     "recall@5_ci95": [
+      0.75,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.62,
+     "mrr@10_ci95": [
+      0.474,
+      0.762
+     ],
+     "ndcg@5": 0.641,
+     "ndcg@5_ci95": [
+      0.497,
+      0.775
+     ],
+     "ndcg@10": 0.687,
+     "ndcg@10_ci95": [
+      0.584,
+      0.791
+     ],
+     "p@5": 0.24,
+     "p@5_ci95": [
+      0.18,
+      0.3
+     ],
+     "top1_primary": 0.3,
+     "top1_primary_ci95": [
+      0.1,
+      0.5
+     ]
+    },
+    "zh-CN": {
+     "n": 20,
+     "recall@1": 0.75,
+     "recall@1_ci95": [
+      0.55,
+      0.95
+     ],
+     "recall@3": 0.95,
+     "recall@3_ci95": [
+      0.85,
+      1.0
+     ],
+     "recall@5": 0.95,
+     "recall@5_ci95": [
+      0.85,
+      1.0
+     ],
+     "recall@10": 0.95,
+     "recall@10_ci95": [
+      0.85,
+      1.0
+     ],
+     "mrr@10": 0.842,
+     "mrr@10_ci95": [
+      0.7,
+      0.95
+     ],
+     "ndcg@5": 0.777,
+     "ndcg@5_ci95": [
+      0.64,
+      0.894
+     ],
+     "ndcg@10": 0.823,
+     "ndcg@10_ci95": [
+      0.695,
+      0.922
+     ],
+     "p@5": 0.24,
+     "p@5_ci95": [
+      0.2,
+      0.28
+     ],
+     "top1_primary": 0.65,
+     "top1_primary_ci95": [
+      0.45,
+      0.85
+     ]
+    }
+   },
+   "per_topic": {
+    "academic-procedures": {
+     "n": 15,
+     "recall@1": 0.533,
+     "recall@1_ci95": [
+      0.267,
+      0.8
+     ],
+     "recall@3": 0.667,
+     "recall@3_ci95": [
+      0.4,
+      0.867
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.6,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.6,
+      1.0
+     ],
+     "mrr@10": 0.627,
+     "mrr@10_ci95": [
+      0.407,
+      0.833
+     ],
+     "ndcg@5": 0.669,
+     "ndcg@5_ci95": [
+      0.46,
+      0.861
+     ],
+     "ndcg@10": 0.669,
+     "ndcg@10_ci95": [
+      0.468,
+      0.861
+     ],
+     "p@5": 0.16,
+     "p@5_ci95": [
+      0.12,
+      0.2
+     ],
+     "top1_primary": 0.533,
+     "top1_primary_ci95": [
+      0.267,
+      0.8
+     ]
+    },
+    "daily-living": {
+     "n": 5,
+     "recall@1": 0.6,
+     "recall@1_ci95": [
+      0.2,
+      1.0
+     ],
+     "recall@3": 1.0,
+     "recall@3_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@5": 1.0,
+     "recall@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.8,
+     "mrr@10_ci95": [
+      0.6,
+      1.0
+     ],
+     "ndcg@5": 0.852,
+     "ndcg@5_ci95": [
+      0.705,
+      1.0
+     ],
+     "ndcg@10": 0.852,
+     "ndcg@10_ci95": [
+      0.705,
+      1.0
+     ],
+     "p@5": 0.2,
+     "p@5_ci95": [
+      0.2,
+      0.2
+     ],
+     "top1_primary": 0.6,
+     "top1_primary_ci95": [
+      0.2,
+      1.0
+     ]
+    },
+    "dormitory": {
+     "n": 5,
+     "recall@1": 1.0,
+     "recall@1_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@3": 1.0,
+     "recall@3_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@5": 1.0,
+     "recall@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 1.0,
+     "mrr@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "ndcg@5": 1.0,
+     "ndcg@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "ndcg@10": 1.0,
+     "ndcg@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "p@5": 0.2,
+     "p@5_ci95": [
+      0.2,
+      0.2
+     ],
+     "top1_primary": 1.0,
+     "top1_primary_ci95": [
+      1.0,
+      1.0
+     ]
+    },
+    "health-insurance": {
+     "n": 10,
+     "recall@1": 0.9,
+     "recall@1_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@3": 1.0,
+     "recall@3_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@5": 1.0,
+     "recall@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.95,
+     "mrr@10_ci95": [
+      0.85,
+      1.0
+     ],
+     "ndcg@5": 0.784,
+     "ndcg@5_ci95": [
+      0.687,
+      0.872
+     ],
+     "ndcg@10": 0.82,
+     "ndcg@10_ci95": [
+      0.755,
+      0.881
+     ],
+     "p@5": 0.46,
+     "p@5_ci95": [
+      0.38,
+      0.54
+     ],
+     "top1_primary": 0.1,
+     "top1_primary_ci95": [
+      0.0,
+      0.3
+     ]
+    },
+    "housing": {
+     "n": 5,
+     "recall@1": 0.6,
+     "recall@1_ci95": [
+      0.2,
+      1.0
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "mrr@10": 0.667,
+     "mrr@10_ci95": [
+      0.267,
+      1.0
+     ],
+     "ndcg@5": 0.58,
+     "ndcg@5_ci95": [
+      0.276,
+      0.856
+     ],
+     "ndcg@10": 0.633,
+     "ndcg@10_ci95": [
+      0.303,
+      0.907
+     ],
+     "p@5": 0.2,
+     "p@5_ci95": [
+      0.08,
+      0.32
+     ],
+     "top1_primary": 0.6,
+     "top1_primary_ci95": [
+      0.2,
+      1.0
+     ]
+    },
+    "part-time-employment": {
+     "n": 10,
+     "recall@1": 0.3,
+     "recall@1_ci95": [
+      0.0,
+      0.6
+     ],
+     "recall@3": 0.7,
+     "recall@3_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.535,
+     "mrr@10_ci95": [
+      0.341,
+      0.748
+     ],
+     "ndcg@5": 0.574,
+     "ndcg@5_ci95": [
+      0.344,
+      0.786
+     ],
+     "ndcg@10": 0.656,
+     "ndcg@10_ci95": [
+      0.504,
+      0.821
+     ],
+     "p@5": 0.28,
+     "p@5_ci95": [
+      0.16,
+      0.42
+     ],
+     "top1_primary": 0.3,
+     "top1_primary_ci95": [
+      0.0,
+      0.6
+     ]
+    },
+    "residence-card": {
+     "n": 20,
+     "recall@1": 0.8,
+     "recall@1_ci95": [
+      0.6,
+      0.95
+     ],
+     "recall@3": 0.9,
+     "recall@3_ci95": [
+      0.75,
+      1.0
+     ],
+     "recall@5": 0.9,
+     "recall@5_ci95": [
+      0.75,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.853,
+     "mrr@10_ci95": [
+      0.706,
+      0.975
+     ],
+     "ndcg@5": 0.805,
+     "ndcg@5_ci95": [
+      0.658,
+      0.928
+     ],
+     "ndcg@10": 0.848,
+     "ndcg@10_ci95": [
+      0.738,
+      0.945
+     ],
+     "p@5": 0.27,
+     "p@5_ci95": [
+      0.21,
+      0.33
+     ],
+     "top1_primary": 0.8,
+     "top1_primary_ci95": [
+      0.6,
+      0.95
+     ]
+    },
+    "topik": {
+     "n": 5,
+     "recall@1": 0.8,
+     "recall@1_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@3": 1.0,
+     "recall@3_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@5": 1.0,
+     "recall@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.9,
+     "mrr@10_ci95": [
+      0.7,
+      1.0
+     ],
+     "ndcg@5": 0.926,
+     "ndcg@5_ci95": [
+      0.779,
+      1.0
+     ],
+     "ndcg@10": 0.926,
+     "ndcg@10_ci95": [
+      0.779,
+      1.0
+     ],
+     "p@5": 0.2,
+     "p@5_ci95": [
+      0.2,
+      0.2
+     ],
+     "top1_primary": 0.8,
+     "top1_primary_ci95": [
+      0.4,
+      1.0
+     ]
+    },
+    "university-announcements": {
+     "n": 5,
+     "recall@1": 0.8,
+     "recall@1_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "mrr@10": 0.8,
+     "mrr@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "ndcg@5": 0.8,
+     "ndcg@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "ndcg@10": 0.8,
+     "ndcg@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "p@5": 0.16,
+     "p@5_ci95": [
+      0.08,
+      0.2
+     ],
+     "top1_primary": 0.8,
+     "top1_primary_ci95": [
+      0.4,
+      1.0
+     ]
+    },
+    "visa-immigration": {
+     "n": 20,
+     "recall@1": 0.3,
+     "recall@1_ci95": [
+      0.1,
+      0.5
+     ],
+     "recall@3": 0.7,
+     "recall@3_ci95": [
+      0.5,
+      0.9
+     ],
+     "recall@5": 0.75,
+     "recall@5_ci95": [
+      0.55,
+      0.9
+     ],
+     "recall@10": 0.85,
+     "recall@10_ci95": [
+      0.7,
+      1.0
+     ],
+     "mrr@10": 0.526,
+     "mrr@10_ci95": [
+      0.364,
+      0.683
+     ],
+     "ndcg@5": 0.525,
+     "ndcg@5_ci95": [
+      0.364,
+      0.684
+     ],
+     "ndcg@10": 0.578,
+     "ndcg@10_ci95": [
+      0.436,
+      0.716
+     ],
+     "p@5": 0.2,
+     "p@5_ci95": [
+      0.14,
+      0.26
+     ],
+     "top1_primary": 0.3,
+     "top1_primary_ci95": [
+      0.1,
+      0.5
+     ]
+    }
+   },
+   "per_difficulty": {
+    "multi-step": {
+     "n": 10,
+     "recall@1": 0.2,
+     "recall@1_ci95": [
+      0.0,
+      0.5
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@10": 0.9,
+     "recall@10_ci95": [
+      0.7,
+      1.0
+     ],
+     "mrr@10": 0.517,
+     "mrr@10_ci95": [
+      0.333,
+      0.7
+     ],
+     "ndcg@5": 0.48,
+     "ndcg@5_ci95": [
+      0.288,
+      0.656
+     ],
+     "ndcg@10": 0.556,
+     "ndcg@10_ci95": [
+      0.391,
+      0.704
+     ],
+     "p@5": 0.26,
+     "p@5_ci95": [
+      0.16,
+      0.36
+     ],
+     "top1_primary": 0.2,
+     "top1_primary_ci95": [
+      0.0,
+      0.5
+     ]
+    },
+    "procedure": {
+     "n": 10,
+     "recall@1": 0.7,
+     "recall@1_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@3": 0.9,
+     "recall@3_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@5": 0.9,
+     "recall@5_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@10": 0.9,
+     "recall@10_ci95": [
+      0.7,
+      1.0
+     ],
+     "mrr@10": 0.8,
+     "mrr@10_ci95": [
+      0.6,
+      1.0
+     ],
+     "ndcg@5": 0.826,
+     "ndcg@5_ci95": [
+      0.6,
+      1.0
+     ],
+     "ndcg@10": 0.826,
+     "ndcg@10_ci95": [
+      0.615,
+      1.0
+     ],
+     "p@5": 0.18,
+     "p@5_ci95": [
+      0.14,
+      0.2
+     ],
+     "top1_primary": 0.7,
+     "top1_primary_ci95": [
+      0.4,
+      1.0
+     ]
+    },
+    "simple": {
+     "n": 75,
+     "recall@1": 0.627,
+     "recall@1_ci95": [
+      0.52,
+      0.733
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.707,
+      0.893
+     ],
+     "recall@5": 0.853,
+     "recall@5_ci95": [
+      0.773,
+      0.933
+     ],
+     "recall@10": 0.92,
+     "recall@10_ci95": [
+      0.853,
+      0.973
+     ],
+     "mrr@10": 0.727,
+     "mrr@10_ci95": [
+      0.64,
+      0.811
+     ],
+     "ndcg@5": 0.706,
+     "ndcg@5_ci95": [
+      0.625,
+      0.786
+     ],
+     "ndcg@10": 0.74,
+     "ndcg@10_ci95": [
+      0.668,
+      0.809
+     ],
+     "p@5": 0.248,
+     "p@5_ci95": [
+      0.211,
+      0.285
+     ],
+     "top1_primary": 0.52,
+     "top1_primary_ci95": [
+      0.413,
+      0.627
+     ]
+    },
+    "time-sensitive": {
+     "n": 5,
+     "recall@1": 1.0,
+     "recall@1_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@3": 1.0,
+     "recall@3_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@5": 1.0,
+     "recall@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 1.0,
+     "mrr@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "ndcg@5": 1.0,
+     "ndcg@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "ndcg@10": 1.0,
+     "ndcg@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "p@5": 0.2,
+     "p@5_ci95": [
+      0.2,
+      0.2
+     ],
+     "top1_primary": 1.0,
+     "top1_primary_ci95": [
+      1.0,
+      1.0
+     ]
+    }
+   },
+   "coverage": {
+    "relevant_documents": 15,
+    "ranked_first_somewhere": 14,
+    "share": 0.933
+   },
+   "latency_ms": {
+    "p50": 59.7,
+    "p95": 73.3,
+    "max": 88.5
+   },
+   "distinct_documents_in_list": {
+    "median": 7.5,
+    "min": 1
+   },
+   "misses": [
+    {
+     "question_id": "H02-ko",
+     "language": "ko",
+     "topic": "health-insurance",
+     "rank": 2
+    },
+    {
+     "question_id": "H03-vi",
+     "language": "vi",
+     "topic": "topik",
+     "rank": 2
+    },
+    {
+     "question_id": "H04-en",
+     "language": "en",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H04-ko",
+     "language": "ko",
+     "topic": "visa-immigration",
+     "rank": null
+    },
+    {
+     "question_id": "H04-id",
+     "language": "id",
+     "topic": "visa-immigration",
+     "rank": 4
+    },
+    {
+     "question_id": "H04-vi",
+     "language": "vi",
+     "topic": "visa-immigration",
+     "rank": 9
+    },
+    {
+     "question_id": "H04-zh-CN",
+     "language": "zh-CN",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H05-en",
+     "language": "en",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H05-ko",
+     "language": "ko",
+     "topic": "visa-immigration",
+     "rank": null
+    },
+    {
+     "question_id": "H05-id",
+     "language": "id",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H05-vi",
+     "language": "vi",
+     "topic": "visa-immigration",
+     "rank": 6
+    },
+    {
+     "question_id": "H05-zh-CN",
+     "language": "zh-CN",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H06-en",
+     "language": "en",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H06-ko",
+     "language": "ko",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H06-vi",
+     "language": "vi",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H07-ko",
+     "language": "ko",
+     "topic": "visa-immigration",
+     "rank": null
+    },
+    {
+     "question_id": "H08-ko",
+     "language": "ko",
+     "topic": "part-time-employment",
+     "rank": 7
+    },
+    {
+     "question_id": "H08-id",
+     "language": "id",
+     "topic": "part-time-employment",
+     "rank": 2
+    },
+    {
+     "question_id": "H08-vi",
+     "language": "vi",
+     "topic": "part-time-employment",
+     "rank": 4
+    },
+    {
+     "question_id": "H08-zh-CN",
+     "language": "zh-CN",
+     "topic": "part-time-employment",
+     "rank": 2
+    },
+    {
+     "question_id": "H09-ko",
+     "language": "ko",
+     "topic": "part-time-employment",
+     "rank": 8
+    },
+    {
+     "question_id": "H09-vi",
+     "language": "vi",
+     "topic": "part-time-employment",
+     "rank": 2
+    },
+    {
+     "question_id": "H09-zh-CN",
+     "language": "zh-CN",
+     "topic": "part-time-employment",
+     "rank": 3
+    },
+    {
+     "question_id": "H10-vi",
+     "language": "vi",
+     "topic": "residence-card",
+     "rank": 2
+    },
+    {
+     "question_id": "H11-vi",
+     "language": "vi",
+     "topic": "residence-card",
+     "rank": 3
+    },
+    {
+     "question_id": "H12-ko",
+     "language": "ko",
+     "topic": "residence-card",
+     "rank": 10
+    },
+    {
+     "question_id": "H13-ko",
+     "language": "ko",
+     "topic": "residence-card",
+     "rank": 8
+    },
+    {
+     "question_id": "H14-ko",
+     "language": "ko",
+     "topic": "housing",
+     "rank": null
+    },
+    {
+     "question_id": "H14-vi",
+     "language": "vi",
+     "topic": "housing",
+     "rank": 3
+    },
+    {
+     "question_id": "H15-ko",
+     "language": "ko",
+     "topic": "daily-living",
+     "rank": 2
+    },
+    {
+     "question_id": "H15-vi",
+     "language": "vi",
+     "topic": "daily-living",
+     "rank": 2
+    },
+    {
+     "question_id": "H16-en",
+     "language": "en",
+     "topic": "academic-procedures",
+     "rank": 5
+    },
+    {
+     "question_id": "H16-vi",
+     "language": "vi",
+     "topic": "academic-procedures",
+     "rank": 2
+    },
+    {
+     "question_id": "H17-en",
+     "language": "en",
+     "topic": "academic-procedures",
+     "rank": null
+    },
+    {
+     "question_id": "H18-en",
+     "language": "en",
+     "topic": "academic-procedures",
+     "rank": 2
+    },
+    {
+     "question_id": "H18-ko",
+     "language": "ko",
+     "topic": "academic-procedures",
+     "rank": null
+    },
+    {
+     "question_id": "H18-vi",
+     "language": "vi",
+     "topic": "academic-procedures",
+     "rank": 5
+    },
+    {
+     "question_id": "H18-zh-CN",
+     "language": "zh-CN",
+     "topic": "academic-procedures",
+     "rank": null
+    },
+    {
+     "question_id": "H20-en",
+     "language": "en",
+     "topic": "university-announcements",
+     "rank": null
+    }
+   ]
+  },
+  "hybrid": {
+   "overall": {
+    "n": 100,
+    "recall@1": 0.63,
+    "recall@1_ci95": [
+     0.53,
+     0.72
+    ],
+    "recall@3": 0.82,
+    "recall@3_ci95": [
+     0.74,
+     0.89
+    ],
+    "recall@5": 0.86,
+    "recall@5_ci95": [
+     0.79,
+     0.92
+    ],
+    "recall@10": 0.94,
+    "recall@10_ci95": [
+     0.89,
+     0.98
+    ],
+    "mrr@10": 0.736,
+    "mrr@10_ci95": [
+     0.663,
+     0.807
+    ],
+    "ndcg@5": 0.709,
+    "ndcg@5_ci95": [
+     0.641,
+     0.775
+    ],
+    "ndcg@10": 0.75,
+    "ndcg@10_ci95": [
+     0.69,
+     0.807
+    ],
+    "p@5": 0.24,
+    "p@5_ci95": [
+     0.212,
+     0.27
+    ],
+    "top1_primary": 0.52,
+    "top1_primary_ci95": [
+     0.42,
+     0.62
+    ]
+   },
+   "per_language": {
+    "ko": {
+     "n": 20,
+     "recall@1": 0.4,
+     "recall@1_ci95": [
+      0.2,
+      0.6
+     ],
+     "recall@3": 0.55,
+     "recall@3_ci95": [
+      0.35,
+      0.75
+     ],
+     "recall@5": 0.55,
+     "recall@5_ci95": [
+      0.35,
+      0.75
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.6,
+      0.95
+     ],
+     "mrr@10": 0.505,
+     "mrr@10_ci95": [
+      0.313,
+      0.693
+     ],
+     "ndcg@5": 0.457,
+     "ndcg@5_ci95": [
+      0.264,
+      0.651
+     ],
+     "ndcg@10": 0.547,
+     "ndcg@10_ci95": [
+      0.376,
+      0.71
+     ],
+     "p@5": 0.14,
+     "p@5_ci95": [
+      0.08,
+      0.21
+     ],
+     "top1_primary": 0.35,
+     "top1_primary_ci95": [
+      0.15,
+      0.55
+     ]
+    },
+    "en": {
+     "n": 20,
+     "recall@1": 0.65,
+     "recall@1_ci95": [
+      0.45,
+      0.85
+     ],
+     "recall@3": 0.85,
+     "recall@3_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@5": 0.9,
+     "recall@5_ci95": [
+      0.75,
+      1.0
+     ],
+     "recall@10": 0.95,
+     "recall@10_ci95": [
+      0.85,
+      1.0
+     ],
+     "mrr@10": 0.767,
+     "mrr@10_ci95": [
+      0.61,
+      0.905
+     ],
+     "ndcg@5": 0.764,
+     "ndcg@5_ci95": [
+      0.625,
+      0.892
+     ],
+     "ndcg@10": 0.784,
+     "ndcg@10_ci95": [
+      0.655,
+      0.895
+     ],
+     "p@5": 0.28,
+     "p@5_ci95": [
+      0.21,
+      0.35
+     ],
+     "top1_primary": 0.5,
+     "top1_primary_ci95": [
+      0.3,
+      0.7
+     ]
+    },
+    "id": {
+     "n": 20,
+     "recall@1": 0.85,
+     "recall@1_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@3": 0.95,
+     "recall@3_ci95": [
+      0.85,
+      1.0
+     ],
+     "recall@5": 1.0,
+     "recall@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.912,
+     "mrr@10_ci95": [
+      0.812,
+      1.0
+     ],
+     "ndcg@5": 0.887,
+     "ndcg@5_ci95": [
+      0.808,
+      0.955
+     ],
+     "ndcg@10": 0.891,
+     "ndcg@10_ci95": [
+      0.812,
+      0.957
+     ],
+     "p@5": 0.29,
+     "p@5_ci95": [
+      0.24,
+      0.35
+     ],
+     "top1_primary": 0.75,
+     "top1_primary_ci95": [
+      0.55,
+      0.95
+     ]
+    },
+    "vi": {
+     "n": 20,
+     "recall@1": 0.45,
+     "recall@1_ci95": [
+      0.25,
+      0.65
+     ],
+     "recall@3": 0.85,
+     "recall@3_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@5": 0.9,
+     "recall@5_ci95": [
+      0.75,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.642,
+     "mrr@10_ci95": [
+      0.49,
+      0.79
+     ],
+     "ndcg@5": 0.657,
+     "ndcg@5_ci95": [
+      0.515,
+      0.795
+     ],
+     "ndcg@10": 0.71,
+     "ndcg@10_ci95": [
+      0.605,
+      0.815
+     ],
+     "p@5": 0.24,
+     "p@5_ci95": [
+      0.18,
+      0.3
+     ],
+     "top1_primary": 0.35,
+     "top1_primary_ci95": [
+      0.15,
+      0.55
+     ]
+    },
+    "zh-CN": {
+     "n": 20,
+     "recall@1": 0.8,
+     "recall@1_ci95": [
+      0.6,
+      0.95
+     ],
+     "recall@3": 0.9,
+     "recall@3_ci95": [
+      0.75,
+      1.0
+     ],
+     "recall@5": 0.95,
+     "recall@5_ci95": [
+      0.85,
+      1.0
+     ],
+     "recall@10": 0.95,
+     "recall@10_ci95": [
+      0.85,
+      1.0
+     ],
+     "mrr@10": 0.852,
+     "mrr@10_ci95": [
+      0.7,
+      0.975
+     ],
+     "ndcg@5": 0.78,
+     "ndcg@5_ci95": [
+      0.642,
+      0.899
+     ],
+     "ndcg@10": 0.814,
+     "ndcg@10_ci95": [
+      0.686,
+      0.919
+     ],
+     "p@5": 0.25,
+     "p@5_ci95": [
+      0.2,
+      0.31
+     ],
+     "top1_primary": 0.65,
+     "top1_primary_ci95": [
+      0.45,
+      0.85
+     ]
+    }
+   },
+   "per_topic": {
+    "academic-procedures": {
+     "n": 15,
+     "recall@1": 0.6,
+     "recall@1_ci95": [
+      0.333,
+      0.867
+     ],
+     "recall@3": 0.733,
+     "recall@3_ci95": [
+      0.533,
+      0.933
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.6,
+      1.0
+     ],
+     "recall@10": 0.867,
+     "recall@10_ci95": [
+      0.667,
+      1.0
+     ],
+     "mrr@10": 0.687,
+     "mrr@10_ci95": [
+      0.48,
+      0.88
+     ],
+     "ndcg@5": 0.71,
+     "ndcg@5_ci95": [
+      0.502,
+      0.894
+     ],
+     "ndcg@10": 0.729,
+     "ndcg@10_ci95": [
+      0.538,
+      0.909
+     ],
+     "p@5": 0.16,
+     "p@5_ci95": [
+      0.12,
+      0.2
+     ],
+     "top1_primary": 0.6,
+     "top1_primary_ci95": [
+      0.333,
+      0.867
+     ]
+    },
+    "daily-living": {
+     "n": 5,
+     "recall@1": 0.8,
+     "recall@1_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@3": 1.0,
+     "recall@3_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@5": 1.0,
+     "recall@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.9,
+     "mrr@10_ci95": [
+      0.7,
+      1.0
+     ],
+     "ndcg@5": 0.926,
+     "ndcg@5_ci95": [
+      0.779,
+      1.0
+     ],
+     "ndcg@10": 0.926,
+     "ndcg@10_ci95": [
+      0.779,
+      1.0
+     ],
+     "p@5": 0.2,
+     "p@5_ci95": [
+      0.2,
+      0.2
+     ],
+     "top1_primary": 0.8,
+     "top1_primary_ci95": [
+      0.4,
+      1.0
+     ]
+    },
+    "dormitory": {
+     "n": 5,
+     "recall@1": 1.0,
+     "recall@1_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@3": 1.0,
+     "recall@3_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@5": 1.0,
+     "recall@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 1.0,
+     "mrr@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "ndcg@5": 1.0,
+     "ndcg@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "ndcg@10": 1.0,
+     "ndcg@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "p@5": 0.2,
+     "p@5_ci95": [
+      0.2,
+      0.2
+     ],
+     "top1_primary": 1.0,
+     "top1_primary_ci95": [
+      1.0,
+      1.0
+     ]
+    },
+    "health-insurance": {
+     "n": 10,
+     "recall@1": 0.9,
+     "recall@1_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@3": 1.0,
+     "recall@3_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@5": 1.0,
+     "recall@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.95,
+     "mrr@10_ci95": [
+      0.85,
+      1.0
+     ],
+     "ndcg@5": 0.793,
+     "ndcg@5_ci95": [
+      0.718,
+      0.845
+     ],
+     "ndcg@10": 0.807,
+     "ndcg@10_ci95": [
+      0.757,
+      0.845
+     ],
+     "p@5": 0.48,
+     "p@5_ci95": [
+      0.4,
+      0.56
+     ],
+     "top1_primary": 0.0,
+     "top1_primary_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "housing": {
+     "n": 5,
+     "recall@1": 0.6,
+     "recall@1_ci95": [
+      0.2,
+      1.0
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "mrr@10": 0.667,
+     "mrr@10_ci95": [
+      0.267,
+      1.0
+     ],
+     "ndcg@5": 0.58,
+     "ndcg@5_ci95": [
+      0.276,
+      0.856
+     ],
+     "ndcg@10": 0.633,
+     "ndcg@10_ci95": [
+      0.303,
+      0.907
+     ],
+     "p@5": 0.2,
+     "p@5_ci95": [
+      0.08,
+      0.32
+     ],
+     "top1_primary": 0.6,
+     "top1_primary_ci95": [
+      0.2,
+      1.0
+     ]
+    },
+    "part-time-employment": {
+     "n": 10,
+     "recall@1": 0.4,
+     "recall@1_ci95": [
+      0.1,
+      0.7
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.592,
+     "mrr@10_ci95": [
+      0.373,
+      0.814
+     ],
+     "ndcg@5": 0.575,
+     "ndcg@5_ci95": [
+      0.357,
+      0.775
+     ],
+     "ndcg@10": 0.666,
+     "ndcg@10_ci95": [
+      0.526,
+      0.811
+     ],
+     "p@5": 0.28,
+     "p@5_ci95": [
+      0.16,
+      0.42
+     ],
+     "top1_primary": 0.2,
+     "top1_primary_ci95": [
+      0.0,
+      0.5
+     ]
+    },
+    "residence-card": {
+     "n": 20,
+     "recall@1": 0.75,
+     "recall@1_ci95": [
+      0.55,
+      0.95
+     ],
+     "recall@3": 0.9,
+     "recall@3_ci95": [
+      0.75,
+      1.0
+     ],
+     "recall@5": 0.9,
+     "recall@5_ci95": [
+      0.75,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.82,
+     "mrr@10_ci95": [
+      0.667,
+      0.942
+     ],
+     "ndcg@5": 0.762,
+     "ndcg@5_ci95": [
+      0.609,
+      0.892
+     ],
+     "ndcg@10": 0.815,
+     "ndcg@10_ci95": [
+      0.705,
+      0.917
+     ],
+     "p@5": 0.25,
+     "p@5_ci95": [
+      0.19,
+      0.3
+     ],
+     "top1_primary": 0.75,
+     "top1_primary_ci95": [
+      0.55,
+      0.9
+     ]
+    },
+    "topik": {
+     "n": 5,
+     "recall@1": 0.8,
+     "recall@1_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@3": 1.0,
+     "recall@3_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@5": 1.0,
+     "recall@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.9,
+     "mrr@10_ci95": [
+      0.7,
+      1.0
+     ],
+     "ndcg@5": 0.926,
+     "ndcg@5_ci95": [
+      0.779,
+      1.0
+     ],
+     "ndcg@10": 0.926,
+     "ndcg@10_ci95": [
+      0.779,
+      1.0
+     ],
+     "p@5": 0.2,
+     "p@5_ci95": [
+      0.2,
+      0.2
+     ],
+     "top1_primary": 0.8,
+     "top1_primary_ci95": [
+      0.4,
+      1.0
+     ]
+    },
+    "university-announcements": {
+     "n": 5,
+     "recall@1": 0.8,
+     "recall@1_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "recall@10": 0.8,
+     "recall@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "mrr@10": 0.8,
+     "mrr@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "ndcg@5": 0.8,
+     "ndcg@5_ci95": [
+      0.4,
+      1.0
+     ],
+     "ndcg@10": 0.8,
+     "ndcg@10_ci95": [
+      0.4,
+      1.0
+     ],
+     "p@5": 0.16,
+     "p@5_ci95": [
+      0.08,
+      0.2
+     ],
+     "top1_primary": 0.8,
+     "top1_primary_ci95": [
+      0.4,
+      1.0
+     ]
+    },
+    "visa-immigration": {
+     "n": 20,
+     "recall@1": 0.3,
+     "recall@1_ci95": [
+      0.1,
+      0.5
+     ],
+     "recall@3": 0.6,
+     "recall@3_ci95": [
+      0.4,
+      0.8
+     ],
+     "recall@5": 0.75,
+     "recall@5_ci95": [
+      0.55,
+      0.9
+     ],
+     "recall@10": 0.9,
+     "recall@10_ci95": [
+      0.75,
+      1.0
+     ],
+     "mrr@10": 0.506,
+     "mrr@10_ci95": [
+      0.346,
+      0.666
+     ],
+     "ndcg@5": 0.508,
+     "ndcg@5_ci95": [
+      0.346,
+      0.673
+     ],
+     "ndcg@10": 0.578,
+     "ndcg@10_ci95": [
+      0.448,
+      0.712
+     ],
+     "p@5": 0.21,
+     "p@5_ci95": [
+      0.15,
+      0.27
+     ],
+     "top1_primary": 0.3,
+     "top1_primary_ci95": [
+      0.1,
+      0.5
+     ]
+    }
+   },
+   "per_difficulty": {
+    "multi-step": {
+     "n": 10,
+     "recall@1": 0.2,
+     "recall@1_ci95": [
+      0.0,
+      0.5
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@5": 0.8,
+     "recall@5_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@10": 0.9,
+     "recall@10_ci95": [
+      0.7,
+      1.0
+     ],
+     "mrr@10": 0.517,
+     "mrr@10_ci95": [
+      0.333,
+      0.7
+     ],
+     "ndcg@5": 0.492,
+     "ndcg@5_ci95": [
+      0.291,
+      0.675
+     ],
+     "ndcg@10": 0.569,
+     "ndcg@10_ci95": [
+      0.403,
+      0.712
+     ],
+     "p@5": 0.28,
+     "p@5_ci95": [
+      0.18,
+      0.36
+     ],
+     "top1_primary": 0.2,
+     "top1_primary_ci95": [
+      0.0,
+      0.5
+     ]
+    },
+    "procedure": {
+     "n": 10,
+     "recall@1": 0.8,
+     "recall@1_ci95": [
+      0.5,
+      1.0
+     ],
+     "recall@3": 0.9,
+     "recall@3_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@5": 0.9,
+     "recall@5_ci95": [
+      0.7,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 0.86,
+     "mrr@10_ci95": [
+      0.67,
+      1.0
+     ],
+     "ndcg@5": 0.863,
+     "ndcg@5_ci95": [
+      0.626,
+      1.0
+     ],
+     "ndcg@10": 0.892,
+     "ndcg@10_ci95": [
+      0.716,
+      1.0
+     ],
+     "p@5": 0.18,
+     "p@5_ci95": [
+      0.14,
+      0.2
+     ],
+     "top1_primary": 0.8,
+     "top1_primary_ci95": [
+      0.5,
+      1.0
+     ]
+    },
+    "simple": {
+     "n": 75,
+     "recall@1": 0.64,
+     "recall@1_ci95": [
+      0.533,
+      0.747
+     ],
+     "recall@3": 0.8,
+     "recall@3_ci95": [
+      0.707,
+      0.88
+     ],
+     "recall@5": 0.853,
+     "recall@5_ci95": [
+      0.773,
+      0.933
+     ],
+     "recall@10": 0.933,
+     "recall@10_ci95": [
+      0.867,
+      0.987
+     ],
+     "mrr@10": 0.731,
+     "mrr@10_ci95": [
+      0.644,
+      0.817
+     ],
+     "ndcg@5": 0.698,
+     "ndcg@5_ci95": [
+      0.617,
+      0.777
+     ],
+     "ndcg@10": 0.738,
+     "ndcg@10_ci95": [
+      0.668,
+      0.804
+     ],
+     "p@5": 0.245,
+     "p@5_ci95": [
+      0.208,
+      0.283
+     ],
+     "top1_primary": 0.493,
+     "top1_primary_ci95": [
+      0.387,
+      0.6
+     ]
+    },
+    "time-sensitive": {
+     "n": 5,
+     "recall@1": 1.0,
+     "recall@1_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@3": 1.0,
+     "recall@3_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@5": 1.0,
+     "recall@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "recall@10": 1.0,
+     "recall@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "mrr@10": 1.0,
+     "mrr@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "ndcg@5": 1.0,
+     "ndcg@5_ci95": [
+      1.0,
+      1.0
+     ],
+     "ndcg@10": 1.0,
+     "ndcg@10_ci95": [
+      1.0,
+      1.0
+     ],
+     "p@5": 0.2,
+     "p@5_ci95": [
+      0.2,
+      0.2
+     ],
+     "top1_primary": 1.0,
+     "top1_primary_ci95": [
+      1.0,
+      1.0
+     ]
+    }
+   },
+   "coverage": {
+    "relevant_documents": 15,
+    "ranked_first_somewhere": 13,
+    "share": 0.867
+   },
+   "latency_ms": {
+    "p50": 100.6,
+    "p95": 118.8,
+    "max": 136.8
+   },
+   "distinct_documents_in_list": {
+    "median": 9.0,
+    "min": 1
+   },
+   "misses": [
+    {
+     "question_id": "H02-ko",
+     "language": "ko",
+     "topic": "health-insurance",
+     "rank": 2
+    },
+    {
+     "question_id": "H03-vi",
+     "language": "vi",
+     "topic": "topik",
+     "rank": 2
+    },
+    {
+     "question_id": "H04-en",
+     "language": "en",
+     "topic": "visa-immigration",
+     "rank": 4
+    },
+    {
+     "question_id": "H04-ko",
+     "language": "ko",
+     "topic": "visa-immigration",
+     "rank": 9
+    },
+    {
+     "question_id": "H04-id",
+     "language": "id",
+     "topic": "visa-immigration",
+     "rank": 4
+    },
+    {
+     "question_id": "H04-vi",
+     "language": "vi",
+     "topic": "visa-immigration",
+     "rank": 7
+    },
+    {
+     "question_id": "H04-zh-CN",
+     "language": "zh-CN",
+     "topic": "visa-immigration",
+     "rank": 5
+    },
+    {
+     "question_id": "H05-en",
+     "language": "en",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H05-ko",
+     "language": "ko",
+     "topic": "visa-immigration",
+     "rank": null
+    },
+    {
+     "question_id": "H05-id",
+     "language": "id",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H05-vi",
+     "language": "vi",
+     "topic": "visa-immigration",
+     "rank": 6
+    },
+    {
+     "question_id": "H05-zh-CN",
+     "language": "zh-CN",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H06-en",
+     "language": "en",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H06-ko",
+     "language": "ko",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H06-vi",
+     "language": "vi",
+     "topic": "visa-immigration",
+     "rank": 2
+    },
+    {
+     "question_id": "H07-ko",
+     "language": "ko",
+     "topic": "visa-immigration",
+     "rank": null
+    },
+    {
+     "question_id": "H08-ko",
+     "language": "ko",
+     "topic": "part-time-employment",
+     "rank": 7
+    },
+    {
+     "question_id": "H08-id",
+     "language": "id",
+     "topic": "part-time-employment",
+     "rank": 2
+    },
+    {
+     "question_id": "H08-vi",
+     "language": "vi",
+     "topic": "part-time-employment",
+     "rank": 3
+    },
+    {
+     "question_id": "H09-ko",
+     "language": "ko",
+     "topic": "part-time-employment",
+     "rank": 9
+    },
+    {
+     "question_id": "H09-vi",
+     "language": "vi",
+     "topic": "part-time-employment",
+     "rank": 2
+    },
+    {
+     "question_id": "H09-zh-CN",
+     "language": "zh-CN",
+     "topic": "part-time-employment",
+     "rank": 3
+    },
+    {
+     "question_id": "H10-vi",
+     "language": "vi",
+     "topic": "residence-card",
+     "rank": 2
+    },
+    {
+     "question_id": "H11-vi",
+     "language": "vi",
+     "topic": "residence-card",
+     "rank": 3
+    },
+    {
+     "question_id": "H12-ko",
+     "language": "ko",
+     "topic": "residence-card",
+     "rank": 10
+    },
+    {
+     "question_id": "H13-ko",
+     "language": "ko",
+     "topic": "residence-card",
+     "rank": 8
+    },
+    {
+     "question_id": "H13-vi",
+     "language": "vi",
+     "topic": "residence-card",
+     "rank": 3
+    },
+    {
+     "question_id": "H14-ko",
+     "language": "ko",
+     "topic": "housing",
+     "rank": null
+    },
+    {
+     "question_id": "H14-vi",
+     "language": "vi",
+     "topic": "housing",
+     "rank": 3
+    },
+    {
+     "question_id": "H15-ko",
+     "language": "ko",
+     "topic": "daily-living",
+     "rank": 2
+    },
+    {
+     "question_id": "H16-en",
+     "language": "en",
+     "topic": "academic-procedures",
+     "rank": 2
+    },
+    {
+     "question_id": "H17-en",
+     "language": "en",
+     "topic": "academic-procedures",
+     "rank": 10
+    },
+    {
+     "question_id": "H18-en",
+     "language": "en",
+     "topic": "academic-procedures",
+     "rank": 2
+    },
+    {
+     "question_id": "H18-ko",
+     "language": "ko",
+     "topic": "academic-procedures",
+     "rank": null
+    },
+    {
+     "question_id": "H18-vi",
+     "language": "vi",
+     "topic": "academic-procedures",
+     "rank": 5
+    },
+    {
+     "question_id": "H18-zh-CN",
+     "language": "zh-CN",
+     "topic": "academic-procedures",
+     "rank": null
+    },
+    {
+     "question_id": "H20-en",
+     "language": "en",
+     "topic": "university-announcements",
+     "rank": null
+    }
+   ]
+  }
+ },
+ "paired_differences": [
+  {
+   "a": "vector",
+   "b": "hybrid",
+   "metric": "mrr@10",
+   "diff": 0.104,
+   "ci95": [
+    0.045,
+    0.164
+   ],
+   "p_le_0": 0.0004,
+   "better": 33,
+   "worse": 8,
+   "n": 100
+  },
+  {
+   "a": "vector",
+   "b": "hybrid",
+   "metric": "recall@1",
+   "diff": 0.13,
+   "ci95": [
+    0.03,
+    0.23
+   ],
+   "p_le_0": 0.0064,
+   "better": 20,
+   "worse": 7,
+   "n": 100
+  },
+  {
+   "a": "vector",
+   "b": "hybrid",
+   "metric": "ndcg@10",
+   "diff": 0.13,
+   "ci95": [
+    0.081,
+    0.181
+   ],
+   "p_le_0": 0.0,
+   "better": 47,
+   "worse": 15,
+   "n": 100
+  },
+  {
+   "a": "hybrid_legacy",
+   "b": "hybrid",
+   "metric": "mrr@10",
+   "diff": 0.133,
+   "ci95": [
+    0.066,
+    0.2
+   ],
+   "p_le_0": 0.0006,
+   "better": 35,
+   "worse": 11,
+   "n": 100
+  },
+  {
+   "a": "hybrid_legacy",
+   "b": "hybrid",
+   "metric": "recall@1",
+   "diff": 0.17,
+   "ci95": [
+    0.07,
+    0.27
+   ],
+   "p_le_0": 0.0012,
+   "better": 23,
+   "worse": 6,
+   "n": 100
+  },
+  {
+   "a": "hybrid_legacy",
+   "b": "hybrid",
+   "metric": "ndcg@10",
+   "diff": 0.141,
+   "ci95": [
+    0.086,
+    0.198
+   ],
+   "p_le_0": 0.0,
+   "better": 45,
+   "worse": 18,
+   "n": 100
+  },
+  {
+   "a": "hybrid_nobridge",
+   "b": "hybrid",
+   "metric": "mrr@10",
+   "diff": 0.009,
+   "ci95": [
+    -0.015,
+    0.032
+   ],
+   "p_le_0": 0.2218,
+   "better": 8,
+   "worse": 4,
+   "n": 100
+  },
+  {
+   "a": "hybrid_nobridge",
+   "b": "hybrid",
+   "metric": "recall@1",
+   "diff": 0.02,
+   "ci95": [
+    -0.02,
+    0.06
+   ],
+   "p_le_0": 0.2238,
+   "better": 3,
+   "worse": 1,
+   "n": 100
+  },
+  {
+   "a": "hybrid_nobridge",
+   "b": "hybrid",
+   "metric": "ndcg@10",
+   "diff": 0.006,
+   "ci95": [
+    -0.013,
+    0.025
+   ],
+   "p_le_0": 0.2678,
+   "better": 13,
+   "worse": 13,
+   "n": 100
+  }
+ ]
+}

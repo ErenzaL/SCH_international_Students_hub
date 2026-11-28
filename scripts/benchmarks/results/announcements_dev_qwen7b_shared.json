@@ -1,0 +1,220 @@
+{
+ "name": "dev_qwen7b_shared",
+ "at": "2026-11-26T19:01:02+00:00",
+ "model": "qwen2.5:7b-instruct",
+ "style": "shared",
+ "repair": true,
+ "seed": 1,
+ "temperature": 0.2,
+ "num_ctx": 16384,
+ "notices": 26,
+ "errors": 0,
+ "gpu": {
+  "memory_mib_peak": 5619.0,
+  "memory_mib_median": 5619.0,
+  "utilization_median": 97.0,
+  "power_w_median": 199.29,
+  "power_w_peak": 200.41,
+  "samples": 373
+ },
+ "results": {
+  "en": {
+   "drafts": 26,
+   "dates": [
+    69,
+    69
+   ],
+   "times": [
+    33,
+    33
+   ],
+   "money": [
+    12,
+    12
+   ],
+   "links": [
+    15,
+    15
+   ],
+   "weekdays": [
+    74,
+    74
+   ],
+   "drafts_with_wrong_weekday": 0,
+   "drafts_with_leaked_instructions": 0,
+   "terminology": [
+    42,
+    42
+   ],
+   "proper_nouns": [
+    36,
+    36
+   ],
+   "drafts_missing_lines": 1,
+   "drafts_with_added_numbers": 0,
+   "drafts_with_added_links": 0,
+   "drafts_with_korean_left": 0,
+   "drafts_with_stray_chinese": 1,
+   "fact_errors": 1,
+   "drafts_without_any_measured_error": 24,
+   "passed_production_checks": 20,
+   "checks_flagged_and_error": 2,
+   "checks_flagged_no_error": 4,
+   "checks_missed_error": 0,
+   "warning_types": {
+    "number": 3,
+    "language": 1,
+    "table_rows": 1,
+    "missing_sections": 1,
+    "url": 1,
+    "url_added": 1
+   },
+   "drafts_per_warning_type": {
+    "number": 2,
+    "language": 1,
+    "table_rows": 1,
+    "missing_sections": 1,
+    "url_added": 1,
+    "url": 1
+   },
+   "seconds_median": 4.5,
+   "seconds_p95": 9.11,
+   "seconds_max": 14.74,
+   "input_tokens": 40471,
+   "output_tokens": 12485,
+   "repairs": 8
+  },
+  "id": {
+   "drafts": 26,
+   "dates": [
+    69,
+    69
+   ],
+   "times": [
+    33,
+    33
+   ],
+   "money": [
+    12,
+    12
+   ],
+   "links": [
+    15,
+    15
+   ],
+   "weekdays": [
+    77,
+    77
+   ],
+   "drafts_with_wrong_weekday": 0,
+   "drafts_with_leaked_instructions": 0,
+   "terminology": [
+    41,
+    42
+   ],
+   "proper_nouns": [
+    35,
+    36
+   ],
+   "drafts_missing_lines": 0,
+   "drafts_with_added_numbers": 3,
+   "drafts_with_added_links": 0,
+   "drafts_with_korean_left": 0,
+   "drafts_with_stray_chinese": 0,
+   "fact_errors": 3,
+   "drafts_without_any_measured_error": 23,
+   "passed_production_checks": 16,
+   "checks_flagged_and_error": 3,
+   "checks_flagged_no_error": 7,
+   "checks_missed_error": 0,
+   "warning_types": {
+    "number": 5,
+    "number_added": 5,
+    "table_rows": 3,
+    "url": 1,
+    "url_added": 1
+   },
+   "drafts_per_warning_type": {
+    "number_added": 4,
+    "table_rows": 3,
+    "number": 3,
+    "url_added": 1,
+    "url": 1
+   },
+   "seconds_median": 7.7,
+   "seconds_p95": 17.86,
+   "seconds_max": 21.77,
+   "input_tokens": 48173,
+   "output_tokens": 21448,
+   "repairs": 15
+  },
+  "all": {
+   "drafts": 52,
+   "dates": [
+    138,
+    138
+   ],
+   "times": [
+    66,
+    66
+   ],
+   "money": [
+    24,
+    24
+   ],
+   "links": [
+    30,
+    30
+   ],
+   "weekdays": [
+    151,
+    151
+   ],
+   "drafts_with_wrong_weekday": 0,
+   "drafts_with_leaked_instructions": 0,
+   "terminology": [
+    83,
+    84
+   ],
+   "proper_nouns": [
+    71,
+    72
+   ],
+   "drafts_missing_lines": 1,
+   "drafts_with_added_numbers": 3,
+   "drafts_with_added_links": 0,
+   "drafts_with_korean_left": 0,
+   "drafts_with_stray_chinese": 1,
+   "fact_errors": 4,
+   "drafts_without_any_measured_error": 47,
+   "passed_production_checks": 36,
+   "checks_flagged_and_error": 5,
+   "checks_flagged_no_error": 11,
+   "checks_missed_error": 0,
+   "warning_types": {
+    "number": 8,
+    "number_added": 5,
+    "table_rows": 4,
+    "url": 2,
+    "url_added": 2,
+    "language": 1,
+    "missing_sections": 1
+   },
+   "drafts_per_warning_type": {
+    "number": 5,
+    "table_rows": 4,
+    "number_added": 4,
+    "url_added": 2,
+    "url": 2,
+    "language": 1,
+    "missing_sections": 1
+   },
+   "seconds_median": 5.7,
+   "seconds_p95": 16.81,
+   "seconds_max": 21.77,
+   "input_tokens": 88644,
+   "output_tokens": 33933,
+   "repairs": 23
+  }
+ }
+}

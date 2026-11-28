@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from app.core.config import Settings
 from app.core.rate_limit import DailyBudget
 from app.repositories.base import FileStorage, Store
+from app.services.agents.operations import AgentOperations
 from app.services.agents.tasks import AgentTaskService
 from app.services.announcements import AnnouncementService
 from app.services.conversations import ConversationService
@@ -13,12 +14,15 @@ from app.services.discovery.service import DiscoveryService
 from app.services.document_translations import DocumentTranslationService
 from app.services.domains import DomainPolicy
 from app.services.embeddings.base import EmbeddingProvider
+from app.services.gpu_worker import GpuWorkerService
 from app.services.indexing import IndexingService
 from app.services.ingestion.fetcher import GuardedFetcher
 from app.services.ingestion.pipeline import IngestionService
 from app.services.intake import IntakeService
 from app.services.jobs import JobRunner
 from app.services.llm.base import LLMProvider
+from app.services.llm.controls import RuntimeFlags
+from app.services.llm.usage import usage
 from app.services.notifications import NotificationService, UserNotificationService
 from app.services.ocr.providers import OCRProvider, build_ocr_provider
 from app.services.public import PublicService
@@ -62,8 +66,11 @@ class Services:
     announcement_translator: AnnouncementAutoTranslator
     discovery: DiscoveryService = None  # type: ignore[assignment]
     agents: AgentTaskService = None  # type: ignore[assignment]  # set right after construction (needs Services)
+    operations: AgentOperations = None  # type: ignore[assignment]
+    gpu: GpuWorkerService = None  # type: ignore[assignment]  # set right after construction (needs Services)
     #: per-day attempt budget of background AI work (the chatbot's quota reserve)
     background_budget: DailyBudget | None = None
+    runtime_flags: RuntimeFlags | None = None
 
 
 def build_services(settings: Settings, store: Store, storage: FileStorage | None, embedder: EmbeddingProvider,
@@ -82,8 +89,17 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
                                         llm=llm, settings=settings)
     support = SupportService(store, conversations, user_notes, retention_days=settings.support_retention_days)
     background_budget = DailyBudget()                 # per process / Services (one instance in production)
+    runtime_flags = RuntimeFlags(store)
+    usage.configure(prices=settings.llm_prices, store=store)
+    if settings.ai_budget_persistent:
+        from app.core.rate_limit import ai_budget
+
+        # background work fails closed when the counter table exists but cannot be read; chat answers fall back to
+        # the in-process count (students are never refused because of a database hiccup in the accounting)
+        background_budget.attach(store, {"background"}, fail_closed={"background"})
+        ai_budget.attach(store, {"global"})
     # background AI (translations, summaries) has its own provider and a daily attempt budget: the chatbot's reserve
-    tr_llm = translation_llm(settings, llm, background_budget)
+    tr_llm = translation_llm(settings, llm, background_budget, runtime_flags)
     doc_translations = DocumentTranslationService(store, tr_llm, user_notes, settings)
     jobs = JobRunner(store, ingestion, settings)
     doc_translations.ingestion, doc_translations.jobs = ingestion, jobs
@@ -94,6 +110,7 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     translations.auto = ingestion.announcement_translator = ann_auto
     public = PublicService(store, announcements, storage)
     public.announcement_translator = ann_auto
+    ann_auto.public = doc_translations.public = public
     rag_health = RagHealthService(store, embedder.model_id, notifications)
     ingestion.rag_health = announcements.rag_health = rag_health
     services = Services(
@@ -112,6 +129,9 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     discovery.sources_service, discovery.ingestion, discovery.jobs, discovery.llm = services.sources, ingestion, jobs, tr_llm
     services.discovery = discovery
     services.background_budget = background_budget
+    services.runtime_flags = runtime_flags
     services.agents = jobs.agents = AgentTaskService(services)
+    services.gpu = jobs.gpu = GpuWorkerService(services)
+    services.operations = AgentOperations(services)
     services.agents.worker_id = jobs.worker_id
     return services

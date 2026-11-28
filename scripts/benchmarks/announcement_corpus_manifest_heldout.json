@@ -1,0 +1,85 @@
+{
+ "note": "Public SCH notices used by scripts/bench_announcements.py. Texts are not stored in the repository.",
+ "notices": [
+  {
+   "id": "H01",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6700&table_name=noti_fore",
+   "posted": "2026-11-09",
+   "chars": 381,
+   "sha256": "54514c6f7f30bff0ee5ccedda6fc1aa6f995abf830305ed77bdc5d101f03b79b"
+  },
+  {
+   "id": "H02",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6696&table_name=noti_fore",
+   "posted": "2026-10-29",
+   "chars": 550,
+   "sha256": "eadc4b3e6e1b09c3c398e224fc978abc77665cd75a51b38d14b13d65396d41b2"
+  },
+  {
+   "id": "H03",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6694&table_name=noti_fore",
+   "posted": "2026-10-26",
+   "chars": 662,
+   "sha256": "24d05e72e3241c9a303686665398d05ba7e39a2218b78de26178df110d88dcf4"
+  },
+  {
+   "id": "H04",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6685&table_name=noti_fore",
+   "posted": "2026-10-13",
+   "chars": 427,
+   "sha256": "cab01167c955b43a00f1867568c8baa105a2859d74f0ca82628cecdac95e1c6d"
+  },
+  {
+   "id": "H05",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6676&table_name=noti_fore",
+   "posted": "2026-09-23",
+   "chars": 495,
+   "sha256": "38b1025bddad8efc1f8c7969663f5ea078edd7545619e61cf01e164313779fb5"
+  },
+  {
+   "id": "H06",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6668&table_name=noti_fore",
+   "posted": "2026-09-16",
+   "chars": 593,
+   "sha256": "8a982b7e6ccc164128ab76308980c099c68d5e029e34186457b06a0f7dc46a5d"
+  },
+  {
+   "id": "H07",
+   "group": "international",
+   "url": "https://sgee.sch.ac.kr/notice/notice01.php?admin_mode=read&no=6665&table_name=noti_fore",
+   "posted": "2026-09-10",
+   "chars": 1038,
+   "sha256": "239835c42be522c8071ae97dffd0b57094760de698c0ab6cf221d579665aee83"
+  },
+  {
+   "id": "H08",
+   "group": "academic",
+   "url": "https://home.sch.ac.kr/sch/06/010200.jsp?mode=view&article_no=20261123165052491060&board_wrapper=%2Fsch%2F06%2F010200.jsp&pager.offset=0&board_no=20090724142539399571",
+   "posted": "2026-11-23",
+   "chars": 499,
+   "sha256": "c4e19e3fe5abb60845491877c38a24847eb2aefdd4275ca2f2a65772f3cbd517"
+  },
+  {
+   "id": "H09",
+   "group": "scholarship",
+   "url": "https://home.sch.ac.kr/sch/06/010300.jsp?mode=view&article_no=20261027090252973003&board_wrapper=%2Fsch%2F06%2F010300.jsp&pager.offset=0&board_no=20090724142604517617",
+   "posted": "2026-10-27",
+   "chars": 233,
+   "sha256": "d65b62111142a2c0b9e38b2669e3740c2eb6f1b9a38070c10ad49a1a00b0b4e2"
+  },
+  {
+   "id": "H10",
+   "group": "scholarship",
+   "url": "https://home.sch.ac.kr/sch/06/010300.jsp?mode=view&article_no=20261110092724948096&board_wrapper=%2Fsch%2F06%2F010300.jsp&pager.offset=0&board_no=20090724142604517617",
+   "posted": "2026-11-10",
+   "chars": 575,
+   "sha256": "be20451b97382c3d938f42e3fd7474115977927bd478ea6e78141d6ad2514e84"
+  }
+ ]
+}

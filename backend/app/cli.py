@@ -11,6 +11,8 @@
     python -m app.cli check-rag --notify # ... and alert admins about documents that are not (also part of run-due)
     python -m app.cli reextract <version_id>          # DRY RUN: re-extract the stored original, compare, write nothing
     python -m app.cli reextract <version_id> --apply  # ... and create a new 'pending_review' version (live one unchanged)
+    python -m app.cli doctor                          # configuration check: read-only, prints no secret
+    python -m app.cli doctor --api https://... --web https://...   # ... and the deployed services
     python -m app.cli translate-backfill              # DRY RUN: what needs machine translation + estimated usage
     python -m app.cli translate-backfill --apply --limit 10   # queue at most 10 jobs (the API worker runs them)
 
@@ -36,7 +38,7 @@ log = logging.getLogger("app.cli")
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="app.cli")
     parser.add_argument("command", choices=["run-due", "recover", "prefetch-model", "reindex-approved", "purge-expired",
-                                            "check-llm", "check-rag", "reextract", "translate-backfill"])
+                                            "check-llm", "check-rag", "reextract", "translate-backfill", "doctor"])
     parser.add_argument("version_id", nargs="?", help="reextract: the version whose stored original is re-extracted")
     parser.add_argument("--apply", action="store_true", help="reextract: create the new pending version (default: dry run)")
     parser.add_argument("--generate", action="store_true", help="check-llm: also run one tiny generation per model")
@@ -45,7 +47,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--limit", type=int, default=10, help="translate-backfill --apply: jobs to queue (default 10)")
     parser.add_argument("--languages", default="", help="translate-backfill: e.g. ko,en (default AUTO_TRANSLATE_LANGUAGES)")
     parser.add_argument("--json", action="store_true", help="translate-backfill: print the full plan as JSON")
+    parser.add_argument("--api", help="doctor: address of the deployed API (read-only requests)")
+    parser.add_argument("--web", help="doctor: address of the website")
     args = parser.parse_args(argv)
+    if args.command == "doctor":        # before logging is configured: the report is the only output
+        from app.doctor import main as doctor
+
+        return doctor(get_settings(), api=args.api, web=args.web, as_json=args.json)
     settings = get_settings()
     configure_logging(settings.log_level)
     if args.command == "check-llm":
@@ -188,6 +196,29 @@ def check_rag(svc, *, notify: bool) -> int:  # type: ignore[no-untyped-def]
     return 1 if report["problems"] else 0
 
 
+def check_ollama(settings, *, generate: bool, list_models: bool = False) -> int:  # type: ignore[no-untyped-def]
+    """Is Ollama reachable on this machine and is OLLAMA_MODEL installed? ``--generate``: one tiny call of each kind."""
+    from app.services.llm.base import LLMError
+
+    llm = build_llm_from_settings(settings.model_copy(update={"llm_provider": "ollama"}))
+    try:
+        names = llm.installed_models()  # type: ignore[attr-defined]
+    except LLMError as exc:
+        print(f"ollama: {settings.ollama_base_url} -> {exc.code}: {exc.message}", file=sys.stderr)
+        return 1
+    if list_models:
+        print("installed models:\n" + "\n".join(f"  {n}" for n in sorted(names)))
+    ok = llm.model in names or f"{llm.model}:latest" in names
+    print(f"ollama: {settings.ollama_base_url} model={llm.model} installed={'yes' if ok else 'NO'} "
+          f"num_ctx={settings.ollama_num_ctx}")
+    if generate and ok:
+        for row in llm.probe(llm.model):  # type: ignore[attr-defined]
+            print(f"  {row['call']:8} {'OK' if row['ok'] else 'FAILED error=' + row['error']} "
+                  f"latency_ms={row['latency_ms']} tokens={row.get('total_tokens')}")
+            ok = ok and row["ok"]
+    return 0 if ok else 1
+
+
 def check_llm(settings, *, generate: bool, list_models: bool = False) -> int:  # type: ignore[no-untyped-def]
     """Validate the configured Gemini models for THIS key (the key is never printed).
 
@@ -196,8 +227,13 @@ def check_llm(settings, *, generate: bool, list_models: bool = False) -> int:  #
       configuration production uses (thinking level, output limit) - reports ok / error category / HTTP status /
       Google's (non-secret) message / latency / tokens.
     * ``--list``: every Gemini model this key can call with generateContent."""
-    if settings.llm_provider.strip().lower() not in ("gemini", "google"):
-        print(f"LLM_PROVIDER={settings.llm_provider!r}: check-llm validates Gemini models only.")
+    chosen = settings.llm_provider.strip().lower()
+    if "ollama" in (chosen, settings.background_llm_provider.strip().lower()):
+        code = check_ollama(settings, generate=generate, list_models=list_models)
+        if code or chosen not in ("gemini", "google"):
+            return code
+    if chosen not in ("gemini", "google"):
+        print(f"LLM_PROVIDER={settings.llm_provider!r}: check-llm validates Gemini and Ollama models only.")
         return 0
     from google import genai
     from google.genai import errors

@@ -98,6 +98,16 @@ TEXT: dict[str, dict[str, str]] = {
         "vi": "Hiện tôi đang gặp sự cố khi tạo câu trả lời. Bạn vui lòng thử lại sau ít phút hoặc xem Trung tâm Kiến thức.",
         "zh-CN": "我现在暂时无法生成回答。请稍后再试，或浏览知识中心。",
     },
+    "instructions_private": {
+        "en": "I can't share how I am set up internally, but I'm happy to help with questions about studying and living "
+              "at SCH.",
+        "ko": "제 내부 설정이나 지시 사항은 공유할 수 없습니다. 순천향대학교 생활이나 학업에 관한 질문이라면 기꺼이 도와드릴게요.",
+        "id": "Saya tidak dapat membagikan pengaturan internal saya, tetapi saya senang membantu pertanyaan tentang kuliah "
+              "dan kehidupan di SCH.",
+        "vi": "Tôi không thể chia sẻ cách tôi được thiết lập bên trong, nhưng tôi rất sẵn lòng giúp các câu hỏi về việc học "
+              "và cuộc sống tại SCH.",
+        "zh-CN": "我无法分享我的内部设定，但很乐意解答关于在顺天乡大学学习和生活的问题。",
+    },
     "thanks": {
         "en": "You're welcome! Ask me anytime if anything else comes up.",
         "ko": "천만에요! 다른 궁금한 점이 생기면 언제든지 물어보세요.",

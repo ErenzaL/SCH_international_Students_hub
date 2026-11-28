@@ -63,9 +63,9 @@ class ScheduleUpdate(Body):
 
 
 class DiscoverySourceCreate(Body):
-    agent_id: Literal["announcement", "scholarship", "career", "events"]
+    agent_id: Literal["announcement", "scholarship", "career", "events", "immigration", "academic", "topik"]
     name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=2, max_length=200)]
-    kind: Literal["sch_board", "listing", "page"]
+    kind: Literal["sch_board", "listing", "page", "saramin_api", "data_go_kr_jobs", "work24_api"]
     url: Annotated[str, StringConstraints(strip_whitespace=True, min_length=8, max_length=1000)]
     config: dict[str, Any] = Field(default_factory=dict)
     category: Annotated[str, StringConstraints(max_length=60)] | None = None
@@ -163,6 +163,57 @@ def update_schedule(schedule_id: str, body: ScheduleUpdate, svc: Services = Depe
                                       interval_minutes=body.interval_minutes, urls=body.urls, params=body.params)
 
 
+# ------------------------------------------------------------------ admin: operations
+class AgentControl(Body):
+    paused: bool
+    note: Annotated[str, StringConstraints(strip_whitespace=True, max_length=500)] | None = None
+
+
+@router.get("/admin/agent-operations")
+def agent_operations(svc: Services = Depends(get_services), _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """Health of every desk: tasks of the last 7 days, last success / failure, sources, schedules, queues."""
+    return svc.operations.health()
+
+
+@router.get("/admin/agent-operations/tasks")
+def all_agent_tasks(agent_id: str | None = None,
+                    status: Literal["queued", "running", "awaiting_approval", "completed", "failed", "cancelled"] | None = None,
+                    pg: Pagination = Depends(), svc: Services = Depends(get_services),
+                    _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """Every task as metadata. A student's parameters and results are never included."""
+    items, total = svc.operations.tasks(agent_id=agent_id, status=status, page=pg.page, size=pg.page_size)
+    return pg.wrap(items, total)
+
+
+@router.get("/admin/agent-operations/tasks/{task_id}")
+def one_agent_task(task_id: str, svc: Services = Depends(get_services), _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    return svc.operations.task(task_id)
+
+
+@router.post("/admin/agent-operations/tasks/{task_id}/rerun", status_code=202)
+def rerun_agent_task(task_id: str, background: BackgroundTasks, svc: Services = Depends(get_services),
+                     admin: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    return svc.operations.rerun(admin, task_id, background)
+
+
+@router.post("/admin/agent-operations/tasks/{task_id}/cancel")
+def cancel_any_agent_task(task_id: str, svc: Services = Depends(get_services),
+                          admin: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    return svc.operations.cancel(admin, task_id)
+
+
+@router.put("/admin/agent-operations/agents/{agent_id}")
+def control_agent(agent_id: str, body: AgentControl, svc: Services = Depends(get_services),
+                  admin: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    return svc.operations.set_paused(admin, agent_id, body.paused, body.note)
+
+
+@router.get("/admin/storage")
+def storage_overview(svc: Services = Depends(get_services), _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """Sizes only. Nothing is ever deleted here."""
+    return svc.operations.storage()
+
+
 # ------------------------------------------------------------------ admin: official-source discovery
 @router.get("/admin/discovery/sources")
 def discovery_sources(agent_id: str | None = None, svc: Services = Depends(get_services),
@@ -180,6 +231,12 @@ def create_discovery_source(body: DiscoverySourceCreate, svc: Services = Depends
         if body.category not in CATEGORY_SLUGS:
             raise ValidationFailed("Unknown category.")
     return svc.discovery.create_source(admin.id, body.model_dump())
+
+
+@router.get("/admin/discovery/catalog")
+def discovery_catalog(svc: Services = Depends(get_services), _: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """Prepared official sources that were checked live; adding one is an ordinary source creation."""
+    return dict(items=svc.discovery.catalog())
 
 
 @router.patch("/admin/discovery/sources/{source_id}")

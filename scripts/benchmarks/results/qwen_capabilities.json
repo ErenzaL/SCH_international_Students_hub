@@ -1,0 +1,187 @@
+{
+ "model": "qwen2.5:7b-instruct",
+ "gpu_before": {
+  "name": "NVIDIA GeForce RTX 4070",
+  "memory_used_mib": 5619,
+  "memory_total_mib": 12282,
+  "utilization": 0
+ },
+ "load_seconds": 2.2,
+ "gpu_loaded": {
+  "name": "NVIDIA GeForce RTX 4070",
+  "memory_used_mib": 5135,
+  "memory_total_mib": 12282,
+  "utilization": 14
+ },
+ "extraction": {
+  "n": 10,
+  "valid_json": 1,
+  "deadline": 0.9,
+  "amount": 0.9,
+  "rows": [
+   {
+    "id": "dorm-2027",
+    "json": true,
+    "deadline_ok": true,
+    "amount_ok": true,
+    "got": {
+     "deadline": "2026-12-18",
+     "amount_won": 347000
+    }
+   },
+   {
+    "id": "topik",
+    "json": true,
+    "deadline_ok": true,
+    "amount_ok": false,
+    "got": {
+     "deadline": "2026-12-28",
+     "amount_won": 56000
+    }
+   },
+   {
+    "id": "scholar",
+    "json": true,
+    "deadline_ok": true,
+    "amount_ok": true,
+    "got": {
+     "deadline": "2026-12-09",
+     "amount_won": 1150000
+    }
+   },
+   {
+    "id": "event",
+    "json": true,
+    "deadline_ok": true,
+    "amount_ok": true,
+    "got": {
+     "deadline": "2026-12-07",
+     "amount_won": null
+    }
+   },
+   {
+    "id": "passed",
+    "json": true,
+    "deadline_ok": true,
+    "amount_ok": true,
+    "got": {
+     "deadline": "2026-09-19",
+     "amount_won": 480000
+    }
+   },
+   {
+    "id": "course",
+    "json": true,
+    "deadline_ok": false,
+    "amount_ok": true,
+    "got": {
+     "deadline": "2027-02-19",
+     "amount_won": null
+    }
+   },
+   {
+    "id": "sos",
+    "json": true,
+    "deadline_ok": true,
+    "amount_ok": true,
+    "got": {
+     "deadline": null,
+     "amount_won": null
+    }
+   },
+   {
+    "id": "work-2026",
+    "json": true,
+    "deadline_ok": true,
+    "amount_ok": true,
+    "got": {
+     "deadline": null,
+     "amount_won": null
+    }
+   },
+   {
+    "id": "dorm-2025",
+    "json": true,
+    "deadline_ok": true,
+    "amount_ok": true,
+    "got": {
+     "deadline": "2025-11-14",
+     "amount_won": 312000
+    }
+   },
+   {
+    "id": "visa",
+    "json": true,
+    "deadline_ok": true,
+    "amount_ok": true,
+    "got": {
+     "deadline": null,
+     "amount_won": 71000
+    }
+   }
+  ]
+ },
+ "deterministic_deadline": {
+  "n": 10,
+  "deadline": 0.8,
+  "wrong": [
+   "topik",
+   "course"
+  ]
+ },
+ "category_accuracy": 0.588,
+ "tool_choice": {
+  "n": 20,
+  "correct": 0.85,
+  "single_call": 1,
+  "known_tools": 1,
+  "wrong": [
+   {
+    "q": "Tôi muốn nói chuyện với nhân viên hỗ trợ",
+    "want": "create_support_request",
+    "got": [],
+    "ok": false,
+    "one": true,
+    "known": true
+   },
+   {
+    "q": "I need a person to help me, the chatbot does not understand",
+    "want": "create_support_request",
+    "got": [],
+    "ok": false,
+    "one": true,
+    "known": true
+   },
+   {
+    "q": "学校附近的紧急电话是多少？",
+    "want": "rag_search",
+    "got": [],
+    "ok": false,
+    "one": true,
+    "known": true
+   }
+  ]
+ },
+ "summaries": {
+  "n": 16,
+  "facts_kept": 0.969,
+  "with_new_figures": 0
+ },
+ "speed": {
+  "tokens_per_second": 97.0,
+  "prompt_tokens_per_second": 3599.7,
+  "seconds": 2.1,
+  "output_tokens": 203
+ },
+ "three_at_once": {
+  "seconds": 6.8,
+  "output_tokens": 651,
+  "tokens_per_second_total": 96.1
+ },
+ "gpu_after": {
+  "name": "NVIDIA GeForce RTX 4070",
+  "memory_used_mib": 5141,
+  "memory_total_mib": 12282,
+  "utilization": 98
+ }
+}

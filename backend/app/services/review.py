@@ -10,6 +10,7 @@ from app.core.constants import OFFICIAL_AUTHORITIES
 from app.core.errors import Conflict, Forbidden, InvalidState, NotFound
 from app.repositories.base import FileStorage, Query, Store, get_many, get_one
 from app.security.auth import AuthUser
+from app.services import document_attachments, document_titles
 from app.services.indexing import IndexingService
 from app.services.ingestion.normalize import content_hash, normalize_text
 
@@ -64,6 +65,7 @@ class ReviewService:
         f = v.get("original_file") or None
         out.update(content_length=len(v["extracted_text"]), is_current=(v["id"] == current_id), **stats,
                    extraction_meta=meta, warnings=meta.get("warnings", []),
+                   document_title=meta.get(document_titles.KEY),
                    requires_field_confirmation=bool(meta.get("requires_field_confirmation")),
                    structured_data=v.get("structured_data") or {},
                    original_file=({k: f.get(k) for k in ("filename", "mime_type", "size", "sha256")} if f else None),
@@ -86,6 +88,14 @@ class ReviewService:
         out: list[dict[str, str]] = []
         if pending is None:
             return out
+        if current is not None and document_titles.version_title(pending, doc) != doc["title"]:
+            out.append(dict(code="title_changed", message=f"The title changes from '{doc['title']}' to "
+                                                          f"'{document_titles.version_title(pending, doc)}' when this version "
+                                                          "is approved."))
+        added, removed = document_attachments.changes(current, pending)
+        for code, items, text in (("attachments_added", added, "New attachment when this version is approved"),
+                                  ("attachments_removed", removed, "Attachment removed when this version is approved")):
+            out += [dict(code=code, message=f"{text}: {a.get('name')} ({a.get('url')})") for a in items[:20]]
         if source and source["authority_type"] not in OFFICIAL_AUTHORITIES and source["category"] == "visa-immigration":
             out.append(dict(code="non_official_immigration",
                             message="Immigration rules must follow current official government sources. This content "
@@ -119,10 +129,13 @@ class ReviewService:
         source = get_one(self.store, "knowledge_sources", id=doc["source_id"])
         item = self.document_item(doc, source, versions)
         return dict(
-            **item, source=source_view(source), metadata=doc.get("metadata") or {},
+            **item, source=source_view(source),
+            # published: the details students see; otherwise those of the version that waits
+            metadata=document_attachments.public_details(current or pending or {}, doc),
             current_version=self.version_view(current, doc["current_version_id"], stats[current["id"]]) if current else None,
             pending_version=self.version_view(pending, doc["current_version_id"], stats[pending["id"]]) if pending else None,
             versions=[self.version_view(v, doc["current_version_id"], stats[v["id"]], include_text=False) for v in versions],
+            proposed_title=document_titles.version_title(pending, doc) if pending else None,
             diff=diff_versions(current["extracted_text"], pending["extracted_text"]) if current and pending else None,
             review_warnings=self.review_warnings(doc, source, current, pending),
         )
@@ -225,8 +238,11 @@ class ReviewService:
             raise InvalidState("valid_until must be after valid_from.")
         if patch.get("title"):
             doc = get_one(self.store, "source_documents", id=v["document_id"])
-            if doc and doc["title"] != patch["title"]:
-                self.store.update("source_documents", {"title": patch["title"][:500]}, {"id": v["document_id"]})
+            title = patch["title"][:document_titles.MAX_TITLE]
+            if doc and document_titles.version_title(v, doc) != title:
+                upd["extraction_meta"] = dict(v.get("extraction_meta") or {}) | {document_titles.KEY: title}
+                if not doc.get("current_version_id"):        # nothing published yet: the title is not public
+                    self.store.update("source_documents", {"title": title}, {"id": doc["id"]})
                 changed.append("title")
         if not changed:
             return self.get_version_view(version_id)
@@ -278,8 +294,11 @@ class ReviewService:
         if v is None or v["document_id"] != document_id:
             raise NotFound("Version not found for this document.")
         self.indexer.ensure_indexed(version_id)
+        document_titles.remember_current_title(self.store, document_id)
         self.store.rpc("rollback_document_version", dict(
             p_document_id=document_id, p_version_id=version_id, p_actor=actor.id, p_note=note))
+        document_titles.apply_title(self.store, version_id)
+        document_attachments.apply_details(self.store, version_id)
         return self.document_detail(document_id, source_view)
 
     def cancel(self, document_id: str, actor: AuthUser, reason: str) -> None:

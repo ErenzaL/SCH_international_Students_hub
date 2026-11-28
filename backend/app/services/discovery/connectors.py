@@ -30,7 +30,8 @@ from app.services.ingestion.extractors_html import decode_html, extract_html
 from app.services.ingestion.normalize import normalize_text
 from app.services.ingestion.sch_board import KST
 
-KINDS = ("sch_board", "listing", "page")
+KINDS = ("sch_board", "listing", "page", "saramin_api", "data_go_kr_jobs", "work24_api")
+API_KINDS = ("saramin_api", "data_go_kr_jobs", "work24_api")
 MAX_TEXT = 20000
 _DATE = re.compile(r"(20\d{2})\s*[.\-/년]\s*(\d{1,2})\s*[.\-/월]\s*(\d{1,2})")
 
@@ -125,6 +126,10 @@ def validate_config(kind: str, url: str, config: dict[str, Any]) -> dict[str, An
     """Admin input: only known keys, bounded sizes, selectors that parse."""
     if kind not in KINDS:
         raise ValidationFailed(f"Unknown connector kind '{kind}'.")
+    if kind in API_KINDS:
+        from app.services.discovery.job_apis import check_config
+
+        return check_config(kind, config)
     allowed = {"max_items", "max_pages", "item_selector", "title_selector", "date_selector", "link_selector",
                "include_url", "follow_items", "skip_selector", "delay_seconds", "content_selector",
                "attachment_selector"}
@@ -178,12 +183,18 @@ class Connectors:
         self.default_items = default_items
         self.sleep = sleep
         self._pace = delay_seconds
+        self.settings: Any = None            # keys of the official APIs
+        self.api_http: Any = None            # tests
 
     def run(self, source: dict[str, Any], *, max_items: int | None = None,
             on_item: Callable[[], None] | None = None) -> ConnectorResult:
         cfg = source.get("config") or {}
         limit = max(1, min(int(max_items or cfg.get("max_items") or self.default_items), 30))
         tick = on_item or (lambda: None)
+        if source["kind"] in API_KINDS:
+            from app.services.discovery import job_apis
+
+            return job_apis.run(source, self.settings, limit, self.api_http)
         self._pace = max(self.delay, float(cfg.get("delay_seconds") or 0))
         if source["kind"] == "sch_board":
             return self._sch_board(source, limit, tick)

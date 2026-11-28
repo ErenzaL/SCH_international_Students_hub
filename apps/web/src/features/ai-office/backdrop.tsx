@@ -43,9 +43,10 @@ export function Backdrop() {
   return (
     <svg className="absolute inset-0" width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden focusable="false">
       <defs>
+        {/* a soft pastel blue wall: clearly apart from the warm wooden floor, still calm behind labels and characters */}
         <linearGradient id="office-wall" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="#FFF9EE" />
-          <stop offset="1" stopColor="#FBEFDC" />
+          <stop offset="0" stopColor="#EEF4FC" />
+          <stop offset="1" stopColor="#DCE8F6" />
         </linearGradient>
         <pattern id="office-planks" width="300" height="56" patternUnits="userSpaceOnUse">
           <rect width="300" height="56" fill="#F7EAD6" />
@@ -54,8 +55,8 @@ export function Backdrop() {
         </pattern>
       </defs>
       {/* wall */}
-      <rect width={w} height={wall + 10} fill="url(#office-wall)" />
-      <rect y={wall - 70} width={w} height={70} fill="#F3E3C8" opacity={0.55} />
+      <rect width={w} height={wall + 10} fill="url(#office-wall)" data-testid="office-wall" />
+      <rect y={wall - 70} width={w} height={70} fill="#C9DAEE" opacity={0.55} data-testid="office-wainscot" />
       <Window x={560} />
       <Window x={890} />
       <Poster x={190} y={52} tone="#E9E3FA" icon="globe" />
@@ -68,7 +69,7 @@ export function Backdrop() {
         <path d="M800 184 V196 H810" stroke={PALETTE.line} strokeOpacity={0.6} strokeWidth={3} strokeLinecap="round" fill="none" />
       </g>
       {/* skirting board */}
-      <rect y={wall} width={w} height={14} fill="#E9D3B3" />
+      <rect y={wall} width={w} height={14} fill="#D9BC94" data-testid="office-skirting" />
       {/* floor */}
       <rect y={wall + 14} width={w} height={h - wall - 14} fill="url(#office-planks)" />
       {/* zone rugs */}

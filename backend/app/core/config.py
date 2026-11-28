@@ -49,6 +49,8 @@ class Settings(BaseSettings):
     chunk_target_tokens: int = 320
     chunk_max_tokens: int = 420
     chunk_overlap_tokens: int = 48
+    # v1 = release behaviour; v2 never drops a heading line that has no body; v2b also reads PDF `#` marks as text
+    chunker_version: str = "v1"
 
     # --- Embeddings ---------------------------------------------------------
     embedding_provider: str = "e5"  # "e5" (sentence-transformers) | "hash" (dev/test only, NOT semantic)
@@ -71,6 +73,9 @@ class Settings(BaseSettings):
     retrieval_fusion: str = "weighted"
     retrieval_vector_weight: float = 1.0
     retrieval_keyword_weight: float = 0.35
+    retrieval_bridge_weight: float = 0.75     # extra Korean/English concept queries (retrieval/bridge.py); 0 = off
+    retrieval_cross_script_weight: float = 0.0  # off: helped the development sets, not the blind set (KOREAN-RETRIEVAL.md)
+    retrieval_hub_beta: float = 0.0           # long documents (many chunks) are scaled down by (typical/n)**beta; 0 = off
     retrieval_candidate_pool: int = 30        # candidates fetched per leg before fusion
     retrieval_max_chunks_per_document: int = 3
     # a passage that names a different visa/status code (E-7, F-2-R ...) but not the one asked about is demoted
@@ -109,6 +114,8 @@ class Settings(BaseSettings):
     # indexing and translation never wait behind a ~90 s official-source check, and students' quick tasks never wait
     # behind a long PDF. Same process (no extra memory for models); off = one thread runs everything, as before.
     agent_task_worker: bool = True
+    # ingestion jobs executing at the same time in one process (worker thread, inline background tasks, CLI); 1 on 512 MB
+    ingestion_max_concurrent_jobs: int = 1
     # running jobs heartbeat every job_heartbeat_seconds (a background ticker, also during long extractions);
     # a job without a heartbeat for job_stale_seconds belongs to a dead worker and is re-queued (or failed after
     # max_attempts). Right after a restart the first claim uses the shorter job_startup_stale_seconds.
@@ -131,7 +138,14 @@ class Settings(BaseSettings):
     # evidence-sufficiency layer (app/services/assistant/evidence.py). OFF by default: chat behaviour is unchanged
     # unless enabled. When on: neighbouring chunks / one targeted search for missing information types, and an
     # ``evidence_check`` report in the response's retrieval metadata (still-missing information is recorded).
+    assistant_verify_local: bool = True        # a short second look at answers with figures, small local models only
     assistant_evidence_check: bool = False
+    # deterministic evidence-sufficiency gate before generation (assistant/gate.py): off | log | enforce
+    assistant_evidence_gate: str = "log"
+    assistant_gate_similarity: float = 0.82              # without an LLM rewrite (DEV/VAL/negatives sweep)
+    assistant_gate_lexical: float = 0.6
+    assistant_gate_similarity_rewritten: float = 0.86    # after a rewrite (measured with a local proxy model)
+    assistant_gate_lexical_rewritten: float = 0.7
     assistant_evidence_adjacent: bool = True
     assistant_evidence_second_search: bool = True
     assistant_evidence_max_added_passages: int = 4
@@ -160,7 +174,10 @@ class Settings(BaseSettings):
     cron_secret: str = Field(default="", repr=False)
 
     # --- LLM (optional): answer generation + translation drafts -------------
-    llm_provider: str = "none"               # none | anthropic | gemini
+    llm_provider: str = "none"               # none | anthropic | gemini | ollama
+    # background work only (translation drafts, agent summaries / translations, discovery summaries):
+    # none | anthropic | gemini | ollama. Empty = LLM_PROVIDER (the existing behaviour).
+    background_llm_provider: str = ""
     # server-side secret; empty = the SDK reads its own variable (ANTHROPIC_API_KEY / GEMINI_API_KEY)
     llm_api_key: str = Field(default="", repr=False)
     llm_model: str = "claude-opus-5-5"       # anthropic only
@@ -171,6 +188,37 @@ class Settings(BaseSettings):
     gemini_primary_model: str = "gemini-3.6-flash"
     gemini_fallback_model: str = "gemini-3.5-flash-lite"   # empty = no fallback model
     gemini_thinking_level: str = "low"       # minimal | low | medium | high ("" = model default)
+    # Ollama (local models, university server only; see docs/ollama.md). Loopback addresses only.
+    ollama_base_url: str = "http://127.0.0.1:11434"
+    ollama_model: str = "qwen2.5:7b-instruct"
+    ollama_num_ctx: int = 16384               # a prompt that does not fit is an error, never cut silently
+    ollama_max_output_tokens: int = 8192      # per call (at most half of the context)
+    ollama_temperature: float = 0.2
+    ollama_keep_alive: str = "10m"            # how long the model stays in GPU memory when idle
+    ollama_max_concurrency: int = 1           # requests sent at the same time, all features together (one GPU)
+    ollama_connect_timeout_seconds: float = 3.0
+    ollama_request_timeout_seconds: float = 90.0     # one attempt, interactive calls
+    ollama_job_timeout_seconds: float = 180.0        # one attempt, translation jobs
+    ollama_fast_timeout_seconds: float = 30.0        # query rewriting (may include loading the model)
+    ollama_queue_timeout_seconds: float = 30.0       # waiting for a free slot, interactive calls
+    ollama_job_queue_timeout_seconds: float = 300.0  # ... jobs
+    ollama_request_deadline_seconds: float = 120.0   # interactive calls: no retry starts after this much time
+    # GPU worker on the university server (docs/gpu-worker.md). OFF: no endpoint exists and nothing is routed to it.
+    # When on, these translation jobs wait for the worker instead of using the API's own model. Its output is always
+    # stored as 'needs_review' (never shown to students). Needs migration 0016.
+    gpu_worker_enabled: bool = False
+    gpu_worker_job_types: str = "translate_announcement,translate_document"
+    # models whose results are accepted (translategemma:12b: selected in docs/research/TRANSLATION-EVALUATION.md)
+    gpu_worker_models: str = "qwen2.5:7b-instruct,translategemma:12b"
+    gpu_worker_max_running: int = 1                  # jobs leased at the same time, all workers together
+    gpu_worker_lease_seconds: int = 180              # renewed by the worker; a lost worker's job is re-queued after this
+    gpu_worker_job_max_seconds: int = 1800           # a lease is not renewed beyond this
+    gpu_worker_chunk_chars: int = 1200
+    gpu_worker_max_source_chars: int = 12000         # text a summary is made from (longer: partial, labelled)
+    gpu_worker_online_hours: int = 24                # no contact for this long: new requests use the server's own model
+    gpu_worker_max_queue_hours: int = 48             # a job that waited this long is not left waiting ...
+    gpu_worker_on_expiry: str = "fail"               # ... "fail": visible failure + alert | "local": server's own model
+    gpu_worker_token_days: int = 90                  # validity of a new or rotated credential
     llm_temperature: float | None = None     # None = the model's default (recommended for Gemini 3 models)
     llm_answer_max_tokens: int = 2048        # answer generation output cap (thinking tokens count separately)
     llm_request_timeout_seconds: float = 30.0   # per attempt (assistant answers); translation jobs use llm_timeout
@@ -180,9 +228,11 @@ class Settings(BaseSettings):
     llm_request_deadline_seconds: float = 45.0  # interactive calls: no new attempt starts after this much time
     llm_fast_timeout_seconds: float = 12.0    # query rewriting: one quick attempt (fast model first)
     # --- AI usage budgets (in-process, reset at 00:00 KST; one instance) -------------------------------------
-    ai_daily_limit_per_client: int = 40      # anonymous visitors, per client IP
-    ai_daily_limit_per_user: int = 150       # signed-in students
-    ai_daily_limit_global: int = 1500        # all generated answers; beyond it answers degrade, never fail open
+    # small-budget defaults (final release): about US$0.012 per answer at the standard Gemini 3.6 Flash price, so 60 a day
+    # is at most ~US$0.70; raise them only together with a Google Cloud budget alert (docs/owner/FINAL-PRODUCTION-CHECKLIST.md)
+    ai_daily_limit_per_client: int = 10      # anonymous visitors, per client IP
+    ai_daily_limit_per_user: int = 20        # signed-in students
+    ai_daily_limit_global: int = 60          # all generated answers; beyond it answers degrade, never fail open
     # translation drafts: documents are translated in chunks of about this many characters (one job per language)
     translation_chunk_chars: int = 6000
     # create AI drafts automatically when a new original version is approved (needs an LLM provider)
@@ -191,7 +241,10 @@ class Settings(BaseSettings):
     public_machine_translations: bool = False
     # --- automatic machine translation (app/services/translation/auto.py) -------------------------------------
     auto_translate_announcements: bool = False    # queue machine translations when an announcement is published
-    auto_translate_languages: str = "ko,en"       # target languages generated automatically (others: by request)
+    auto_translate_languages: str = "ko,en,id"    # target languages generated automatically (others: by request)
+    # Release 1: machine drafts of ANNOUNCEMENTS only in these languages (automatic and on request). Existing
+    # approved translations in other languages stay visible; the chatbot and the website keep all five languages.
+    announcement_machine_languages: str = "ko,en,id"
     translation_model: str = ""                   # Gemini model for translation jobs ("" = the assistant's models)
     translation_full_max_chars: int = 12000       # longer documents: title + AI summary only (labelled as summary)
     translation_summary_source_chars: int = 40000  # text given to the summarizer (plus all section headings)
@@ -202,6 +255,18 @@ class Settings(BaseSettings):
     # sent. Set it to at most ~30% of the chat model's requests-per-day quota (Google AI Studio -> rate limits) so
     # background work can never use the quota the chatbot needs. 0 = no background AI at all.
     llm_background_daily_attempts: int = 150
+    # Emergency stop for ALL background AI (translations, summaries, discovery); the chatbot keeps working.
+    # An administrator can also switch it in the admin system page (needs migration 0018).
+    ai_background_stop: bool = False
+    # Prices for cost ESTIMATES, USD per million tokens: "model=input/output,model2=input/output" (copy them from the
+    # provider's official price list; thinking tokens are priced as output). Empty = no cost estimates at all.
+    llm_prices: str = ""
+    # Optional ceiling on today's (KST) estimated background cost in USD; 0 = off. With a ceiling, a model without a
+    # price in LLM_PRICES gets no background attempts (unknown cost is never treated as zero).
+    llm_background_daily_usd_limit: float = 0.0
+    # Daily AI budgets (background attempts, generated chat answers) in the database (migration 0018), so restarts
+    # do not reopen them. Without the migration they stay in-process.
+    ai_budget_persistent: bool = True
     translation_quota_retry_seconds: int = 3600    # provider quota exhausted: try the job again after this long
     translation_max_deferrals: int = 24            # ... at most this many times, then the job fails visibly
     # unreviewed machine translations of immigration / employment / insurance / fee / legal content:
@@ -215,9 +280,19 @@ class Settings(BaseSettings):
     agent_tool_runs_per_minute: int = 30           # instant tool runs per user / client IP
     agent_task_timeout_seconds: int = 180          # a task that runs longer fails (checked between steps)
     agent_task_retention_days: int = 30            # finished tasks (and their step log) are deleted afterwards
+    # size limit of the database plan (free plan: 500 MB); only for the admin storage warnings
+    database_limit_mb: int = 500
     # master switch for scheduled agents. Even when true, each schedule runs only after an admin enables it.
     agent_schedules_enabled: bool = False
+    # weekly schedules (interval 10080) run at this slot, Korea time, plus their own stagger (params.stagger_minutes):
+    # "<mon|tue|wed|thu|fri|sat|sun> HH:MM"
+    discovery_weekly_anchor: str = "mon 03:00"
     # official-source discovery (Phase 3): polite, bounded checks of admin-configured official pages
+    # official recruitment APIs (app/services/discovery/job_apis.py); empty = the source is shown as blocked
+    saramin_access_key: str = Field(default="", repr=False)
+    data_go_kr_service_key: str = Field(default="", repr=False)
+    # 고용24 Open API (job postings): the key from work24.go.kr -> OPEN-API. Without it the source is shown as blocked.
+    work24_auth_key: str = Field(default="", repr=False)
     discovery_max_items: int = 10                   # items read per source per check (hard cap 30)
     discovery_max_sources: int = 10                 # sources per task
     discovery_min_check_interval_seconds: int = 600 # a manual re-check sooner than this reuses the last results

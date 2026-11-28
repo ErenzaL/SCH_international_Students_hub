@@ -57,7 +57,9 @@ class TranslationReviewService:
     # ---------------------------------------------------------------- original
     def original(self, announcement_id: str) -> dict[str, Any]:
         a = self.ann._get(announcement_id)
-        v = self.ann._open_or_latest_version(a["document_id"])
+        # a published announcement is translated from what students see, never from an edit that waits for approval
+        v = self.ann.approved_version(a["document_id"]) if a["publication_status"] == "published" \
+            else self.ann._open_or_latest_version(a["document_id"])
         body = v["extracted_text"] if v else ""
         return dict(announcement_id=a["id"], title=a["title"], body=body, language=a["original_language"],
                     publication_status=a["publication_status"], version_id=v["id"] if v else None,

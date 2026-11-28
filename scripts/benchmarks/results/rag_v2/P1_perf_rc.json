@@ -1,0 +1,29 @@
+{
+ "mode": "rc",
+ "git": "054d813",
+ "questions": 200,
+ "index": {
+  "index_seconds": 14.6,
+  "documents": 27,
+  "chunks": 749,
+  "embedded_chunks": 749,
+  "embedding_model": "intfloat/multilingual-e5-small#qint8",
+  "chunk_target_tokens": 320,
+  "chunk_max_tokens": 420,
+  "chunk_overlap_tokens": 48,
+  "backend": "memory",
+  "id_seed": 1
+ },
+ "rss_mb": {
+  "start": 23,
+  "after_index": 345,
+  "after_workload": 349,
+  "peak": 460
+ },
+ "respond_ms": {
+  "p50": 110.0,
+  "p95": 127.5,
+  "mean": 93.6
+ },
+ "chunk_count_cache_bytes": 0
+}

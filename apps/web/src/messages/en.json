@@ -325,6 +325,7 @@
       "machineNote": "This text was translated automatically and has not been checked by a person. Dates, fees and rules may be wrong – rely on the {original} original and the official source.",
       "fallbackTitle": "No verified {language} translation yet",
       "fallbackBody": "You are reading the {original} original. A translation appears here only after a Global Supporter has reviewed it against the original.",
+      "notOfferedBody": "Announcements are not translated into {language} yet. You are reading the {original} original. If something is unclear, ask Hana or the {language} supporter in the AI Office.",
       "originalLanguage": "Original language",
       "translationStatus": "Translation",
       "statusVerified": "Verified by a Global Supporter",
@@ -481,7 +482,9 @@
       "submissions": "My Submissions",
       "ragSync": "RAG Sync",
       "support": "Support inbox",
-      "languageTeams": "Language teams"
+      "languageTeams": "Language teams",
+      "agents": "Agents",
+      "gpuWorker": "GPU worker"
     },
     "notConfiguredTitle": "Authentication is not configured",
     "notConfiguredBody": "The admin area needs Supabase Auth and the backend API.",
@@ -530,6 +533,41 @@
       "note": "Note",
       "addDomain": "Add domain",
       "superAdminOnly": "Only a super admin can change the allowlist.",
+      "aiUsage": {
+        "title": "AI usage and spending",
+        "description": "Operational counts only (no prompts, answers or student data). Costs are estimates from LLM_PRICES, not an invoice.",
+        "chatToday": "Chatbot answers today (all processes) / daily limit",
+        "backgroundToday": "Background AI attempts today / daily limit",
+        "persistent": "Budgets are stored in the database: a restart does not reset them.",
+        "notPersistent": "Budgets are counted in memory only (migration 0018 not applied): a restart resets them.",
+        "persistUnknown": "Budget storage not checked yet (no AI attempt since the start).",
+        "running": "Background AI (translations, summaries, discovery) is running.",
+        "stopped": "Background AI is STOPPED. The chatbot keeps working; queued jobs wait and are retried hourly.",
+        "stopFromEnv": "Stopped by AI_BACKGROUND_STOP on the server: change it on Render.",
+        "ceiling": "Estimated background cost today: ${spent} of the ${limit} USD limit.",
+        "modelUnpriced": "No price is configured for {model}: its cost is shown as unknown.",
+        "stop": "Stop background AI",
+        "resume": "Resume background AI",
+        "confirmStop": "Stop all background AI work (translations, summaries, discovery summaries)? The chatbot is not affected.",
+        "needsMigration": "The switch needs migration 0018; until then use AI_BACKGROUND_STOP on Render.",
+        "last7": "Last 7 days (Korea time)",
+        "noDaily": "Daily history needs migration 0018.",
+        "noUse": "No AI use recorded yet.",
+        "day": "Day",
+        "lane": "Use",
+        "attempts": "Attempts",
+        "failed": "Failed",
+        "tokens": "Tokens in / out",
+        "cost": "Est. cost",
+        "unpriced": "unknown",
+        "lanes": {
+          "chat": "Chatbot",
+          "background": "Background"
+        },
+        "prices": "Prices configured for: {models}.",
+        "noPrices": "No prices configured (LLM_PRICES): costs are not estimated.",
+        "estimateNote": "Check the real charges in Google AI Studio / Cloud Billing; these figures can differ from the invoice."
+      },
       "llmCheck": {
         "title": "AI model check",
         "description": "Tests the configured Gemini models with the server's key (two tiny synthetic requests per model).",
@@ -1648,6 +1686,178 @@
       "outdatedVersions": "Outdated (previous originals)",
       "emptyBody": "Nothing to translate in your languages right now.",
       "fromOriginal": "From the {language} original, version {version}"
+    },
+    "agents": {
+      "title": "AI Office operations",
+      "subtitle": "What the 14 desks actually did, what waits and what failed.",
+      "tabs": {
+        "desks": "Desks",
+        "tasks": "Tasks",
+        "schedules": "Schedules",
+        "storage": "Storage",
+        "sources": "Sources"
+      },
+      "privacy": "Parameters and results of students are never shown here.",
+      "schedulesOffTitle": "Automatic checks are switched off on the server",
+      "schedulesOff": "Nothing runs on a schedule (AGENT_SCHEDULES_ENABLED is off). Administrators can still start a check at a desk.",
+      "schedulesHelp": "A schedule runs only when it is on here AND automatic checks are on in the server settings. Found items always wait for an administrator.",
+      "serverOn": "Automatic checks are on",
+      "queues": "Queues",
+      "queue": {
+        "agent_tasks": "Agent tasks",
+        "jobs": "Documents and translations",
+        "gpu_jobs": "GPU worker"
+      },
+      "queueLine": "{queued} waiting, {running} running, {failed} failed (7 days)",
+      "oldest": "oldest: {minutes} min",
+      "stuck": "This queue is stuck.",
+      "needsMigration": "Needs a database migration.",
+      "storageMissing": "Apply migration 0017 to see sizes.",
+      "refresh": "Refresh",
+      "desk": "Desk",
+      "task": "Task",
+      "tasks7d": "Tasks (7 days)",
+      "lastSuccess": "Last success",
+      "lastFailure": "failed {when} {code}",
+      "sources": "Official sources",
+      "sourcesLine": "{enabled} of {total} on",
+      "failing": "{count} failing",
+      "schedules": "Schedules",
+      "actions": "Actions",
+      "paused": "Paused",
+      "pause": "Pause",
+      "resume": "Resume",
+      "open": "Open desk",
+      "tools": "{count} tools",
+      "toolsOff": "off: {names}",
+      "noTasks": "No tasks.",
+      "on": "on",
+      "off": "off",
+      "statusFilter": "Status",
+      "all": "All",
+      "status": {
+        "queued": "waiting",
+        "running": "running",
+        "awaiting_approval": "waiting for confirmation",
+        "completed": "completed",
+        "failed": "failed",
+        "cancelled": "cancelled"
+      },
+      "by": {
+        "schedule": "by a schedule",
+        "administrator": "by an administrator",
+        "student": "by a user"
+      },
+      "result": "Result",
+      "counts": "{count} found, {fresh} new, {changed} changed",
+      "created": "Created",
+      "attempts": "attempt {n} of {max}",
+      "rerun": "Run again",
+      "cancel": "Cancel",
+      "interval": "Interval",
+      "hours": "hours",
+      "lastRun": "Last run",
+      "state": "State",
+      "save": "Save",
+      "storageLine": "Database: {used} of {limit} ({pct} %)",
+      "storageHelp": "A warning is sent at 70 % and 90 %. Nothing is deleted automatically.",
+      "table": "Table",
+      "size": "Size",
+      "indexes": "of it indexes",
+      "rows": "Rows (estimate)",
+      "rows30d": "New in 30 days",
+      "taskTypes": {
+        "announcement_digest": "Announcement digest",
+        "scholarship_scan": "Scholarship check",
+        "event_digest": "Event digest",
+        "career_scan": "Career check",
+        "announcement_discovery": "Official notice check",
+        "opportunity_discovery": "Official opportunity check",
+        "guidance_discovery": "Official guidance check",
+        "event_discovery": "Official event check",
+        "support_request": "Support request",
+        "lookup": "Lookup",
+        "delegated_search": "Delegated search",
+        "summarize_announcement": "Summary",
+        "explain_document": "Document explanation",
+        "visa_checklist": "Visa checklist",
+        "academic_checklist": "Academic checklist",
+        "topik_dates": "TOPIK dates"
+      },
+      "sourcesHelp": "Official websites a desk checks. Found items always wait for an administrator; students see only what was reviewed and approved.",
+      "sourcesActive": "Watched websites",
+      "sourcesNone": "No website is watched yet.",
+      "source": "Source",
+      "prepared": "Prepared official sources ({count})",
+      "preparedHelp": "Checked on the live websites. Nothing is watched until you add it.",
+      "checkedOn": "checked {date}",
+      "keyMissing": "needs {key} on the API service",
+      "keySet": "{key} is set",
+      "add": "Add",
+      "turnOn": "Turn on",
+      "turnOff": "Turn off",
+      "reset": "Reset failures",
+      "remove": "Remove",
+      "confirmDelete": "Remove with its candidates",
+      "custom": "Add another official page",
+      "customHelp": "The domain must be on the list of allowed domains (Admin → Settings). Pages that forbid automated access in robots.txt are never read.",
+      "kind": "Type",
+      "kinds": {
+        "page": "One page",
+        "listing": "List of notices (needs selectors)",
+        "sch_board": "SCH notice board"
+      },
+      "category": "Category",
+      "config": "Settings (JSON, optional)",
+      "configBad": "This is not valid JSON."
+    },
+    "gpu": {
+      "title": "GPU worker",
+      "subtitle": "The university GPU computer generates translation drafts. It connects to the Hub; nothing connects to it, and it can publish nothing.",
+      "refresh": "Refresh",
+      "offTitle": "The GPU worker is switched off",
+      "off": "GPU_WORKER_ENABLED is off on this server. Translations use the server's own model.",
+      "tokenTitle": "Token of {name} (shown only now)",
+      "tokenBody": "Store it on the GPU computer in a file only your account can read. It is not saved here.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "hide": "Hide",
+      "available": "A worker is connected",
+      "unavailable": "No worker is connected",
+      "availableHint": "New drafts go to the GPU: {types}",
+      "unavailableHint": "New drafts use the server's own model.",
+      "queue": "Queue",
+      "queueLine": "{queued} waiting, {running} running",
+      "last24h": "Last 24 hours",
+      "doneLine": "{ok} done, {failed} failed",
+      "average": "{seconds} s on average",
+      "workers": "Workers",
+      "noWorkers": "No worker has been created.",
+      "name": "Name",
+      "state": "State",
+      "lastSeen": "Last contact",
+      "expires": "Token expires",
+      "actions": "Actions",
+      "never": "never",
+      "expired": "expired",
+      "status": {
+        "active": "active",
+        "paused": "paused",
+        "revoked": "revoked"
+      },
+      "pause": "Pause",
+      "resume": "Resume",
+      "rotate": "New token",
+      "revoke": "Revoke",
+      "confirmRevoke": "Revoke for good",
+      "newName": "Name of a new worker",
+      "create": "Create",
+      "superOnly": "Only super administrators manage tokens.",
+      "jobs": "Open jobs",
+      "noJobs": "No open job.",
+      "job": "Job",
+      "created": "Created",
+      "cancel": "Cancel"
     }
   },
   "account": {
@@ -2025,7 +2235,10 @@
       "review": "Review",
       "sources": "Sources",
       "request": "New request",
-      "requests": "My requests"
+      "requests": "My requests",
+      "updates": "Updates",
+      "terms": "Terms",
+      "queue": "Queue"
     },
     "lists": {
       "guidesTitle": "Approved guides in the Knowledge Center",
@@ -2170,7 +2383,12 @@
         "review_queue": "Review queue (admin)",
         "official_jobs": "Jobs on official websites",
         "leave_of_absence": "Leave of absence & return",
-        "graduation": "Graduation requirements"
+        "graduation": "Graduation requirements",
+        "deadlines": "Upcoming deadlines",
+        "translation_queue": "Translation review queue",
+        "official_updates": "Reviewed official updates",
+        "official_events": "Events on official websites",
+        "support_queue": "Waiting support requests"
       },
       "notes": {
         "no_match": "No approved source in the Hub matches this.",
@@ -2202,7 +2420,14 @@
         "no_candidates": "No notices are waiting for review.",
         "official_reviewed": "From official websites, reviewed by staff and approved in the Knowledge Center.",
         "no_reviewed_discoveries": "No notice from the official websites has been reviewed and approved yet.",
-        "reviewed_closed_hidden": "Reviewed opportunities from the official websites exist, but they are all closed. Include closed ones to see them."
+        "reviewed_closed_hidden": "Reviewed opportunities from the official websites exist, but they are all closed. Include closed ones to see them.",
+        "no_deadlines": "No upcoming deadline is published.",
+        "no_reviewed_updates": "No reviewed update yet.",
+        "terms_draft": "Draft term list, not yet confirmed.",
+        "no_terms": "No term of the list was found.",
+        "queue_empty": "Nothing is waiting.",
+        "not_your_language": "You are not assigned to this language.",
+        "draft_needs_review": "The draft waits for a reviewer before anything is public."
       },
       "reliability": {
         "verified": "Approved source",
@@ -2243,7 +2468,9 @@
         "lookup": "Lookup",
         "delegated_search": "Search by a specialist",
         "announcement_discovery": "Official notice check",
-        "opportunity_discovery": "Official opportunity check"
+        "opportunity_discovery": "Official opportunity check",
+        "guidance_discovery": "Check official guidance websites",
+        "event_discovery": "Check official event websites"
       },
       "status": {
         "queued": "Queued",
@@ -2297,7 +2524,11 @@
         "http_403": "The site refused access.",
         "http_503": "The site is temporarily unavailable.",
         "llm_background_budget": "Today's AI budget for summaries and translations is used up (the chat keeps working). Try again tomorrow or read the original.",
-        "check_running": "A check of these official websites is already running. Its result will appear here when it finishes."
+        "check_running": "A check of these official websites is already running. Its result will appear here when it finishes.",
+        "agent_paused": "This desk is paused by an administrator.",
+        "staff_only": "Only Global Supporters and administrators can use this.",
+        "api_key_missing": "An API key from the provider is missing.",
+        "api_key_invalid": "The API key was not accepted."
       },
       "tools": {
         "rag_search": "Search approved guides",
@@ -2322,7 +2553,13 @@
         "official_web_search": "Web search",
         "official_source_check": "Check official websites now",
         "opportunity_search": "Opportunities from official websites",
-        "review_candidates": "Notices waiting for review"
+        "review_candidates": "Notices waiting for review",
+        "upcoming_deadlines": "Upcoming deadlines",
+        "official_updates": "Reviewed official updates",
+        "terminology_lookup": "Administrative terms",
+        "translation_review_queue": "Translation review queue (staff)",
+        "request_translation_draft": "Request a translation draft (staff)",
+        "support_queue": "Waiting support requests (staff)"
       },
       "flags": {
         "unavailable": "not available",
@@ -2374,14 +2611,15 @@
         "open": "Open",
         "openUntil": "Open until {date}",
         "closed": "Closed",
-        "unknown": "Status unknown",
+        "unknown": "Deadline unknown – check the source",
         "uncertain": "year assumed"
       },
       "kinds": {
         "scholarship": "Scholarship",
         "competition": "Competition",
         "program": "Program",
-        "job": "Job"
+        "job": "Job",
+        "event": "Event"
       },
       "itemFlags": {
         "missing_deadline": "no deadline found",
@@ -2430,7 +2668,8 @@
       },
       "status": {
         "checkingSources": "Checking official websites",
-        "awaiting": "{count} waiting for you"
+        "awaiting": "{count} waiting for you",
+        "paused": "Paused"
       },
       "source": {
         "hub": "Approved in the Hub",
@@ -2514,12 +2753,15 @@
         "noSchedules": "No schedule exists for this desk.",
         "sources": "Sources ({count})",
         "noSources": "No source is configured.",
-        "addSources": "New sources are added by an administrator through the admin API after approval.",
+        "addSources": "Add or remove sources in Admin → Agents → Sources.",
         "disabled": "Disabled",
         "kinds": {
           "sch_board": "University board",
           "listing": "List page",
-          "page": "Single page"
+          "page": "Single page",
+          "saramin_api": "Saramin (official API)",
+          "data_go_kr_jobs": "Public institutions (official API)",
+          "work24_api": "Work24 / 고용24 (official API)"
         },
         "failures": "{count, plural, one {# failed check} other {# failed checks}} in a row",
         "disable": "Disable",
@@ -2574,6 +2816,8 @@
         "officialNotice": "Official notice"
       },
       "careers": {
+        "sitesTitle": "Official job sites (open them yourself)",
+        "sitesNote": "Not connected: the Hub does not read or check these listings and cannot say whether a posting accepts international students. Before you apply, check your permission to work (D-2 / D-4: part-time work permit) with the international office or HiKorea.",
         "intro": "Career and internship notices published in the Hub, approved employment guides, and job postings from official university websites that staff reviewed.",
         "search": "Search careers",
         "searchPlaceholder": "e.g. internship, part-time, job fair",
@@ -2705,7 +2949,10 @@
         "request_preview": "Preview before sending",
         "explicit_confirmation": "Sends only after you confirm",
         "own_request_history": "Your request history",
-        "request_status": "Request status"
+        "request_status": "Request status",
+        "terminology": "Administrative terms in five languages (draft list)",
+        "review_queue": "Translation review queue (staff)",
+        "official_monitoring": "Checks official websites; staff review what was found"
       },
       "dataSources": {
         "rag": "Approved Hub documents (grounded answers with citations)",
@@ -2714,7 +2961,9 @@
         "discovery_sources": "Allowlisted official university websites",
         "reviewed_discoveries": "Official-website notices reviewed and approved by staff",
         "support_tickets": "Your own support requests",
-        "agent_tasks": "Your own tasks with this desk"
+        "agent_tasks": "Your own tasks with this desk",
+        "term_list": "Draft list of administrative terms",
+        "translation_tasks": "Translation tasks of your languages (staff)"
       },
       "adminTabs": "Admin",
       "next": {
@@ -2735,7 +2984,56 @@
         "newRequest": "Write a request",
         "runCheck": "Run a manual check",
         "noTasksHint": "Use the button above to start one; the result is kept here."
-      }
+      },
+      "updates": {
+        "intro": "What this desk's official websites published. Students see only items that staff reviewed and approved.",
+        "listTitle": "Reviewed updates",
+        "empty": "No reviewed update yet.",
+        "checks": "Checks"
+      },
+      "terms": {
+        "intro": "Find administrative terms in a text and see them in all five languages.",
+        "label": "Word or text",
+        "search": "Find terms",
+        "none": "No term of the list was found.",
+        "draft": "Draft term list: not yet confirmed by native speakers and the international office.",
+        "error": "The search did not work. Please try again."
+      },
+      "queue": {
+        "handOnly": "Translate by hand: machine drafts of announcements are only made in Korean, English and Indonesian.",
+        "intro": "Translations of this language that wait for a person. A draft is never public before a reviewer approves it.",
+        "counts": "Numbers by status",
+        "empty": "Nothing is waiting.",
+        "notYours": "You are not assigned to this language.",
+        "open": "Open",
+        "draft": "Request a draft",
+        "queued": "A draft was queued. It will wait for review.",
+        "queuedGpu": "A draft was queued for the university GPU. It will wait for review.",
+        "noModel": "Drafts cannot be requested now: no translation model or GPU worker is connected.",
+        "error": "This did not work. Please try again.",
+        "kinds": {
+          "announcement": "Announcement",
+          "document": "Guide"
+        },
+        "status": {
+          "todo": "not started",
+          "machine_draft": "machine draft",
+          "draft": "draft",
+          "needs_review": "needs review",
+          "in_review": "in review",
+          "changes_requested": "changes requested",
+          "outdated": "outdated"
+        },
+        "supportIntro": "Support requests that wait in your languages: number, language, age. The student's words are shown only to the person who accepts the request.",
+        "waiting": "Waiting ({count})",
+        "supportEmpty": "No request is waiting.",
+        "openInbox": "Open the support inbox",
+        "summary": "Request a summary"
+      },
+      "staffTabs": "Staff"
     }
+  },
+  "staging": {
+    "banner": "Staging copy for tests. Test data only; nothing here is official or reaches students."
   }
 }

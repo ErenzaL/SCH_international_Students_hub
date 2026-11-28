@@ -21,7 +21,7 @@ import { ApiError } from "@/lib/api";
 import { useApi } from "@/lib/use-api";
 import { cn } from "@/lib/utils";
 
-const DISCOVERY_TASKS = ["announcement_discovery", "opportunity_discovery"];
+const DISCOVERY_TASKS = ["announcement_discovery", "opportunity_discovery", "guidance_discovery", "event_discovery"];
 
 export function ReviewQueue() {
   const t = useTranslations("office.ws.review");

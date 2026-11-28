@@ -20,6 +20,7 @@ import threading
 import time
 from collections import defaultdict, deque
 from datetime import datetime, timedelta, timezone
+from typing import Any
 
 from fastapi import Depends, Request
 
@@ -74,12 +75,61 @@ class SlidingWindowLimiter:
 
 
 class DailyBudget:
-    """Counts AI-generated assistant turns per key per KST day."""
+    """Counts AI-generated assistant turns per key per KST day.
+
+    ``attach(store, keys)``: those keys are counted in the database (migration 0018, ``llm_counter_take``), so a
+    restart or a second process cannot reopen a spent budget. Without the migration the counters stay in-process
+    (``persistent`` False). Keys in ``fail_closed`` are refused while the database cannot be asked although the
+    migration exists; the others fall back to the in-process counter."""
+
+    _MISSING = ("PGRST202", "PGRST205", "42883", "42P01")
 
     def __init__(self) -> None:
         self._day = ""
         self._counts: dict[str, int] = defaultdict(int)
         self._lock = threading.Lock()
+        self.store: Any = None
+        self.persist_keys: frozenset[str] = frozenset()
+        self.fail_closed: frozenset[str] = frozenset()
+        self.persistent: bool | None = None      # None = not known yet (no persisted key taken)
+        self.persist_error: str | None = None
+
+    def attach(self, store: Any, keys: set[str] | frozenset[str], fail_closed: set[str] | frozenset[str] = frozenset()
+               ) -> DailyBudget:
+        self.store, self.persist_keys, self.fail_closed = store, frozenset(keys), frozenset(fail_closed)
+        self.persistent, self.persist_error = None, None
+        return self
+
+    def _take_db(self, key: str, limit: int) -> bool | None:
+        """True / False from the database; None = the database cannot answer."""
+        if self.persistent is False:
+            return None
+        try:
+            r = self.store.rpc("llm_counter_take", dict(p_day=datetime.now(KST).date().isoformat(), p_key=key,
+                                                        p_limit=int(limit)))
+        except Exception as exc:  # noqa: BLE001 - classified: missing migration vs. a failing database
+            code = str((getattr(exc, "details", None) or {}).get("db_code") or getattr(exc, "code", "") or "")
+            if code in self._MISSING or "unknown rpc" in str(exc):
+                self.persistent, self.persist_error = False, "migration 0018 is not applied"
+            else:
+                self.persist_error = f"database unavailable ({type(exc).__name__})"
+            return None
+        self.persistent, self.persist_error = True, None
+        return bool(r[0] if isinstance(r, list) and r else r)
+
+    def _take_persisted(self, key: str, limit: int) -> bool | None:
+        if self.store is None or key not in self.persist_keys:
+            return None
+        took = self._take_db(key, limit)
+        if took is not None:
+            with self._lock:
+                self._roll()
+                if took:
+                    self._counts[key] += 1          # this process's share, for snapshots
+            return took
+        if key in self.fail_closed and self.persistent is not False:
+            return False
+        return None
 
     def _roll(self) -> None:
         day = datetime.now(KST).date().isoformat()
@@ -94,6 +144,9 @@ class DailyBudget:
 
     def take(self, key: str, limit: int) -> bool:
         """Consume one unit; False (nothing consumed) when the key reached its limit. limit <= 0 = unlimited."""
+        took = self._take_persisted(key, limit)
+        if took is not None:
+            return took
         with self._lock:
             self._roll()
             if limit > 0 and self._counts[key] >= limit:
@@ -106,15 +159,32 @@ class DailyBudget:
             self._roll()
             return self._counts.get(key, 0)
 
-    def snapshot(self) -> dict[str, int | str]:
+    def used_persisted(self, key: str) -> int | None:
+        """Today's count of a persisted key across all processes; None = not persisted / not readable."""
+        if self.store is None or key not in self.persist_keys or self.persistent is False:
+            return None
+        from app.repositories.base import Query
+
+        try:
+            rows, _ = self.store.select("llm_daily_counters", Query(
+                eq={"day": datetime.now(KST).date().isoformat(), "key": key}, cols="used", limit=1))
+        except Exception:  # noqa: BLE001
+            return None
+        return int(rows[0]["used"]) if rows else 0
+
+    def snapshot(self) -> dict[str, Any]:
         with self._lock:
             self._roll()
-            return dict(day=self._day, global_generated=self._counts.get("global", 0),
-                        tracked_clients=sum(1 for k in self._counts if k.startswith(("ip:", "user:"))))
+            out: dict[str, Any] = dict(day=self._day, global_generated=self._counts.get("global", 0),
+                                       tracked_clients=sum(1 for k in self._counts if k.startswith(("ip:", "user:"))))
+        out.update(persistent=self.persistent, persisted_keys=sorted(self.persist_keys), persist_error=self.persist_error)
+        return out
 
     def reset(self) -> None:
         with self._lock:
             self._day, self._counts = "", defaultdict(int)
+        self.store, self.persist_keys, self.fail_closed = None, frozenset(), frozenset()
+        self.persistent, self.persist_error = None, None
 
 
 limiter = SlidingWindowLimiter()

@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import logging
 import time
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any
 
 from fastapi import BackgroundTasks
@@ -45,6 +45,22 @@ from app.services.agents.tools import (
     TopicParams,
 )
 from app.services.announcements import today_kst
+
+WEEK = 10080
+KST_TZ = timezone(timedelta(hours=9))
+_DAYS = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
+
+
+def weekly_anchor(spec: str) -> tuple[int, int, int]:
+    """'mon 03:00' -> (0, 3, 0). An invalid setting falls back to Monday 03:00 (Korea time)."""
+    try:
+        d, t = spec.strip().lower().split()
+        hh, mm = (int(x) for x in t.split(":"))
+        if d[:3] in _DAYS and 0 <= hh < 24 and 0 <= mm < 60:
+            return _DAYS.index(d[:3]), hh, mm
+    except ValueError:
+        pass
+    return 0, 3, 0
 
 if TYPE_CHECKING:
     from app.security.auth import AuthUser
@@ -100,11 +116,12 @@ TASK_PARAMS: dict[str, type[P]] = {
     "topik_dates": ScanParams, "summarize_announcement": RefParams, "explain_document": RefParams,
     "support_request": SupportRequestParams, "lookup": LookupParams, "delegated_search": DelegateParams,
     "announcement_discovery": SourceCheckParams, "opportunity_discovery": SourceCheckParams,
+    "guidance_discovery": SourceCheckParams, "event_discovery": SourceCheckParams,
 }
 #: tasks that crawl official websites: administrators (or an admin-enabled schedule) only
-ADMIN_TASKS = {"announcement_discovery", "opportunity_discovery"}
+ADMIN_TASKS = {"announcement_discovery", "opportunity_discovery", "guidance_discovery", "event_discovery"}
 #: agents that can have official sources (discovery_sources.agent_id)
-DISCOVERY_AGENTS = ("announcement", "scholarship", "career", "events")
+DISCOVERY_AGENTS = ("announcement", "scholarship", "career", "events", "immigration", "academic", "topik")
 LLM_TASKS = {"summarize_announcement", "explain_document"}
 APPROVAL_TASKS = {"support_request"}
 
@@ -122,15 +139,25 @@ class AgentTaskService:
         self.tools = ToolRegistry()
         self.worker_id = "inline"
 
+    # ================================================================== pause (migration 0017)
+    def paused_agents(self) -> set[str]:
+        try:
+            rows, _ = self.store.select("agent_controls", Query(eq={"paused": True}, cols="agent_id", limit=50))
+        except Exception:  # noqa: BLE001 - migration 0017 not applied: nothing can be paused
+            return set()
+        return {r["agent_id"] for r in rows}
+
     # ================================================================== directory
     def directory(self, user: AuthUser | None) -> list[dict[str, Any]]:
         states = self.agent_states(user)
         schedules = {(s["agent_id"]) for s in self._schedules() if s["enabled"] and self.settings.agent_schedules_enabled}
         checking = self.monitoring_activity()
+        paused = self.paused_agents()
+        known: dict[str, str | None] = {}
         role = user.role if user is not None else "visitor"
         out = []
         for a in AGENTS.values():
-            actions = [dict(id=x.id, kind=x.kind, target=x.target, params=x.params, admin_only=x.roles is not None)
+            actions = [dict(id=x.id, kind=x.kind, target=x.target, params=x.params, admin_only=x.roles is not None and "supporter" not in x.roles)
                        for x in a.actions if x.roles is None or (user is not None and user.role in x.roles)]
             visible = {x["id"] for x in actions}
             state = states.get(a.id, dict(state="idle", active=0, awaiting=0))
@@ -143,10 +170,10 @@ class AgentTaskService:
             out.append(dict(
                 id=a.id, character_id=a.character_id, name=a.name, title=a.title, department=a.department,
                 description=a.description, scope=a.scope, languages=list(a.languages), fixed_language=a.fixed_language,
-                tools=self.tools.describe(self.svc, a), task_types=list(a.task_types),
+                tools=self.tools.describe(self.svc, a, known), task_types=list(a.task_types),
                 can_delegate_to=list(a.can_delegate_to), restricted_actions=list(a.restricted_actions),
                 actions=actions, monitoring=a.id in schedules, interface=interface,
-                monitoring_check_running=a.id in checking, **state))
+                monitoring_check_running=a.id in checking, paused=a.id in paused, **state))
         return out
 
     def monitoring_activity(self) -> set[str]:
@@ -307,6 +334,8 @@ class AgentTaskService:
         if not self.settings.agent_tasks_enabled:
             raise AppError("Agent tasks are switched off on this server.", code="tasks_disabled", status_code=503)
         agent = self._agent(agent_id)
+        if agent.id in self.paused_agents():
+            raise AppError(f"{agent.name} is paused by an administrator.", code="agent_paused", status_code=503)
         if task_type not in task_types_of(agent):
             raise Forbidden(f"{agent.name} does not handle '{task_type}' tasks.", code="task_not_allowed")
         if task_type in ADMIN_TASKS and not (schedule_id or (user is not None and user.is_admin)):
@@ -494,13 +523,10 @@ class AgentTaskService:
     def _owner(self, task: dict[str, Any]) -> AuthUser | None:
         if not task.get("requested_by"):
             return None
-        from app.security.auth import AuthUser
+        from app.security.auth import user_from_profile
 
         p = get_one(self.store, "profiles", id=task["requested_by"])
-        if p is None:
-            return None
-        return AuthUser(id=p["id"], email=p.get("email"), role=p["role"], display_name=p.get("display_name"),
-                        preferred_language=p.get("preferred_language") or "en")
+        return None if p is None else user_from_profile(self.store, p)
 
     def execute(self, task: dict[str, Any]) -> None:
         agent = AGENTS.get(task["agent_id"])
@@ -615,7 +641,21 @@ class AgentTaskService:
 
     def schedules(self) -> dict[str, Any]:
         return dict(globally_enabled=self.settings.agent_schedules_enabled,
+                    weekly_anchor_kst=self.settings.discovery_weekly_anchor,
                     items=[self._schedule_view(s) for s in self._schedules()])
+
+    def first_run(self, s: dict[str, Any], now: datetime) -> datetime:
+        """When a schedule that was just switched on runs first: a weekly schedule at the next weekly slot (anchor in
+        Korea time + its stagger), so the official sources are never all asked at once; others right away."""
+        if int(s.get("interval_minutes") or 0) != WEEK:
+            return now
+        day, hh, mm = weekly_anchor(self.settings.discovery_weekly_anchor)
+        local = now.astimezone(KST_TZ)
+        slot = (local - timedelta(days=(local.weekday() - day) % 7)).replace(hour=hh, minute=mm, second=0, microsecond=0)
+        slot += timedelta(minutes=int((s.get("params") or {}).get("stagger_minutes") or 0))
+        while slot <= local:
+            slot += timedelta(days=7)
+        return slot.astimezone(UTC)
 
     @staticmethod
     def _schedule_view(s: dict[str, Any]) -> dict[str, Any]:
@@ -634,7 +674,8 @@ class AgentTaskService:
         if enabled is not None:
             patch["enabled"] = enabled
             if enabled and not s["enabled"]:
-                patch["next_run_at"] = now_iso()
+                after = dict(s) | {k: v for k, v in (("interval_minutes", interval_minutes),) if v is not None}
+                patch["next_run_at"] = self.first_run(after, datetime.now(UTC)).isoformat()
         if interval_minutes is not None:
             if not 60 <= interval_minutes <= 10080:
                 raise ValidationFailed("interval_minutes must be between 60 and 10080.")
@@ -700,10 +741,12 @@ class AgentTaskService:
     def _content_work_pending(self) -> bool:
         """Documents are being ingested / indexed / translated (or wait for the worker) right now."""
         now = now_iso()
-        rows, _ = self.store.select("ingestion_jobs", Query(eq={"status": "running"}, cols="id", limit=1))
+        # jobs of the GPU worker use no capacity of this server and may wait for hours
+        own = {"executor": "local"} if self.settings.gpu_worker_enabled else {}
+        rows, _ = self.store.select("ingestion_jobs", Query(eq={"status": "running", **own}, cols="id", limit=1))
         if rows:
             return True
-        rows, _ = self.store.select("ingestion_jobs", Query(eq={"status": "queued"}, lte={"run_after": now},
+        rows, _ = self.store.select("ingestion_jobs", Query(eq={"status": "queued", **own}, lte={"run_after": now},
                                                             cols="id", limit=1))
         return bool(rows)
 
@@ -713,7 +756,10 @@ class AgentTaskService:
             return dict(enabled=False, queued=0)
         now = datetime.now(UTC)
         queued = postponed = 0
+        paused = self.paused_agents()
         for s in self._schedules():
+            if s["agent_id"] in paused:
+                continue
             if not s["enabled"] or (s.get("next_run_at") and datetime.fromisoformat(s["next_run_at"]) > now):
                 continue
             if s["task_type"] in ADMIN_TASKS and self._content_work_pending():
@@ -722,7 +768,12 @@ class AgentTaskService:
                                   {"id": s["id"]})
                 postponed += 1
                 continue
-            nxt = (now + timedelta(minutes=s["interval_minutes"])).isoformat()
+            # fixed cadence: the next slot follows the planned one (a late tick neither drifts nor catches up twice)
+            step = timedelta(minutes=s["interval_minutes"])
+            nxt_dt = (datetime.fromisoformat(s["next_run_at"]) if s.get("next_run_at") else now) + step
+            while nxt_dt <= now:
+                nxt_dt += step
+            nxt = nxt_dt.isoformat()
             self.store.update("agent_schedules", dict(last_run_at=now.isoformat(), next_run_at=nxt), {"id": s["id"]})
             try:
                 self.create(None, s["agent_id"], s["task_type"], {}, idempotency_key=f"schedule:{s['id']}",

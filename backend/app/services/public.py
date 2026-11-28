@@ -8,6 +8,7 @@ from app.core.constants import CATEGORIES
 from app.core.errors import NotFound
 from app.repositories.base import FileStorage, Query, Store, get_many, get_one
 from app.services.announcements import AnnouncementService, compute_status, excerpt, today_kst
+from app.services.document_attachments import public_details
 from app.services.originals import DOCX_MIME, PDF_MIME, docx_preview_html, file_kind, original_info
 
 PRIVATE_SOURCE_FILTER = {"authority_type": "supporter_submitted"}
@@ -272,7 +273,7 @@ class PublicService:
         # only reviewer/submitter-confirmed facts are shown publicly (never raw detections or OCR guesses)
         facts = {k: f["value"] for k, f in (sd.get("fields") or {}).items()
                  if isinstance(f, dict) and f.get("confirmed") and f.get("value") not in (None, "")}
-        meta = d.get("metadata") or {}
+        meta = public_details(v, d)      # attachments of the approved version, never of one that waits for approval
         out.update(content=v["extracted_text"], version_id=v["id"], version_number=v["version_number"],
                    key_facts=facts, attachments=meta.get("attachments") or [],
                    notice_no=meta.get("notice_no"), original=original_info(d, s, v))

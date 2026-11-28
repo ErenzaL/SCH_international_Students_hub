@@ -1,0 +1,33 @@
+{
+ "config": "hub0.1",
+ "config_hash": "8b83d3d0c64c",
+ "corpus_sha256": "7bb1a20f19fd28bc059fee1a8bbeeed75410182ac6ca224ef5449115c6e4153f",
+ "chunks": 749,
+ "git": "054d813",
+ "splits": {
+  "dev": {
+   "dataset_sha256": "910c442d12bb986ec527c51f63fa0c87d6d742a68047c4e7b00a5ef197b8665f",
+   "metrics": {
+    "n": 100,
+    "needs": 20,
+    "ctx_doc_hit": 0.92,
+    "mrr": 0.836,
+    "f_mrr": 0.827,
+    "hit@10": 0.97,
+    "hit@1": 0.76
+   }
+  },
+  "val": {
+   "dataset_sha256": "a273350180dc1167c590f897ec73d5bdd6ad2f4eb27f344949177718cb2fe8b1",
+   "metrics": {
+    "n": 100,
+    "needs": 20,
+    "ctx_doc_hit": 0.85,
+    "mrr": 0.737,
+    "f_mrr": 0.725,
+    "hit@10": 0.95,
+    "hit@1": 0.63
+   }
+  }
+ }
+}

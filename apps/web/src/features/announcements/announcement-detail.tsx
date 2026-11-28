@@ -24,6 +24,9 @@ import { useCategoryName } from "@/lib/use-category-name";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import type { AnnouncementDetail as Detail, LanguageCode } from "@/types/api";
 
+// Release 1: announcements get reviewed translations only in Korean, English and Indonesian
+const NOT_OFFERED: LanguageCode[] = ["vi", "zh-CN"];
+
 export function AnnouncementDetail({ id }: { id: string }) {
   const t = useTranslations("announcements");
   const c = useTranslations("common");
@@ -120,7 +123,11 @@ export function AnnouncementDetail({ id }: { id: string }) {
             <Alert variant="info" data-testid="fallback-notice">
               <Languages className="size-4" aria-hidden />
               <AlertTitle>{tr("fallbackTitle", { language: LOCALE_LABELS[lang] })}</AlertTitle>
-              <AlertDescription>{tr("fallbackBody", { original: originalLabel })}</AlertDescription>
+              <AlertDescription>
+                {NOT_OFFERED.includes(lang)
+                  ? tr("notOfferedBody", { language: LOCALE_LABELS[lang], original: originalLabel })
+                  : tr("fallbackBody", { original: originalLabel })}
+              </AlertDescription>
             </Alert>
           )}
 

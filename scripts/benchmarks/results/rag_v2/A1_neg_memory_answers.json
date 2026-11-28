@@ -1,0 +1,2047 @@
+{
+ "tag": "A1",
+ "split": "neg",
+ "final_test_run": false,
+ "at": "2026-11-27T01:20:51+00:00",
+ "git": "37b1c4b+dirty",
+ "dataset": {
+  "split": "neg",
+  "file": "scripts/benchmarks/rag_v2/dev_negatives_v0.1.json",
+  "sha256": "01ede499e486254cffc84ea20763b1f9cd3dfef0f0f19b8de8730ced3425350f",
+  "dataset_version": "dev-negatives-0.1",
+  "dropped_labels": 0,
+  "questions_sha256": "9fd1818c64d3dcc33747feb502f928b06b7e9e8bbf3ca70aefb99a1b59dfc811",
+  "questions": 35,
+  "needs": 7
+ },
+ "corpus_sha256": "7bb1a20f19fd28bc059fee1a8bbeeed75410182ac6ca224ef5449115c6e4153f",
+ "index": {
+  "index_seconds": 14.7,
+  "documents": 27,
+  "chunks": 749,
+  "embedded_chunks": 749,
+  "embedding_model": "intfloat/multilingual-e5-small#qint8",
+  "chunk_target_tokens": 320,
+  "chunk_max_tokens": 420,
+  "chunk_overlap_tokens": 48,
+  "backend": "memory",
+  "id_seed": 1
+ },
+ "config": {
+  "mode": "hybrid",
+  "settings": {
+   "retrieval_min_similarity": 0.8,
+   "retrieval_hub_beta": 0.1
+  },
+  "desc": "baseline + hub scaling beta 0.1",
+  "name": "hub0.1",
+  "hooks": [],
+  "variants": null,
+  "hash": "8b83d3d0c64c"
+ },
+ "provider": "ollama",
+ "model": "qwen2.5:7b-instruct",
+ "proxy_note": "local proxy model: describes the pipeline with this model, NOT Gemini's answer quality",
+ "results": {
+  "rag": {
+   "seconds": 109,
+   "answerable": null,
+   "unanswerable": {
+    "n": 35,
+    "needs": 7,
+    "abstained": 0.6,
+    "abstained_ci95": [
+     0.314,
+     0.886
+    ],
+    "refusal_phrase": 0.2,
+    "refusal_phrase_ci95": [
+     0.057,
+     0.371
+    ],
+    "invented_figure": 0.086,
+    "invented_figure_ci95": [
+     0.0,
+     0.257
+    ],
+    "wrong_language": 0.0,
+    "wrong_language_ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "by_language": null,
+   "generation": {
+    "fallback": 3,
+    "llm": 32
+   },
+   "rows": [
+    {
+     "id": "NEG-01-ko",
+     "need": "NEG-01",
+     "language": "ko",
+     "topic": "academic-procedures",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "죄송합니다, 2027년 2월 졸업식의 정확한 날짜에 대한 정보가 제공된 문서에는 포함되어 있지 않습니다. 졸업식 날짜는 일반적으로 학교 측에서 공지하는 것이 일반적입니다. 학교 홈페이지나 국제교육교류처에서 공지된 정보를 확인해 보시는 것이 좋을 것 같습니다.",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [],
+     "input_tokens": 5455,
+     "output_tokens": 116,
+     "ms": 3189,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-01-en",
+     "need": "NEG-01",
+     "language": "en",
+     "topic": "academic-procedures",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "I'm sorry, but the information about SCH's graduation ceremony in February 2027 is not available in the provided sources. The sources contain details about admission procedures and class schedules, but do not mention any specific graduation ceremony dates.",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [],
+     "input_tokens": 5020,
+     "output_tokens": 73,
+     "ms": 2581,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 1.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-01-id",
+     "need": "NEG-01",
+     "language": "id",
+     "topic": "academic-procedures",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "Maaf, informasi tentang upacara wisuda di SCH pada bulan Februari 2027 tidak dapat ditemukan dalam sumber yang tersedia. Sumber yang kami miliki berfokus pada informasi penerimaan mahasiswa baru, syarat-syarat pendaftaran, dan jadwal kuliah. Untuk informasi lebih lanjut tentang upacara wisuda, Anda dapat menghubungi bagian akademik atau bagian perpustakaan di universitas.",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [],
+     "input_tokens": 4897,
+     "output_tokens": 134,
+     "ms": 3298,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 1.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-01-vi",
+     "need": "NEG-01",
+     "language": "vi",
+     "topic": "academic-procedures",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "Xin lỗi, nhưng thông tin về lễ tốt nghiệp của SCH vào tháng 2 năm 2027 không có trong các nguồn tài liệu được cung cấp. Các nguồn tài liệu chủ yếu đề cập đến thông tin tuyển dụng, lịch học kỳ và hướng dẫn đăng ký học. Bạn có thể cần liên hệ với văn phòng quốc tế hoặc bộ phận tổ chức sự kiện của trường để biết thông tin chính xác về lễ tốt nghiệp.",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [],
+     "input_tokens": 5037,
+     "output_tokens": 115,
+     "ms": 3137,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-01-zh-CN",
+     "need": "NEG-01",
+     "language": "zh-CN",
+     "topic": "academic-procedures",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "根据提供的信息，顺天乡大学2027年2月的毕业典礼日期没有明确提及。因此，我无法确认具体的日期。",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [],
+     "input_tokens": 4923,
+     "output_tokens": 56,
+     "ms": 2501,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 1.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-02-ko",
+     "need": "NEG-02",
+     "language": "ko",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "지금은 답변을 생성하는 데 문제가 있습니다. 아래의 관련 공식 안내를 확인하시거나 잠시 후 다시 질문해 주세요.",
+     "evidence": "unavailable",
+     "generation": "fallback",
+     "fallback_reason": "no_citations",
+     "gate": "insufficient",
+     "citation_check": null,
+     "cited_docs": [
+      "b3f79749",
+      "7c5799ad",
+      "d032674b"
+     ],
+     "input_tokens": 5519,
+     "output_tokens": 83,
+     "ms": 3895,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-02-en",
+     "need": "NEG-02",
+     "language": "en",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "I'm sorry, but the information you're asking for about setting up your SCH student email account is not included in the provided sources. The sources focus on D-2 visa extension, course registration, and travel documents. For setting up your SCH student email account, you might want to visit the IT Help Desk or check the official SCH website for detailed instructions.",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "sufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [],
+     "input_tokens": 4033,
+     "output_tokens": 97,
+     "ms": 2438,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 1.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-02-id",
+     "need": "NEG-02",
+     "language": "id",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "Maaf, informasi yang Anda minta tentang membuat akun email mahasiswa SCH tidak terdapat dalam sumber yang disediakan. Sumber-sumber yang ada berfokus pada prosedur pendaftaran dan pengajuan mata kuliah, serta informasi TOPIK. Untuk informasi lebih lanjut tentang membuat akun email, Anda dapat menghubungi layanan IT universitas atau pergi ke kantor IT di kampus.",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [],
+     "input_tokens": 5652,
+     "output_tokens": 121,
+     "ms": 3141,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-02-vi",
+     "need": "NEG-02",
+     "language": "vi",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "Hiện tôi đang gặp sự cố khi tạo câu trả lời. Bạn vẫn có thể xem hướng dẫn chính thức liên quan bên dưới, hoặc thử hỏi lại sau ít phút.",
+     "evidence": "unavailable",
+     "generation": "fallback",
+     "fallback_reason": "wrong_language",
+     "gate": "insufficient",
+     "citation_check": null,
+     "cited_docs": [
+      "ae1cbab7",
+      "d032674b",
+      "da416585"
+     ],
+     "input_tokens": 5671,
+     "output_tokens": 93,
+     "ms": 4302,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-02-zh-CN",
+     "need": "NEG-02",
+     "language": "zh-CN",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "根据提供的信息，关于开通顺天乡大学的学生邮箱账号的具体步骤没有直接提及。因此，我们无法直接从这些文档中获取详细信息。",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "sufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [],
+     "input_tokens": 5110,
+     "output_tokens": 57,
+     "ms": 4045,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-03-ko",
+     "need": "NEG-03",
+     "language": "ko",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "유학생 버디 프로그램에 대한 정보는 제공된 문서에서 확인할 수 없습니다. 이 프로그램에 대한 자세한 내용은 국제교육교류처에서 확인해 보시는 것이 좋을 것 같습니다.",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [],
+     "input_tokens": 6371,
+     "output_tokens": 73,
+     "ms": 2852,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 1.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-03-en",
+     "need": "NEG-03",
+     "language": "en",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "The International Student Buddy Program is not directly mentioned in the provided sources. However, the Guide for International Students in Korea lists several support programs, including the Busan International Student Ambassador Program, which involves acting as an ambassador for Busan universities and participating in local events. For more detailed information on the International Student Buddy Program, you may want to contact the relevant office or visit the Busan Global City Foundation website.",
+     "evidence": "partial",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "sufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [
+      "672ffe31"
+     ],
+     "input_tokens": 4452,
+     "output_tokens": 112,
+     "ms": 2751,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-03-id",
+     "need": "NEG-03",
+     "language": "id",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "Saat ini, informasi tentang program buddy untuk mahasiswa asing tidak disebutkan dalam sumber-sumber yang tersedia. Namun, Anda dapat menghubungi kantor konseling internasional atau bagian kemitraan universitas Anda untuk mendapatkan informasi lebih lanjut tentang program-program yang tersedia.",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [],
+     "input_tokens": 4442,
+     "output_tokens": 95,
+     "ms": 2667,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-03-vi",
+     "need": "NEG-03",
+     "language": "vi",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "The thông tin về đăng ký chương trình buddy cho du học sinh không được cung cấp trong các nguồn tài liệu được cung cấp. Do đó, tôi không thể cung cấp chi tiết cụ thể về quy trình đăng ký chương trình buddy.\n\nTuy nhiên, thông thường, bạn có thể đăng ký chương trình buddy thông qua trang web của trường hoặc bộ phận hỗ trợ du học sinh. Bạn cũng có thể liên hệ trực tiếp với bộ phận hỗ trợ du học sinh để được hướng dẫn cụ thể.",
+     "evidence": "partial",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "sufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [
+      "d60bc363",
+      "672ffe31"
+     ],
+     "input_tokens": 5067,
+     "output_tokens": 135,
+     "ms": 4311,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-03-zh-CN",
+     "need": "NEG-03",
+     "language": "zh-CN",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "我在已审核的顺天乡大学和韩国政府资料中没有找到相关内容，因此无法给出可靠的回答。您可以换一种问法，或向负责部门确认。",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "sufficient",
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 6842,
+     "output_tokens": 98,
+     "ms": 3659,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-04-ko",
+     "need": "NEG-04",
+     "language": "ko",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "캠퍼스에서 사물함을 빌릴 수는 없습니다. 방학 중에는 글로벌빌리지 내에서 개인 물품을 보관할 수 없으며, 대신 교외 짐 보관 서비스를 이용해야 합니다.",
+     "evidence": "sufficient",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [
+      "b8a53e42"
+     ],
+     "input_tokens": 4709,
+     "output_tokens": 84,
+     "ms": 2461,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-04-en",
+     "need": "NEG-04",
+     "language": "en",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "Based on the available information, the sources do not provide specific details about renting a locker on campus. Therefore, I cannot confirm whether you can rent a locker on campus or not.",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [],
+     "input_tokens": 4900,
+     "output_tokens": 61,
+     "ms": 3353,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 1.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-04-id",
+     "need": "NEG-04",
+     "language": "id",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "Menyewa loker di kampus mungkin tidak tersedia karena loker biasanya disediakan oleh pihak kampus untuk keperluan administrasi atau penyimpanan pribadi. Menurut sumber, international students memiliki pilihan hunian yang berbeda, termasuk dormitory, private rental housing, dan homestay. Namun, tidak disebutkan tentang loker khusus untuk penyimpanan.\n\nJika Anda membutuhkan tempat penyimpanan, Anda mungkin perlu mencari solusi alternatif di luar kampus, seperti menyewa loker di area sekitar kampus atau di pusat penyewaan loker. Anda juga dapat berkonsultasi dengan kantor pelayanan siswa internasional di kampus untuk mendapatkan informasi lebih lanjut.",
+     "evidence": "partial",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [
+      "672ffe31"
+     ],
+     "input_tokens": 3753,
+     "output_tokens": 206,
+     "ms": 3762,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 1.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-04-vi",
+     "need": "NEG-04",
+     "language": "vi",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "The office does not provide information about renting school lockers. Therefore, you may need to find alternative storage solutions, such as external storage services.",
+     "evidence": "partial",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [
+      "672ffe31"
+     ],
+     "input_tokens": 5720,
+     "output_tokens": 56,
+     "ms": 2565,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-04-zh-CN",
+     "need": "NEG-04",
+     "language": "zh-CN",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "在校园里可以租储物柜。根据提供的信息，由于寒假期间校园设施运营和管理政策的调整，全球村内个人物品及储物柜的存放已经全面禁止。但是，学生可以在校外使用储物柜服务，具体可以参考学校提供的“校外寄存储物柜服务介绍（艾姆盒子新昌店）”。",
+     "evidence": "sufficient",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [
+      "b8a53e42"
+     ],
+     "input_tokens": 5408,
+     "output_tokens": 103,
+     "ms": 4124,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-05-ko",
+     "need": "NEG-05",
+     "language": "ko",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "학교 와이파이를 연결하려면, 먼저 학교의 공식 와이파이 연결 방법을 확인해야 합니다. 일반적으로는 학교 홈페이지나 IT 서비스 센터에서 와이파이 연결 방법을 찾을 수 있습니다. 유선 인터넷은 유선 장비가 필요하지만, 무선 인터넷은 유선 장비와 무선 장비가 필요합니다.\n\n거주지가 가까운 PC방을 이용하면 편리하면서도 비교적 저렴한 가격에 인터넷을 사용할 수 있습니다.",
+     "evidence": "sufficient",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [
+      "d60bc363"
+     ],
+     "input_tokens": 5770,
+     "output_tokens": 157,
+     "ms": 3579,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-05-en",
+     "need": "NEG-05",
+     "language": "en",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "To connect to the campus Wi-Fi, you need to have either a wired internet device or a wireless internet device. The installation service will be provided by a service technician visiting your residence.",
+     "evidence": "sufficient",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [
+      "d60bc363"
+     ],
+     "input_tokens": 4900,
+     "output_tokens": 65,
+     "ms": 2202,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-05-id",
+     "need": "NEG-05",
+     "language": "id",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "Untuk terhubung ke Wi-Fi kampus, Anda perlu memiliki perangkat yang mendukung koneksi internet dan mengikuti langkah-langkah berikut:\n\n1. Pastikan perangkat Anda memiliki peralatan yang diperlukan untuk koneksi Wi-Fi, baik itu peralatan kabel maupun tidak kabel.\n2. Kunjungi kantor layanan kampus atau hubungi call center untuk mendapatkan bantuan pemasangan.",
+     "evidence": "sufficient",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [
+      "d60bc363"
+     ],
+     "input_tokens": 4149,
+     "output_tokens": 157,
+     "ms": 3201,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-05-vi",
+     "need": "NEG-05",
+     "language": "vi",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "Để kết nối Wi-Fi của trường, bạn cần có thiết bị hỗ trợ kết nối Wi-Fi và tuân theo các bước sau:\n\n1. Đảm bảo bạn có thiết bị internet (cả internet cáp quang và internet không dây đều cần thiết).\n2. Truy cập trang web của công ty cung cấp dịch vụ internet để đăng ký và cài đặt.\n3. Gọi đến số điện thoại hỗ trợ khách hàng hoặc truy cập trang web của công ty để đăng ký và cài đặt.\n4. Đăng ký và cài đặt thông qua trang web HiKorea (www.hikorea.go.kr) nếu trường không có quy trình đăng ký nhóm được cấp phép.",
+     "evidence": "sufficient",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [
+      "d60bc363"
+     ],
+     "input_tokens": 4929,
+     "output_tokens": 177,
+     "ms": 3614,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-05-zh-CN",
+     "need": "NEG-05",
+     "language": "zh-CN",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "关于如何连接学校的Wi-Fi，目前提供的信息中没有直接提到具体的连接步骤。不过，通常学校会提供详细的Wi-Fi连接指南，通常可以在学校的官方网站或国际学生办公室获取这些信息。\n\n您可以访问学校的官方网站，查找“网络服务”或“国际学生指南”等相关页面，或者直接联系国际教育交流处获取具体的连接方法和相关信息。\n\nThe office provides Wi-Fi connection instructions on their official website.",
+     "evidence": "partial",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [
+      "da416585"
+     ],
+     "input_tokens": 5577,
+     "output_tokens": 114,
+     "ms": 2942,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-06-ko",
+     "need": "NEG-06",
+     "language": "ko",
+     "topic": "student-records",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "학생증을 잃어버렸다면, 재발급 비용은 KRW 35,000입니다.\n\n이 비용은 2025년 1월 1일부터 적용되었습니다.",
+     "evidence": "sufficient",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "sufficient",
+     "citation_check": {
+      "checked": 1,
+      "supported": 1,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 1
+     },
+     "cited_docs": [
+      "21e3e650"
+     ],
+     "input_tokens": 4389,
+     "output_tokens": 77,
+     "ms": 3052,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 1.0
+    },
+    {
+     "id": "NEG-06-en",
+     "need": "NEG-06",
+     "language": "en",
+     "topic": "student-records",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "The replacement fee for a new residence card in South Korea is KRW 35,000.",
+     "evidence": "sufficient",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 1,
+      "supported": 1,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [
+      "21e3e650"
+     ],
+     "input_tokens": 3878,
+     "output_tokens": 50,
+     "ms": 2327,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 1.0
+    },
+    {
+     "id": "NEG-06-id",
+     "need": "NEG-06",
+     "language": "id",
+     "topic": "student-records",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "Biaya penggantian kartu mahasiswa SCH adalah KRW 35.000.",
+     "evidence": "sufficient",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 1,
+      "supported": 1,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [
+      "21e3e650"
+     ],
+     "input_tokens": 4883,
+     "output_tokens": 51,
+     "ms": 2763,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 1.0
+    },
+    {
+     "id": "NEG-06-vi",
+     "need": "NEG-06",
+     "language": "vi",
+     "topic": "student-records",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "Hiện tôi đang gặp sự cố khi tạo câu trả lời. Bạn vẫn có thể xem hướng dẫn chính thức liên quan bên dưới, hoặc thử hỏi lại sau ít phút.",
+     "evidence": "unavailable",
+     "generation": "fallback",
+     "fallback_reason": "wrong_language",
+     "gate": "insufficient",
+     "citation_check": null,
+     "cited_docs": [
+      "da416585",
+      "d032674b",
+      "744fdb55"
+     ],
+     "input_tokens": 5396,
+     "output_tokens": 75,
+     "ms": 4091,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-06-zh-CN",
+     "need": "NEG-06",
+     "language": "zh-CN",
+     "topic": "student-records",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "我在已审核的顺天乡大学和韩国政府资料中没有找到相关内容，因此无法给出可靠的回答。您可以换一种问法，或向负责部门确认。",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "sufficient",
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 4612,
+     "output_tokens": 77,
+     "ms": 2601,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-07-ko",
+     "need": "NEG-07",
+     "language": "ko",
+     "topic": "dormitory",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "현재 제공된 정보로는 기숙사 세탁기의 이용 비용에 대한 자세한 내용이 포함되어 있지 않습니다. 따라서 정확한 비용을 알려드리지 못합니다.\n\n기숙사 세탁기의 이용 비용에 대한 정보를 얻으시려면, 기숙사 관리실이나 학생 서비스 센터에 문의해보시는 것이 좋습니다. 그들은 정확한 비용과 함께 세탁기 이용 방법 등에 대한 정보를 제공해줄 수 있습니다.",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [],
+     "input_tokens": 4512,
+     "output_tokens": 138,
+     "ms": 2967,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-07-en",
+     "need": "NEG-07",
+     "language": "en",
+     "topic": "dormitory",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "The cost of loading laundry in the dorm washing machine is not specified in the provided sources. The sources focus on moving and administrative procedures, waste disposal, and living costs, but do not mention the cost of using the dorm washing machines.",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [],
+     "input_tokens": 5308,
+     "output_tokens": 72,
+     "ms": 2473,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-07-id",
+     "need": "NEG-07",
+     "language": "id",
+     "topic": "dormitory",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "Biaya sekali pakai mesin cuci di asrama tidak disebutkan dalam sumber yang tersedia. Oleh karena itu, informasi ini tidak dapat diverifikasi.",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [],
+     "input_tokens": 4333,
+     "output_tokens": 63,
+     "ms": 2441,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-07-vi",
+     "need": "NEG-07",
+     "language": "vi",
+     "topic": "dormitory",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "The thông tin về phí giặt máy tại ký túc xá không được cung cấp trong các nguồn tài liệu được cung cấp. Do đó, tôi không thể xác định chính xác phí giặt một lần bằng máy giặt ký túc xá.",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "insufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [],
+     "input_tokens": 5689,
+     "output_tokens": 79,
+     "ms": 2803,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-07-zh-CN",
+     "need": "NEG-07",
+     "language": "zh-CN",
+     "topic": "dormitory",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "根据提供的信息，关于宿舍洗衣机的费用并没有具体说明。因此，我无法给出准确的价格。",
+     "evidence": "none",
+     "generation": "llm",
+     "fallback_reason": null,
+     "gate": "sufficient",
+     "citation_check": {
+      "checked": 0,
+      "supported": 0,
+      "reattributed": 0,
+      "ambiguous": 0,
+      "uncited": 0
+     },
+     "cited_docs": [],
+     "input_tokens": 6440,
+     "output_tokens": 46,
+     "ms": 2516,
+     "abstained": 1.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    }
+   ]
+  },
+  "closed_book": {
+   "seconds": 52,
+   "answerable": null,
+   "unanswerable": {
+    "n": 35,
+    "needs": 7,
+    "abstained": 0.0,
+    "abstained_ci95": [
+     0.0,
+     0.0
+    ],
+    "refusal_phrase": 0.2,
+    "refusal_phrase_ci95": [
+     0.057,
+     0.371
+    ],
+    "invented_figure": 0.086,
+    "invented_figure_ci95": [
+     0.0,
+     0.2
+    ],
+    "wrong_language": 0.057,
+    "wrong_language_ci95": [
+     0.0,
+     0.114
+    ]
+   },
+   "by_language": null,
+   "generation": {
+    "None": 0
+   },
+   "rows": [
+    {
+     "id": "NEG-01-ko",
+     "need": "NEG-01",
+     "language": "ko",
+     "topic": "academic-procedures",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "SCH의 졸업식 날짜는 매년 변경될 수 있으며, 정확한 날짜는 학교 공지나 졸업생 센터를 통해 확인하실 수 있습니다. 일반적으로 2월 졸업식은 2월 중순에서 말초로 예정되어 있지만, 이는 확정된 정보가 아니므로 공식 공지를 확인해 보시는 것이 좋습니다.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 91,
+     "output_tokens": 95,
+     "ms": 1155,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-01-en",
+     "need": "NEG-01",
+     "language": "en",
+     "topic": "academic-procedures",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "I don't have specific information about Soonchunhyang University's (SCH) graduation ceremony dates for February 2027. Graduation ceremonies are typically announced by the university a few months in advance. I recommend checking the official SCH website or contacting the university's administration for the most accurate and up-to-date information.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 84,
+     "output_tokens": 68,
+     "ms": 733,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 1.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-01-id",
+     "need": "NEG-01",
+     "language": "id",
+     "topic": "academic-procedures",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "Maaf, saya tidak memiliki informasi spesifik tentang tanggal upacara wisuda bulan Februari 2027 di Soonchunhyang University. Informasi seperti ini biasanya diumumkan oleh universitas setidaknya beberapa bulan sebelum acaranya. Saya sarankan untuk memeriksa situs web resmi SCH atau menghubungi kantor pendaftaran dan layanan mahasiswa untuk mendapatkan informasi terbaru dan akurat.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 89,
+     "output_tokens": 103,
+     "ms": 1090,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 1.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-01-vi",
+     "need": "NEG-01",
+     "language": "vi",
+     "topic": "academic-procedures",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "Xin lỗi, nhưng tôi không có thông tin cụ thể về ngày lễ tốt nghiệp của Soonchunhyang University vào tháng 2 năm 2027. Thông tin về lịch lễ tốt nghiệp thường được công bố bởi trường đại học một thời gian trước đó, và tôi không có khả năng truy cập vào thông tin cụ thể về lịch sự kiện của SCH. Tôi khuyên bạn nên kiểm tra trang web chính thức của SCH hoặc liên hệ với bộ phận học vụ để biết thông tin chính xác.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 90,
+     "output_tokens": 107,
+     "ms": 1137,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 1.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-01-zh-CN",
+     "need": "NEG-01",
+     "language": "zh-CN",
+     "topic": "academic-procedures",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "关于2027年2月顺天乡大学（Soonchunhyang University, SCH）的毕业典礼具体日期，目前我没有获取到具体的安排信息。毕业典礼的日期通常由学校根据实际情况来决定，并且可能会在每年的计划中有所变动。建议您关注学校的官方公告或联系学校的相关部门以获取最准确的信息。",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 88,
+     "output_tokens": 75,
+     "ms": 801,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-02-ko",
+     "need": "NEG-02",
+     "language": "ko",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "학교 이메일 계정을 만들려면 다음과 같은 단계를 따르세요:\n\n1. 먼저, 학교 웹사이트나 IT 센터 웹사이트를 방문하여 이메일 계정 생성 절차를 확인하세요.\n2. 일반적으로 학교의 IT 센터나 관리 사무실에서 이메일 계정 생성을 신청해야 합니다.\n3. 신청 시 필요한 정보로는 이름, 학번, 비밀번호 등을 제공해야 합니다.\n4. 계정 생성 후 비밀번호를 변경하는 것이 좋습니다.\n\n만약 구체적인 절차나 필요한 정보가 다르다면, Soonchunhyang University의 IT 센터에 문의해 보세요.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 81,
+     "output_tokens": 157,
+     "ms": 1644,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-02-en",
+     "need": "NEG-02",
+     "language": "en",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "To set up your SCH student email account, follow these general steps. However, please note that specific details might vary, so it's best to check the official SCH IT support website or contact the IT Helpdesk for the most accurate and up-to-date information.\n\n1. **Visit the IT Portal**: Go to the IT portal of Soonchunhyang University. The URL is typically something like `https://it.sch.ac.kr`.\n\n2. **Log in**: Use your student ID and password to log in. If you haven't set up a password yet, you might need to do so through the portal.\n\n3. **Navigate to Email Setup**: Look for a section related to email setup or account management. This could be under \"My Account,\" \"Settings,\" or a similar tab.\n\n4. **Create or Access Your Email Account**: If your account doesn't exist, you might need to create it. If it does, you can access it directly.\n\n5. **Configure Your Email Client**: For setting up your email on a computer, you'll need to configure your email client (like Outlook, Thunderbird, etc.) with the following details:\n   - **IMAP/POP Server**: Use `mail.sch.ac.kr` for both IMAP and POP.\n   - **Username**: Your full email address (e.g., johndoe@sch.ac.kr).\n   - **Password**: Your email password, which you can set up or change through the IT portal.\n   - **Port Numbers**: For IMAP, use 993 (SSL) or 143 (STARTTLS). For POP, use 995 (SSL) or 110 (STARTTLS).\n\n6. **Save and Test**: Save the settings and test your email to ensure everything is working correctly.\n\nIf you encounter any issues or need further assistance, don't hesitate to contact the IT Helpdesk at Soonchunhyang University. They can provide specific guidance based on the current system configurations.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 81,
+     "output_tokens": 408,
+     "ms": 4268,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 1.0
+    },
+    {
+     "id": "NEG-02-id",
+     "need": "NEG-02",
+     "language": "id",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "Untuk membuat akun email mahasiswa di Soonchunhyang University (SCH), Anda dapat mengikuti langkah-langkah berikut:\n\n1. Kunjungi situs web resmi SCH.\n2. Cari bagian \"My SCH\" atau \"SCH 학생자원\" (untuk versi Korea Selatan) di bagian atas halaman.\n3. Klik pada opsi \"로그인\" (Login) atau \"ログイン\" (Login untuk versi Jepang).\n4. Masukkan detail login Anda, yaitu nomor identitas mahasiswa (SID) dan kata sandi.\n5. Setelah masuk, cari opsi untuk membuat atau mengatur akun email.\n6. Ikuti petunjuk yang diberikan untuk membuat akun email baru.\n\nJika Anda mengalami kesulitan atau tidak dapat menemukan opsi tersebut, Anda dapat menghubungi layanan dukungan teknis SCH untuk bantuan lebih lanjut.\n\nMohon dicatat bahwa prosedur ini mungkin sedikit berbeda tergantung pada perubahan terbaru dari sistem SCH.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 82,
+     "output_tokens": 241,
+     "ms": 2529,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-02-vi",
+     "need": "NEG-02",
+     "language": "vi",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "Để tạo tài khoản email sinh viên của Soonchunhyang University (SCH), bạn có thể làm theo các bước sau:\n\n1. Đăng nhập vào trang web chính thức của SCH hoặc trang web của bộ phận IT của trường.\n2. Tìm đến phần đăng ký hoặc tạo tài khoản email sinh viên.\n3. Điền đầy đủ thông tin cá nhân của bạn như tên, số học bạ, địa chỉ email, mật khẩu, v.v.\n4. Đảm bảo rằng bạn đã đọc và đồng ý với các điều khoản và điều kiện.\n5. Nhấp vào nút đăng ký hoặc tạo tài khoản.\n\nNếu bạn gặp khó khăn trong quá trình này, bạn có thể liên hệ với bộ phận hỗ trợ kỹ thuật hoặc bộ phận hỗ trợ sinh viên của SCH để được hướng dẫn cụ thể hơn.\n\nLưu ý rằng quy trình có thể thay đổi tùy theo năm học và chính sách của trường, nên tốt nhất là kiểm tra thông tin từ nguồn chính thức của SCH.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 85,
+     "output_tokens": 210,
+     "ms": 2201,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-02-zh-CN",
+     "need": "NEG-02",
+     "language": "zh-CN",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "为了开通顺天乡大学（Soonchunhyang University, SCH）的学生邮箱账号，您需要按照以下步骤操作：\n\n1. **访问学校官网**：首先访问顺天乡大学的官方网站。\n\n2. **登录教务系统**：在官网中找到并点击“教务系统”或“学生服务”等相关链接，进入教务系统登录页面。\n\n3. **登录教务系统**：使用您的学号和密码登录教务系统。\n\n4. **申请邮箱账号**：在教务系统中找到“邮箱申请”或“邮件服务”等相关选项，点击进入申请页面。\n\n5. **填写申请信息**：按照提示填写相关信息，提交申请。\n\n6. **等待审核**：提交申请后，需要等待学校相关部门审核。审核通过后，您将收到邮箱账号和密码。\n\n7. **激活邮箱账号**：使用收到的账号和密码登录邮箱，按照提示完成激活步骤。\n\n如果您在操作过程中遇到任何问题，可以联系学校的IT支持部门或教务处寻求帮助。希望这些信息对您有所帮助！",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 80,
+     "output_tokens": 227,
+     "ms": 2381,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-03-ko",
+     "need": "NEG-03",
+     "language": "ko",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "유학생 버디 프로그램에 참여하려면, 보통 다음과 같은 과정을 거칩니다:\n\n1. SCH 유학생 지원센터 웹사이트나 이메일을 통해 프로그램 정보를 확인합니다.\n2. 버디 프로그램 신청서를 작성하고 제출합니다.\n3. 버디와 매칭될 때까지 기다립니다.\n4. 매칭이 완료되면 버디와 만남을 계획하고 준비합니다.\n\n확실한 절차와 마감일은 SCH 유학생 지원센터에서 확인하시거나 직접 문의하시는 것이 가장 정확합니다. 지원센터의 연락처는 학교 웹사이트나 국제학생 센터에서 찾을 수 있습니다.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 84,
+     "output_tokens": 158,
+     "ms": 1658,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-03-en",
+     "need": "NEG-03",
+     "language": "en",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "안녕하세요! 국제학생 친구 프로그램에 참여하려면, 먼저 Soonchunhyang University의 국제교육원(International Education Office) 웹사이트를 방문하시거나, 직접 방문하여 문의를 해보세요. 일반적으로 신청 절차는 다음과 같습니다:\n\n1. 웹사이트나 국제교육원을 방문하여 프로그램에 대한 자세한 정보를 확인합니다.\n2. 신청서를 다운로드하거나 양식을 받아옵니다.\n3. 요구되는 정보를 작성한 후, 국제교육원으로 제출합니다.\n\n만약 웹사이트에서 필요한 정보를 찾지 못하거나 추가로 도움이 필요하다면, 국제교육원에 연락하여 도움을 청해보세요. 국제교육원의 연락처는 Soonchunhyang University의 공식 웹사이트에서 확인할 수 있습니다.\n\n이 프로그램은 국제학생들이 한국 생활에 적응하는 데 도움을 주는 좋은 기회입니다. 참여를 통해 한국 학생들과 친구를 만들고, 문화적 차이를 이해하는 데 도움이 될 것입니다.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 82,
+     "output_tokens": 248,
+     "ms": 2596,
+     "abstained": 0.0,
+     "wrong_language": 1.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-03-id",
+     "need": "NEG-03",
+     "language": "id",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "Maaf, saya tidak memiliki informasi spesifik tentang program buddy di Soonchunhyang University (SCH). Namun, biasanya proses mendaftar untuk program seperti ini melibatkan beberapa langkah umum:\n\n1. Kunjungi situs web universitas atau pusat layanan internasional.\n2. Cari bagian yang berhubungan dengan program buddy atau peneman.\n3. Dapatkan formulir pendaftaran atau informasi lebih lanjut.\n4. Isi formulir pendaftaran dengan informasi diri Anda.\n5. Kirim kembali formulir tersebut melalui jalur yang ditentukan.\n\nSaya sarankan untuk menghubungi pusat layanan internasional atau kantor pendaftaran langsung untuk informasi yang paling akurat dan terkini. Mereka akan dapat memberikan informasi spesifik tentang proses pendaftaran dan detail lainnya.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 85,
+     "output_tokens": 201,
+     "ms": 2105,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 1.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-03-vi",
+     "need": "NEG-03",
+     "language": "vi",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "Chương trình buddy tại Soonchunhyang University (SCH) là một cách tuyệt vời để bạn có thể kết nối với một sinh viên Hàn Quốc, giúp bạn thích nghi nhanh hơn với môi trường mới. Tuy nhiên, để đăng ký, bạn nên liên hệ trực tiếp với bộ phận hỗ trợ sinh viên quốc tế hoặc văn phòng du học tại trường. Họ sẽ cung cấp cho bạn thông tin cụ thể về cách đăng ký và các thông tin cần thiết khác.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 84,
+     "output_tokens": 101,
+     "ms": 1065,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-03-zh-CN",
+     "need": "NEG-03",
+     "language": "zh-CN",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "留学生伙伴（buddy）项目是帮助国际学生更快适应韩国生活和学习的一种方式。关于如何报名，通常会有以下步骤：\n\n1. **查看学校官网信息**：首先访问Soonchunhyang University（SCH）的官方网站，查找留学生伙伴项目的具体信息和报名链接。\n\n2. **填写报名表**：通常需要填写一份在线报名表，提供个人信息、联系方式等。\n\n3. **提交材料**：根据项目要求，可能需要提交护照复印件、在读证明等材料。\n\n4. **等待审核**：提交报名信息后，等待学校审核。审核通过后，会收到确认邮件或通知。\n\n5. **联系伙伴**：审核通过后，学校会为你分配一位韩国本地学生作为你的伙伴，你们可以通过电子邮件或电话联系，开始建立联系。\n\n由于具体的报名流程可能会有所变化，建议直接访问SCH的官方网站或联系国际学生办公室获取最新和最准确的信息。如果有任何疑问，也可以直接联系国际学生办公室获取帮助。",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 80,
+     "output_tokens": 210,
+     "ms": 2194,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-04-ko",
+     "need": "NEG-04",
+     "language": "ko",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "네, 캠퍼스 내에서 사물함을 사용할 수 있습니다. 하지만 Soonchunhyang University의 경우, 사물함 대여는 일반적으로 학생회관이나 각 학과 사무실에서 가능하며, 대여는 무료일 수도 있고 일부 경우에는 비용이 발생할 수도 있습니다. 사물함을 사용하고자 한다면, 먼저 학생회관이나 관련 사무실로 문의하시는 것이 좋습니다.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 88,
+     "output_tokens": 101,
+     "ms": 1068,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-04-en",
+     "need": "NEG-04",
+     "language": "en",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "On-campus locker rental policies can vary by university and by country. At Soonchunhyang University (SCH), specific information about locker rentals is not widely advertised or easily accessible. I would recommend checking with the Student Affairs Office or the Facilities Management Department directly for the most accurate and up-to-date information. They can provide details on availability, cost, and any other relevant information regarding locker rentals on campus.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 78,
+     "output_tokens": 83,
+     "ms": 875,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-04-id",
+     "need": "NEG-04",
+     "language": "id",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "Maaf, informasi spesifik tentang layanan menyewa loker di kampus SCH tidak tersedia untuk saya. Saya sarankan untuk menghubungi pihak administrasi kampus langsung untuk informasi terkini dan detail yang relevan. Mereka akan dapat memberikan informasi yang akurat dan terkini tentang layanan tersebut.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 83,
+     "output_tokens": 77,
+     "ms": 810,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 1.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-04-vi",
+     "need": "NEG-04",
+     "language": "vi",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "Xin chào! Tôi hiểu rằng bạn muốn biết thông tin về việc thuê tủ đồ (locker) tại trường. Tuy nhiên, thông tin về việc thuê locker tại trường Soonchunhyang University (SCH) không phải là thông tin tôi có sẵn. Bạn nên liên hệ trực tiếp với bộ phận quản lý tài sản hoặc dịch vụ sinh viên của trường để được hỗ trợ cụ thể về vấn đề này. Họ sẽ có thể cung cấp thông tin chính xác nhất về các dịch vụ locker và quy trình thuê.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 83,
+     "output_tokens": 108,
+     "ms": 1129,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-04-zh-CN",
+     "need": "NEG-04",
+     "language": "zh-CN",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable"
+     ],
+     "answer": "在首尔 christian医院大学（Soonchunhyang University, SCH），校园内并没有提供储物柜租赁服务。不过，你可以在校园附近的便利店或者超市租用储物柜。如果你有特定的需求或者紧急情况，可以尝试联系学校的国际学生办公室，看是否可以寻求帮助或建议。",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 80,
+     "output_tokens": 66,
+     "ms": 699,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-05-ko",
+     "need": "NEG-05",
+     "language": "ko",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "학교의 Wi-Fi를 연결하려면, 보통 다음과 같은 단계를 따르게 됩니다:\n\n1. 핸드폰이나 컴퓨터의 Wi-Fi 설정을 확인하고, 왼쪽 위에 있는 Wi-Fi 아이콘을 클릭합니다.\n2. 연결 가능한 Wi-Fi 네트워크 목록에서 \"schwire\" 또는 \"schguest\"를 찾아 클릭합니다. \"schwire\"는 일반 학생용, \"schguest\"는 방문객용 Wi-Fi입니다.\n3. 팝업이 나오면, 요구되는 정보를 입력하거나 로그인합니다. 일반적으로 학번과 비밀번호가 필요합니다. 방문객용 Wi-Fi는 일반 비밀번호가 제공됩니다.\n4. 연결이 완료되면 인터넷이 사용 가능합니다.\n\n만약 Wi-Fi 연결에 문제가 있다면, IT 지원 센터에 문의해보세요.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 81,
+     "output_tokens": 192,
+     "ms": 2004,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-05-en",
+     "need": "NEG-05",
+     "language": "en",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "若要连接校园 Wi-Fi，请按照以下步骤操作：\n\n1. 确保您的设备已连接到校园的无线网络。通常，校园 Wi-Fi 的名称会显示为 \"schwifi\" 或 \"Soonchunhyang\".\n\n2. 打开您的设备设置，进入 Wi-Fi 设置，选择 \"schwifi\" 或 \"Soonchunhyang\" 连接。\n\n3. 连接后，您可能需要输入用户名和密码。默认情况下，国际学生的用户名通常是您的学号，密码是您的个人身份证号码。请检查您的电子邮件或联系学校的 IT 部门以获取更多信息。\n\n4. 如果您遇到任何问题，请联系学校的 IT 支持团队以获得帮助。\n\n请注意，具体的 Wi-Fi 连接信息可能会有所变化，建议您定期查看学校的官方通知或联系 IT 部门获取最新信息。",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 80,
+     "output_tokens": 180,
+     "ms": 1885,
+     "abstained": 0.0,
+     "wrong_language": 1.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-05-id",
+     "need": "NEG-05",
+     "language": "id",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "Untuk terhubung ke Wi-Fi kampus di Soonchunhyang University (SCH), Anda dapat mengikuti langkah-langkah berikut:\n\n1. Pastikan Anda berada di area kampus yang memiliki sinyal Wi-Fi.\n2. Buka pengaturan Wi-Fi di perangkat Anda (misalnya, iPhone, Android, atau laptop).\n3. Cari jaringan dengan nama \"schu_edu\" atau \"schu_guest\" (jika Anda mahasiswa, Anda mungkin perlu menggunakan \"schu_edu\").\n4. Hubungkan perangkat Anda ke jaringan tersebut.\n5. Jika Anda menggunakan jaringan \"schu_edu\" (untuk mahasiswa), Anda mungkin perlu login dengan ID dan password yang diberikan oleh pihak kampus.\n\nJika Anda mengalami masalah atau membutuhkan bantuan lebih lanjut, Anda dapat menghubungi layanan dukungan teknologi informasi kampus atau datang ke kantor IT di kampus.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 83,
+     "output_tokens": 223,
+     "ms": 2333,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-05-vi",
+     "need": "NEG-05",
+     "language": "vi",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "Xin chào! Để kết nối Wi-Fi của trường tại Soonchunhyang University (SCH), bạn cần thực hiện các bước sau:\n\n1. Mở ứng dụng Wi-Fi trên điện thoại hoặc máy tính của bạn.\n2. Tìm kiếm và chọn mạng Wi-Fi có tên \"schgwangju\" (hoặc tên tương tự, có thể thay đổi).\n3. Nhập mật khẩu Wi-Fi. Mật khẩu thường được cung cấp qua email hoặc thông báo từ trường. Nếu bạn không nhớ, có thể liên hệ bộ phận IT của trường để được hỗ trợ.\n4. Kết nối thành công, bạn sẽ có internet trong khuôn viên trường.\n\nNếu bạn gặp khó khăn trong quá trình kết nối, hãy liên hệ với bộ phận IT của trường để được hỗ trợ thêm.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 83,
+     "output_tokens": 165,
+     "ms": 1733,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-05-zh-CN",
+     "need": "NEG-05",
+     "language": "zh-CN",
+     "topic": "campus-life",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "为了连接学校的Wi-Fi，您需要遵循以下步骤：\n\n1. **获取登录凭据**：通常，学校会提供一个登录页面或通过电子邮件发送登录凭据（用户名和密码）。请检查您的学校电子邮件或联系IT支持以获取这些信息。\n\n2. **连接Wi-Fi**：打开您的设备（如笔记本电脑、手机或平板电脑）的Wi-Fi设置，查找学校的Wi-Fi网络名称（SSID）。\n\n3. **输入登录凭据**：连接到网络后，您可能需要在浏览器中输入用户名和密码来登录。这通常会自动跳转到登录页面，或者您可能需要手动打开浏览器并访问学校的登录页面。\n\n4. **阅读并同意服务条款**：登录时，您可能需要阅读并同意学校的网络使用条款和服务协议。\n\n5. **完成设置**：按照提示完成任何必要的设置步骤，如更改默认密码等。\n\n如果您在连接过程中遇到任何问题，可以联系学校的IT支持部门寻求帮助。希望这些信息对您有帮助！",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 76,
+     "output_tokens": 214,
+     "ms": 2272,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-06-ko",
+     "need": "NEG-06",
+     "language": "ko",
+     "topic": "student-records",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "학생증 재발급 비용에 대해 정확한 정보를 제공하기 위해서는 소속 학교의 정책을 확인해야 합니다. 일반적으로 소요 비용은 학교마다 다르며, 한국의 경우 대체로 1만원 미만의 비용으로 재발급이 가능하지만, 정확한 금액은 학교 관리처에서 확인해보시는 것이 좋습니다.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 89,
+     "output_tokens": 93,
+     "ms": 1005,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-06-en",
+     "need": "NEG-06",
+     "language": "en",
+     "topic": "student-records",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "The replacement fee for a student ID card at Soonchunhyang University (SCH) can vary, and it's best to check the official SCH website or contact the Student Affairs Office for the most accurate and up-to-date information. Generally, there might be a fixed fee, but it's always good to confirm directly with the university.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 85,
+     "output_tokens": 70,
+     "ms": 751,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-06-id",
+     "need": "NEG-06",
+     "language": "id",
+     "topic": "student-records",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "Maaf, saya tidak memiliki informasi spesifik tentang biaya penggantian kartu mahasiswa di SCH. Biaya penggantian kartu mungkin berbeda-beda tergantung pada kebijakan universitas dan prosedur yang berlaku saat ini. Saya sarankan untuk menghubungi pihak administrasi universitas atau kantor pelayanan mahasiswa untuk mendapatkan informasi yang akurat dan terkini. Mereka akan dapat memberikan informasi yang tepat mengenai biaya dan prosedur penggantian kartu mahasiswa Anda.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 89,
+     "output_tokens": 129,
+     "ms": 1366,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 1.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-06-vi",
+     "need": "NEG-06",
+     "language": "vi",
+     "topic": "student-records",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "Xin lỗi, nhưng tôi không có thông tin cụ thể về phí làm lại thẻ sinh viên tại Soonchunhyang University (SCH). Phí này có thể thay đổi và phụ thuộc vào chính sách của trường. Tôi khuyên bạn nên liên hệ trực tiếp với bộ phận quản lý học sinh hoặc quầy thông tin tại trường để được hỗ trợ và biết chính xác về phí.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 86,
+     "output_tokens": 81,
+     "ms": 870,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 1.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-06-zh-CN",
+     "need": "NEG-06",
+     "language": "zh-CN",
+     "topic": "student-records",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "学生证丢失后的补办费用因学校而异，具体的费用信息最好直接咨询学校的国际学生办公室或学生服务中心。通常，他们会提供相关的费用信息以及补办所需的其他材料。您可以直接联系Soonchunhyang大学的国际学生办公室以获取准确信息。",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 80,
+     "output_tokens": 59,
+     "ms": 640,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-07-ko",
+     "need": "NEG-07",
+     "language": "ko",
+     "topic": "dormitory",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "기숙사 세탁기의 이용 비용은 학교마다 조금씩 다를 수 있습니다. Soonchunhyang University (SCH)의 경우, 정확한 비용 정보를 제공하기 위해서는 학교 관리처나 관련 공지사항을 확인해 보시는 것이 가장 정확할 것입니다. 일반적으로 세탁기 이용료는 회전 수, 세탁 프로그램 등에 따라 달라질 수 있습니다.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 83,
+     "output_tokens": 98,
+     "ms": 1030,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-07-en",
+     "need": "NEG-07",
+     "language": "en",
+     "topic": "dormitory",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "The cost of using the dorm washing machine at Soonchunhyang University can vary. Generally, it costs around 500 to 1,000 won per load, but this can depend on the specific dormitory and the time of year. For the most accurate and up-to-date information, you might want to check with the facilities management or your dormitory advisor.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 82,
+     "output_tokens": 79,
+     "ms": 834,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 1.0
+    },
+    {
+     "id": "NEG-07-id",
+     "need": "NEG-07",
+     "language": "id",
+     "topic": "dormitory",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "Maaf, informasi tentang biaya sekali pakai mesin cuci di asrama di SCH tidak saya ketahui secara spesifik. Biaya ini bisa berbeda-beda tergantung pada kebijakan asrama dan fasilitas yang tersedia. Saya sarankan untuk menghubungi pihak asrama langsung atau memeriksa informasi yang tersedia di situs web universitas untuk mendapatkan informasi yang akurat.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 86,
+     "output_tokens": 99,
+     "ms": 1044,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    },
+    {
+     "id": "NEG-07-vi",
+     "need": "NEG-07",
+     "language": "vi",
+     "topic": "dormitory",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "Xin chào! Chi phí cho một lần giặt bằng máy giặt tại ký túc xá SCH thường phụ thuộc vào chính sách của mỗi ký túc xá. Tuy nhiên, thông thường, chi phí có thể dao động từ 1,000 đến 3,000 won tùy theo loại chương trình giặt và mức độ bẩn của quần áo. Để biết chính xác, bạn nên tham khảo bảng giá tại ký túc xá hoặc liên hệ với bộ phận quản lý ký túc xá.",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 89,
+     "output_tokens": 114,
+     "ms": 1200,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 1.0
+    },
+    {
+     "id": "NEG-07-zh-CN",
+     "need": "NEG-07",
+     "language": "zh-CN",
+     "topic": "dormitory",
+     "answerability": "unanswerable",
+     "types": [
+      "unanswerable",
+      "hard_negative"
+     ],
+     "answer": "关于宿舍洗衣机的费用，这可能会因宿舍和学校政策的不同而有所变化。通常，洗衣机的使用费用会按照使用次数或使用时间来计算。建议你直接咨询你的宿舍管理员或学校的设施管理部门，他们能提供最准确的信息。",
+     "evidence": "closed_book",
+     "generation": null,
+     "fallback_reason": null,
+     "gate": null,
+     "citation_check": null,
+     "cited_docs": [],
+     "input_tokens": 76,
+     "output_tokens": 54,
+     "ms": 583,
+     "abstained": 0.0,
+     "wrong_language": 0.0,
+     "refusal_phrase": 0.0,
+     "invented_figure": 0.0
+    }
+   ]
+  }
+ }
+}

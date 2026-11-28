@@ -1,0 +1,104 @@
+{
+ "phases": [
+  {
+   "phase": "idle after start",
+   "ok": true,
+   "seconds": 0.5,
+   "memory_before_mb": 85,
+   "memory_peak_mb": 86,
+   "memory_after_mb": 86,
+   "server_alive": true,
+   "detail": "started"
+  },
+  {
+   "phase": "first search (loads the embedding model)",
+   "ok": true,
+   "seconds": 16.1,
+   "memory_before_mb": 86,
+   "memory_peak_mb": 309,
+   "memory_after_mb": 286,
+   "server_alive": true,
+   "detail": "HTTP 200 in 15667 ms"
+  },
+  {
+   "phase": "search again",
+   "ok": true,
+   "seconds": 1.7,
+   "memory_before_mb": 286,
+   "memory_peak_mb": 286,
+   "memory_after_mb": 286,
+   "server_alive": true,
+   "detail": "HTTP 200 in 1263 ms"
+  },
+  {
+   "phase": "index the 27 public documents",
+   "ok": true,
+   "seconds": 1101.9,
+   "memory_before_mb": 286,
+   "memory_peak_mb": 485,
+   "memory_after_mb": 414,
+   "server_alive": true,
+   "detail": "27 documents indexed, database 21 MB"
+  },
+  {
+   "phase": "upload, extract and index a 3 MB Korean PDF",
+   "ok": true,
+   "seconds": 523.1,
+   "memory_before_mb": 414,
+   "memory_peak_mb": 465,
+   "memory_after_mb": 415,
+   "server_alive": true,
+   "detail": "3 MB, 85037 characters, indexed"
+  },
+  {
+   "phase": "upload, extract and index a 9 MB Korean PDF",
+   "ok": true,
+   "seconds": 1382.1,
+   "memory_before_mb": 415,
+   "memory_peak_mb": 485,
+   "memory_after_mb": 422,
+   "server_alive": true,
+   "detail": "9 MB, 255954 characters, indexed"
+  },
+  {
+   "phase": "40 searches, 10 in parallel",
+   "ok": true,
+   "seconds": 35.5,
+   "memory_before_mb": 422,
+   "memory_peak_mb": 431,
+   "memory_after_mb": 431,
+   "server_alive": true,
+   "detail": "40 searches, 10 at a time, 35.1 s, failed 0"
+  },
+  {
+   "phase": "chat without a model (sources only)",
+   "ok": true,
+   "seconds": 3.7,
+   "memory_before_mb": 431,
+   "memory_peak_mb": 431,
+   "memory_after_mb": 431,
+   "server_alive": true,
+   "detail": "en 200 2091 ms, ko 200 1179 ms"
+  },
+  {
+   "phase": "agent tools and a background task",
+   "ok": true,
+   "seconds": 6.4,
+   "memory_before_mb": 431,
+   "memory_peak_mb": 433,
+   "memory_after_mb": 432,
+   "server_alive": true,
+   "detail": "4/4 tools, task completed, directory 200"
+  },
+  {
+   "phase": "idle at the end",
+   "ok": true,
+   "seconds": 0.3,
+   "memory_before_mb": 432,
+   "memory_peak_mb": 432,
+   "memory_after_mb": 432,
+   "server_alive": true,
+   "detail": "done"
+  }
+ ]
+}

@@ -29,6 +29,8 @@ KIND_RULES: list[tuple[str, re.Pattern[str]]] = [
     ("scholarship", re.compile(r"장학|scholarship|GKS|beasiswa|học bổng|奖学金|tuition (?:waiver|reduction)", re.I)),
     ("competition", re.compile(r"공모전|대회|경진|경연|챌린지|해커톤|contest|competition|hackathon|challenge", re.I)),
     ("job", re.compile(r"채용|인턴십?|구인|일자리|\bjobs?\b|\bintern(?:ship)?s?\b|recruit(?:ment)? of staff|employment fair|채용박람회", re.I)),
+    ("event", re.compile(r"축제|페스티벌|설명회|세미나|음악회|기념행사|행사\s*(?:안내|개최)|문화\s*행사|체육대회|festival|seminar|"
+                         r"orientation|open lecture|information session", re.I)),
     ("program", re.compile(r"서포터즈|참가자|참여자|프로그램|연수|캠프|교환학생|문화체험|컨퍼런스|program|exchange|camp|"
                            r"conference|ambassador|supporters", re.I)),
 ]
@@ -45,6 +47,27 @@ CLOSED = re.compile(r"접수\s*기간이\s*아닙니다|(?:접수|모집|신청)
 # "[대학일자리플러스센터] ..." names the office that posted it; it says nothing about what the notice offers
 _ORG_PREFIX = re.compile(r"\[\s*[^\]]*?(?:센터|사업단|교류처|본부|위원회|협회|재단|진흥원|연구원|대학원|학과|팀|처|과|원|단|실|청|부)\s*\]")
 OPEN = re.compile(r"접수\s*중|모집\s*중|applications? (?:are|is) (?:now )?open|now accepting|sedang dibuka|đang mở|正在接受", re.I)
+
+
+def effective_open_status(stored: str, extracted: dict[str, Any] | None, today: date) -> tuple[str, str]:
+    """The status a student sees TODAY, computed when the item is read - not when it was last crawled.
+
+    Rule for date-only deadlines (Korean notices give dates, rarely times): a deadline of YYYY-MM-DD is open through
+    23:59 Korea time of that day, so it closes when ``today`` (Asia/Seoul) is after it. "open" needs a deadline that
+    has not passed; a notice that only says it is recruiting, without a date, is "unknown" (deadline unknown), never
+    "open"; a notice the source calls closed stays closed."""
+    f = extracted or {}
+    reason = f.get("open_reason") or ""
+    if stored == "closed":
+        return "closed", reason or "closed"
+    t = today.isoformat()
+    dates = [d["date"] for d in (f.get("deadlines") or []) if d.get("date")] + \
+        ([f["next_deadline"]] if f.get("next_deadline") else [])
+    if dates and not any(d >= t for d in dates):
+        return "closed", "deadline_passed"
+    if any(d >= t for d in dates) and "deadline_before_published" not in (f.get("flags") or []):
+        return "open", "deadline_in_future"
+    return "unknown", "open_stated_no_deadline" if reason == "source_says_open" else "no_deadline"
 
 
 def classify(title: str, text: str) -> dict[str, Any]:
@@ -165,5 +188,6 @@ def analyse(title: str, text: str, *, published_on: str | None, links: list[dict
     if open_status == "open" and "year_assumed" in flags:
         flags.append("open_status_uncertain")
     return dict(**cls, dates=dates[:10], deadlines=deadlines[:5], next_deadline=future[0] if future else None,
+                event_date=next((d["date"] for d in dates if d["kind"] == "event" and d["date"] >= today.isoformat()), None),
                 eligibility=elig, application_links=apply, open_status=open_status, open_reason=reason,
                 flags=sorted(set(flags)))

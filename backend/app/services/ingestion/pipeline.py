@@ -28,6 +28,7 @@ from app.core.errors import AppError, Conflict, DuplicateError, InvalidState, No
 from app.models.domain import ExtractedDocument
 from app.repositories.base import FileStorage, Query, Store, get_one
 from app.security.url_guard import canonicalize_url
+from app.services import document_attachments, document_titles
 from app.services.indexing import IndexingService
 from app.services.ingestion.errors import ExtractionError, FetchError, IngestionError
 from app.services.ingestion.extractors_files import (
@@ -42,6 +43,7 @@ from app.services.ingestion.extractors_files import (
 from app.services.ingestion.extractors_html import extract_html
 from app.services.ingestion.fetcher import BLOCKED_CODES, GuardedFetcher
 from app.services.ingestion.normalize import content_hash, normalize_text, text_fingerprint
+from app.services.ingestion.notice_reader import read_notice
 from app.services.ingestion.pdf_isolation import extract_pdf_isolated
 from app.services.ingestion.privacy import redact_personal_info
 from app.services.ingestion.sch_board import (
@@ -94,13 +96,47 @@ class IngestionService:
         self.rag_health: Any = None     # RagHealthService (wired by the container): post-activation verification
         self.announcement_translator: Any = None   # AnnouncementAutoTranslator (translate_announcement jobs)
         self._sleep = sleep
+        # at most INGESTION_MAX_CONCURRENT_JOBS jobs execute at once in this process, whatever starts them (the worker thread,
+        # inline background tasks, the CLI): extraction + embedding of two large files at the same time do not fit 512 MB
+        self._slots = threading.BoundedSemaphore(max(1, settings.ingestion_max_concurrent_jobs))
+        self._slot_held = threading.local()
+        self._slot_lock = threading.Lock()
+        self._active = self._waiting = 0
+
+    @contextmanager
+    def _slot(self) -> Iterator[None]:
+        if getattr(self._slot_held, "on", False):   # a job started inline from inside a running job: same slot
+            yield
+            return
+        with self._slot_lock:
+            self._waiting += 1
+        self._slots.acquire()
+        with self._slot_lock:
+            self._waiting -= 1
+            self._active += 1
+        self._slot_held.on = True
+        try:
+            yield
+        finally:
+            self._slot_held.on = False
+            with self._slot_lock:
+                self._active -= 1
+            self._slots.release()
+
+    def slots(self) -> dict[str, int]:
+        """Ingestion slots of this process (for /admin/system/runtime)."""
+        with self._slot_lock:
+            return dict(limit=max(1, self.settings.ingestion_max_concurrent_jobs), active=self._active, waiting=self._waiting)
 
     # ---------------------------------------------------------------- jobs
     def create_job(self, source: dict[str, Any], trigger: str = "manual", requested_by: str | None = None,
-                   payload: dict[str, Any] | None = None, job_type: str | None = None) -> dict[str, Any]:
+                   payload: dict[str, Any] | None = None, job_type: str | None = None,
+                   executor: str | None = None) -> dict[str, Any]:
         jt = job_type or ("board_sync" if source["source_type"] == "sch_board" else "ingest")
         row = dict(source_id=source["id"], status="queued", trigger=trigger, requested_by=requested_by,
                    payload=payload or {}, statistics={}, job_type=jt)
+        if executor == "gpu":     # only then: the column exists since migration 0016
+            row["executor"] = "gpu"
         if jt not in ("ingest", "board_sync"):
             return self.store.insert("ingestion_jobs", row)   # e.g. index_version handles its own duplicates
         try:
@@ -151,18 +187,23 @@ class IngestionService:
             log.warning("heartbeat failed for job %s", job_id)
 
     def run_job(self, job_id: str) -> dict[str, Any]:
-        """Inline execution of a queued job (tests / scripts / CLI)."""
-        job = get_one(self.store, "ingestion_jobs", id=job_id)
-        if job is None:
-            raise NotFound("job not found")
-        if job["status"] != "queued":
-            return job
-        job = self.store.update("ingestion_jobs", dict(status="running", started_at=utcnow(), heartbeat_at=utcnow(),
-                                                       attempts=(job.get("attempts") or 0) + 1), {"id": job_id})[0]
-        return self.execute(job)
+        """Inline execution of a queued job (tests / scripts / CLI). Waits for a free slot while still 'queued'."""
+        with self._slot():
+            job = get_one(self.store, "ingestion_jobs", id=job_id)
+            if job is None:
+                raise NotFound("job not found")
+            if job["status"] != "queued" or job.get("executor") == "gpu":
+                return job
+            job = self.store.update("ingestion_jobs", dict(status="running", started_at=utcnow(), heartbeat_at=utcnow(),
+                                                           attempts=(job.get("attempts") or 0) + 1), {"id": job_id})[0]
+            return self.execute(job)
 
     def execute(self, job: dict[str, Any]) -> dict[str, Any]:
         """Run a job that is already marked running. Never raises: failures are persisted on job and source."""
+        with self._slot():
+            return self._execute(job)
+
+    def _execute(self, job: dict[str, Any]) -> dict[str, Any]:
         source = get_one(self.store, "knowledge_sources", id=job["source_id"]) if job.get("source_id") else None
         if source is None:   # deleted while queued: never recreate anything for it
             return self._finish(job, None, error=IngestionError("source_deleted", "The source was deleted."))
@@ -241,6 +282,8 @@ class IngestionService:
                        final_url=res.url, redirects=res.redirects)
             if res.content_type == "application/pdf":
                 extracted = self._extract_pdf(res.content, res.url.rsplit("/", 1)[-1] or "document.pdf", job, stats)
+            elif (reader := (source.get("config") or {}).get("reader")):
+                extracted = read_notice(reader, res.content, source)      # found by discovery: read by the same parser
             else:
                 extracted = extract_html(res.content, res.url, res.encoding, self.settings.min_extracted_chars)
             stats["content_chars"] = len(extracted.text)
@@ -565,6 +608,8 @@ class IngestionService:
             raise IngestionError("version_missing", "The version to index no longer exists.")
         doc = get_one(self.store, "source_documents", id=v["document_id"]) or {}
         if v["verification_status"] == "approved" and doc.get("current_version_id") == v["id"]:
+            document_titles.apply_title(self.store, v["id"])     # an earlier attempt stopped right after the switch
+            document_attachments.apply_details(self.store, v["id"])
             return dict(outcome="activated", document_id=v["document_id"], version_id=v["id"], changed=False,
                         message=f"v{v['version_number']} is already active.")
         if v["verification_status"] != "pending_review":
@@ -573,7 +618,7 @@ class IngestionService:
         if doc.get("is_canceled"):
             raise IngestionError("invalid_state", "The document was withdrawn; nothing was published.")
         self.store.update("document_versions", {"indexing_status": "indexing"}, {"id": vid})
-        self.event(jid, "chunk", f"Indexing v{v['version_number']} of '{doc.get('title', '')[:100]}'.")
+        self.event(jid, "chunk", f"Indexing v{v['version_number']} of '{document_titles.version_title(v, doc)[:100]}'.")
 
         def progress(done: int, total: int) -> None:
             self._heartbeat(jid)
@@ -592,6 +637,7 @@ class IngestionService:
         if total == 0 or total != st["chunk_count"] or ok != total:
             raise IngestionError("not_indexed", f"Index incomplete: {ok}/{total} chunks embedded "
                                                 f"(expected {st['chunk_count']}). The previous version stays active.")
+        document_titles.remember_current_title(self.store, v["document_id"])
         try:
             self.store.rpc("activate_document_version", dict(
                 p_version_id=vid, p_actor=v.get("activation_requested_by"), p_note=v.get("activation_note"),
@@ -599,7 +645,11 @@ class IngestionService:
         except AppError as exc:
             code = "not_indexed" if "not_indexed" in exc.message else exc.code
             raise IngestionError(code, exc.message) from exc
-        self.event(jid, "activate", f"v{v['version_number']} is now the active version.")
+        new_title = document_titles.apply_title(self.store, vid)
+        document_attachments.apply_details(self.store, vid)
+        doc = doc | ({"title": new_title} if new_title else {})
+        self.event(jid, "activate", f"v{v['version_number']} is now the active version."
+                                    f"{' The title changed with it.' if new_title else ''}")
         health = self._verify_searchable(jid, vid, stats)
         if self.translations is not None:
             try:   # outdate translations of the previous version, create tasks for this one (never blocks activation)
@@ -609,6 +659,7 @@ class IngestionService:
                                                     f"{sync['created']} new review task(s).")
             except Exception:  # noqa: BLE001
                 log.exception("translation sync failed for document %s", v["document_id"])
+        self._announcement_changed(v["document_id"])
         if self.notifications and (health is None or health["ok"]):
             hidden = (health or {}).get("hidden_reason")
             self.notifications.notify("version_activated",
@@ -619,6 +670,17 @@ class IngestionService:
                                       link=f"/admin/documents/{v['document_id']}")
         return dict(outcome="activated", document_id=v["document_id"], version_id=vid, changed=True,
                     message=f"v{v['version_number']} indexed ({total} chunks) and activated.")
+
+    def _announcement_changed(self, document_id: str) -> None:
+        """An approved edit of a published announcement: its translations are outdated and the language teams are told
+        (they work from the approved text, so they have not seen the edit before). Never blocks the activation."""
+        reviews = getattr(self.announcement_translator, "reviews", None)
+        ann = get_one(self.store, "announcements", document_id=document_id) if reviews is not None else None
+        if ann and ann["publication_status"] == "published":
+            try:
+                reviews.on_original_published(ann["id"], None)
+            except Exception:  # noqa: BLE001
+                log.exception("translation tasks not updated for announcement %s", ann["id"])
 
     def _verify_searchable(self, jid: str, vid: str, stats: dict[str, Any]) -> dict[str, Any] | None:
         """After activation: confirm students can actually find the version (searchable_chunks view + current
@@ -762,6 +824,7 @@ class IngestionService:
             msg = (f"No change: content is {labels.get(same['verification_status'], 'unchanged')} "
                    f"(v{same['version_number']}). No new version, chunks or embeddings were created.")
             self.event(job_id, "compare", msg, content_hash=h)
+            self._title_only_change(doc, same, extracted.title, job_id)
             return dict(outcome="unchanged", document_id=doc["id"], version_id=same["id"], message=msg, changed=False)
 
         # an unreviewed predecessor is replaced by the newer extraction (it is kept as 'superseded', never deleted)
@@ -782,6 +845,7 @@ class IngestionService:
             if checklist:
                 warnings.append(checklist)
         meta = {k: v for k, v in extracted.metadata.items() if k != "warnings"}
+        meta[document_titles.KEY] = (extracted.title or doc["title"])[:document_titles.MAX_TITLE]
         meta.update(warnings=warnings, links=(extracted.links or [])[:60],
                     requires_field_confirmation=bool(requires_field_confirmation or
                                                      str(meta.get("extractor", "")).startswith("ocr")))
@@ -822,6 +886,18 @@ class IngestionService:
         return dict(outcome="new_version", document_id=doc["id"], version_id=version["id"], message=msg,
                     warning=index_stats["embedding_error"], changed=True)
 
+    def _title_only_change(self, doc: dict[str, Any], version: dict[str, Any], title: str | None, job_id: str | None) -> None:
+        """The same text under another title (rare: extracted texts contain their title). An open version takes the new
+        title, it is reviewed anyway; a published title is kept."""
+        title = (title or "")[:document_titles.MAX_TITLE]
+        if not title or title == document_titles.version_title(version, doc):
+            return
+        if version["verification_status"] in ("draft", "pending_review"):
+            document_titles.set_meta(self.store, version, title)
+        elif version["id"] == doc.get("current_version_id"):
+            self.event(job_id, "compare", "The source uses another title for the same text; the published title was kept.",
+                       level="warning")
+
     def _skip_reason(self, source: dict[str, Any], canonical_url: str | None, external_id: str | None) -> str | None:
         """Deliberately deleted website/board documents are never re-imported automatically."""
         if external_id:
@@ -844,10 +920,13 @@ class IngestionService:
         doc = get_one(self.store, "source_documents", **eq)
         if doc:
             patch: dict[str, Any] = {}
-            if extracted.title and doc["title"] != extracted.title[:500]:
+            # a published title only changes with the approved version (document_titles.py)
+            if extracted.title and doc["title"] != extracted.title[:500] and not doc.get("current_version_id"):
                 patch["title"] = extracted.title[:500]
-            if metadata and metadata != (doc.get("metadata") or {}):
-                patch["metadata"] = metadata
+            if metadata:      # the public details of a published notice only change with it as well (document_attachments.py)
+                kept = document_attachments.imported(doc, metadata)
+                if kept != (doc.get("metadata") or {}):
+                    patch["metadata"] = kept
             detected = detect_language(extracted.text)
             if detected and detected != doc.get("language") and not doc.get("current_version_id"):
                 patch["language"] = detected   # nothing approved yet: correct the original language silently
@@ -942,15 +1021,18 @@ class IngestionService:
         """Translation jobs that hit the provider's quota or today's translation budget wait (re-queued for later,
         the attempt is not counted) instead of failing - up to TRANSLATION_MAX_DEFERRALS times."""
         if job.get("job_type") not in ("translate_document", "translate_announcement") \
-                or error.code not in ("llm_quota", "translation_daily_limit", "llm_background_budget"):
+                or error.code not in ("llm_quota", "translation_daily_limit", "llm_background_budget",
+                                      "llm_background_stopped"):
             return None
         from app.services.translation.auto import seconds_until_tomorrow
 
         deferrals = int((job.get("statistics") or {}).get("deferrals") or 0) + 1
         if deferrals > self.settings.translation_max_deferrals:
             return None
-        # provider quota: retry later today; translation / background budget: tomorrow (KST budgets reset at midnight)
-        delay = self.settings.translation_quota_retry_seconds if error.code == "llm_quota" else seconds_until_tomorrow()
+        # provider quota / emergency stop: retry later today; translation / background budget: tomorrow (KST budgets
+        # reset at midnight)
+        delay = self.settings.translation_quota_retry_seconds \
+            if error.code in ("llm_quota", "llm_background_stopped") else seconds_until_tomorrow()
         run_after = (datetime.now(UTC) + timedelta(seconds=delay)).isoformat()
         self.event(job["id"], "deferred", f"{error.message} Trying again in {delay // 60} min "
                                           f"(deferral {deferrals} of {self.settings.translation_max_deferrals}).",
@@ -982,6 +1064,13 @@ class IngestionService:
                                       severity="warning", entity_type="ingestion_job", entity_id=job["id"],
                                       link=f"/admin/documents/{(job.get('payload') or {}).get('document_id', '')}")
             return
+        if job.get("job_type") == "translate_announcement":
+            p = job.get("payload") or {}
+            self.notifications.notify("translation_failed", f"Translation draft failed ({p.get('language')}): {title}",
+                                      f"{error.message} The original stays published; translate manually or retry.",
+                                      severity="warning", entity_type="ingestion_job", entity_id=job["id"],
+                                      link=f"/admin/translations/{p.get('announcement_id', '')}/{p.get('language', '')}")
+            return
         if job.get("job_type") == "index_version":
             self.notifications.notify("indexing_failed", f"Indexing failed: {title}",
                                       f"{error.message} The previously approved version remains active.",
@@ -1002,6 +1091,7 @@ class IngestionService:
         """Inline mode only: jobs left 'running' cannot still be running; mark them failed (visible + retryable).
         In worker mode the claim RPC re-queues stale jobs instead."""
         rows, _ = self.store.select("ingestion_jobs", Query(eq={"status": "running"}))
+        rows = [r for r in rows if r.get("executor") != "gpu"]      # leased to a GPU worker, not to this process
         for r in rows:
             self.store.update("ingestion_jobs", dict(status="failed", completed_at=utcnow(), error_code="interrupted",
                                                      error_message="The server restarted while this job was running."),

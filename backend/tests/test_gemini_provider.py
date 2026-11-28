@@ -273,11 +273,16 @@ def test_background_provider_is_separate_from_the_chat_provider():
     bg = translation_llm(s, chat, DailyBudget())
     assert bg is not chat and bg._circuit is not chat._circuit        # own circuit breaker
     assert (bg.primary, bg.fallback) == ("chat-primary", "chat-fallback") and chat.attempt_gate is None
-    assert [bg.attempt_gate() for _ in range(4)] == [True, True, True, False]
+    assert [bg.attempt_gate() for _ in range(3)] == [True, True, True]
+    with pytest.raises(LLMError) as ei:          # the gate names the reason instead of a bare False
+        bg.attempt_gate()
+    assert ei.value.code == "llm_background_budget"
     # a separate translation model never fails over onto the chatbot's fallback model
     s2 = s.model_copy(update={"translation_model": "bg-model"})
     bg2 = translation_llm(s2, build_llm_from_settings(s2), DailyBudget())
     assert (bg2.primary, bg2.fallback) == ("bg-model", "")
     # 0 = no background AI at all
     off = translation_llm(s.model_copy(update={"llm_background_daily_attempts": 0}), chat, DailyBudget())
-    assert off.attempt_gate() is False
+    with pytest.raises(LLMError) as ei:
+        off.attempt_gate()
+    assert ei.value.code == "llm_background_budget"

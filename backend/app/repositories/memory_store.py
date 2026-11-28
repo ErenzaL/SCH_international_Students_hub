@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import copy
 import math
+import re
 import threading
 import uuid
 from datetime import UTC, datetime, timedelta
@@ -23,14 +24,15 @@ TABLES = (
     "notification_reads", "support_agent_status", "ai_conversations", "ai_messages", "support_tickets",
     "support_ticket_messages", "support_ticket_assignments", "user_notifications", "translation_revisions",
     "document_suppressions", "document_translations", "document_translation_revisions",
-    "agent_tasks", "agent_task_events", "agent_schedules", "discovery_sources", "discovered_items",
+    "agent_tasks", "agent_task_events", "agent_schedules", "discovery_sources", "discovered_items", "gpu_workers", "agent_controls",
+    "llm_daily_counters", "llm_usage_daily", "app_runtime_flags",
 )
-NO_ID = {"agent_task_events", "categories", "profiles", "supporter_languages", "audit_log", "ingestion_events", "allowed_source_domains",
+NO_ID = {"llm_daily_counters", "llm_usage_daily", "app_runtime_flags", "agent_task_events", "categories", "profiles", "supporter_languages", "audit_log", "ingestion_events", "allowed_source_domains",
          "admin_notifications", "notification_reads", "support_agent_status", "support_ticket_assignments",
          "user_notifications", "translation_revisions", "document_suppressions", "document_translation_revisions"}
 SEQ_ID = {"agent_task_events", "audit_log", "ingestion_events", "admin_notifications", "support_ticket_assignments", "user_notifications",
           "translation_revisions", "document_suppressions", "document_translation_revisions"}
-HAS_UPDATED_AT = {"agent_tasks", "agent_schedules", "discovery_sources", "discovered_items", "knowledge_sources", "source_documents", "announcements", "announcement_translations",
+HAS_UPDATED_AT = {"agent_controls", "agent_tasks", "agent_schedules", "discovery_sources", "discovered_items", "knowledge_sources", "source_documents", "announcements", "announcement_translations",
                   "ai_conversations", "support_tickets", "profiles", "document_translations"}
 
 
@@ -83,7 +85,11 @@ class MemoryStore:
             "ingestion_jobs": dict(status="queued", trigger="manual", outcome=None, document_id=None, version_id=None,
                                    payload={}, error_code=None, error_message=None, statistics={}, requested_by=None,
                                    started_at=None, completed_at=None, job_type="ingest", attempts=0, max_attempts=3,
-                                   run_after=now_iso(), heartbeat_at=None, locked_by=None, source_title=None),
+                                   run_after=now_iso(), heartbeat_at=None, locked_by=None, source_title=None,
+                                   executor="local", lease_token=None, lease_expires_at=None, cancel_requested=False),
+            "agent_controls": dict(paused=False, note=None, updated_by=None),
+            "gpu_workers": dict(status="active", previous_token_hash=None, previous_valid_until=None, last_seen_at=None,
+                                created_by=None, rotated_at=None, revoked_at=None),
             "announcements": dict(publication_status="draft", original_language="ko", source_type="manual_text",
                                   is_test_data=False, target_audience=None, event_date=None, deadline=None,
                                   valid_from=None, evidence_note=None, evidence_url=None, created_by=None,
@@ -198,6 +204,8 @@ class MemoryStore:
             dup(lambda x: x.get("idempotency_key") == row["idempotency_key"]
                 and (x.get("requested_by") or "system") == (row.get("requested_by") or "system")
                 and x["status"] in ("queued", "running", "awaiting_approval"))
+        elif table == "gpu_workers":
+            dup(lambda x: x["name"] == row["name"])
         elif table == "agent_schedules":
             dup(lambda x: x["agent_id"] == row["agent_id"] and x["task_type"] == row["task_type"])
         elif table == "discovery_sources":
@@ -384,6 +392,39 @@ class MemoryStore:
             raise NotFound(f"unknown rpc {name}")
         with self._lock:
             return copy.deepcopy(fn(**params))
+
+    # migration 0018: daily AI budgets and usage (atomic under the store lock, like the SQL functions)
+    def _rpc_llm_counter_take(self, p_day: str, p_key: str, p_limit: int) -> bool:
+        if not re.fullmatch(r"[a-z][a-z0-9_:.-]{0,79}", p_key or ""):
+            raise ValidationFailed("invalid counter key")
+        row = next((r for r in self.t["llm_daily_counters"] if r["day"] == p_day and r["key"] == p_key), None)
+        if row is None:
+            self.t["llm_daily_counters"].append(dict(day=p_day, key=p_key, used=1, updated_at=now_iso()))
+            return True
+        if p_limit > 0 and row["used"] >= p_limit:
+            return False
+        row["used"] += 1
+        row["updated_at"] = now_iso()
+        return True
+
+    def _rpc_llm_usage_add(self, p_day: str, p_lane: str, p_provider: str, p_model: str, p_purpose: str, p_ok: bool,
+                           p_input: int, p_output: int, p_thinking: int, p_cost: float, p_priced: bool) -> None:
+        if p_lane not in ("chat", "background"):
+            raise ValidationFailed("invalid lane")
+        key = dict(day=p_day, lane=p_lane, provider=p_provider, model=p_model, purpose=p_purpose)
+        row = next((r for r in self.t["llm_usage_daily"] if all(r[k] == v for k, v in key.items())), None)
+        if row is None:
+            row = key | dict(attempts=0, ok=0, failed=0, input_tokens=0, output_tokens=0, thinking_tokens=0,
+                             est_cost_usd=0.0, priced=True)
+            self.t["llm_usage_daily"].append(row)
+        row["attempts"] += 1
+        row["ok" if p_ok else "failed"] += 1
+        row["input_tokens"] += max(int(p_input or 0), 0)
+        row["output_tokens"] += max(int(p_output or 0), 0)
+        row["thinking_tokens"] += max(int(p_thinking or 0), 0)
+        row["est_cost_usd"] = round(row["est_cost_usd"] + max(float(p_cost or 0), 0), 6)
+        row["priced"] = row["priced"] and bool(p_priced)
+        row["updated_at"] = now_iso()
 
     def _ver(self, vid: str) -> Row | None:
         return next((v for v in self.t["document_versions"] if v["id"] == vid), None)
@@ -730,7 +771,7 @@ class MemoryStore:
     def _rpc_claim_ingestion_job(self, p_worker: str, p_stale_seconds: int = 900) -> list[Row]:
         now = datetime.now(UTC)
         for j in self.t["ingestion_jobs"]:
-            if j["status"] != "running":
+            if j["status"] != "running" or j["executor"] != "local":
                 continue
             beat = j.get("heartbeat_at") or j.get("started_at") or j["created_at"]
             if (now - datetime.fromisoformat(beat)).total_seconds() > max(p_stale_seconds, 60):
@@ -739,7 +780,7 @@ class MemoryStore:
                 else:
                     j.update(status="failed", locked_by=None, error_code="interrupted", completed_at=now_iso(),
                              error_message="The worker stopped while this job was running and the retry limit was reached.")
-        queued = sorted((j for j in self.t["ingestion_jobs"] if j["status"] == "queued"
+        queued = sorted((j for j in self.t["ingestion_jobs"] if j["status"] == "queued" and j["executor"] == "local"
                          and datetime.fromisoformat(j["run_after"]) <= now), key=lambda j: j["created_at"])
         if not queued:
             return []
@@ -747,6 +788,54 @@ class MemoryStore:
         j.update(status="running", attempts=j["attempts"] + 1, started_at=now_iso(), heartbeat_at=now_iso(),
                  locked_by=p_worker)
         return [j]
+
+    def _rpc_expire_gpu_leases(self) -> int:
+        """Mirror of public.expire_gpu_leases (migration 0016)."""
+        now = datetime.now(UTC)
+        n = 0
+        for j in self.t["ingestion_jobs"]:
+            if j["executor"] != "gpu" or j["status"] != "running" or not j["lease_expires_at"] \
+                    or datetime.fromisoformat(j["lease_expires_at"]) >= now:
+                continue
+            n += 1
+            again = not j["cancel_requested"] and j["attempts"] < j["max_attempts"]
+            code = "cancelled" if j["cancel_requested"] else "lease_expired" if again else "interrupted"
+            j.update(status="queued" if again else "failed", locked_by=None, lease_token=None, lease_expires_at=None,
+                     run_after=now.isoformat(), error_code=code, error_message=code,
+                     completed_at=None if again else now.isoformat())
+        return n
+
+    def _rpc_claim_gpu_job(self, p_worker: str, p_lease_token: str, p_lease_seconds: int, p_job_types: list[str],
+                           p_max_running: int = 1) -> list[Row]:
+        """Mirror of public.claim_gpu_job (migration 0016)."""
+        self._rpc_expire_gpu_leases()
+        now = datetime.now(UTC)
+        w = next((x for x in self.t["gpu_workers"] if x["id"] == p_worker), None)
+        if w is None or w["status"] != "active" or datetime.fromisoformat(w["expires_at"]) <= now:
+            return []
+        running = [j for j in self.t["ingestion_jobs"] if j["executor"] == "gpu" and j["status"] == "running"]
+        for j in running:
+            if j["lease_token"] == p_lease_token and j["locked_by"] == f"gpu:{p_worker}":
+                return [j]
+        if len(running) >= p_max_running:
+            return []
+        queued = sorted((j for j in self.t["ingestion_jobs"] if j["executor"] == "gpu" and j["status"] == "queued"
+                         and j["job_type"] in p_job_types and not j["cancel_requested"]
+                         and datetime.fromisoformat(j["run_after"]) <= now), key=lambda j: j["created_at"])
+        if not queued:
+            return []
+        j = queued[0]
+        j.update(status="running", attempts=j["attempts"] + 1, started_at=now.isoformat(), heartbeat_at=now.isoformat(),
+                 locked_by=f"gpu:{p_worker}", lease_token=p_lease_token,
+                 lease_expires_at=(now + timedelta(seconds=max(p_lease_seconds, 30))).isoformat())
+        return [j]
+
+    def _rpc_storage_overview(self) -> list[Row]:
+        """Mirror of public.storage_overview (0017): rough sizes of the in-memory rows."""
+        out = [dict(table_name=t, total_bytes=sum(len(str(r)) for r in rows), table_bytes=None, index_bytes=None, row_estimate=len(rows))
+               for t, rows in self.t.items()]
+        return [*out, dict(table_name="(database)", total_bytes=sum(r["total_bytes"] for r in out), table_bytes=None, index_bytes=None,
+                           row_estimate=None)]
 
     def _rpc_claim_agent_task(self, p_worker: str, p_stale_seconds: int = 300) -> list[Row]:
         """Mirror of public.claim_agent_task (migration 0014)."""
@@ -762,7 +851,8 @@ class MemoryStore:
                     else:
                         j.update(status="failed", locked_by=None, error_code="interrupted", completed_at=now_iso(),
                                  error_message="The worker stopped while this task was running and the retry limit was reached.")
-            queued = sorted((j for j in self.t["agent_tasks"] if j["status"] == "queued"
+            paused = {c["agent_id"] for c in self.t["agent_controls"] if c["paused"]}      # migration 0017
+            queued = sorted((j for j in self.t["agent_tasks"] if j["status"] == "queued" and j["agent_id"] not in paused
                              and datetime.fromisoformat(j["run_after"]) <= now), key=lambda j: j["created_at"])
             if not queued:
                 return []
@@ -1203,6 +1293,23 @@ def seed_categories(store: MemoryStore) -> None:
                                          ("scholarship", "opportunity_discovery", 1440)):
         store.insert("agent_schedules", dict(agent_id=agent_id, task_type=task_type, interval_minutes=minutes, params=dict(
             max_items_per_source=10, max_sources=5, notify_admins=True, summarize_new=False, review="admin")))
+    # migration 0017: monitoring of the other desks, disabled
+    for agent_id, task_type, minutes in (("immigration", "guidance_discovery", 2880), ("academic", "guidance_discovery", 1440),
+                                         ("topik", "guidance_discovery", 2880), ("events", "event_discovery", 1440),
+                                         ("career", "opportunity_discovery", 1440)):
+        store.insert("agent_schedules", dict(agent_id=agent_id, task_type=task_type, interval_minutes=minutes, params=dict(
+            max_items_per_source=10, max_sources=5, notify_admins=True, summarize_new=False, review="admin")))
+    # migration 0019: untouched, disabled schedules become weekly with a stagger
+    stagger = {("announcement", "announcement_discovery"): 0, ("scholarship", "opportunity_discovery"): 20,
+               ("career", "opportunity_discovery"): 40, ("events", "event_discovery"): 60,
+               ("immigration", "guidance_discovery"): 80, ("academic", "guidance_discovery"): 100,
+               ("topik", "guidance_discovery"): 120, ("announcement", "announcement_digest"): 180,
+               ("scholarship", "scholarship_scan"): 200, ("events", "event_digest"): 220, ("career", "career_scan"): 240}
+    for row in store.t["agent_schedules"]:
+        k = (row["agent_id"], row["task_type"])
+        if k in stagger and not row.get("updated_by") and not row.get("enabled"):
+            row["interval_minutes"] = 10080
+            row["params"] = dict(row.get("params") or {}) | {"stagger_minutes": stagger[k]}
 
 
 _ = timedelta

@@ -2,13 +2,14 @@
 approval, cancellation, retries, delegation limits, schedules (disabled by default) and ownership."""
 from __future__ import annotations
 
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta, timezone
 
 import pytest
 
 from app.repositories.base import Query
 from app.services.agents.registry import AGENTS, CHARACTER_TO_AGENT
 from app.services.agents.router import plan_request
+from app.services.agents.tasks import DISCOVERY_AGENTS
 from app.services.agents.tools import TOOLS, extract_dates
 from app.services.llm.base import LLMError, ScriptedLLMProvider
 from tests.test_announcements import create
@@ -56,7 +57,10 @@ def test_every_office_character_maps_to_one_registered_agent():
     assert AGENTS["supporter-vi"].fixed_language == "vi" and AGENTS["supporter-zh"].fixed_language == "zh-CN"
     # specialists cannot write; only the coordinator can create (approved) support requests
     writers = [a.id for a in AGENTS.values() if any(TOOLS[t].writes for t in a.allowed_tools)]
-    assert writers == ["support-coordinator"]
+    assert writers == [f"supporter-{x}" for x in ("ko", "en", "id", "vi", "zh")] + ["support-coordinator"]
+    # ... and the supporters' only write is a machine DRAFT that staff request for review
+    assert {t for a in AGENTS.values() if a.id.startswith("supporter-") for t in a.allowed_tools if TOOLS[t].writes} == {"request_translation_draft"}
+    assert TOOLS["request_translation_draft"].roles == ("supporter", "admin", "super_admin")
 
 
 EXPECTED_INTERFACES = {
@@ -83,8 +87,8 @@ def test_every_agent_has_a_role_specific_interface(env):
             assert set(ui["task_actions"]) <= {x["id"] for x in items[agent_id]["actions"]}
             # admin tabs and admin actions only for admins (the endpoints check the role again)
             admin_tabs = {"review", "sources"} & set(ui["tabs"])
-            assert bool(admin_tabs) == (role == "admin" and kind in ("DISCOVERY", "MONITORING")
-                                        and agent_id in ("scholarship", "announcement")), (agent_id, role)
+            assert bool(admin_tabs) == (role == "admin" and agent_id in DISCOVERY_AGENTS), (agent_id, role)
+            assert ("queue" in ui["tabs"]) == (role == "admin" and (agent_id.startswith("supporter-") or agent_id == "support-coordinator"))
             if role != "admin":
                 assert "check_official_sources" not in ui["task_actions"]
     # only Hana and the language supporters are chat-first
@@ -469,16 +473,25 @@ def cron(env):  # type: ignore[no-untyped-def]
 def test_schedules_are_disabled_by_default_and_need_both_switches(env):
     env.settings.cron_secret = "s3cret-value"
     s = env.client.get("/api/v1/admin/agent-schedules", headers=env.auth("admin")).json()
-    assert s["globally_enabled"] is False and len(s["items"]) == 6 and not any(x["enabled"] for x in s["items"])
+    assert s["globally_enabled"] is False and len(s["items"]) == 11 and not any(x["enabled"] for x in s["items"])
     assert env.client.get("/api/v1/admin/agent-schedules", headers=env.auth("student")).status_code == 403
     assert cron(env).json()["agent_schedules"] == dict(enabled=False, queued=0)
-    events = next(x for x in s["items"] if x["agent_id"] == "events")
+    events = next(x for x in s["items"] if x["agent_id"] == "events" and x["task_type"] == "event_digest")
+    assert events["interval_minutes"] == 10080 and events["params"]["stagger_minutes"] == 220   # weekly (0019)
     r = env.client.patch(f"/api/v1/admin/agent-schedules/{events['id']}", json={"enabled": True}, headers=env.auth("admin"))
     assert r.status_code == 200 and r.json()["enabled"] is True
+    # a weekly schedule waits for its weekly slot: Monday 03:00 Korea time + its stagger (06:40)
+    first = datetime.fromisoformat(r.json()["next_run_at"]).astimezone(timezone(timedelta(hours=9)))
+    assert (first.weekday(), first.hour, first.minute) == (0, 6, 40) and first > datetime.now(UTC)
     assert cron(env).json()["agent_schedules"]["enabled"] is False         # the server switch is still off
     env.settings.agent_schedules_enabled = True
+    assert cron(env).json()["agent_schedules"]["queued"] == 0               # switched on, but not its slot yet
+    due = datetime.now(UTC) - timedelta(minutes=5)
+    env.store.update("agent_schedules", dict(next_run_at=due.isoformat()), {"id": events["id"]})
     out = cron(env).json()["agent_schedules"]
     assert out == dict(enabled=True, queued=1, postponed=0)
+    row = env.store.select("agent_schedules", Query(eq={"id": events["id"]}))[0][0]
+    assert datetime.fromisoformat(row["next_run_at"]) == due + timedelta(days=7)   # fixed weekly cadence
     sys_tasks = [t for t in env.store.select("agent_tasks")[0] if t["schedule_id"] == events["id"]]
     assert len(sys_tasks) == 1 and sys_tasks[0]["requested_by"] is None and sys_tasks[0]["status"] == "completed"
     assert cron(env).json()["agent_schedules"]["queued"] == 0               # not due again yet
