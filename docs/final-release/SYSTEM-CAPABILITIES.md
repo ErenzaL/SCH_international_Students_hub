@@ -2,7 +2,7 @@
 
 **Production** = the live `main` deploy (checked read-only on 2026-11-28; signed-in pages not checked, no test account
 here). **This release** = `release/sch-hub-final-2026-11-30`, not yet deployed (DEPLOYMENT-STATUS.md). Local tests:
-1,072 backend unit, 100 PostgreSQL integration, 15 SQL suites, 261 web unit; browser journeys 114 / 115 plus a 15 / 15 re-run (TEST-REPORT.md; RC: 168 / 168).
+1,082 backend unit, 104 PostgreSQL integration, 15 SQL suites, 261 web unit; browser journeys 114 / 115 plus a 15 / 15 re-run (TEST-REPORT.md; RC: 168 / 168).
 
 Status words: **production** (working live) · **release** (in this release; live after the merge) · **local** (verified only
 on the workstation) · **disabled** (code present, switched off) · **external** (needs a key or permission) · **human**

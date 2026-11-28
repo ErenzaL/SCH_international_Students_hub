@@ -13,6 +13,7 @@ from app.repositories.base import get_many, get_one
 from app.schemas.api import DocumentDelete, NoteBody, NoteRequired, ReasonBody, RollbackBody, VersionPatch
 from app.security.auth import AuthUser, require_admin, require_staff, require_super_admin
 from app.services.container import Services
+from app.services.review import announcement_owned_documents
 
 router = APIRouter(prefix="/api/v1/admin", tags=["admin: documents & review"])
 
@@ -32,7 +33,12 @@ def list_documents(source_id: str | None = None, has_pending: bool = False,
     if statuses:
         pend, _c = svc.store.select("document_versions", DbQuery(in_={"verification_status": statuses},
                                                                 cols="id,document_id"))
-        in_["id"] = list({p["document_id"] for p in pend}) or ["00000000-0000-0000-0000-000000000000"]
+        ids = {p["document_id"] for p in pend}
+        # the text of an unpublished announcement is reviewed with the announcement (Admin → Announcements), not in this
+        # queue: listing it twice let a reviewer approve only the text, leaving the announcement "pending approval"
+        # without a pending version. Pending edits of PUBLISHED announcements stay here.
+        ids -= announcement_owned_documents(svc.store, list(ids))
+        in_["id"] = list(ids) or ["00000000-0000-0000-0000-000000000000"]
     is_null: dict[str, bool] = {}
     if lifecycle == "archived":
         is_null["archived_at"] = False

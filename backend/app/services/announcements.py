@@ -276,8 +276,9 @@ class AnnouncementService:
                                f"'{a['publication_status']}').")
         versions, _ = self.store.select("document_versions", Query(eq={"document_id": a["document_id"],
                                                                         "verification_status": "pending_review"}))
-        if versions:
-            self.indexer.ensure_indexed(versions[0]["id"])
+        if not versions:
+            return self._approve_without_pending_text(a, user, note)
+        self.indexer.ensure_indexed(versions[0]["id"])
         self.store.rpc("approve_announcement", dict(p_announcement_id=announcement_id, p_actor=user.id, p_note=note))
         health_svc = getattr(self, "rag_health", None)
         if versions and health_svc is not None:
@@ -289,8 +290,68 @@ class AnnouncementService:
                 log.exception("searchability check failed for announcement %s", announcement_id)
         return self.admin_view(self._get(announcement_id))
 
+    def _approve_without_pending_text(self, a: dict[str, Any], user: AuthUser, note: str | None) -> dict[str, Any]:
+        """An announcement 'pending approval' whose text version is no longer pending: before 2026-11-28 its text could
+        be approved, rejected or sent back in DOCUMENT review, which moved only the version ("no pending version").
+
+        * text approved there and still the document's current version: the announcement is published on top of that
+          approval. The version, its approver and approval time stay exactly as they are; the audit entry names both.
+        * text sent back or rejected there: nothing changes; the message says what happened and how to continue
+          (reject the announcement with the note, then the author revises and resubmits).
+        Nothing is approved without this explicit admin action, and no content is altered."""
+        latest, live = self._latest_text(a)
+        status = latest["verification_status"] if latest else None
+        if latest and live:
+            done = self.store.update("announcements", {"publication_status": "published", "approved_by": user.id,
+                                                        "approved_at": datetime.now(UTC).isoformat()},
+                                     {"id": a["id"], "publication_status": "pending_approval"})
+            if not done:
+                raise Conflict("The announcement changed while it was being approved; reload the page and try again.")
+            self.store.insert("audit_log", dict(
+                action="announcement.approve", entity_type="announcement", entity_id=a["id"], actor_id=user.id,
+                details={"note": note, "text_version_id": latest["id"], "text_already_approved": True,
+                         "text_approved_by": latest.get("approved_by"), "text_approved_at": latest.get("approved_at")}))
+            log.info("announcement %s published on its text version %s approved earlier in document review",
+                     a["id"], latest["id"])
+            return self.admin_view(self._get(a["id"]))
+        n = f"v{latest['version_number']}" if latest else "text"
+        if status == "draft":
+            why = latest.get("review_note")
+            raise InvalidState(f"This announcement's text ({n}) was sent back for changes in document review"
+                               f"{f' ({why})' if why else ''}. Reject the announcement with that note so its author "
+                               "can revise and resubmit it.", code="announcement_text_sent_back")
+        if status == "rejected":
+            why = latest.get("rejected_reason")
+            raise InvalidState(f"This announcement's text ({n}) was rejected in document review"
+                               f"{f' ({why})' if why else ''}. Reject the announcement as well, or ask its author for a "
+                               "new version.", code="announcement_text_rejected")
+        raise InvalidState("This announcement has no text waiting for approval (its text is "
+                           f"'{status or 'missing'}'). Reject it so its author can resubmit it.",
+                           code="announcement_no_pending_text")
+
+    def _latest_text(self, a: dict[str, Any]) -> tuple[dict[str, Any] | None, bool]:
+        """The announcement's newest text version, and whether that version is approved AND the document's current one
+        (i.e. students can already find the text through search)."""
+        versions, _ = self.store.select("document_versions", Query(eq={"document_id": a["document_id"]},
+                                                                    order=[("version_number", True)]))
+        latest = versions[0] if versions else None
+        doc = get_one(self.store, "source_documents", id=a["document_id"]) or {}
+        live = bool(latest and latest["verification_status"] == "approved" and doc.get("current_version_id") == latest["id"]
+                    and not doc.get("is_canceled") and not doc.get("archived_at"))
+        return latest, live
+
     def reject(self, announcement_id: str, user: AuthUser, reason: str) -> dict[str, Any]:
-        self._get(announcement_id)
+        a = self._get(announcement_id)
+        if a["publication_status"] == "pending_approval":
+            pending, _c = self.store.select("document_versions", Query(
+                eq={"document_id": a["document_id"], "verification_status": "pending_review"}, cols="id", limit=1))
+            latest, live = self._latest_text(a) if not pending else (None, False)
+            if latest and live:
+                # rejecting would leave the text searchable under a "rejected" announcement (it was approved in document
+                # review before 2026-11-28); the two honest outcomes are publishing it or withdrawing it
+                raise InvalidState(f"This announcement's text (v{latest['version_number']}) was already approved in "
+                                   "document review and students can find it in the chat. Approve to publish the "
+                                   "announcement, or Cancel it to withdraw the text.", code="announcement_text_live")
         self.store.rpc("reject_announcement", dict(p_announcement_id=announcement_id, p_actor=user.id, p_reason=reason))
         return self.admin_view(self._get(announcement_id))
 

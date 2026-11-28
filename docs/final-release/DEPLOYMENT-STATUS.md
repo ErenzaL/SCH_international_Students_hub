@@ -57,8 +57,8 @@ only, not the environment variables.** Settings to change by hand: FINAL-PRODUCT
 
 ## 5. Local tests of the release
 
-Backend 1,072 passed / 0 failed; frontend 261 passed, type check and lint clean; PostgreSQL integration 100 passed (all
-migrations) and 93 passed (schema 0015 only); SQL suites 15 / 15; browser journeys 114 / 115 (one 60-second timeout of the
+Backend 1,082 passed / 0 failed; frontend 261 passed, type check and lint clean; PostgreSQL integration 104 passed (all
+migrations) and 97 passed (schema 0015 only); SQL suites 15 / 15; browser journeys 114 / 115 (one 60-second timeout of the
 local model on the Chinese desk), re-run of the chat journey 15 / 15. Details: TEST-REPORT.md.
 
 ## 6. Hosted smoke tests after the deploy

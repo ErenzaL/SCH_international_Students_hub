@@ -1,16 +1,17 @@
 # Final test report — release `release/sch-hub-final-2026-11-30`
 
-Every row was run and its output read on 2026-11-27/28. "Local" = the school workstation (scratch PostgreSQL, local stack,
+Every row was run and its output read on 2026-11-27/28 (unit and integration rows re-run on 2026-11-28 after the
+announcement fix, docs/final-release/INCIDENT-NO-PENDING-VERSION.md). "Local" = the school workstation (scratch PostgreSQL, local stack,
 never production). "Hosted" = the live production site, read-only, no login.
 
 ## Local verification (the release code)
 
 | Suite | Passed | Failed | Skipped | Not run | Environment | Evidence |
 |---|---|---|---|---|---|---|
-| backend unit / component | **1,072** | 0 | 54 | — | backend venv, in-memory store | `pytest tests/` (the skips are integration tests needing a database, and one freeze test needing the gitignored corpus) |
+| backend unit / component | **1,082** | 0 | 57 | — | backend venv, in-memory store | `pytest tests/` (the skips are integration tests needing a database, and one freeze test needing the gitignored corpus) |
 | frontend unit | **261** | 0 | 0 | — | vitest | `npx vitest run`; `tsc --noEmit` and `eslint` clean |
-| PostgreSQL integration (all migrations) | **100** | 0 | 9 | — | scratch PostgreSQL 17 + pgvector + PostgREST | same tree as `research/rag-reliability-v2` (identical tree hash) |
-| PostgreSQL integration, **production schema (0001–0015 only)** | **93** | 0 | 16 | — | same, database rebuilt without 0016–0019 | the 7 extra skips are the 0016 / 0017 feature tests |
+| PostgreSQL integration (all migrations) | **104** | 0 | 9 | — | scratch PostgreSQL 17 + pgvector + PostgREST | 100 before the announcement fix (same tree as `research/rag-reliability-v2`) + 4 new |
+| PostgreSQL integration, **production schema (0001–0015 only)** | **97** | 0 | 16 | — | same, database rebuilt without 0016–0019 | the 7 extra skips are the 0016 / 0017 feature tests |
 | every parameter-free GET endpoint × 5 roles at schema 0015 | 210 calls | **0 server errors** | — | — | same | 119 × 200, 84 × 401/403 (correct refusals), 7 × 404 |
 | SQL behaviour suites (RLS, lifecycle, budgets, …) | **15** | 0 | 0 | — | scratch PostgreSQL | run by `scratch_db.sh start` |
 | source visibility (draft, pending, superseded, cancelled, archived, expired, future, inactive) | **6** tests, 8 states | 0 | 0 | — | real PostgreSQL | `tests/integration/test_rag_v2_visibility.py` |
