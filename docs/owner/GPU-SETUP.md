@@ -1,5 +1,7 @@
 # University GPU computer
 
+**Production activation, step by step: [GPU-ACTIVATION.md](GPU-ACTIVATION.md)** (token via `scripts/gpu_worker_token.sh`, start via `scripts/gpu_worker.sh`).
+
 Only outbound HTTPS. Ollama listens on this computer only. **Nothing runs by itself**: no service, no cron. Ask university IT before using the machine for
 production content.
 
@@ -19,7 +21,7 @@ production content.
 2. **Token:** Admin → GPU worker → name `school-gpu` → Create. It is shown **once**.
 3. **On this computer:**
    ```bash
-   python3.11 -m venv ~/sch-gpu/venv && ~/sch-gpu/venv/bin/pip install -r backend/requirements-gpu-worker.txt
+   uv venv --python 3.11 ~/sch-gpu/venv && uv pip install --python ~/sch-gpu/venv/bin/python -r backend/requirements-gpu-worker.txt
    mkdir -p ~/.config/sch-gpu-worker && chmod 700 ~/.config/sch-gpu-worker
    install -m 600 /dev/null ~/.config/sch-gpu-worker/token && nano ~/.config/sch-gpu-worker/token    # paste the token
    install -m 600 backend/gpu-worker.env.example ~/.config/sch-gpu-worker/env && nano ~/.config/sch-gpu-worker/env   # set GPU_WORKER_HUB_URL
@@ -40,7 +42,7 @@ production content.
 | Situation | What happens / do |
 |---|---|
 | Worker dies in a task | the lease ends, the task is queued again (tested) |
-| Computer is off | announcement tasks wait ("Waiting for the GPU worker"), however long, and start when it is back; admins get one alert a day; no paid model is used; publication and chat are not affected. Document tasks still end after 48 h |
+| Computer is off | announcement tasks wait ("Waiting for the GPU worker") for up to 7 days (`GPU_WORKER_ANNOUNCEMENT_MAX_WAIT_HOURS`) and start when it is back; after that they end visibly and can be requested again; admins get one alert a day; no paid model is used; publication and chat are not affected. Document tasks still end after 48 h |
 | Failed task | Admin → Translations → request again |
 | Pause / stop for good | Admin → GPU worker → Pause / Revoke (at once) |
 | Rotate | Admin → GPU worker → New token (the old one works 10 more minutes) → replace the file; no restart |

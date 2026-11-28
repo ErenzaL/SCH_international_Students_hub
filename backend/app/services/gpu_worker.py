@@ -427,8 +427,9 @@ class GpuWorkerService:
         """Housekeeping of GPU jobs, whatever happened to the worker. Never raises.
 
         * lost leases are re-queued (or failed after the attempt limit);
-        * worker enabled: an ANNOUNCEMENT translation keeps waiting for the worker however long it is offline (a
-          clear waiting status and a daily alert; nothing paid is used). Only with TRANSLATION_FALLBACK_TO_GEMINI it is
+        * worker enabled: an ANNOUNCEMENT translation keeps waiting for the worker while it is offline (a clear waiting
+          status and a daily alert; nothing paid is used) up to GPU_WORKER_ANNOUNCEMENT_MAX_WAIT_HOURS (default 7 days,
+          0 = no limit); then it fails visibly and can be requested again. Only with TRANSLATION_FALLBACK_TO_GEMINI it is
           treated like a document translation: after GPU_WORKER_MAX_QUEUE_HOURS it fails visibly or goes to the
           server's own model (GPU_WORKER_ON_EXPIRY=local);
         * worker disabled: every open GPU job ends at once (failed, or the server's model where allowed above)."""
@@ -439,7 +440,11 @@ class GpuWorkerService:
             enabled = self.settings.gpu_worker_enabled
             if enabled:
                 out["expired_leases"] = int(self.store.rpc("expire_gpu_leases", {}) or 0)
-            cutoff = (utcnow() - timedelta(hours=self.settings.gpu_worker_max_queue_hours)).isoformat()
+            hours = self.settings.gpu_worker_max_queue_hours
+            ann_limit = self.settings.gpu_worker_announcement_max_wait_hours
+            if ann_limit and not gemini_fallback(self.settings):
+                hours = min(hours, ann_limit)          # the rows of both limits are looked at
+            cutoff = (utcnow() - timedelta(hours=hours)).isoformat()
             rows, _ = self.store.select("ingestion_jobs", Query(
                 eq={"executor": "gpu"}, in_={"status": ["queued"] if enabled else ["queued", "running"]},
                 lt={"created_at": cutoff} if enabled else {}, order=[("created_at", False)], limit=200))
@@ -447,7 +452,11 @@ class GpuWorkerService:
             for j in rows:
                 local = self._may_use_server_model(j)
                 if enabled and j.get("job_type") == "translate_announcement" and not gemini_fallback(self.settings):
-                    continue                      # keeps waiting for the worker (see the docstring)
+                    limit = self.settings.gpu_worker_announcement_max_wait_hours
+                    created = _time(j.get("created_at"))
+                    if not limit or created is None or utcnow() - created < timedelta(hours=limit):
+                        continue                  # keeps waiting for the worker (see the docstring)
+                    local = False                 # expired: ends visibly, never on the paid model
                 eq = dict(id=j["id"], executor="gpu", status=j["status"], attempts=j["attempts"])
                 if local:
                     if self.store.update("ingestion_jobs", dict(
@@ -494,7 +503,10 @@ class GpuWorkerService:
             self.svc.notifications.notify(
                 "translation_failed", "No GPU worker is available",
                 f"{waiting} translation job(s) wait for it. "
-                + ("Announcement translations keep waiting until it is back (no paid model is used); "
+                + ((f"Announcement translations keep waiting until it is back, for up to "
+                    f"{self.settings.gpu_worker_announcement_max_wait_hours} hours (no paid model is used); "
+                    if self.settings.gpu_worker_announcement_max_wait_hours else
+                    "Announcement translations keep waiting until it is back (no paid model is used); ")
                    if not fallback else "New announcement requests use the server's Gemini (TRANSLATION_FALLBACK_TO_GEMINI); ")
                 + f"document translations end after {self.settings.gpu_worker_max_queue_hours} hours.",
                 severity="warning", link="/admin/translations")

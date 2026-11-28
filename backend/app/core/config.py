@@ -207,7 +207,8 @@ class Settings(BaseSettings):
     # When on, these translation jobs wait for the worker instead of using the API's own model. Its output is always
     # stored as 'needs_review' (never shown to students). Needs migration 0016.
     gpu_worker_enabled: bool = False
-    gpu_worker_job_types: str = "translate_announcement,translate_document"
+    # announcements only by default: document translation on the GPU is a separate decision (add translate_document)
+    gpu_worker_job_types: str = "translate_announcement"
     # models whose results are accepted (translategemma:12b: selected in docs/research/TRANSLATION-EVALUATION.md)
     gpu_worker_models: str = "qwen2.5:7b-instruct,translategemma:12b"
     # --- announcement translation routing ----------------------------------------------------------------------
@@ -218,6 +219,9 @@ class Settings(BaseSettings):
     # server's Gemini (TRANSLATION_MODEL, never the chatbot's fallback model; paid). false (default) = they wait for
     # the worker; no paid model is ever used for them, also not for jobs queued earlier or after a long wait.
     translation_fallback_to_gemini: bool = False
+    # explicit expiry for announcement translations waiting for the GPU worker: after this many hours the job ends
+    # visibly ("request it again"); it is never handed to Gemini without the fallback. 0 = wait however long it takes.
+    gpu_worker_announcement_max_wait_hours: int = 168
     # a queued job the API's own worker has not started after this long is shown as stalled (with a safe "resume")
     translation_stall_seconds: int = 120
     gpu_worker_max_running: int = 1                  # jobs leased at the same time, all workers together

@@ -624,7 +624,21 @@ def test_queue_missing_languages(gpu):
     assert gpu.client.post(url, headers=gpu.auth("supporter"), json={}).status_code == 403
 
 
+def test_document_translations_stay_on_the_server_unless_enabled_for_the_gpu(gpu):
+    """GPU_WORKER_JOB_TYPES defaults to announcements only: documents are never routed by accident."""
+    assert gpu.settings.gpu_worker_job_types == "translate_announcement"
+    doc = make_doc(gpu, title="Visa", text="D-2 extension: apply 4 months before. Fee 30,000 KRW.", language="ko")
+    gemini_like(gpu)
+    r = gpu.client.post(f"/api/v1/admin/documents/{doc['document_id']}/translations/drafts", headers=gpu.auth("super_admin"),
+                        json=dict(languages=["en"]))
+    assert r.status_code == 202, r.text
+    jobs = gpu.store.select("ingestion_jobs", Query(eq={"job_type": "translate_document"}))[0]
+    assert jobs and all(j.get("executor") != "gpu" for j in jobs)
+
+
 def test_document_translation_and_summary_drafts(gpu):
+    gpu.settings.gpu_worker_job_types = "translate_announcement,translate_document"   # explicitly enabled
+
     def ask(doc_id):  # type: ignore[no-untyped-def]
         r = gpu.client.post(f"/api/v1/admin/documents/{doc_id}/translations/drafts", headers=gpu.auth("super_admin"),
                             json=dict(languages=["en"]))

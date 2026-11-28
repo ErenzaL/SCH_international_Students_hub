@@ -1,6 +1,6 @@
 # Environment variables
 
-Generated from the code by `scripts/env_inventory.py`; do not edit by hand. 189 variables of the **API service**. Whether a value is set on
+Generated from the code by `scripts/env_inventory.py`; do not edit by hand. 190 variables of the **API service**. Whether a value is set on
 Render cannot be seen from here: check with `python -m app.cli doctor` (prints "set" or "not set", never a value) or in the dashboard.
 
 After changing a variable on Render the service restarts by itself (choose *Save, rebuild and deploy* only for the web variables).
@@ -23,14 +23,16 @@ All three are **public**: they are built into the pages. Never put a secret here
 | `CRON_SECRET` | SECRET | for daily imports | same value as on the API service | Actions → Scheduled knowledge sync → log |
 | `SCH_API_URL` | variable | no | address of the API | same |
 
-## University GPU computer (`~/.config/sch-gpu-worker/env`, see GPU-SETUP.md)
+## University GPU computer (`~/.config/sch-gpu-worker/env`, see GPU-ACTIVATION.md)
 
 | Variable | Required | Meaning |
 |---|---|---|
 | `GPU_WORKER_HUB_URL` | yes | `https://` address of the API, no path |
-| `GPU_WORKER_PRODUCTION_HOST` | no | leave unset: the worker refuses the production API. Only after the Release B sign-off: exactly `sch-hub-api.onrender.com` |
+| `GPU_WORKER_PRODUCTION_HOST` | for production | unset = the worker refuses the production API. For activation (GPU-ACTIVATION.md): exactly `sch-hub-api.onrender.com` |
 | `GPU_WORKER_TOKEN_FILE` | yes | file with the token, mode 600 (the token itself is **not** a variable) |
-| `OLLAMA_BASE_URL`, `OLLAMA_MODEL`, `OLLAMA_NUM_CTX`, `OLLAMA_JOB_TIMEOUT_SECONDS` | no | defaults: loopback, `qwen2.5:7b-instruct`, 16384, 180 |
+| `OLLAMA_MODEL` | yes for announcements | `translategemma:12b` (default; the API gives announcement jobs to no other model) |
+| `OLLAMA_BASE_URL`, `OLLAMA_NUM_CTX`, `OLLAMA_JOB_TIMEOUT_SECONDS` | no | defaults: loopback, 16384, 180 |
+| `GPU_WORKER_MIN_FREE_VRAM_MB` | no | `9500`: no job is taken while less GPU memory is free (shared computer); 0 = no check |
 | `GPU_WORKER_IDLE_MIN_SECONDS`, `GPU_WORKER_IDLE_MAX_SECONDS`, `GPU_WORKER_ACTIVE_HOURS`, `GPU_WORKER_LOCK_FILE` | no | continuous mode only |
 
 The worker refuses to start when a Supabase, Gemini or cron secret is set on that computer.
@@ -161,10 +163,11 @@ The worker refuses to start when a Supabase, Gemini or cron secret is set on tha
 | `OLLAMA_JOB_QUEUE_TIMEOUT_SECONDS` | setting | optional | `300.0` | — | ... jobs |
 | `OLLAMA_REQUEST_DEADLINE_SECONDS` | setting | optional | `120.0` | — | interactive calls: no retry starts after this much time |
 | `GPU_WORKER_ENABLED` | setting | optional | `False` | .env.example | GPU worker on the university server (docs/gpu-worker.md). OFF: no endpoint exists and nothing is routed to it. When on, these translation jobs wait for the worker instead |
-| `GPU_WORKER_JOB_TYPES` | setting | optional | `translate_announcement,translate_document` | — |  |
+| `GPU_WORKER_JOB_TYPES` | setting | optional | `translate_announcement` | — | announcements only by default: document translation on the GPU is a separate decision (add translate_document) |
 | `GPU_WORKER_MODELS` | setting | optional | `qwen2.5:7b-instruct,translategemma:12b` | — | models whose results are accepted (translategemma:12b: selected in docs/research/TRANSLATION-EVALUATION.md) |
 | `ANNOUNCEMENT_TRANSLATION_MODEL` | setting | optional | `translategemma:12b` | — | Announcements are translated by the university GPU worker with this model ONLY: it gets no announcement job while it reports another model, and drafts of another model ar |
 | `TRANSLATION_FALLBACK_TO_GEMINI` | setting | optional | `False` | — | true = when the GPU worker is switched off or has not contacted the server, announcement translations use the server's Gemini (TRANSLATION_MODEL, never the chatbot's fall |
+| `GPU_WORKER_ANNOUNCEMENT_MAX_WAIT_HOURS` | setting | optional | `168` | — | explicit expiry for announcement translations waiting for the GPU worker: after this many hours the job ends visibly ("request it again"); it is never handed to Gemini wi |
 | `TRANSLATION_STALL_SECONDS` | setting | optional | `120` | — | a queued job the API's own worker has not started after this long is shown as stalled (with a safe "resume") |
 | `GPU_WORKER_MAX_RUNNING` | setting | optional | `1` | — | jobs leased at the same time, all workers together |
 | `GPU_WORKER_LEASE_SECONDS` | setting | optional | `180` | — | renewed by the worker; a lost worker's job is re-queued after this |

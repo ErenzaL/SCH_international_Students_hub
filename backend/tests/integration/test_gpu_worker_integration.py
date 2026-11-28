@@ -45,6 +45,8 @@ BACKEND = Path(__file__).resolve().parents[2]
 class MockOllama:
     def __init__(self, responder: Any):
         self.responder, self.prompts, self.up, self.models = responder, [], True, [MODEL]
+        self.loaded: list[str] = []            # /api/ps: models held in GPU memory
+        self.free_vram: int | None = None      # what nvidia-smi would say (None: not measurable)
         self.running = threading.Event()
 
     async def __call__(self, req: httpx.Request) -> httpx.Response:
@@ -53,6 +55,8 @@ class MockOllama:
             raise httpx.ConnectError("refused")
         if req.url.path == "/api/tags":
             return httpx.Response(200, json={"models": [{"name": m} for m in self.models]})
+        if req.url.path == "/api/ps":
+            return httpx.Response(200, json={"models": [{"name": m} for m in self.loaded]})
         body = json.loads(req.content)
         self.prompts.append(body["messages"][1]["content"])
         self.running.set()
@@ -96,6 +100,7 @@ def make(gpu, tmp_path, monkeypatch):  # type: ignore[no-untyped-def]
         made.append(llm)
         c = Config(hub_url="https://hub.example.test", token_file=token, **cfg)
         w = Worker(c, llm, Hub(c.hub_url, lambda: read_token(token), transport=httpx.MockTransport(net)))
+        w.free_vram_mb = lambda: ollama.free_vram            # type: ignore[method-assign]  # never the real GPU here
         return w, ollama, net
 
     yield build
@@ -388,3 +393,58 @@ def test_command_line_check_and_exit_codes(tmp_path):
 
 
 _ = time
+
+
+# --------------------------------------------------------------------------- the shared university GPU
+def test_a_busy_gpu_takes_no_job_and_uses_no_attempt(gpu, make):
+    """Another program holds the GPU memory: the worker takes nothing (the job waits, no attempt, no failed draft)."""
+    a = publish(gpu)
+    jid = request(gpu, a["id"], "id")
+    w, ollama, net = make()
+    ollama.free_vram = 2_000                              # MiB free; TranslateGemma 12B needs ~9.5 GB
+    assert w.step() == "gpu_busy" and "claim" not in net.calls
+    assert job_row(gpu, jid)["status"] == "queued" and job_row(gpu, jid)["attempts"] == 0
+    assert w.run("drain") == 0 and w.metrics["claimed"] == 0      # --drain stops instead of waiting forever
+    ollama.free_vram = 11_500
+    assert w.step() == "completed" and row(gpu, a["id"], "id")["translation_status"] == "needs_review"
+
+
+def test_the_loaded_model_is_not_mistaken_for_a_busy_gpu(gpu, make):
+    a = publish(gpu)
+    request(gpu, a["id"], "en")
+    w, ollama, _ = make()
+    ollama.free_vram, ollama.loaded = 2_500, [MODEL]       # the memory in use is our own model
+    assert w.step() == "completed"
+
+
+def test_gpu_out_of_memory_is_retried_later_not_a_final_failure(gpu, make):
+    a = publish(gpu)
+    jid = request(gpu, a["id"], "en")
+    oom = lambda s, p: httpx.Response(500, json={"error": "CUDA error: out of memory"})  # noqa: E731
+    w, _, _ = make(oom)
+    assert w.step() == "failed"                            # reported as a retryable code, never as a draft
+    j = job_row(gpu, jid)
+    assert j["status"] == "queued" and j["error_code"] == "llm_unavailable" and j["attempts"] == 1
+    assert row(gpu, a["id"], "en")["translation_status"] == "todo"
+
+
+def test_a_worker_running_another_model_gets_no_announcement_job(gpu, make):
+    a = publish(gpu)
+    jid = request(gpu, a["id"], "en")
+    w, ollama, net = make()
+    w.llm.model = "qwen2.5:7b-instruct"
+    ollama.models = ["qwen2.5:7b-instruct"]
+    assert w.step() == "idle" and net.calls == ["claim"]
+    assert job_row(gpu, jid)["status"] == "queued"
+
+
+def test_an_expired_credential_stops_the_worker(gpu, make):
+    from datetime import timedelta
+
+    a = publish(gpu)
+    request(gpu, a["id"], "en")
+    w, _, _ = make()
+    gpu.store.update("gpu_workers", {"expires_at": (datetime.now(UTC) - timedelta(seconds=1)).isoformat()},
+                     {"id": gpu.worker["id"]})
+    with pytest.raises(CredentialRejected):                # the command line exits with code 77
+        w.run("drain")

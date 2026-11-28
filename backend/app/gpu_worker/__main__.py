@@ -37,7 +37,10 @@ def main(argv: list[str] | None = None) -> int:
     w = Worker(c, llm)
     if a.check:
         ok = w.model_ready()
-        print(f"hub={c.hub_url} model={c.model} token_file=ok ollama={'ok' if ok else 'NOT READY'}")
+        free = w.free_vram_mb()
+        gpu = "unknown" if free is None else f"{free}MiB free (need {c.min_free_vram_mb})"
+        gpu += ", ready" if w.gpu_ready() else ", BUSY (no job would be taken now)"
+        print(f"hub={c.hub_url} model={c.model} token_file=ok ollama={'ok' if ok else 'NOT READY'} gpu={gpu}")
         llm.close()
         return EXIT_OK if ok else 1
     c.lock_file.parent.mkdir(parents=True, exist_ok=True, mode=0o700)

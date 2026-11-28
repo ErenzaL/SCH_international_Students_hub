@@ -52,8 +52,9 @@ tasks with `jobs_for_these_tasks = 0`.
   current text, even when forced.
 - **Bounded backfill** for existing announcements: `POST /admin/translations/backfill` (admins; preview first; at
   most 50 per call; skips approved, current and human work).
-- **GPU sweep:** while the worker is offline, announcement jobs keep waiting, with one admin alert a day. Lost leases
-  are re-queued.
+- **GPU sweep:** while the worker is offline, announcement jobs keep waiting (one admin alert a day) up to an explicit
+  limit, `GPU_WORKER_ANNOUNCEMENT_MAX_WAIT_HOURS` (default 7 days, 0 = no limit); then they fail visibly and can be
+  requested again. They are never sent to Gemini. Lost leases are re-queued.
 - Each server-run job records its usage (`statistics.usage`: model, input and output tokens, model calls, estimated
   cost). GPU jobs record worker metrics.
 - The translations list shows, per task: machine state, model, last attempt and error.
@@ -76,14 +77,14 @@ tasks with `jobs_for_these_tasks = 0`.
 
 | Suite | Result |
 |---|---|
-| Backend unit (whole suite) | **1,107 passed**, 0 failed (63 skipped: opt-in integration and live tests) |
-| New `tests/test_announcement_translation_routing.py`, covering the test list A–T | 25 / 25 |
-| Real worker client against the API with mocked Ollama (`tests/integration/test_gpu_worker_integration.py`) | 35 / 35 |
-| PostgreSQL + PostgREST, full schema 0001–0019 | **109 passed**, 0 failed, 9 skipped |
-| PostgreSQL + PostgREST, **production schema 0001–0015** | **99 passed**, 0 failed, 19 skipped (0016 / 0017 features) |
+| Backend unit (whole suite) | **1,116 passed**, 0 failed (63 skipped: opt-in integration and live tests) |
+| New `tests/test_announcement_translation_routing.py`, covering the test list A–T plus expiry and staged activation | 28 / 28 |
+| Real worker program against the API with a stand-in Ollama (`tests/integration/test_gpu_worker_integration.py`), incl. busy GPU, out of memory, wrong model, expired token | 40 / 40 |
+| PostgreSQL + PostgREST, full schema 0001–0019 | **114 passed**, 0 failed, 9 skipped |
+| PostgreSQL + PostgREST, **production schema 0001–0015** | **99 passed**, 0 failed, 19 skipped (0016 / 0017 features); with 0016 added: **112 passed**, 0 failed |
 | SQL behaviour suites | all passed |
 | Web unit tests, type check, lint | **268 / 268**, clean, clean |
-| Browser journeys `gpu` + `autotr` on the local stack with the **real TranslateGemma 12B on this GPU** | **32 / 32**; both drafts in 6.5 s; screenshots in `docs/final-release/screenshots/translation/` |
+| Browser journeys `gpu` + `autotr` + `gpuops` on the local stack with the **real worker program and TranslateGemma 12B on this GPU** | 32 / 32 and **34 / 34** (`gpuops`: API down, wrong model, busy GPU, duplicate, offline, expired / rotated / revoked token, source change, cancellation, `kill -9` + lease recovery); log `evidence/gpu-worker-e2e-2026-11-28.log` |
 | Peak memory, the same 40-translation workload on `main` and on this branch | 104–105 MB on both (94 MB baseline); no new dependency |
 
 The test list maps to the tests as follows:
@@ -108,7 +109,7 @@ The test list maps to the tests as follows:
 | Variable | Value | Why |
 |---|---|---|
 | `GPU_WORKER_ENABLED` | `true` | turns the GPU route on (**needs migration 0016**) |
-| `GPU_WORKER_JOB_TYPES` | `translate_announcement` (or the default `translate_announcement,translate_document`) | jobs the worker may take |
+| `GPU_WORKER_JOB_TYPES` | `translate_announcement` (now the default; documents only if `translate_document` is added on purpose) | jobs the worker may take |
 | `ANNOUNCEMENT_TRANSLATION_MODEL` | `translategemma:12b` (default) | the only model accepted for announcements |
 | `TRANSLATION_FALLBACK_TO_GEMINI` | `false` (default) | no paid announcement translation |
 | `GPU_WORKER_MODELS` | must contain `translategemma:12b` (default does) | accepted results |
@@ -123,7 +124,7 @@ The test list maps to the tests as follows:
 - optionally `GPU_WORKER_ACTIVE_HOURS=9-18`
 
 The token goes in `~/.config/sch-gpu-worker/token` (mode 0600). No Supabase or Gemini key may be set there; the worker
-refuses to start if one is. Steps: `docs/owner/GPU-SETUP.md`.
+refuses to start if one is. Activation step by step: `docs/owner/GPU-ACTIVATION.md`.
 
 ## 6. Database
 

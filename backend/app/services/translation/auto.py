@@ -135,10 +135,8 @@ def automation_state(row: dict[str, Any] | None, job: dict[str, Any] | None, set
     human_draft (a person is working on it)."""
     if row is None:
         return "ready"
-    if row.get("is_outdated"):
-        return "outdated"
     open_job = job if job and job.get("status") in ("queued", "running") else None
-    if open_job:
+    if open_job:          # a new translation of a changed original is under way: say what happens now
         if settings is not None and job_stalled(open_job, settings):
             return "stalled"
         if open_job["status"] == "running":
@@ -148,6 +146,8 @@ def automation_state(row: dict[str, Any] | None, job: dict[str, Any] | None, set
         if open_job.get("error_code") and (_ts(open_job.get("run_after")) or datetime.now(UTC)) > datetime.now(UTC):
             return "retrying"
         return "pending"
+    if row.get("is_outdated"):
+        return "outdated"
     st = row.get("translation_status")
     if st == "human_approved":
         return "approved"

@@ -432,6 +432,112 @@ J.autotr = async () => {   // Admin chooses EN + ID while publishing -> Translat
   await api("super_admin", "PATCH", `/admin/gpu/workers/${w.data.id}`, { status: "revoked" });
 };
 
+J.gpuops = async () => {   // failure modes with the REAL worker process and TranslateGemma (local stack; PSQL = scratch DB only)
+  const PSQL = process.env.PSQL;
+  if (!PSQL || !/sock -p \d+ -U postgres$/.test(PSQL)) { check("scratch database for time simulation", false, "PSQL not set"); return; }
+  const sql = (q) => new Promise((res) => { let o = ""; const p = spawn("bash", ["-c", `${PSQL} -d hub -At -v ON_ERROR_STOP=1 -c "$Q"`], { env: { ...process.env, Q: q } });
+    p.stdout.on("data", (d) => (o += d)); p.stderr.on("data", (d) => (o += d)); p.on("close", () => res(o.trim())); });
+  const w = await api("super_admin", "POST", "/admin/gpu/workers", { name: `ops-${Date.now() % 1000000}` });
+  check("worker credential (token written to an owner-only file, never printed)", w.status === 201);
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gpuw-"));
+  const tokenFile = path.join(dir, "token");
+  fs.writeFileSync(tokenFile, w.data.token, { mode: 0o600 });
+  const base = { PATH: process.env.PATH, HOME: dir, GPU_WORKER_HUB_URL: info.api, GPU_WORKER_TOKEN_FILE: tokenFile, GPU_WORKER_IDLE_MIN_SECONDS: "5", OLLAMA_MODEL: GPU_MODEL };
+  const start = (args, extra = {}) => { let log = ""; const p = spawn(WPY, ["-m", "app.gpu_worker", ...args], { cwd: BACKEND, env: { ...base, ...extra } });
+    p.stdout.on("data", (d) => (log += d)); p.stderr.on("data", (d) => (log += d)); return { p, log: () => log, done: new Promise((res) => p.on("close", (code) => res(code))) }; };
+  const run = async (args, extra = {}) => { const x = start(args, extra); const code = await x.done; return { code, log: x.log() }; };
+  const publishWith = async (title, body, targets) => {
+    const a = await api("admin", "POST", "/admin/announcements", { title, body, category: "dormitory-housing", source_type: "manual_text", submit: true,
+      evidence_note: "synthetic", original_language: "ko", translation_targets: targets });
+    await api("admin", "POST", `/admin/announcements/${a.data.id}/approve`, {});
+    return a.data.id;
+  };
+  const machine = async (aid, lang) => (await api("super_admin", "GET", `/admin/announcements/${aid}/translations/${lang}`)).data;
+  const tag = Date.now() % 100000;
+
+  // API unavailable: the worker stops cleanly, takes nothing; the job keeps waiting
+  const a1 = await publishWith(`[가상] 도서관 운영 시간 안내 ${tag}`, "중앙도서관은 2026년 12월 21일부터 2027년 2월 28일까지 09:00-18:00에 운영합니다. 문의: 041-530-1000", ["en"]);
+  let r = await run(["--drain"], { GPU_WORKER_HUB_URL: "http://127.0.0.1:8099" });
+  let m = await machine(a1, "en");
+  check("API unavailable: worker stops cleanly, the job stays queued with no attempt used", r.code === 0 && /claim error/.test(r.log) && m.machine.job.status === "queued" && m.machine.job.attempts === 0, r.log.slice(-200));
+  // a worker running another model gets no announcement job; a model that is not installed is reported
+  r = await run(["--drain"], { OLLAMA_MODEL: "qwen2.5:7b-instruct", GPU_WORKER_MIN_FREE_VRAM_MB: "0" });
+  m = await machine(a1, "en");
+  check("invalid model: a Qwen worker takes no announcement job", r.code === 0 && m.machine.job.status === "queued" && m.machine.job.attempts === 0, r.log.slice(-200));
+  r = await run(["--check"], { OLLAMA_MODEL: "translategemma:27b" });
+  check("invalid model: --check reports a model that is not installed", r.code !== 0 && /NOT READY/.test(r.log), r.log.slice(-200));
+  // GPU memory: not enough free -> no job taken (the model is unloaded first, so the check really runs)
+  await fetch("http://127.0.0.1:11434/api/generate", { method: "POST", body: JSON.stringify({ model: GPU_MODEL, keep_alive: 0 }) }).catch(() => null);
+  await sleep(3000);
+  r = await run(["--drain"], { GPU_WORKER_MIN_FREE_VRAM_MB: "50000" });
+  m = await machine(a1, "en");
+  check("not enough free GPU memory: no job taken, no attempt used", r.code === 0 && /gpu busy/.test(r.log) && m.machine.job.status === "queued" && m.machine.job.attempts === 0, r.log.slice(-200));
+  // duplicate request while it waits
+  const again = await api("admin", "POST", `/admin/announcements/${a1}/translations/en/machine-translate`);
+  check("duplicate request: the same job, no second one", again.status === 202 && again.data.job_id === m.machine.job.id, JSON.stringify(again.data));
+  // the worker was offline for two days: the panel says so; then it comes back and does the job
+  await sql(`update public.gpu_workers set last_seen_at = now() - interval '2 days' where id = '${w.data.id}'`);
+  m = await machine(a1, "en");
+  check("worker offline: 'Waiting for the GPU worker'", m.machine.state === "waiting_worker" && m.machine.worker.online === false, m.machine.state);
+  r = await run(["--drain"]);
+  m = await machine(a1, "en");
+  check("the worker is back: TranslateGemma drafts it, private, needs review", r.code === 0 && m.translation.translation_status === "needs_review" && m.machine.model === GPU_MODEL && (await api(null, "GET", `/announcements/${a1}?lang=en`)).data.translation === null, r.log.slice(-300));
+  console.log("      en:", (m.translation.body || "").replace(/\s+/g, " ").slice(0, 160));
+  check("dates, times and phone kept", /2026/.test(m.translation.body) && /2027/.test(m.translation.body) && /09[:.]00/.test(m.translation.body) && /041-530-1000/.test(m.translation.body));
+
+  // expired credential: exit code 77, nothing taken; a rotated token works without other changes
+  const a2 = await publishWith(`[가상] 기숙사 정전 안내 ${tag}`, "2026년 12월 5일 10:00-12:00 기숙사 A동 전기 점검으로 정전됩니다. 냉장고 음식을 미리 정리하세요.", ["id"]);
+  await sql(`update public.gpu_workers set expires_at = now() - interval '1 minute' where id = '${w.data.id}'`);
+  r = await run(["--drain"]);
+  m = await machine(a2, "id");
+  check("expired credential: the worker stops with exit code 77 and takes nothing", r.code === 77 && m.machine.job.status === "queued", `${r.code} ${r.log.slice(-200)}`);
+  const rot = await api("super_admin", "POST", `/admin/gpu/workers/${w.data.id}/rotate`, { grace_minutes: 0 });
+  fs.writeFileSync(tokenFile, rot.data.token, { mode: 0o600 });
+  r = await run(["--drain"]);
+  m = await machine(a2, "id");
+  check("after rotation the worker continues (no restart, no other change)", r.code === 0 && m.translation.translation_status === "needs_review", r.log.slice(-200));
+
+  // the original changes: the approved edit outdates the draft and the chosen language is translated again from the new text
+  const view = (await api("admin", "GET", `/admin/announcements/${a2}`)).data;
+  const edited = "2026년 12월 12일 14:00-16:00 기숙사 A동 전기 점검으로 정전됩니다. 냉장고 음식을 미리 정리하세요.";
+  const vid = await sql(`insert into public.document_versions (document_id, version_number, extracted_text, content_hash, verification_status) values ('${view.document_id}', 2, $t$${edited}$t$, encode(sha256(convert_to($t$${edited}$t$, 'UTF8')), 'hex'), 'pending_review') returning id`);
+  const ap = await api("admin", "POST", `/admin/versions/${vid.split("\n")[0]}/approve`, {});
+  check("the edit is approved through the API", ap.status === 202, JSON.stringify(ap.data).slice(0, 200));
+  const requeued = await until(async () => { const x = await machine(a2, "id"); return x.machine.job && x.machine.job.status === "queued" && x.machine.job.id !== m.machine.job.id ? x : null; }, 60);
+  check("source changed: a new job for the chosen language (the old draft is not shown as current)", !!requeued, JSON.stringify((await machine(a2, "id")).machine).slice(0, 300));
+  r = await run(["--drain"]);
+  m = await machine(a2, "id");
+  check("the new draft is made from the approved new text", r.code === 0 && /12/.test(m.translation.body) && /14[:.]00/.test(m.translation.body) && m.translation.translation_status === "needs_review", (m.translation.body || "").slice(0, 200));
+
+  // a cancelled announcement is not translated: its queued job ends without sending anything
+  const a3 = await publishWith(`[가상] 취소될 안내 ${tag}`, "2026년 12월 30일 행사는 일정이 변경될 수 있습니다. 공지를 확인하세요.", ["en"]);
+  await api("admin", "POST", `/admin/announcements/${a3}/cancel`, { reason: "withdrawn (test)" });
+  r = await run(["--drain"]);
+  m = (await api("super_admin", "GET", `/admin/translations?page_size=100`)).data.items.find((i) => i.announcement_id === a3 && i.language_code === "en");
+  check("cancelled original: the job ends, nothing is translated", m && m.translation_status === "todo" && m.machine.job_status === "failed", JSON.stringify(m?.machine));
+
+  // worker restart and lease recovery: kill -9 during the generation, the lease ends, the next run finishes it once
+  const long = Array.from({ length: 8 }, (_, i) => `${i + 1}. 2027년 3월 ${i + 2}일 09:30까지 ${["수강신청", "등록금 납부", "기숙사 신청", "건강검진", "외국인등록", "보험 가입", "장학금 신청", "오리엔테이션"][i]} 서류를 국제교류처(041-530-1234)에 제출하세요.`).join("\n\n");
+  const a4 = await publishWith(`[가상] 신학기 준비 안내 ${tag}`, long, ["en"]);
+  const x = start(["--drain"]);
+  const leased = await until(async () => { const y = await machine(a4, "en"); return y.machine.state === "processing" ? y : null; }, 120);
+  await sleep(300);
+  x.p.kill("SIGKILL");
+  await x.done;
+  const held = await machine(a4, "en");
+  check("worker killed during the generation: the job is still leased, nothing stored", !!leased && held.machine.job.status === "running" && held.translation.translation_status === "todo", held.machine.state);
+  await sql(`update public.ingestion_jobs set lease_expires_at = now() - interval '1 second' where id = '${held.machine.job.id}'`);   // 3 minutes later
+  await api("super_admin", "GET", "/admin/gpu/status");     // the sweep puts the job back
+  r = await run(["--drain"]);
+  m = await machine(a4, "en");
+  check("lease recovery: the restarted worker finishes it, stored once", r.code === 0 && m.translation.translation_status === "needs_review" && m.machine.job.id === held.machine.job.id && m.machine.job.attempts === 2, JSON.stringify(m.machine.job).slice(0, 300));
+
+  // a revoked credential stops the worker at once
+  await api("super_admin", "PATCH", `/admin/gpu/workers/${w.data.id}`, { status: "revoked" });
+  r = await run(["--drain"]);
+  check("revoked credential: exit code 77", r.code === 77, r.log.slice(-200));
+};
+
 J.escalation = async () => {   // student -> Sumin -> consent -> supporter inbox -> answer -> status; other students see nothing
   const { page, ctx } = await context("student");
   await desk(page, "supporter-lead");

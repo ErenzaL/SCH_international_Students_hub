@@ -38,6 +38,18 @@ Details: ANNOUNCEMENT-TRANSLATION.md. Local only; no Gemini tokens used (recordi
 | browser journeys `gpu` + `autotr`, **real TranslateGemma 12B on the RTX 4070**, local stack | **32 / 32** | 0 | — | Indonesian + English drafts in 6.5 s; screenshots `screenshots/translation/` |
 | peak memory, 40 translations, `main` vs branch | 104–105 MB both | — | — | in-memory store; no new dependency |
 
+## GPU worker connection readiness (2026-11-28, same branch)
+
+| Check | Result | Evidence |
+|---|---|---|
+| backend unit / component | **1,116** passed, 0 failed, 63 skipped | `pytest tests/` |
+| real worker program ↔ API, stand-in Ollama (busy GPU, out of memory, wrong model, expired token, …) | 40 / 40 | `tests/integration/test_gpu_worker_integration.py` |
+| PostgreSQL integration: full schema / 0015 / 0015 + 0016 | 114 / 99 / **112** passed, 0 failed | scratch PostgreSQL + PostgREST |
+| migration 0016 applied twice on a 0015 copy, readiness SQL | 20 / 20 checks true | `docs/owner/sql/check-gpu-worker-readiness.sql` |
+| browser journey `gpuops`, real worker process + TranslateGemma 12B on the RTX 4070 | **34 / 34** | `evidence/gpu-worker-e2e-2026-11-28.log` |
+| TranslateGemma 12B, six release directions (synthetic notices, AI-written references) | 12 / 12 drafts, 0 errors, median 2.5–2.9 s, peak GPU memory 9.7 GB; 5 check flags, all dates written another way | `evidence/translategemma-12b-6-directions-2026-11-28.txt` |
+| web unit, type check | 268 / 268, clean | vitest, tsc |
+
 ## Hosted verification (production, read-only, 2026-11-28)
 
 | Check | Result |

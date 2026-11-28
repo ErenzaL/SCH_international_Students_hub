@@ -382,3 +382,43 @@ def test_the_gpu_worker_is_never_given_a_second_job_at_once(gpu):
     assert claim(gpu, model=MODEL) is None and first is not None             # GPU_WORKER_MAX_RUNNING=1
     r = call(gpu, "/claim", token=other["token"], lease_token=str(uuid.uuid4()), model=MODEL)
     assert r.json()["job"] is None
+
+
+def test_waiting_announcement_jobs_have_an_explicit_expiry_and_never_reach_gemini(server_model, gpu):
+    seen(gpu, gpu.worker["id"], datetime.now(UTC) - timedelta(hours=30))        # worker offline
+    a = publish(gpu, targets=["en", "id"])
+    en, id_ = sorted(ann_jobs(gpu, a["id"]), key=lambda j: j["payload"]["language"])
+    assert gpu.settings.gpu_worker_announcement_max_wait_hours == 168           # 7 days by default
+    gpu.store.update("ingestion_jobs", {"created_at": (datetime.now(UTC) - timedelta(hours=169)).isoformat()}, {"id": en["id"]})
+    gpu.store.update("ingestion_jobs", {"created_at": (datetime.now(UTC) - timedelta(hours=100)).isoformat()}, {"id": id_["id"]})
+    sweep(gpu)
+    assert (job_row(gpu, en["id"])["status"], job_row(gpu, en["id"])["error_code"]) == ("failed", "gpu_worker_unavailable")
+    assert job_row(gpu, id_["id"])["status"] == "queued"                         # still within the limit
+    assert detail(gpu, a["id"], "en")["machine"]["state"] == "failed"            # visible, "Translate again"
+    assert server_model.calls == []                                              # never handed to Gemini
+    r = ask(gpu, a["id"], "en")                                                  # requested again: a new GPU job
+    assert r.status_code == 202 and job_row(gpu, r.json()["job_id"])["executor"] == "gpu"
+
+
+def test_an_expiry_of_zero_waits_however_long_it_takes(gpu):
+    gpu.settings.gpu_worker_announcement_max_wait_hours = 0
+    seen(gpu, gpu.worker["id"], datetime.now(UTC) - timedelta(hours=30))
+    a = publish(gpu, targets=["en"])
+    j = ann_jobs(gpu, a["id"])[0]
+    gpu.store.update("ingestion_jobs", {"created_at": (datetime.now(UTC) - timedelta(days=60)).isoformat()}, {"id": j["id"]})
+    sweep(gpu)
+    assert job_row(gpu, j["id"])["status"] == "queued"
+
+
+def test_staged_activation_credential_without_routing(server_model, gpu):
+    """Activation step B: GPU_WORKER_ENABLED=true with GPU_WORKER_JOB_TYPES empty - the credential can be created and the
+    worker's HTTPS + authentication tested against production, while no translation is routed to it or charged."""
+    gpu.settings.gpu_worker_job_types = ""
+    a = publish(gpu, targets=["en"])
+    assert ann_jobs(gpu, a["id"]) == []                                         # nothing routed
+    r = ask(gpu, a["id"], "en")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "translation_worker_disabled"
+    other = new_worker(gpu, name="school-gpu-2")                                # the admin page works
+    r = call(gpu, "/claim", token=other["token"], lease_token=str(uuid.uuid4()), model=MODEL)
+    assert r.status_code == 200 and r.json() == {"state": "idle", "job": None}  # authenticated, nothing to do
+    assert server_model.calls == []

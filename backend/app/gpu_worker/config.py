@@ -36,6 +36,9 @@ class Config:
     active_hours: tuple[int, int] | None = None    # KST, e.g. (9, 18)
     lock_file: Path = Path.home() / ".local/state/sch-gpu-worker/lock"
     prompt_style: str = "auto"     # auto (= shared) | shared | native (TranslateGemma's own prompt; measured worse)
+    # shared university computer: no job is taken while less GPU memory is free than TranslateGemma 12B needs
+    # (measured peak 9.7 GB on the RTX 4070), unless the model is already loaded. 0 = no check.
+    min_free_vram_mb: int = 9500
 
     @classmethod
     def from_env(cls, env: dict[str, str] | None = None) -> Config:
@@ -53,6 +56,7 @@ class Config:
             c.model_timeout = float(e.get("OLLAMA_JOB_TIMEOUT_SECONDS") or c.model_timeout)
             c.idle_min = max(5.0, float(e.get("GPU_WORKER_IDLE_MIN_SECONDS") or c.idle_min))
             c.idle_max = max(c.idle_min, float(e.get("GPU_WORKER_IDLE_MAX_SECONDS") or c.idle_max))
+            c.min_free_vram_mb = max(0, int(e.get("GPU_WORKER_MIN_FREE_VRAM_MB") or c.min_free_vram_mb))
         except ValueError as exc:
             raise ConfigError("A numeric setting is not a number.") from exc
         hours = e.get("GPU_WORKER_ACTIVE_HOURS", "").strip()
