@@ -145,6 +145,7 @@ def test_a_supporter_requests_a_summary_of_an_approved_document(env):
     from tests.test_retrieval import make_doc
 
     env.settings.gpu_worker_enabled = True
+    env.settings.gpu_worker_job_types = "translate_announcement,translate_document"   # documents: explicit opt-in
     env.worker = new_worker(env)
     doc = make_doc(env, "기숙사 안내", "기숙사 입사 신청은 12월 18일까지 종합정보시스템에서 합니다. 결핵 검사 결과서를 제출해야 합니다.", language="ko")
     doc_id = doc["document_id"]

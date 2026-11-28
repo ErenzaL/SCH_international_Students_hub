@@ -801,6 +801,10 @@ export interface AdminAnnouncement {
   rejection_reason: string | null;
   is_test_data: boolean;
   translations: Translation[];
+  /** machine-translation languages chosen for this announcement (null = never chosen: the server default applies) */
+  translation_targets?: LanguageCode[] | null;
+  /** languages machine drafts are offered in (Release 1: ko, en, id) */
+  machine_languages?: LanguageCode[];
 }
 
 export interface AnnouncementCreate {
@@ -816,6 +820,7 @@ export interface AnnouncementCreate {
   evidence_note?: string;
   evidence_url?: string;
   original_language?: LanguageCode;
+  translation_targets?: LanguageCode[];
   submit?: boolean;
   authorized_by_supporter?: boolean;
 }
@@ -1323,6 +1328,7 @@ export interface TranslationTask extends TranslationView {
   original_language: LanguageCode;
   can_edit: boolean;
   can_review: boolean;
+  machine?: MachineSummary | null;
 }
 export interface TranslationOriginal {
   announcement_id: string;
@@ -1359,8 +1365,22 @@ export interface TranslationDetail {
   machine?: MachineTranslationInfo | null;
 }
 
-export type AutomationState = "pending" | "processing" | "completed" | "needs_review" | "failed" | "outdated" | "approved"
-  | "human_draft" | "missing";
+export type AutomationState = "ready" | "pending" | "processing" | "stalled" | "quota" | "retrying" | "waiting_worker"
+  | "completed" | "needs_review" | "failed" | "outdated" | "approved" | "human_draft" | "missing" | "manual";
+
+/** Why a machine translation cannot be requested right now (codes from the API). */
+export type MachineBlockedCode = "not_published" | "original_language" | "language_out_of_scope"
+  | "translation_worker_disabled" | "llm_disabled" | "translation_approved";
+
+export interface MachineJobUsage {
+  provider: string | null;
+  model: string | null;
+  input_tokens: number;
+  output_tokens: number;
+  model_calls: number;
+  est_cost_usd: number | null;
+  cached?: boolean;
+}
 
 export interface MachineTranslationInfo {
   state: AutomationState;
@@ -1369,7 +1389,41 @@ export interface MachineTranslationInfo {
   model: string | null;
   generated_at: string | null;
   warnings: TranslationWarning[];
-  job: { id: string; status: string; error_code: string | null; error_message: string | null; created_at: string;
-    run_after: string | null } | null;
+  job: {
+    id: string; status: string; error_code: string | null; error_message: string | null; created_at: string;
+    run_after: string | null; attempts?: number | null; max_attempts?: number | null; started_at?: string | null;
+    heartbeat_at?: string | null; completed_at?: string | null; deferrals?: number | null;
+    usage?: MachineJobUsage | null; stalled?: boolean;
+  } | null;
   llm_enabled: boolean;
+  blocked?: { code: MachineBlockedCode | string; message: string } | null;
+  worker?: { enabled: boolean; online: boolean; last_seen_at: string | null };
+  executor?: "gpu" | "local" | null;
+  configured?: { route: "gpu_worker" | "server" | null; provider: string | null; model: string | null;
+    fallback_to_gemini: boolean; blocked?: string | null };
+  poll_seconds?: number | null;
+}
+
+export interface MachineSummary {
+  state: AutomationState;
+  provider: string | null;
+  model: string | null;
+  warnings: number;
+  executor: "gpu" | "local" | null;
+  last_attempt_at: string | null;
+  job_status: string | null;
+  error_code: string | null;
+  error_message: string | null;
+}
+
+export interface TranslationBackfillResult {
+  dry_run: boolean;
+  missing: number;
+  already_queued: number;
+  too_long: number;
+  languages: LanguageCode[];
+  route: "gpu" | "local" | null;
+  worker: { enabled: boolean; online: boolean; last_seen_at: string | null };
+  queued: { kind: string; id: string; language: LanguageCode; job_id: string }[];
+  next: { id: string; title: string; language: LanguageCode; chars: number }[];
 }

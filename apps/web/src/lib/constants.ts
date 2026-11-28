@@ -10,6 +10,8 @@ import type {
 } from "@/types/api";
 
 export const LOCALES: readonly LanguageCode[] = ["en", "ko", "id", "vi", "zh-CN"];
+/** Release 1: announcements are machine-translated (TranslateGemma on the GPU worker) only between these languages. */
+export const ANNOUNCEMENT_MACHINE_LANGUAGES: readonly LanguageCode[] = ["ko", "en", "id"];
 export const DEFAULT_LOCALE: LanguageCode = "en";
 export const LOCALE_COOKIE = "NEXT_LOCALE";
 export const LOCALE_STORAGE_KEY = "sch-hub-locale";

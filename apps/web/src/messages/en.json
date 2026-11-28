@@ -809,7 +809,7 @@
         "newSubtitle": "Paste the original Korean text and describe its source.",
         "noAutoPublish": "Announcements are never published automatically. An administrator must approve them first.",
         "title": "Title",
-        "body": "Original text (Korean)",
+        "body": "Original text",
         "bodyPlaceholder": "Paste the original notice text here",
         "bodyHint": "The original wording is stored unchanged as the authoritative version.",
         "category": "Category",
@@ -827,7 +827,8 @@
         "kakaoBody": "Paste the message manually. The system never reads private KakaoTalk groups. Phone numbers, emails and sender names are redacted automatically; remove other personal data yourself.",
         "kakaoAuthorized": "I am an authorised supporter and may submit this message.",
         "saveDraft": "Save as draft",
-        "submitForApproval": "Submit for approval"
+        "submitForApproval": "Submit for approval",
+        "originalLanguage": "Original language"
       },
       "validation": {
         "required": "This field is required.",
@@ -836,6 +837,21 @@
         "invalidUrl": "Enter a valid http(s) URL.",
         "invalidChoice": "Choose a valid option.",
         "authorizationRequired": "You must confirm authorisation for KakaoTalk submissions."
+      },
+      "autoTr": {
+        "title": "Automatic translation",
+        "hint": "Machine drafts are made by TranslateGemma on the university GPU only after this announcement is approved and published. A reviewer approves each one before students see it.",
+        "original": "original",
+        "noneChosen": "No automatic translation: reviewers can still translate by hand.",
+        "afterApproval": "The selected drafts are queued when the announcement is published.",
+        "notOffered": "Machine translation is offered only from and into Korean, English and Indonesian.",
+        "notChosen": "No languages chosen for this announcement yet.",
+        "publishedNote": "Published: saving queues the missing drafts of the selected languages now. Approved translations are never replaced.",
+        "save": "Save languages",
+        "saveAndQueue": "Save and translate missing",
+        "saved": "Languages saved.",
+        "savedQueued": "Saved. {count} machine draft(s) queued.",
+        "editToChange": "Edit the announcement to change the languages."
       }
     },
     "translations": {
@@ -1346,7 +1362,8 @@
         "approve": "Approved",
         "reject": "Rejected",
         "request_changes": "Changes requested",
-        "outdated": "Marked outdated"
+        "outdated": "Marked outdated",
+        "generate": "Machine translation generated"
       },
       "system": "System",
       "rejectTitle": "Reject translation",
@@ -1369,14 +1386,74 @@
         "state": {
           "pending": "Queued",
           "processing": "Translating…",
-          "completed": "Machine translation ready – unreviewed",
-          "needs_review": "Failed automated checks – needs review",
-          "failed": "Failed",
+          "completed": "Machine draft ready – unreviewed",
+          "needs_review": "Needs review",
+          "failed": "Failed – retry available",
           "outdated": "Outdated – the original changed",
           "approved": "Approved by a reviewer",
           "human_draft": "A person is editing",
-          "missing": "Not translated yet"
+          "missing": "Not translated yet",
+          "ready": "Ready to translate",
+          "stalled": "Not progressing",
+          "quota": "Quota or budget used up",
+          "retrying": "Retry scheduled",
+          "waiting_worker": "Waiting for the GPU worker",
+          "manual": "Manual translation only"
+        },
+        "ready": "The machine draft is ready. It is loaded below for review.",
+        "resume": "Check again",
+        "refresh": "Refresh status",
+        "regenerate": "Translate again (replace the draft)",
+        "regenerateHuman": "A person has edited this translation. A new machine draft replaces their text (it stays in the history). Continue?",
+        "regenerateMachine": "The current machine draft is replaced by a new one. Continue?",
+        "regenerateConfirm": "Replace the draft",
+        "regenerateCancel": "Keep the current draft",
+        "explain": {
+          "ready": "Not requested yet. Machine-translate asks {model} for a private draft; a reviewer approves it before students see it.",
+          "pending": "Queued since {date}; the server starts it in a moment.",
+          "pendingGpu": "Queued for {model} on the university GPU since {date}. The worker takes it on its next check (every 5–60 minutes when idle).",
+          "processing": "{model} is translating the title and the full text (started {date}).",
+          "waitingWorker": "The university GPU worker is offline (last contact {date}). The job stays queued and starts as soon as the worker is back. No paid model is used and publication is not affected.",
+          "waitingWorkerNever": "No university GPU worker has contacted the server yet. The job stays queued until one does. No paid model is used.",
+          "stalled": "This job has not progressed as expected. Check again wakes the worker and hands the job back if its worker stopped; it never creates a second job or a second charge.",
+          "quota": "Waiting for the daily budget or the provider's quota; next attempt {date}. {error}",
+          "retrying": "An automatic retry is scheduled for {date} after an error: {error}",
+          "completed": "The machine draft passed the automatic checks. It is not public: check it against the original, edit it and approve it below.",
+          "needsReview": "The machine draft is ready but must be reviewed (the automatic checks found something, or the model always needs review). It is not public.",
+          "failed": "The last attempt failed: {error}. You can request it again.",
+          "outdated": "The original changed after this translation was made. Request a new draft or update it by hand.",
+          "approved": "A reviewer approved this translation; it is public and protected from machine output.",
+          "humanDraft": "A person is working on this translation. A reviewer can still replace it with a new machine draft."
+        },
+        "routeGpu": "Model: {model} on the university GPU worker",
+        "routeServer": "Model: {model} on the server (paid fallback, TRANSLATION_FALLBACK_TO_GEMINI)",
+        "routeNone": "No translation model is available right now",
+        "workerOnline": "worker online",
+        "workerOffline": "worker offline",
+        "jobLine": "Job {status} · attempt {attempts} of {max} · requested {date}",
+        "usage": "{input} input / {output} output tokens",
+        "noPermission": "You need the support or review assignment for this language to request a machine draft.",
+        "gpuWorker": "GPU worker",
+        "lastAttempt": "last attempt {date}",
+        "blocked": {
+          "not_published": "Machine translation starts after the original announcement is approved and published.",
+          "original_language": "This is the original language; it is not translated.",
+          "language_out_of_scope": "Machine drafts are offered only between Korean, English and Indonesian in this release. Translate by hand.",
+          "translation_worker_disabled": "Machine translation is off: announcements are translated by the university GPU worker, which is not switched on (GPU_WORKER_ENABLED). Gemini is not used for them. Translate by hand meanwhile.",
+          "llm_disabled": "No translation model is configured on the server.",
+          "translation_approved": "A reviewer approved this translation for the current text. It is protected: machine output never replaces it."
         }
+      },
+      "machineCol": "Machine draft",
+      "backfill": {
+        "title": "Missing translations of published announcements",
+        "body": "Queues machine drafts that do not exist yet or are outdated. Approved translations, reviewers' work and drafts of the same text are skipped, so nothing is queued twice. Preview first.",
+        "limit": "At most",
+        "preview": "Preview",
+        "run": "Queue {count}",
+        "previewResult": "{missing} missing, {queued} already queued.",
+        "queuedResult": "{count} queued ({missing} were missing).",
+        "workerOffline": "The GPU worker is offline: the queued drafts wait until it is back."
       }
     },
     "teams": {

@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import logging
+import shutil
+import subprocess
 import threading
 import time
 import uuid
@@ -159,15 +161,53 @@ class Worker:
             return False
         return True
 
+    @staticmethod
+    def free_vram_mb() -> int | None:
+        """Free GPU memory in MiB (the largest of all GPUs), or None when it cannot be read (no nvidia-smi)."""
+        exe = shutil.which("nvidia-smi")
+        if exe is None:
+            return None
+        try:
+            out = subprocess.run([exe, "--query-gpu=memory.free", "--format=csv,noheader,nounits"], capture_output=True,
+                                 text=True, timeout=15, check=True).stdout
+            values = [int(x) for x in out.split() if x.strip().isdigit()]
+        except (OSError, subprocess.SubprocessError, ValueError):
+            return None
+        return max(values) if values else None
+
+    def gpu_ready(self) -> bool:
+        """The university computer is shared: take a job only when the GPU has room for the model (or already holds
+        it). A busy GPU costs no attempt and no failed draft: the job simply waits in the queue."""
+        need = int(getattr(self.config, "min_free_vram_mb", 0) or 0)
+        if need <= 0:
+            return True
+        try:
+            if self.llm.model in self.llm.loaded_models():
+                return True                       # what is in use is our own model
+        except (LLMError, AttributeError):
+            pass
+        free = self.free_vram_mb()
+        if free is None:
+            return True                           # cannot be measured here: Ollama decides
+        if free < need:
+            log.warning("gpu busy: %d MiB free, %d MiB needed; no job taken", free, need)
+            return False
+        return True
+
     def step(self) -> str:
-        """Claim and run at most one job: idle | paused | offline | no_model | outside_hours | a run_job result."""
+        """Claim and run at most one job: idle | paused | offline | no_model | gpu_busy | outside_hours | a run_job
+        result."""
         hours = self.config.active_hours
         if hours and not hours[0] <= self.now().astimezone(KST).hour < hours[1]:
             return "outside_hours"
         if not self.model_ready():
             return "no_model"
+        if not self.gpu_ready():
+            return "gpu_busy"
         try:
-            r = self.hub.post("/claim", {"lease_token": str(uuid.uuid4())}, deadline=120.0, stop=self.stop)
+            # the server hands announcement jobs only to a worker that runs the configured translation model
+            r = self.hub.post("/claim", {"lease_token": str(uuid.uuid4()), "model": self.llm.model}, deadline=120.0,
+                              stop=self.stop)
         except CredentialRejected:
             raise
         except HubError as exc:
@@ -189,7 +229,8 @@ class Worker:
         failures = 0
         while not self.stop.is_set():
             result = self.step()
-            if mode == "once" or (mode == "drain" and result in ("idle", "paused", "offline", "no_model", "outside_hours")):
+            if mode == "once" or (mode == "drain" and result in ("idle", "paused", "offline", "no_model", "gpu_busy",
+                                                                 "outside_hours")):
                 break
             if result in ("completed", "requeued", "cancelled"):
                 idle, failures = self.config.idle_min, 0

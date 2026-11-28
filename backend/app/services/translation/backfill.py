@@ -38,6 +38,8 @@ def plan(svc: Any, languages: list[str] | None = None) -> dict[str, Any]:
         orig = svc.translations.original(a["id"])
         chars = len(orig["title"]) + len(orig["body"])
         parts = len(chunk_text(orig["body"], s.translation_chunk_chars))
+        if a["original_language"] not in machine_languages(s):
+            continue                       # Release 1: only between ko, en and id
         for lang in ann_langs:
             if lang == a["original_language"]:
                 continue

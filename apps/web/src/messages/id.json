@@ -809,7 +809,7 @@
         "newSubtitle": "Tempelkan teks asli berbahasa Korea dan jelaskan sumbernya.",
         "noAutoPublish": "Pengumuman tidak pernah dipublikasikan secara otomatis. Administrator harus menyetujuinya terlebih dahulu.",
         "title": "Judul",
-        "body": "Teks asli (bahasa Korea)",
+        "body": "Teks asli",
         "bodyPlaceholder": "Tempelkan teks pengumuman asli di sini",
         "bodyHint": "Kata-kata asli disimpan tanpa perubahan sebagai versi rujukan utama.",
         "category": "Kategori",
@@ -827,7 +827,8 @@
         "kakaoBody": "Tempelkan pesan secara manual. Sistem tidak pernah membaca grup KakaoTalk pribadi. Nomor telepon, email, dan nama pengirim disamarkan secara otomatis; hapus sendiri data pribadi lainnya.",
         "kakaoAuthorized": "Saya adalah supporter yang berwenang dan boleh mengirimkan pesan ini.",
         "saveDraft": "Simpan sebagai draf",
-        "submitForApproval": "Kirim untuk persetujuan"
+        "submitForApproval": "Kirim untuk persetujuan",
+        "originalLanguage": "Bahasa asli"
       },
       "validation": {
         "required": "Kolom ini wajib diisi.",
@@ -836,6 +837,21 @@
         "invalidUrl": "Masukkan URL http(s) yang valid.",
         "invalidChoice": "Pilih opsi yang valid.",
         "authorizationRequired": "Anda harus mengonfirmasi kewenangan untuk kiriman KakaoTalk."
+      },
+      "autoTr": {
+        "title": "Terjemahan otomatis",
+        "hint": "Draf mesin dibuat oleh TranslateGemma di GPU universitas hanya setelah pengumuman ini disetujui dan diterbitkan. Peninjau menyetujui setiap draf sebelum mahasiswa melihatnya.",
+        "original": "asli",
+        "noneChosen": "Tanpa terjemahan otomatis: peninjau tetap bisa menerjemahkan secara manual.",
+        "afterApproval": "Draf bahasa yang dipilih diantrekan saat pengumuman diterbitkan.",
+        "notOffered": "Terjemahan mesin hanya tersedia dari dan ke bahasa Korea, Inggris, dan Indonesia.",
+        "notChosen": "Belum ada bahasa yang dipilih untuk pengumuman ini.",
+        "publishedNote": "Sudah terbit: menyimpan akan langsung mengantrekan draf yang belum ada untuk bahasa yang dipilih. Terjemahan yang disetujui tidak pernah diganti.",
+        "save": "Simpan bahasa",
+        "saveAndQueue": "Simpan dan terjemahkan yang belum ada",
+        "saved": "Bahasa disimpan.",
+        "savedQueued": "Disimpan. {count} draf mesin diantrekan.",
+        "editToChange": "Sunting pengumuman untuk mengubah bahasanya."
       }
     },
     "translations": {
@@ -1346,7 +1362,8 @@
         "approve": "Disetujui",
         "reject": "Ditolak",
         "request_changes": "Perubahan diminta",
-        "outdated": "Ditandai usang"
+        "outdated": "Ditandai usang",
+        "generate": "Terjemahan mesin dibuat"
       },
       "system": "Sistem",
       "rejectTitle": "Tolak terjemahan",
@@ -1368,15 +1385,75 @@
         "queued": "Terjemahan mesin masuk antrean. Hasilnya muncul di sini setelah siap.",
         "state": {
           "pending": "Dalam antrean",
-          "processing": "Sedang menerjemahkan…",
-          "completed": "Terjemahan mesin siap – belum ditinjau",
-          "needs_review": "Gagal pemeriksaan otomatis – perlu ditinjau",
-          "failed": "Gagal",
+          "processing": "Menerjemahkan…",
+          "completed": "Draf mesin siap – belum ditinjau",
+          "needs_review": "Perlu ditinjau",
+          "failed": "Gagal – bisa diulang",
           "outdated": "Usang – dokumen asli berubah",
           "approved": "Disetujui peninjau",
           "human_draft": "Sedang disunting seseorang",
-          "missing": "Belum diterjemahkan"
+          "missing": "Belum diterjemahkan",
+          "ready": "Siap diterjemahkan",
+          "stalled": "Tidak berjalan",
+          "quota": "Kuota atau anggaran habis",
+          "retrying": "Percobaan ulang terjadwal",
+          "waiting_worker": "Menunggu worker GPU",
+          "manual": "Hanya terjemahan manual"
+        },
+        "ready": "Draf mesin sudah siap dan dimuat di bawah untuk ditinjau.",
+        "resume": "Periksa lagi",
+        "refresh": "Muat ulang status",
+        "regenerate": "Terjemahkan ulang (ganti draf)",
+        "regenerateHuman": "Terjemahan ini sudah disunting seseorang. Draf mesin baru akan menggantikan teksnya (tetap tersimpan di riwayat). Lanjutkan?",
+        "regenerateMachine": "Draf mesin saat ini akan diganti dengan yang baru. Lanjutkan?",
+        "regenerateConfirm": "Ganti draf",
+        "regenerateCancel": "Pertahankan draf",
+        "explain": {
+          "ready": "Belum diminta. Terjemahkan dengan mesin meminta {model} membuat draf pribadi; peninjau menyetujuinya sebelum mahasiswa melihatnya.",
+          "pending": "Dalam antrean sejak {date}; server akan segera memulainya.",
+          "pendingGpu": "Dalam antrean untuk {model} di GPU universitas sejak {date}. Worker mengambilnya pada pemeriksaan berikutnya (setiap 5–60 menit saat menganggur).",
+          "processing": "{model} sedang menerjemahkan judul dan seluruh teks (mulai {date}).",
+          "waitingWorker": "Worker GPU universitas sedang offline (kontak terakhir {date}). Pekerjaan tetap dalam antrean dan dimulai begitu worker kembali. Tidak ada model berbayar yang dipakai dan publikasi tidak terpengaruh.",
+          "waitingWorkerNever": "Belum ada worker GPU universitas yang menghubungi server. Pekerjaan tetap dalam antrean sampai ada. Tidak ada model berbayar yang dipakai.",
+          "stalled": "Pekerjaan ini tidak berjalan seperti seharusnya. Periksa lagi membangunkan worker dan mengembalikan pekerjaan jika worker-nya berhenti; tidak pernah membuat pekerjaan atau biaya kedua.",
+          "quota": "Menunggu anggaran harian atau kuota penyedia; percobaan berikutnya {date}. {error}",
+          "retrying": "Percobaan ulang otomatis dijadwalkan pada {date} setelah kesalahan: {error}",
+          "completed": "Draf mesin lolos pemeriksaan otomatis. Draf ini tidak publik: bandingkan dengan aslinya, sunting, lalu setujui di bawah.",
+          "needsReview": "Draf mesin sudah siap tetapi harus ditinjau (pemeriksaan otomatis menemukan sesuatu, atau model ini selalu perlu ditinjau). Draf ini tidak publik.",
+          "failed": "Percobaan terakhir gagal: {error}. Anda bisa memintanya lagi.",
+          "outdated": "Teks asli berubah setelah terjemahan ini dibuat. Minta draf baru atau perbarui secara manual.",
+          "approved": "Terjemahan ini disetujui peninjau; sudah publik dan terlindungi dari hasil mesin.",
+          "humanDraft": "Seseorang sedang mengerjakan terjemahan ini. Peninjau tetap bisa menggantinya dengan draf mesin baru."
+        },
+        "routeGpu": "Model: {model} di worker GPU universitas",
+        "routeServer": "Model: {model} di server (cadangan berbayar, TRANSLATION_FALLBACK_TO_GEMINI)",
+        "routeNone": "Saat ini tidak ada model terjemahan yang tersedia",
+        "workerOnline": "worker online",
+        "workerOffline": "worker offline",
+        "jobLine": "Pekerjaan {status} · percobaan {attempts} dari {max} · diminta {date}",
+        "usage": "{input} token masukan / {output} token keluaran",
+        "noPermission": "Anda memerlukan penugasan dukungan atau peninjauan untuk bahasa ini agar bisa meminta draf mesin.",
+        "gpuWorker": "Worker GPU",
+        "lastAttempt": "percobaan terakhir {date}",
+        "blocked": {
+          "not_published": "Terjemahan mesin dimulai setelah pengumuman asli disetujui dan diterbitkan.",
+          "original_language": "Ini bahasa aslinya; tidak diterjemahkan.",
+          "language_out_of_scope": "Pada rilis ini draf mesin hanya tersedia antara bahasa Korea, Inggris, dan Indonesia. Terjemahkan secara manual.",
+          "translation_worker_disabled": "Terjemahan mesin nonaktif: pengumuman diterjemahkan oleh worker GPU universitas, yang belum dinyalakan (GPU_WORKER_ENABLED). Gemini tidak dipakai untuk pengumuman. Sementara itu terjemahkan secara manual.",
+          "llm_disabled": "Tidak ada model terjemahan yang dikonfigurasi di server.",
+          "translation_approved": "Peninjau menyetujui terjemahan ini untuk teks saat ini. Terjemahan ini terlindungi: hasil mesin tidak pernah menggantikannya."
         }
+      },
+      "machineCol": "Draf mesin",
+      "backfill": {
+        "title": "Terjemahan yang belum ada untuk pengumuman yang sudah terbit",
+        "body": "Memasukkan ke antrean draf mesin yang belum ada atau sudah usang. Terjemahan yang disetujui, pekerjaan peninjau, dan draf dari teks yang sama dilewati, jadi tidak ada yang diantrekan dua kali. Lihat pratinjau dulu.",
+        "limit": "Paling banyak",
+        "preview": "Pratinjau",
+        "run": "Antrekan {count}",
+        "previewResult": "{missing} belum ada, {queued} sudah dalam antrean.",
+        "queuedResult": "{count} dimasukkan ke antrean ({missing} belum ada).",
+        "workerOffline": "Worker GPU sedang offline: draf yang diantrekan menunggu sampai worker kembali."
       }
     },
     "teams": {

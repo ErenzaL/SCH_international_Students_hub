@@ -272,7 +272,8 @@ def test_background_provider_is_separate_from_the_chat_provider():
     chat = build_llm_from_settings(s)
     bg = translation_llm(s, chat, DailyBudget())
     assert bg is not chat and bg._circuit is not chat._circuit        # own circuit breaker
-    assert (bg.primary, bg.fallback) == ("chat-primary", "chat-fallback") and chat.attempt_gate is None
+    # never the chatbot's fallback model: background work does not fail over onto the chat lane
+    assert (bg.primary, bg.fallback) == ("chat-primary", "") and chat.attempt_gate is None
     assert [bg.attempt_gate() for _ in range(3)] == [True, True, True]
     with pytest.raises(LLMError) as ei:          # the gate names the reason instead of a bare False
         bg.attempt_gate()

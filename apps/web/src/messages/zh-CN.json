@@ -809,7 +809,7 @@
         "newSubtitle": "粘贴韩语原文并说明其来源。",
         "noAutoPublish": "公告绝不会自动发布，必须先经管理员批准。",
         "title": "标题",
-        "body": "原文（韩语）",
+        "body": "原文",
         "bodyPlaceholder": "在此粘贴通知原文",
         "bodyHint": "原文措辞将原样保存，作为权威版本。",
         "category": "分类",
@@ -827,7 +827,8 @@
         "kakaoBody": "请手动粘贴消息。系统绝不会读取私人 KakaoTalk 群组。电话号码、电子邮件和发送者姓名会自动隐去；其他个人信息请自行删除。",
         "kakaoAuthorized": "我是经授权的支持者，可以提交此消息。",
         "saveDraft": "保存为草稿",
-        "submitForApproval": "提交批准"
+        "submitForApproval": "提交批准",
+        "originalLanguage": "原文语言"
       },
       "validation": {
         "required": "此字段为必填项。",
@@ -836,6 +837,21 @@
         "invalidUrl": "请输入有效的 http(s) 网址。",
         "invalidChoice": "请选择有效的选项。",
         "authorizationRequired": "KakaoTalk 提交必须确认已获授权。"
+      },
+      "autoTr": {
+        "title": "自动翻译",
+        "hint": "只有在此公告获批并发布后，学校 GPU 上的 TranslateGemma 才会生成机器译稿。每份译稿须经审核人批准后学生才能看到。",
+        "original": "原文",
+        "noneChosen": "不自动翻译：审核人仍可人工翻译。",
+        "afterApproval": "公告发布时，所选语言的译稿会加入队列。",
+        "notOffered": "机器翻译仅在韩语、英语和印尼语之间提供。",
+        "notChosen": "尚未为此公告选择语言。",
+        "publishedNote": "已发布：保存后会立即把所选语言缺少的译稿加入队列。已批准的译文不会被替换。",
+        "save": "保存语言",
+        "saveAndQueue": "保存并翻译缺少的部分",
+        "saved": "已保存语言。",
+        "savedQueued": "已保存。已将 {count} 份机器译稿加入队列。",
+        "editToChange": "如需更改语言，请编辑公告。"
       }
     },
     "translations": {
@@ -1346,7 +1362,8 @@
         "approve": "已批准",
         "reject": "已驳回",
         "request_changes": "已要求修改",
-        "outdated": "已标记为过时"
+        "outdated": "已标记为过时",
+        "generate": "已生成机器译稿"
       },
       "system": "系统",
       "rejectTitle": "驳回译文",
@@ -1369,14 +1386,74 @@
         "state": {
           "pending": "排队中",
           "processing": "翻译中…",
-          "completed": "机器翻译已完成 – 未审核",
-          "needs_review": "未通过自动检查 – 需审核",
-          "failed": "失败",
+          "completed": "机器译稿已就绪 – 未审核",
+          "needs_review": "需要审核",
+          "failed": "失败 – 可重试",
           "outdated": "已过时 – 原文已更改",
           "approved": "已由审核人批准",
           "human_draft": "有人正在编辑",
-          "missing": "尚未翻译"
+          "missing": "尚未翻译",
+          "ready": "可以翻译",
+          "stalled": "未在进行",
+          "quota": "配额或预算已用完",
+          "retrying": "已安排重试",
+          "waiting_worker": "等待 GPU 工作端",
+          "manual": "仅限人工翻译"
+        },
+        "ready": "机器译稿已就绪，已加载在下方供审核。",
+        "resume": "再次检查",
+        "refresh": "刷新状态",
+        "regenerate": "重新翻译（替换译稿）",
+        "regenerateHuman": "此译文已被人工编辑。新的机器译稿将替换其内容（历史记录中仍保留）。是否继续？",
+        "regenerateMachine": "当前机器译稿将被新的译稿替换。是否继续？",
+        "regenerateConfirm": "替换译稿",
+        "regenerateCancel": "保留当前译稿",
+        "explain": {
+          "ready": "尚未请求。点击“机器翻译”会请 {model} 生成一份不公开的译稿；审核人批准后学生才能看到。",
+          "pending": "自 {date} 起排队，服务器很快开始处理。",
+          "pendingGpu": "自 {date} 起在学校 GPU 的 {model} 队列中。工作端下次检查时领取（空闲时每 5–60 分钟一次）。",
+          "processing": "{model} 正在翻译标题和全文（{date} 开始）。",
+          "waitingWorker": "学校的 GPU 工作端离线（最后联系 {date}）。任务保留在队列中，工作端恢复后立即开始。不会使用付费模型，也不影响发布。",
+          "waitingWorkerNever": "尚无学校 GPU 工作端联系过服务器。任务会一直排队直到有工作端连接。不会使用付费模型。",
+          "stalled": "此任务没有按预期进行。“再次检查”会唤醒工作端，并在工作端停止时把任务放回队列；不会产生第二个任务或第二笔费用。",
+          "quota": "正在等待每日预算或服务商配额；下次尝试 {date}。{error}",
+          "retrying": "出错后已安排在 {date} 自动重试：{error}",
+          "completed": "机器译稿已通过自动检查，尚未公开：请对照原文检查、修改后在下方批准。",
+          "needsReview": "机器译稿已就绪，但必须审核（自动检查发现问题，或此模型的译稿一律需要审核）。尚未公开。",
+          "failed": "上次尝试失败：{error}。可以再次请求。",
+          "outdated": "生成此译文后原文已更改。请请求新的译稿或手动更新。",
+          "approved": "审核人已批准此译文；它已公开，不会被机器结果替换。",
+          "humanDraft": "有人正在处理此译文。审核人仍可用新的机器译稿替换。"
+        },
+        "routeGpu": "模型：学校 GPU 工作端上的 {model}",
+        "routeServer": "模型：服务器上的 {model}（付费备用，TRANSLATION_FALLBACK_TO_GEMINI）",
+        "routeNone": "目前没有可用的翻译模型",
+        "workerOnline": "工作端在线",
+        "workerOffline": "工作端离线",
+        "jobLine": "任务 {status} · 第 {attempts}/{max} 次尝试 · 请求于 {date}",
+        "usage": "输入 {input} / 输出 {output} 个 token",
+        "noPermission": "需要此语言的支持或审核分配才能请求机器译稿。",
+        "gpuWorker": "GPU 工作端",
+        "lastAttempt": "上次尝试 {date}",
+        "blocked": {
+          "not_published": "原始公告获批并发布后才开始机器翻译。",
+          "original_language": "这是原文语言，不翻译。",
+          "language_out_of_scope": "本版本仅在韩语、英语和印尼语之间提供机器译稿。请人工翻译。",
+          "translation_worker_disabled": "机器翻译未开启：公告由学校的 GPU 工作端翻译，但它尚未开启（GPU_WORKER_ENABLED）。公告不使用 Gemini。在此期间请人工翻译。",
+          "llm_disabled": "服务器未配置翻译模型。",
+          "translation_approved": "审核人已就当前原文批准此译文。它受保护，机器结果不会替换它。"
         }
+      },
+      "machineCol": "机器译稿",
+      "backfill": {
+        "title": "已发布公告中缺少的译文",
+        "body": "把尚不存在或已过时的机器译稿加入队列。已批准的译文、审核人的工作以及相同原文的译稿会被跳过，因此不会重复排队。请先预览。",
+        "limit": "最多",
+        "preview": "预览",
+        "run": "加入队列 {count} 项",
+        "previewResult": "缺少 {missing} 项，已在队列中 {queued} 项。",
+        "queuedResult": "已加入队列 {count} 项（缺少 {missing} 项）。",
+        "workerOffline": "GPU 工作端离线：已排队的译稿会等到它恢复。"
       }
     },
     "teams": {

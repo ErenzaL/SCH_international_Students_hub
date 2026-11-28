@@ -1,6 +1,6 @@
 import { CATEGORY_SLUGS } from "@/lib/constants";
 import { isHttpUrl } from "@/features/admin/sources/source-validation";
-import type { AnnouncementCreate } from "@/types/api";
+import type { AnnouncementCreate, LanguageCode } from "@/types/api";
 
 export interface AnnouncementFormValues {
   title: string;
@@ -15,6 +15,9 @@ export interface AnnouncementFormValues {
   evidence_note: string;
   evidence_url: string;
   authorized_by_supporter: boolean;
+  original_language: LanguageCode;
+  /** machine drafts to make after approval (never the original language) */
+  translation_targets: LanguageCode[];
 }
 
 export type AnnouncementErrorCode =
@@ -40,7 +43,14 @@ export const EMPTY_ANNOUNCEMENT_FORM: AnnouncementFormValues = {
   evidence_note: "",
   evidence_url: "",
   authorized_by_supporter: false,
+  original_language: "ko",
+  translation_targets: [],
 };
+
+/** The selected targets without the original language (it is never translated into itself). */
+export function cleanTargets(v: Pick<AnnouncementFormValues, "original_language" | "translation_targets">): LanguageCode[] {
+  return v.translation_targets.filter((l, i, all) => l !== v.original_language && all.indexOf(l) === i);
+}
 
 export function validateAnnouncementForm(v: AnnouncementFormValues): AnnouncementFormErrors {
   const errors: AnnouncementFormErrors = {};
@@ -68,7 +78,8 @@ export function toAnnouncementCreate(v: AnnouncementFormValues, submit: boolean)
     source_published_at: opt(v.source_published_at),
     evidence_note: opt(v.evidence_note),
     evidence_url: opt(v.evidence_url),
-    original_language: "ko",
+    original_language: v.original_language,
+    translation_targets: cleanTargets(v),
     submit,
     authorized_by_supporter: v.source_type === "kakao_message" ? v.authorized_by_supporter : undefined,
   };

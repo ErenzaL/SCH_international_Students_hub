@@ -82,14 +82,16 @@ All three are **public**: they are built into the pages. Never put a secret here
 | `CRON_SECRET` | SECRET | for daily imports | same value as on the API service | Actions → Scheduled knowledge sync → log |
 | `SCH_API_URL` | variable | no | address of the API | same |
 
-## University GPU computer (`~/.config/sch-gpu-worker/env`, see GPU-SETUP.md)
+## University GPU computer (`~/.config/sch-gpu-worker/env`, see GPU-ACTIVATION.md)
 
 | Variable | Required | Meaning |
 |---|---|---|
 | `GPU_WORKER_HUB_URL` | yes | `https://` address of the API, no path |
-| `GPU_WORKER_PRODUCTION_HOST` | no | leave unset: the worker refuses the production API. Only after the Release B sign-off: exactly `sch-hub-api.onrender.com` |
+| `GPU_WORKER_PRODUCTION_HOST` | for production | unset = the worker refuses the production API. For activation (GPU-ACTIVATION.md): exactly `sch-hub-api.onrender.com` |
 | `GPU_WORKER_TOKEN_FILE` | yes | file with the token, mode 600 (the token itself is **not** a variable) |
-| `OLLAMA_BASE_URL`, `OLLAMA_MODEL`, `OLLAMA_NUM_CTX`, `OLLAMA_JOB_TIMEOUT_SECONDS` | no | defaults: loopback, `qwen2.5:7b-instruct`, 16384, 180 |
+| `OLLAMA_MODEL` | yes for announcements | `translategemma:12b` (default; the API gives announcement jobs to no other model) |
+| `OLLAMA_BASE_URL`, `OLLAMA_NUM_CTX`, `OLLAMA_JOB_TIMEOUT_SECONDS` | no | defaults: loopback, 16384, 180 |
+| `GPU_WORKER_MIN_FREE_VRAM_MB` | no | `9500`: no job is taken while less GPU memory is free (shared computer); 0 = no check |
 | `GPU_WORKER_IDLE_MIN_SECONDS`, `GPU_WORKER_IDLE_MAX_SECONDS`, `GPU_WORKER_ACTIVE_HOURS`, `GPU_WORKER_LOCK_FILE` | no | continuous mode only |
 
 The worker refuses to start when a Supabase, Gemini or cron secret is set on that computer.

@@ -1,0 +1,24 @@
+# OPTIONAL, only after university IT approved a continuously running worker. Not installed by anything here.
+# Install (as the worker's own account, no root):
+#   mkdir -p ~/.config/systemd/user && cp backend/gpu-worker.service.example ~/.config/systemd/user/sch-gpu-worker.service
+#   edit WorkingDirectory below, then: systemctl --user daemon-reload && systemctl --user enable --now sch-gpu-worker
+# Stop for good: systemctl --user disable --now sch-gpu-worker      Logs: journalctl --user -u sch-gpu-worker
+[Unit]
+Description=SCH Hub GPU translation worker (outbound HTTPS only; TranslateGemma via local Ollama)
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/projects/SCH_international_Students_hub
+ExecStart=%h/projects/SCH_international_Students_hub/scripts/gpu_worker.sh
+Restart=on-failure
+RestartSec=120
+# 77 = credential rejected (revoked / rotated / expired), 78 = configuration: do not restart in a loop
+RestartPreventExitStatus=77 78
+NoNewPrivileges=yes
+PrivateTmp=yes
+CPUQuota=200%
+MemoryMax=2G
+
+[Install]
+WantedBy=default.target

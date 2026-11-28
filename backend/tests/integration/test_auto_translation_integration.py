@@ -22,6 +22,7 @@ def it() -> IT:
     s = it.settings
     s.auto_translate_announcements = s.auto_translate_documents = s.public_machine_translations = True
     s.auto_translate_languages = "ko,en"
+    s.translation_fallback_to_gemini = True    # these tests cover the server's own model (opt-in for announcements)
     return it
 
 

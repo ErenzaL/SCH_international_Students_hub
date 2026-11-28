@@ -228,6 +228,19 @@ class OllamaProvider:
             out.append(row)
         return out
 
+    def loaded_models(self) -> list[str]:
+        """Names of the models Ollama holds in memory right now (``/api/ps``; raises LLMError when unreachable)."""
+        async def get() -> list[str]:
+            try:
+                async with asyncio.timeout(self.connect_timeout + 5):
+                    resp = await self._http().get("/api/ps")
+                    resp.raise_for_status()
+                    return [str(m["name"]) for m in resp.json().get("models") or []]
+            except Exception as exc:  # noqa: BLE001 - classified, never raw
+                raise _classify(exc, self.model) from exc
+
+        return self._submit(get()).result()
+
     def installed_models(self) -> list[str]:
         """Names of the models installed on this machine (raises LLMError when Ollama is not reachable)."""
         async def get() -> list[str]:

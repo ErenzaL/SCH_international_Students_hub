@@ -177,12 +177,23 @@ def test_parallel_claims_never_share_a_job(it: IT):
 
 
 def test_sweep_and_routing_on_the_real_database(it: IT):
+    from app.services.llm.base import ScriptedLLMProvider
+
     svc = it.app.state.services
     aid = publish(it)
     jid = request(it, aid, "id")
     sql(f"update public.ingestion_jobs set created_at = now() - interval '3 days' where id = '{jid}'")
-    assert svc.gpu.sweep()["failed"] == 1
-    assert sql(f"select status || ':' || error_code from public.ingestion_jobs where id = '{jid}'") == "failed:gpu_worker_unavailable"
-    sql("update public.gpu_workers set last_seen_at = now() - interval '2 days'")
-    jid = request(it, aid, "id")
-    assert sql(f"select executor from public.ingestion_jobs where id = '{jid}'") == "local"
+    # default (TRANSLATION_FALLBACK_TO_GEMINI=false): an announcement translation keeps waiting for the worker
+    assert svc.gpu.sweep()["failed"] == 0
+    assert sql(f"select status from public.ingestion_jobs where id = '{jid}'") == "queued"
+    llm, svc.announcement_translator.llm = svc.announcement_translator.llm, ScriptedLLMProvider(lambda s, x: "x")
+    it.settings.translation_fallback_to_gemini = True       # with the paid fallback allowed: the old expiry rule
+    try:
+        assert svc.gpu.sweep()["failed"] == 1
+        assert sql(f"select status || ':' || error_code from public.ingestion_jobs where id = '{jid}'") == "failed:gpu_worker_unavailable"
+        sql("update public.gpu_workers set last_seen_at = now() - interval '2 days'")
+        jid = request(it, aid, "id")
+        assert sql(f"select executor from public.ingestion_jobs where id = '{jid}'") == "local"
+    finally:
+        it.settings.translation_fallback_to_gemini = False
+        svc.announcement_translator.llm = llm

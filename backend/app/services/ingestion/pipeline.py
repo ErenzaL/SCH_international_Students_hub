@@ -243,6 +243,8 @@ class IngestionService:
                 if self.announcement_translator is None:
                     raise IngestionError("translation_unavailable", "Announcement translation is not configured.")
                 result = self.announcement_translator.run_job(job, self._heartbeat, self.event)
+                if result.get("usage"):
+                    stats["usage"] = result["usage"]        # model, tokens, estimated cost of this job
             elif source["source_type"] == "sch_board":
                 result = self._run_board(source, job, stats)
             else:

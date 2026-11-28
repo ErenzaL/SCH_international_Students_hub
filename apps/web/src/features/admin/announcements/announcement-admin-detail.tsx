@@ -11,6 +11,7 @@ import { Label, Textarea } from "@/components/ui/input";
 import { PublicationBadge, TestDataBadge } from "@/components/shared/badges";
 import { ErrorState, LoadingState } from "@/components/shared/states";
 import { AnnouncementForm } from "@/features/admin/announcements/announcement-form";
+import { AutoTranslationCard } from "@/features/admin/announcements/auto-translation-card";
 import { TranslationPanel } from "@/features/admin/announcements/translation-panel";
 import { isAdminRole, useMe } from "@/features/admin/shell/admin-context";
 import { api, errorMessage } from "@/lib/api";
@@ -174,6 +175,10 @@ export function AnnouncementAdminDetail({ id }: { id: string }) {
             </>
           )}
 
+          {a.publication_status !== "canceled" && (
+            <AutoTranslationCard key={`${a.id}:${(a.translation_targets ?? []).join(",")}:${a.publication_status}`}
+              announcement={a} admin={admin} onChanged={() => { ann.reload(); history.reload(); }} />
+          )}
           <TranslationPanel announcement={a} onChanged={ann.reload} />
 
           <section aria-labelledby="hist-h" className="space-y-2">

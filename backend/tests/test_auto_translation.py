@@ -50,6 +50,7 @@ def use_translator(env, fake: FakeTranslator) -> ScriptedLLMProvider:  # type: i
     svc = env.app.state.services
     p = ScriptedLLMProvider(fake, model="translate-1")
     svc.doc_translations.llm = svc.announcement_translator.llm = p
+    env.settings.translation_fallback_to_gemini = True    # the server's own model (the path Gemini uses): opt-in
     return p
 
 
@@ -215,8 +216,8 @@ def test_a_person_corrects_and_approves_a_machine_translation(env, auto):
     assert tr["status"] == "verified" and tr["title"] == "Scholarship application"
     # the machine never overwrites a person's work, even when asked again
     svc = env.app.state.services
-    with pytest.raises(Exception, match="person"):
-        svc.announcement_translator.queue(a["id"], "en", None)
+    with pytest.raises(Exception, match="approved by a reviewer"):      # protected, even with force
+        svc.announcement_translator.queue(a["id"], "en", None, force=True)
 
 
 def test_machine_translate_endpoint_permissions(env, auto):
