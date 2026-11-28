@@ -32,7 +32,7 @@ from app.services.review import DocumentLifecycleService, ReviewService
 from app.services.source_lifecycle import SourceLifecycleService
 from app.services.sources import SourceService
 from app.services.support import SupportService
-from app.services.translation.auto import AnnouncementAutoTranslator, translation_llm
+from app.services.translation.auto import AnnouncementAutoTranslator, machine_languages, translation_llm
 from app.services.translations import TranslationReviewService
 
 
@@ -77,6 +77,7 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
                    llm: LLMProvider, fetcher: GuardedFetcher | None = None, ocr: OCRProvider | None = None) -> Services:
     indexer = IndexingService(store, embedder, settings)
     announcements = AnnouncementService(store, indexer)
+    announcements.machine_languages = machine_languages(settings)
     domains = DomainPolicy(store, settings)
     fetcher = fetcher or GuardedFetcher(settings)
     fetcher.domains = domains.domains  # environment allowlist + admin-managed domains
@@ -132,6 +133,7 @@ def build_services(settings: Settings, store: Store, storage: FileStorage | None
     services.runtime_flags = runtime_flags
     services.agents = jobs.agents = AgentTaskService(services)
     services.gpu = jobs.gpu = GpuWorkerService(services)
+    ann_auto.services = services
     services.operations = AgentOperations(services)
     services.agents.worker_id = jobs.worker_id
     return services

@@ -26,9 +26,9 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from app.core.config import Settings
-from app.core.errors import DuplicateError, Forbidden, InvalidState, NotFound
+from app.core.errors import DuplicateError, Forbidden, InvalidState, NotFound, ValidationFailed
 from app.repositories.base import Query, Store, get_one
-from app.services.gpu_routing import gpu_executor
+from app.services.gpu_routing import announcement_route, available_workers, gemini_fallback, routed_types
 from app.services.ingestion.errors import IngestionError
 from app.services.llm.base import LLMError, LLMProvider
 from app.services.translation.quality import is_high_risk, local_translation_warnings, validate_translation
@@ -37,6 +37,13 @@ from app.services.translation_drafts import chunk_text, translate_document
 log = logging.getLogger("app.translation")
 
 TRANSLATION_JOB_TYPES = ("translate_document", "translate_announcement")
+BLOCKED_MESSAGES = {
+    "translation_worker_disabled": "Announcement translations are made by the university GPU worker, which is not "
+                                   "switched on (GPU_WORKER_ENABLED). The server's Gemini is not used for them "
+                                   "(TRANSLATION_FALLBACK_TO_GEMINI=false). Translate by hand meanwhile.",
+    "llm_disabled": "Machine translation needs an AI provider (the GPU worker, or LLM_PROVIDER with an API key and "
+                    "TRANSLATION_FALLBACK_TO_GEMINI=true).",
+}
 SUPPORTED = ("ko", "en", "id", "vi", "zh-CN")
 HUMAN_WORK = ("in_review", "changes_requested", "human_approved", "rejected", "draft")
 
@@ -84,27 +91,83 @@ def public_machine_allowed(settings: Settings, high_risk: bool) -> bool:
     return settings.public_machine_translations and not (high_risk and settings.machine_translation_high_risk == "review")
 
 
-def automation_state(row: dict[str, Any] | None, job: dict[str, Any] | None) -> str:
-    """One status for admins: pending | processing | completed | needs_review | failed | outdated | approved |
-    human_draft | missing."""
+# a queued job with one of these codes waits for a quota / budget / the emergency stop (not an error of the text)
+DEFER_CODES = ("llm_quota", "translation_daily_limit", "llm_background_budget", "llm_background_stopped")
+
+
+def _ts(value: Any) -> datetime | None:
+    if not value:
+        return None
+    try:
+        t = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return t if t.tzinfo else t.replace(tzinfo=UTC)
+
+
+def job_stalled(job: dict[str, Any] | None, settings: Settings, at: datetime | None = None) -> bool:
+    """A job nobody is working on although it should be: queued and due for longer than the worker needs to pick it
+    up, or running without a heartbeat (its worker died; the claim re-queues it)."""
+    if not job:
+        return False
+    at = at or datetime.now(UTC)
+    if job.get("executor") == "gpu":
+        # waiting for the GPU worker is not "stalled" (an idle worker looks for work every 5-60 min); a leased job is
+        # stalled once its lease ran out (the worker died): the sweep / a new request puts it back in the queue
+        lease = _ts(job.get("lease_expires_at"))
+        return job.get("status") == "running" and lease is not None and lease < at
+    if job.get("status") == "running":
+        beat = _ts(job.get("heartbeat_at")) or _ts(job.get("started_at"))
+        return beat is not None and (at - beat).total_seconds() > settings.job_stale_seconds
+    if job.get("status") == "queued":
+        times = [x for x in (_ts(job.get("run_after")), _ts(job.get("created_at")), _ts(job.get("updated_at"))) if x]
+        due = max(times) if times else None
+        return due is not None and due <= at and \
+            (at - due).total_seconds() > max(settings.translation_stall_seconds, 3 * settings.job_poll_seconds)
+    return False
+
+
+def automation_state(row: dict[str, Any] | None, job: dict[str, Any] | None, settings: Settings | None = None) -> str:
+    """One status for admins:
+    ready (nothing requested yet) | pending (queued) | processing | stalled (queued or running but nobody works on it) |
+    quota (waiting for a quota / budget / the emergency stop) | retrying (an automatic retry after an error) |
+    completed (unreviewed machine draft) | needs_review | failed (retry available) | outdated | approved |
+    human_draft (a person is working on it)."""
     if row is None:
-        return "missing"
+        return "ready"
     if row.get("is_outdated"):
         return "outdated"
-    if job and job.get("status") == "running":
-        return "processing"
-    if job and job.get("status") == "queued":
+    open_job = job if job and job.get("status") in ("queued", "running") else None
+    if open_job:
+        if settings is not None and job_stalled(open_job, settings):
+            return "stalled"
+        if open_job["status"] == "running":
+            return "processing"
+        if open_job.get("error_code") in DEFER_CODES and (_ts(open_job.get("run_after")) or datetime.now(UTC)) > datetime.now(UTC):
+            return "quota"
+        if open_job.get("error_code") and (_ts(open_job.get("run_after")) or datetime.now(UTC)) > datetime.now(UTC):
+            return "retrying"
         return "pending"
     st = row.get("translation_status")
     if st == "human_approved":
         return "approved"
     if st == "needs_review":
-        return "needs_review"
+        return "needs_review" if not row.get("last_edited_by") else "human_draft"
     if st == "machine_draft":
         return "completed" if row.get("provider") and not row.get("last_edited_by") else "human_draft"
     if st == "todo":
-        return "failed" if job and job.get("status") == "failed" else "pending"
+        return "failed" if job and job.get("status") == "failed" else "ready"
     return "human_draft"
+
+
+def clean_targets(targets: Any, original: str, allowed: list[str]) -> list[str]:
+    """Selected machine-translation languages: known, in this release's scope, never the original, no duplicates."""
+    out: list[str] = []
+    for x in targets or []:
+        x = str(x).strip()
+        if x in allowed and x != original and x not in out:
+            out.append(x)
+    return out
 
 
 class AnnouncementAutoTranslator:
@@ -119,10 +182,15 @@ class AnnouncementAutoTranslator:
         self.jobs: Any = None         # JobRunner
         self.public: Any = None       # PublicService: what students can see right now
         self.reviews: Any = None      # TranslationReviewService (original text + hash, reviewer lists)
+        self.services: Any = None     # the Services container (backfill planning)
+
+    def route(self) -> tuple[str | None, str | None]:
+        """('gpu' | 'local', None) or (None, reason): see gpu_routing.announcement_route."""
+        return announcement_route(self.store, self.settings, self.llm.enabled)
 
     @property
     def can_generate(self) -> bool:
-        return self.llm.enabled or gpu_executor(self.store, self.settings, "translate_announcement") is not None
+        return self.route()[1] is None
 
     # ------------------------------------------------------------------ rows
     @staticmethod
@@ -148,6 +216,21 @@ class AnnouncementAutoTranslator:
             order=[("created_at", True)], limit=1))
         return rows[0] if rows else None
 
+    def selected_targets(self, a: dict[str, Any]) -> list[str]:
+        """Languages to machine-translate when ``a`` is published: the admin's choice saved with the announcement
+        (``source_documents.metadata.translation_targets``); announcements saved before that choice existed follow
+        AUTO_TRANSLATE_ANNOUNCEMENTS / AUTO_TRANSLATE_LANGUAGES."""
+        allowed = machine_languages(self.settings)
+        if a.get("original_language") not in allowed:
+            return []                     # Release 1: only between ko, en and id
+        doc = get_one(self.store, "source_documents", id=a["document_id"]) or {}
+        chosen = (doc.get("metadata") or {}).get("translation_targets")
+        if isinstance(chosen, list):
+            return clean_targets(chosen, a["original_language"], allowed)
+        if not self.settings.auto_translate_announcements:
+            return []
+        return clean_targets(auto_languages(self.settings), a["original_language"], allowed)
+
     def _source(self, announcement: dict[str, Any]) -> dict[str, Any]:
         d = get_one(self.store, "source_documents", id=announcement["document_id"])
         s = get_one(self.store, "knowledge_sources", id=d["source_id"]) if d else None
@@ -172,34 +255,53 @@ class AnnouncementAutoTranslator:
             raise InvalidState("Only published announcements are translated automatically.")
         if language == a["original_language"] or language not in SUPPORTED:
             raise InvalidState("The original language does not need a translation.")
-        if language not in machine_languages(self.settings):
-            raise InvalidState(f"Machine drafts of announcements are not offered in {language} in this release "
-                               f"(only {', '.join(machine_languages(self.settings)) or 'none'}). A reviewer can still "
-                               f"translate it by hand.", code="language_out_of_scope")
-        if not self.can_generate:
-            raise InvalidState("Machine translation needs an LLM provider (LLM_PROVIDER and an API key).",
-                               code="llm_disabled")
+        if language not in machine_languages(self.settings) or a["original_language"] not in machine_languages(self.settings):
+            raise InvalidState(f"Machine drafts of announcements are offered only between "
+                               f"{', '.join(machine_languages(self.settings)) or 'no languages'} in this release. A "
+                               f"reviewer can still translate it by hand.", code="language_out_of_scope")
+        executor, blocked = self.route()
+        if blocked:
+            raise InvalidState(BLOCKED_MESSAGES[blocked], code=blocked)
         row = self._row(announcement_id, language) or self.store.insert("announcement_translations", dict(
             announcement_id=announcement_id, language_code=language, title="", body="", translation_status="todo"))
+        if self.approved_current(row, a):
+            # a reviewed translation of exactly the current text is never replaced by machine output
+            raise InvalidState("This translation was approved by a reviewer for the current text; it is not replaced "
+                               "by a machine translation.", code="translation_approved")
         if self.human_touched(row) and not force:
             raise InvalidState("A person is working on this translation; a machine translation would replace it.",
                                code="human_draft_exists")
+        if not force and self.machine_made(row) and \
+                not self.needs_translation(row, self.reviews.original(announcement_id)["content_hash"]):
+            last = self.last_job(row["id"])
+            if last is not None:
+                return last          # a machine draft of exactly this text exists: no new job, no inference
         existing = self.open_job(row["id"])
         if existing:
+            # the same request again (another click, a second publication event): never a second job or model call.
+            # A job nobody picked up (the worker slept or stopped) is handed to the worker again - safe: the claim is
+            # atomic and the job checks its own state before calling the model.
+            if existing.get("executor") == "gpu" and job_stalled(existing, self.settings):
+                self.store.rpc("expire_gpu_leases", {})       # the dead worker's lease ends now: queued again
+            elif self.jobs is not None and existing.get("executor") != "gpu" and \
+                    (existing["status"] == "queued" or job_stalled(existing, self.settings)):
+                if job_stalled(existing, self.settings):
+                    self.ingestion.event(existing["id"], "resume", "Requested again while waiting; the worker was "
+                                                                   "woken up.", level="warning")
+                self.jobs.enqueue(existing, background) if existing["status"] == "queued" else self.jobs.kick()
             return existing
-        executor = gpu_executor(self.store, self.settings, "translate_announcement")
         try:
             job = self.ingestion.create_job(self._source(a), "manual", actor_id, job_type="translate_announcement",
                                             payload=dict(announcement_id=announcement_id, translation_id=row["id"],
                                                          language=language, force=force),
-                                            executor=executor)
+                                            executor="gpu" if executor == "gpu" else None)
         except DuplicateError:          # queued concurrently (unique index): use that job
             existing = self.open_job(row["id"])
             if existing is None:
                 raise
             return existing
         self.ingestion.event(job["id"], "queued", f"Machine translation into {language} queued for the announcement"
-                                                 f"{' (GPU worker)' if executor else ''}.")
+                                                 f"{' (GPU worker, ' + self.settings.announcement_translation_model + ')' if executor == 'gpu' else ' (server model)'}.")
         self.store.insert("audit_log", dict(action="translation.machine_requested", entity_type="announcement",
                                             entity_id=announcement_id, actor_id=actor_id,
                                             details={"language": language, "job_id": job["id"]}))
@@ -207,16 +309,25 @@ class AnnouncementAutoTranslator:
             self.jobs.enqueue(job, background)
         return job
 
+    def approved_current(self, row: dict[str, Any] | None, a: dict[str, Any]) -> bool:
+        if not row or row.get("translation_status") != "human_approved" or row.get("is_outdated"):
+            return False
+        return row.get("source_content_hash") == self.reviews.original(a["id"])["content_hash"]
+
     def on_published(self, announcement_id: str, actor_id: str | None, background: Any = None) -> list[dict[str, Any]]:
-        """Publication hook: queue the missing / outdated machine translations (never blocks publication)."""
-        if not (self.settings.auto_translate_announcements and self.can_generate and self.ingestion):
+        """Publication hook: queue the missing / outdated machine translations of the SELECTED languages (never blocks
+        publication; repeated events queue nothing twice: one open job per translation, cached results)."""
+        if not (self.can_generate and self.ingestion):
             return []
         a = get_one(self.store, "announcements", id=announcement_id)
         if a is None or a["publication_status"] != "published":
             return []
+        targets = self.selected_targets(a)
+        if not targets:
+            return []
         h = self.reviews.original(announcement_id)["content_hash"]
         out = []
-        for lang in auto_languages(self.settings):
+        for lang in targets:
             if lang == a["original_language"] or not self.needs_translation(self._row(announcement_id, lang), h):
                 continue
             try:
@@ -224,6 +335,38 @@ class AnnouncementAutoTranslator:
             except Exception:  # noqa: BLE001 - a translation must never break publication
                 log.exception("could not queue the %s translation of announcement %s", lang, announcement_id)
         return out
+
+    def backfill(self, actor_id: str, *, languages: list[str], limit: int, dry_run: bool) -> dict[str, Any]:
+        """Bounded backfill of announcement drafts (see the route). Jobs wait for the GPU worker if it is offline."""
+        from app.services.translation import backfill as bf
+
+        executor, blocked = self.route()
+        langs = [x for x in (languages or machine_languages(self.settings)) if x in machine_languages(self.settings)]
+        if not langs:
+            raise ValidationFailed(f"Machine drafts are offered only in {', '.join(machine_languages(self.settings))}.")
+        items = [i for i in bf.plan(self._svc(), langs)["items"] if i["kind"] == "announcement"]
+        todo = [i for i in items if not i["queued"] and not i["too_long"]]
+        out = dict(dry_run=dry_run, missing=len(todo), already_queued=sum(1 for i in items if i["queued"]),
+                   too_long=sum(1 for i in items if i["too_long"]), languages=langs, route=executor,
+                   worker=self.worker_status(), queued=[],
+                   next=[{k: i[k] for k in ("id", "title", "language", "chars")} for i in todo[:limit]])
+        if dry_run:
+            return out
+        if blocked:
+            raise InvalidState(BLOCKED_MESSAGES[blocked], code=blocked)
+        queued = bf.apply(self._svc(), limit, langs, kinds=["announcement"])
+        for q in queued:                 # local jobs (TRANSLATION_FALLBACK_TO_GEMINI): wake the API's worker once
+            job = get_one(self.store, "ingestion_jobs", id=q["job_id"])
+            if job and self.jobs is not None and job.get("executor") != "gpu":
+                self.jobs.enqueue(job)
+        self.store.insert("audit_log", dict(action="translation.backfill", entity_type="announcement", entity_id=None,
+                                            actor_id=actor_id, details=dict(queued=len(queued), languages=langs,
+                                                                            limit=limit)))
+        return out | dict(queued=queued, next=[])
+
+    def _svc(self) -> Any:
+        """The few services the backfill planner reads (settings, store, this translator, reviews, documents)."""
+        return self.services
 
     # ------------------------------------------------------------------- run
     def _cached(self, content_hash: str, language: str, exclude: str) -> dict[str, Any] | None:
@@ -265,6 +408,13 @@ class AnnouncementAutoTranslator:
         return dict(row=row, a=a, orig=orig, lang=lang, src=src, done=done, finished=finished, force=bool(p.get("force")))
 
     def run_job(self, job: dict[str, Any], heartbeat: Any, event: Any) -> dict[str, Any]:
+        """The SERVER's model (the GPU worker's jobs never come here). Refused unless TRANSLATION_FALLBACK_TO_GEMINI:
+        also a job queued before the setting changed, or one handed back after a long wait, never reaches Gemini."""
+        if not gemini_fallback(self.settings):
+            raise IngestionError("translation_fallback_disabled",
+                                 "Announcements are translated by the GPU worker "
+                                 f"({self.settings.announcement_translation_model}); the server's model is not used "
+                                 "(TRANSLATION_FALLBACK_TO_GEMINI=false). Request the translation again.")
         work = self.prepare(job)
         if work["finished"]:
             return work["finished"]
@@ -286,10 +436,13 @@ class AnnouncementAutoTranslator:
             except LLMError as exc:
                 raise IngestionError(exc.code, exc.message) from exc
             title, body, provider, model = out["title"], out["body"], out["provider"], out["model"]
+            usage_row = job_usage(provider, model, out.get("input_tokens"), out.get("output_tokens"), parts + 1)
         else:
             event(job["id"], "translate", "Identical text was translated before; reusing that translation.")
             title, body, provider, model = cached["title"], cached["body"], cached.get("provider"), cached.get("model")
-        return self.store_result(job, work, title, body, provider, model)
+            usage_row = job_usage(provider, model, 0, 0, 0) | {"cached": True}
+        res = self.store_result(job, work, title, body, provider, model)
+        return res | {"usage": usage_row}
 
     def store_result(self, job: dict[str, Any], work: dict[str, Any], title: str, body: str, provider: str | None,
                      model: str | None, *, always_review: bool = False) -> dict[str, Any]:
@@ -343,15 +496,86 @@ class AnnouncementAutoTranslator:
         return dict(status="verified", language=language, title=row["title"], body=row["body"],
                     high_risk=is_high_risk(a["title"], body), reviewed_at=row.get("reviewed_at"), generated_at=None)
 
-    def admin_info(self, row: dict[str, Any] | None) -> dict[str, Any]:
+    def blocked_reason(self, a: dict[str, Any] | None, language: str | None, row: dict[str, Any] | None
+                       ) -> dict[str, str] | None:
+        """Why a machine translation cannot be requested right now (None = it can). Shown next to the button."""
+        allowed = machine_languages(self.settings)
+        if a is None or language is None:
+            return None
+        if a["publication_status"] != "published":
+            return dict(code="not_published", message="The original announcement must be approved and published first.")
+        if language == a["original_language"]:
+            return dict(code="original_language", message="This is the original language.")
+        if language not in allowed or a["original_language"] not in allowed:
+            return dict(code="language_out_of_scope", message=f"Machine drafts are offered only between "
+                                                              f"{', '.join(allowed)} in this release; translate by hand.")
+        blocked = self.route()[1]
+        if blocked:
+            return dict(code=blocked, message=BLOCKED_MESSAGES[blocked])
+        if self.approved_current(row, a):
+            return dict(code="translation_approved", message="A reviewer approved this translation for the current "
+                                                             "text; it is protected from machine output.")
+        return None
+
+    def worker_status(self) -> dict[str, Any]:
+        """The GPU worker as the panel shows it (no names, no tokens)."""
+        if "translate_announcement" not in routed_types(self.settings):
+            return dict(enabled=False, online=False, last_seen_at=None)
+        try:
+            workers = available_workers(self.store, self.settings)
+        except Exception:  # noqa: BLE001 - migration 0016 missing: shown as offline, never an error page
+            workers = []
+        seen = max((w.get("last_seen_at") or "" for w in workers), default="") or None
+        return dict(enabled=True, online=bool(workers), last_seen_at=seen)
+
+    def admin_info(self, row: dict[str, Any] | None, a: dict[str, Any] | None = None,
+                   language: str | None = None) -> dict[str, Any]:
         job = self.last_job(row["id"]) if row else None
-        return dict(state=automation_state(row, job), machine_made=bool(row and self.machine_made(row)),
+        worker = self.worker_status()
+        state = automation_state(row, job, self.settings)
+        if job and job.get("executor") == "gpu" and job["status"] == "queued" and state in ("pending", "stalled") \
+                and not worker["online"]:
+            state = "waiting_worker"          # nothing is wrong with the job: the university computer is offline
+        blocked = self.blocked_reason(a, language, row)
+        stats = (job or {}).get("statistics") or {}
+        return dict(state=state, machine_made=bool(row and self.machine_made(row)),
                     provider=(row or {}).get("provider"), model=(row or {}).get("model"),
                     generated_at=(row or {}).get("generated_at"), warnings=(row or {}).get("warnings") or [],
                     job=dict(id=job["id"], status=job["status"], error_code=job.get("error_code"),
                              error_message=job.get("error_message"), created_at=job["created_at"],
-                             run_after=job.get("run_after")) if job else None,
-                    llm_enabled=self.can_generate)
+                             run_after=job.get("run_after"), attempts=job.get("attempts"),
+                             max_attempts=job.get("max_attempts"), started_at=job.get("started_at"),
+                             heartbeat_at=job.get("heartbeat_at"), completed_at=job.get("completed_at"),
+                             deferrals=stats.get("deferrals"), usage=stats.get("usage"),
+                             stalled=job_stalled(job, self.settings)) if job else None,
+                    llm_enabled=self.can_generate, blocked=blocked, worker=worker,
+                    executor=(job or {}).get("executor") or ("local" if job else None),
+                    configured=self.configured(),
+                    # the panel refreshes itself while something happens on the server
+                    poll_seconds=3 if state in ("pending", "processing") else (30 if state == "waiting_worker" else None))
+
+    def configured(self) -> dict[str, Any]:
+        """Where a new request would run right now (shown to admins; no secrets)."""
+        executor, blocked = self.route()
+        if executor == "gpu":
+            return dict(route="gpu_worker", provider="ollama", model=self.settings.announcement_translation_model,
+                        fallback_to_gemini=gemini_fallback(self.settings))
+        if executor == "local":
+            return dict(route="server", provider=getattr(self.llm, "name", None),
+                        model=getattr(self.llm, "primary", None) or getattr(self.llm, "model", None),
+                        fallback_to_gemini=True)
+        return dict(route=None, provider=None, model=None, fallback_to_gemini=gemini_fallback(self.settings),
+                    blocked=blocked)
+
+
+def job_usage(provider: str | None, model: str | None, input_tokens: int | None, output_tokens: int | None,
+              calls: int) -> dict[str, Any]:
+    """What one translation job used (kept on the job; ESTIMATED cost from LLM_PRICES, never an invoice)."""
+    from app.services.llm.usage import usage
+
+    cost, priced = usage.prices.estimate(provider or "", model or "", input_tokens, output_tokens, None)
+    return dict(provider=provider, model=model, input_tokens=int(input_tokens or 0), output_tokens=int(output_tokens or 0),
+                model_calls=calls, est_cost_usd=cost if priced else None)
 
 
 def translation_llm(settings: Settings, llm: LLMProvider, budget: Any = None, flags: Any = None) -> LLMProvider:
@@ -393,9 +617,9 @@ def translation_llm(settings: Settings, llm: LLMProvider, budget: Any = None, fl
         return BudgetedLLM(llm, gate) if gate else llm
     from app.services.llm.base import build_llm_from_settings
 
-    model = (settings.translation_model or "").strip()
-    update: dict[str, Any] = {"gemini_primary_model": model, "gemini_fallback_model": ""} if model else {}
-    bg = build_llm_from_settings(settings.model_copy(update=update))
+    # never the chatbot's fallback model: background work must not fail over onto the chat lane's quota
+    model = (settings.translation_model or "").strip() or settings.gemini_primary_model
+    bg = build_llm_from_settings(settings.model_copy(update={"gemini_primary_model": model, "gemini_fallback_model": ""}))
     bg.lane = "background"  # type: ignore[attr-defined]
     bg, gate = gated(bg)
     bg.attempt_gate = gate  # type: ignore[attr-defined]

@@ -50,6 +50,7 @@ def live(env):  # type: ignore[no-untyped-def]
     svc = env.app.state.services
     svc.llm = svc.conversations.llm = svc.conversations.engine.llm = p
     svc.doc_translations.llm = svc.announcement_translator.llm = svc.discovery.llm = p
+    env.settings.translation_fallback_to_gemini = True    # announcements on Gemini: only with the explicit fallback
     env.ann = publish_announcement(env)
     pending_edit(env, env.ann)
     long = "방학 중 교내에 개인 짐을 보관할 수 없습니다. 첨부 안내문을 참고하세요. "

@@ -210,6 +210,16 @@ class Settings(BaseSettings):
     gpu_worker_job_types: str = "translate_announcement,translate_document"
     # models whose results are accepted (translategemma:12b: selected in docs/research/TRANSLATION-EVALUATION.md)
     gpu_worker_models: str = "qwen2.5:7b-instruct,translategemma:12b"
+    # --- announcement translation routing ----------------------------------------------------------------------
+    # Announcements are translated by the university GPU worker with this model ONLY: it gets no announcement job
+    # while it reports another model, and drafts of another model are refused. Gemini stays for chat and agents.
+    announcement_translation_model: str = "translategemma:12b"
+    # true = when the GPU worker is switched off or has not contacted the server, announcement translations use the
+    # server's Gemini (TRANSLATION_MODEL, never the chatbot's fallback model; paid). false (default) = they wait for
+    # the worker; no paid model is ever used for them, also not for jobs queued earlier or after a long wait.
+    translation_fallback_to_gemini: bool = False
+    # a queued job the API's own worker has not started after this long is shown as stalled (with a safe "resume")
+    translation_stall_seconds: int = 120
     gpu_worker_max_running: int = 1                  # jobs leased at the same time, all workers together
     gpu_worker_lease_seconds: int = 180              # renewed by the worker; a lost worker's job is re-queued after this
     gpu_worker_job_max_seconds: int = 1800           # a lease is not renewed beyond this
@@ -245,7 +255,8 @@ class Settings(BaseSettings):
     # Release 1: machine drafts of ANNOUNCEMENTS only in these languages (automatic and on request). Existing
     # approved translations in other languages stay visible; the chatbot and the website keep all five languages.
     announcement_machine_languages: str = "ko,en,id"
-    translation_model: str = ""                   # Gemini model for translation jobs ("" = the assistant's models)
+    # Gemini model for translation jobs of the SERVER (documents; announcements only with TRANSLATION_FALLBACK_TO_GEMINI)
+    translation_model: str = ""                   # "" = the assistant's primary model (never its fallback model)
     translation_full_max_chars: int = 12000       # longer documents: title + AI summary only (labelled as summary)
     translation_summary_source_chars: int = 40000  # text given to the summarizer (plus all section headings)
     translation_max_requests_per_job: int = 6      # model calls per job (title + parts); longer -> human translation

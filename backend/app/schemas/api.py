@@ -136,6 +136,9 @@ class AnnouncementCreate(BaseModel):
     evidence_note: Annotated[str, StringConstraints(max_length=2000)] | None = None
     evidence_url: Annotated[str, StringConstraints(max_length=2048)] | None = None
     original_language: Lang = "ko"
+    # machine translation drafts to make once the announcement is approved and published (Release 1: ko, en, id;
+    # never the original). None = not chosen (AUTO_TRANSLATE_ANNOUNCEMENTS decides), [] = none.
+    translation_targets: list[Lang] | None = Field(default=None, max_length=5)
     submit: bool = False
     authorized_by_supporter: bool = False
 
@@ -165,6 +168,8 @@ class AnnouncementPatch(BaseModel):
     valid_from: date | None = None
     evidence_note: Annotated[str, StringConstraints(max_length=2000)] | None = None
     evidence_url: Annotated[str, StringConstraints(max_length=2048)] | None = None
+    original_language: Lang | None = None
+    translation_targets: list[Lang] | None = Field(default=None, max_length=5)
 
     @field_validator("category")
     @classmethod
@@ -409,3 +414,18 @@ class SourceDelete(BaseModel):
     reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=5, max_length=2000)]
     confirm_title: Annotated[str, StringConstraints(max_length=500)]   # must equal the source title
     confirm_destructive: bool = False   # second confirmation, required when the source still has documents
+
+
+class TranslationTargets(BaseModel):
+    """Languages to machine-translate an announcement into (saved with it; for a published one, missing drafts of the
+    selected languages are queued at once)."""
+
+    languages: list[Lang] = Field(default_factory=list, max_length=5)
+
+
+class TranslationBackfill(BaseModel):
+    """Bounded backfill of missing announcement translations (approved, current or human work is always skipped)."""
+
+    languages: list[Lang] = Field(default_factory=list, max_length=5)
+    limit: int = Field(default=10, ge=1, le=50)
+    dry_run: bool = True

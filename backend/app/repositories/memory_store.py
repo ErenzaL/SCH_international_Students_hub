@@ -249,7 +249,7 @@ class MemoryStore:
             if r.get(c) == v:
                 return False
         for c, vals in q.in_.items():
-            if r.get(c) not in vals:
+            if cls._get(r, c) not in vals:       # JSON paths too, as PostgREST does
                 return False
         for c, v in q.gte.items():
             if r.get(c) is None or r[c] < v:

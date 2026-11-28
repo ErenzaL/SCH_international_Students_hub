@@ -28,7 +28,7 @@ from typing import Any
 
 from app.core.errors import Conflict, DuplicateError, InvalidState, NotAuthenticated, NotFound
 from app.repositories.base import Query, get_one
-from app.services.gpu_routing import available_workers, routed_types
+from app.services.gpu_routing import available_workers, gemini_fallback, routed_types
 from app.services.ingestion.errors import IngestionError
 
 log = logging.getLogger("app.gpu")
@@ -161,14 +161,25 @@ class GpuWorkerService:
         return w
 
     # ================================================================== worker: claim
-    def claim(self, worker: dict[str, Any], lease_token: str) -> dict[str, Any]:
+    def job_types_for(self, model: str | None) -> list[str]:
+        """Job types a worker running ``model`` may claim: announcements only with ANNOUNCEMENT_TRANSLATION_MODEL
+        (a worker that does not say which model it runs is checked when it hands in the draft)."""
+        types = routed_types(self.settings)
+        if model is not None and model.strip() != self.settings.announcement_translation_model.strip():
+            types = [t for t in types if t != "translate_announcement"]
+        return types
+
+    def claim(self, worker: dict[str, Any], lease_token: str, model: str | None = None) -> dict[str, Any]:
         s = self.settings
         if worker["status"] == "paused":
             return dict(state="paused", job=None)
+        types = self.job_types_for(model)
+        if not types:
+            return dict(state="idle", job=None)
         for _ in range(10):      # jobs that turn out to need nothing are finished here and the next one is tried
             rows = self.store.rpc("claim_gpu_job", dict(
                 p_worker=worker["id"], p_lease_token=lease_token, p_lease_seconds=s.gpu_worker_lease_seconds,
-                p_job_types=routed_types(s), p_max_running=s.gpu_worker_max_running))
+                p_job_types=types, p_max_running=s.gpu_worker_max_running))
             rows = [rows] if isinstance(rows, dict) else [r for r in rows or [] if r and r.get("id")]
             if not rows:
                 return dict(state="idle", job=None)
@@ -298,7 +309,9 @@ class GpuWorkerService:
         job = self._leased(worker, job_id, lease_token)
         if job["status"] != "running":                 # the first response was lost: same answer, nothing stored twice
             return dict(status=job["status"], duplicate=True)
-        if model not in [m.strip() for m in self.settings.gpu_worker_models.split(",")]:
+        if model not in [m.strip() for m in self.settings.gpu_worker_models.split(",")] or \
+                (job["job_type"] == "translate_announcement"
+                 and model != self.settings.announcement_translation_model.strip()):
             raise InvalidState("Results of this model are not accepted.", code="model_not_allowed")
         owned = self._owned(job, worker, lease_token)
         if job.get("cancel_requested"):
@@ -401,13 +414,24 @@ class GpuWorkerService:
                                             actor_id=actor_id, details={"status": status}))
         return dict(id=job_id, status=status)
 
+    def _may_use_server_model(self, job: dict[str, Any]) -> bool:
+        """GPU_WORKER_ON_EXPIRY=local may hand a job to the server's model - an announcement translation only with
+        TRANSLATION_FALLBACK_TO_GEMINI (paid models are never used for them otherwise)."""
+        if self.settings.gpu_worker_on_expiry.strip().lower() != "local":
+            return False
+        if job.get("job_type") == "translate_announcement":
+            return gemini_fallback(self.settings) and self.svc.announcement_translator.llm.enabled
+        return bool(self.svc.doc_translations.llm.enabled)
+
     def sweep(self) -> dict[str, int]:
-        """No job waits forever, whatever happened to the worker. Never raises.
+        """Housekeeping of GPU jobs, whatever happened to the worker. Never raises.
 
         * lost leases are re-queued (or failed after the attempt limit);
-        * worker enabled: a job that waited longer than GPU_WORKER_MAX_QUEUE_HOURS fails visibly, or goes to the
-          server's own model (GPU_WORKER_ON_EXPIRY=local, only if one is configured);
-        * worker disabled: the same for every open GPU job, at once."""
+        * worker enabled: an ANNOUNCEMENT translation keeps waiting for the worker however long it is offline (a
+          clear waiting status and a daily alert; nothing paid is used). Only with TRANSLATION_FALLBACK_TO_GEMINI it is
+          treated like a document translation: after GPU_WORKER_MAX_QUEUE_HOURS it fails visibly or goes to the
+          server's own model (GPU_WORKER_ON_EXPIRY=local);
+        * worker disabled: every open GPU job ends at once (failed, or the server's model where allowed above)."""
         out = dict(expired_leases=0, failed=0, rerouted=0)
         if self._no_schema:
             return out
@@ -419,9 +443,11 @@ class GpuWorkerService:
             rows, _ = self.store.select("ingestion_jobs", Query(
                 eq={"executor": "gpu"}, in_={"status": ["queued"] if enabled else ["queued", "running"]},
                 lt={"created_at": cutoff} if enabled else {}, order=[("created_at", False)], limit=200))
-            local = self.settings.gpu_worker_on_expiry.strip().lower() == "local" and self.svc.doc_translations.llm.enabled
             reason = "No GPU worker fetched this job in time." if enabled else "The GPU worker is switched off."
             for j in rows:
+                local = self._may_use_server_model(j)
+                if enabled and j.get("job_type") == "translate_announcement" and not gemini_fallback(self.settings):
+                    continue                      # keeps waiting for the worker (see the docstring)
                 eq = dict(id=j["id"], executor="gpu", status=j["status"], attempts=j["attempts"])
                 if local:
                     if self.store.update("ingestion_jobs", dict(
@@ -464,10 +490,14 @@ class GpuWorkerService:
                                                                    limit=1), count=True)
         if waiting:
             self._alerted = now
+            fallback = gemini_fallback(self.settings)
             self.svc.notifications.notify(
                 "translation_failed", "No GPU worker is available",
-                f"{waiting} translation job(s) wait for it. They end after {self.settings.gpu_worker_max_queue_hours} hours; "
-                "new requests use the server's own model.", severity="warning", link="/admin/translations")
+                f"{waiting} translation job(s) wait for it. "
+                + ("Announcement translations keep waiting until it is back (no paid model is used); "
+                   if not fallback else "New announcement requests use the server's Gemini (TRANSLATION_FALLBACK_TO_GEMINI); ")
+                + f"document translations end after {self.settings.gpu_worker_max_queue_hours} hours.",
+                severity="warning", link="/admin/translations")
 
     def status(self) -> dict[str, Any]:
         self.sweep()

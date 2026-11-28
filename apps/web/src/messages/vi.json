@@ -809,7 +809,7 @@
         "newSubtitle": "Dán văn bản gốc tiếng Hàn và mô tả nguồn của nó.",
         "noAutoPublish": "Thông báo không bao giờ được đăng tự động. Quản trị viên phải phê duyệt trước.",
         "title": "Tiêu đề",
-        "body": "Văn bản gốc (tiếng Hàn)",
+        "body": "Văn bản gốc",
         "bodyPlaceholder": "Dán văn bản thông báo gốc vào đây",
         "bodyHint": "Nội dung gốc được lưu nguyên vẹn làm phiên bản có giá trị quyết định.",
         "category": "Danh mục",
@@ -827,7 +827,8 @@
         "kakaoBody": "Dán tin nhắn thủ công. Hệ thống không bao giờ đọc các nhóm KakaoTalk riêng tư. Số điện thoại, email và tên người gửi được tự động ẩn; hãy tự xóa các dữ liệu cá nhân khác.",
         "kakaoAuthorized": "Tôi là supporter được ủy quyền và được phép gửi tin nhắn này.",
         "saveDraft": "Lưu bản nháp",
-        "submitForApproval": "Gửi để phê duyệt"
+        "submitForApproval": "Gửi để phê duyệt",
+        "originalLanguage": "Ngôn ngữ gốc"
       },
       "validation": {
         "required": "Trường này là bắt buộc.",
@@ -836,6 +837,21 @@
         "invalidUrl": "Nhập URL http(s) hợp lệ.",
         "invalidChoice": "Chọn một tùy chọn hợp lệ.",
         "authorizationRequired": "Bạn phải xác nhận quyền gửi đối với nội dung từ KakaoTalk."
+      },
+      "autoTr": {
+        "title": "Dịch tự động",
+        "hint": "Bản nháp máy chỉ được TranslateGemma trên GPU của trường tạo sau khi thông báo này được phê duyệt và đăng. Người duyệt phê duyệt từng bản trước khi sinh viên thấy.",
+        "original": "gốc",
+        "noneChosen": "Không dịch tự động: người duyệt vẫn có thể dịch thủ công.",
+        "afterApproval": "Bản nháp của các ngôn ngữ đã chọn được xếp hàng khi thông báo được đăng.",
+        "notOffered": "Dịch máy chỉ có từ và sang tiếng Hàn, tiếng Anh và tiếng Indonesia.",
+        "notChosen": "Chưa chọn ngôn ngữ nào cho thông báo này.",
+        "publishedNote": "Đã đăng: lưu sẽ xếp hàng ngay các bản nháp còn thiếu của ngôn ngữ đã chọn. Bản dịch đã duyệt không bao giờ bị thay.",
+        "save": "Lưu ngôn ngữ",
+        "saveAndQueue": "Lưu và dịch phần còn thiếu",
+        "saved": "Đã lưu ngôn ngữ.",
+        "savedQueued": "Đã lưu. Đã xếp hàng {count} bản nháp máy.",
+        "editToChange": "Hãy chỉnh sửa thông báo để thay đổi ngôn ngữ."
       }
     },
     "translations": {
@@ -1346,7 +1362,8 @@
         "approve": "Đã phê duyệt",
         "reject": "Đã từ chối",
         "request_changes": "Đã yêu cầu chỉnh sửa",
-        "outdated": "Đã đánh dấu lỗi thời"
+        "outdated": "Đã đánh dấu lỗi thời",
+        "generate": "Đã tạo bản dịch máy"
       },
       "system": "Hệ thống",
       "rejectTitle": "Từ chối bản dịch",
@@ -1369,14 +1386,74 @@
         "state": {
           "pending": "Đang chờ",
           "processing": "Đang dịch…",
-          "completed": "Bản dịch máy đã xong – chưa xem xét",
-          "needs_review": "Không qua kiểm tra tự động – cần xem xét",
-          "failed": "Thất bại",
+          "completed": "Bản dịch máy sẵn sàng – chưa duyệt",
+          "needs_review": "Cần duyệt",
+          "failed": "Thất bại – có thể thử lại",
           "outdated": "Đã cũ – bản gốc đã thay đổi",
           "approved": "Đã được người duyệt chấp thuận",
           "human_draft": "Có người đang chỉnh sửa",
-          "missing": "Chưa được dịch"
+          "missing": "Chưa được dịch",
+          "ready": "Sẵn sàng dịch",
+          "stalled": "Không tiến triển",
+          "quota": "Hết hạn mức hoặc ngân sách",
+          "retrying": "Đã lên lịch thử lại",
+          "waiting_worker": "Đang chờ GPU worker",
+          "manual": "Chỉ dịch thủ công"
+        },
+        "ready": "Bản nháp máy đã sẵn sàng và được tải bên dưới để duyệt.",
+        "resume": "Kiểm tra lại",
+        "refresh": "Làm mới trạng thái",
+        "regenerate": "Dịch lại (thay bản nháp)",
+        "regenerateHuman": "Một người đã chỉnh sửa bản dịch này. Bản nháp máy mới sẽ thay nội dung của họ (vẫn lưu trong lịch sử). Tiếp tục?",
+        "regenerateMachine": "Bản nháp máy hiện tại sẽ được thay bằng bản mới. Tiếp tục?",
+        "regenerateConfirm": "Thay bản nháp",
+        "regenerateCancel": "Giữ bản nháp hiện tại",
+        "explain": {
+          "ready": "Chưa yêu cầu. Dịch bằng máy sẽ nhờ {model} tạo một bản nháp riêng tư; người duyệt phải phê duyệt trước khi sinh viên thấy.",
+          "pending": "Đang chờ từ {date}; máy chủ sẽ bắt đầu ngay.",
+          "pendingGpu": "Đang chờ {model} trên GPU của trường từ {date}. Worker sẽ nhận ở lần kiểm tra tiếp theo (5–60 phút một lần khi rảnh).",
+          "processing": "{model} đang dịch tiêu đề và toàn bộ nội dung (bắt đầu {date}).",
+          "waitingWorker": "GPU worker của trường đang ngoại tuyến (liên hệ lần cuối {date}). Công việc vẫn trong hàng đợi và bắt đầu ngay khi worker trở lại. Không dùng mô hình trả phí và việc đăng tin không bị ảnh hưởng.",
+          "waitingWorkerNever": "Chưa có GPU worker nào của trường liên hệ với máy chủ. Công việc vẫn trong hàng đợi cho đến khi có. Không dùng mô hình trả phí.",
+          "stalled": "Công việc này không tiến triển như mong đợi. Kiểm tra lại sẽ đánh thức worker và trả công việc về hàng đợi nếu worker dừng; không bao giờ tạo công việc hay chi phí thứ hai.",
+          "quota": "Đang chờ ngân sách ngày hoặc hạn mức của nhà cung cấp; lần thử tiếp theo {date}. {error}",
+          "retrying": "Đã lên lịch tự động thử lại lúc {date} sau lỗi: {error}",
+          "completed": "Bản nháp máy đã qua kiểm tra tự động. Bản này chưa công khai: hãy so với bản gốc, chỉnh sửa rồi phê duyệt bên dưới.",
+          "needsReview": "Bản nháp máy đã sẵn sàng nhưng phải được duyệt (kiểm tra tự động phát hiện vấn đề, hoặc mô hình này luôn cần duyệt). Bản này chưa công khai.",
+          "failed": "Lần thử gần nhất thất bại: {error}. Bạn có thể yêu cầu lại.",
+          "outdated": "Bản gốc đã thay đổi sau khi bản dịch này được tạo. Hãy yêu cầu bản nháp mới hoặc tự cập nhật.",
+          "approved": "Người duyệt đã phê duyệt bản dịch này; bản dịch đang công khai và được bảo vệ khỏi kết quả máy.",
+          "humanDraft": "Một người đang làm bản dịch này. Người duyệt vẫn có thể thay bằng bản nháp máy mới."
+        },
+        "routeGpu": "Mô hình: {model} trên GPU worker của trường",
+        "routeServer": "Mô hình: {model} trên máy chủ (dự phòng trả phí, TRANSLATION_FALLBACK_TO_GEMINI)",
+        "routeNone": "Hiện không có mô hình dịch nào khả dụng",
+        "workerOnline": "worker trực tuyến",
+        "workerOffline": "worker ngoại tuyến",
+        "jobLine": "Công việc {status} · lần thử {attempts}/{max} · yêu cầu lúc {date}",
+        "usage": "{input} token vào / {output} token ra",
+        "noPermission": "Bạn cần được phân công hỗ trợ hoặc duyệt cho ngôn ngữ này để yêu cầu bản nháp máy.",
+        "gpuWorker": "GPU worker",
+        "lastAttempt": "lần thử cuối {date}",
+        "blocked": {
+          "not_published": "Dịch máy bắt đầu sau khi thông báo gốc được phê duyệt và đăng.",
+          "original_language": "Đây là ngôn ngữ gốc; không dịch.",
+          "language_out_of_scope": "Trong bản phát hành này, bản nháp máy chỉ có giữa tiếng Hàn, tiếng Anh và tiếng Indonesia. Hãy dịch thủ công.",
+          "translation_worker_disabled": "Dịch máy đang tắt: thông báo được dịch bởi GPU worker của trường, hiện chưa bật (GPU_WORKER_ENABLED). Không dùng Gemini cho thông báo. Trong lúc đó hãy dịch thủ công.",
+          "llm_disabled": "Máy chủ chưa cấu hình mô hình dịch.",
+          "translation_approved": "Người duyệt đã phê duyệt bản dịch này cho nội dung hiện tại. Bản dịch được bảo vệ: kết quả máy không bao giờ thay thế nó."
         }
+      },
+      "machineCol": "Bản nháp máy",
+      "backfill": {
+        "title": "Bản dịch còn thiếu của các thông báo đã đăng",
+        "body": "Đưa vào hàng đợi các bản nháp máy chưa có hoặc đã cũ. Bản dịch đã duyệt, công việc của người duyệt và bản nháp của cùng nội dung được bỏ qua, nên không có gì bị xếp hàng hai lần. Hãy xem trước.",
+        "limit": "Tối đa",
+        "preview": "Xem trước",
+        "run": "Xếp hàng {count}",
+        "previewResult": "Thiếu {missing}, đã chờ {queued}.",
+        "queuedResult": "Đã xếp hàng {count} (thiếu {missing}).",
+        "workerOffline": "GPU worker đang ngoại tuyến: các bản nháp đã xếp hàng sẽ chờ đến khi worker trở lại."
       }
     },
     "teams": {

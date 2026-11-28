@@ -14,7 +14,7 @@ from tests.test_document_translations import assign
 from tests.test_retrieval import make_doc
 
 KO = ("장학금 신청 안내", "신청 기간은 2026-12-01부터입니다. 문의: intl@example.ac.kr")
-GOOD = dict(title="Scholarship application guide", model="qwen2.5:7b-instruct",
+GOOD = dict(title="Scholarship application guide", model="translategemma:12b",
             body="Applications open on 2026-12-01. Contact: intl@example.ac.kr")
 
 
@@ -94,6 +94,11 @@ def test_everything_is_404_and_unchanged_when_disabled(env):
     from app.services.llm.base import ScriptedLLMProvider
     env.app.state.services.announcement_translator.llm = ScriptedLLMProvider(lambda s, p: "Guide")
     a = publish(env)
+    # default: announcements are translated by the GPU worker only - switched off, nothing is queued or charged
+    r = env.client.post(f"/api/v1/admin/announcements/{a['id']}/translations/en/machine-translate",
+                        headers=env.auth("super_admin"))
+    assert r.status_code == 409 and r.json()["error"]["code"] == "translation_worker_disabled"
+    env.settings.translation_fallback_to_gemini = True                # opt-in: the server's own model
     request(env, a["id"])
     jobs = [r for t, r in rows if t == "ingestion_jobs" and r["job_type"] == "translate_announcement"]
     assert jobs and all("executor" not in r for r in jobs)          # works without migration 0016
@@ -226,6 +231,7 @@ def gemini_like(env):  # type: ignore[no-untyped-def]
     p = ScriptedLLMProvider(lambda s, x: "Scholarship guide 2026-12-01 intl@example.ac.kr")
     svc = env.app.state.services
     svc.announcement_translator.llm = svc.doc_translations.llm = p
+    env.settings.translation_fallback_to_gemini = True    # the server's own model is used for announcements: opt-in
     return p
 
 
@@ -267,14 +273,21 @@ def test_without_a_usable_worker_requests_use_the_own_model(gpu, state):
         assert r.json()["error"]["code"] == "gpu_worker_unavailable"
 
 
-def test_without_any_provider_the_request_is_refused_not_parked(gpu):
+def test_without_a_usable_worker_an_announcement_request_waits_for_it(gpu):
+    """TRANSLATION_FALLBACK_TO_GEMINI=false (default): no worker online -> the job waits, nothing paid is used."""
+    gemini_like(gpu)                                   # a server model exists ...
+    gpu.settings.translation_fallback_to_gemini = False  # ... but is not allowed for announcements
     set_worker(gpu, "revoked")
     a = publish(gpu)
-    r = gpu.client.post(f"/api/v1/admin/announcements/{a['id']}/translations/en/machine-translate", headers=gpu.auth("super_admin"))
-    assert r.status_code == 409 and r.json()["error"]["code"] == "llm_disabled"
+    jid = request(gpu, a["id"])
+    assert job_row(gpu, jid)["executor"] == "gpu" and job_row(gpu, jid)["status"] == "queued"
+    d = gpu.client.get(f"/api/v1/admin/announcements/{a['id']}/translations/en", headers=gpu.auth("super_admin")).json()
+    assert d["machine"]["state"] == "waiting_worker" and d["machine"]["configured"]["model"] == "translategemma:12b"
+    assert gpu.app.state.services.announcement_translator.llm.calls == []          # type: ignore[attr-defined]
 
 
 def test_jobs_nobody_fetches_fail_visibly_and_can_be_requested_again(gpu):
+    gpu.settings.translation_fallback_to_gemini = True    # the old expiry rule applies to announcements only with it
     a = publish(gpu)
     young, aged = request(gpu, a["id"], "en"), request(gpu, a["id"], "id")
     old(gpu, aged)
@@ -290,6 +303,7 @@ def test_jobs_nobody_fetches_fail_visibly_and_can_be_requested_again(gpu):
 
 
 def test_expired_jobs_can_go_to_the_own_model_if_configured(gpu):
+    gpu.settings.translation_fallback_to_gemini = True
     a = publish(gpu)
     jid = request(gpu, a["id"])
     old(gpu, jid)
@@ -386,7 +400,7 @@ def test_result_is_always_needs_review_and_never_public(gpu):
     r = done(gpu, job, metrics=dict(duration_ms=1500, input_tokens=10, output_tokens=20, model_calls=2))
     assert r.json() == dict(status="succeeded", duplicate=False)
     t = row(gpu, a["id"])
-    assert (t["translation_status"], t["provider"], t["model"]) == ("needs_review", "ollama", "qwen2.5:7b-instruct")
+    assert (t["translation_status"], t["provider"], t["model"]) == ("needs_review", "ollama", "translategemma:12b")
     assert t["warnings"] == [] and public(gpu, a["id"]) is None        # every check passed: still not public
     assert t["reviewed_by"] is None and job_row(gpu, jid)["status"] == "succeeded"
     listing = gpu.client.get("/api/v1/announcements", params={"display_language": "en"}).json()["items"][0]

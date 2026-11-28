@@ -10,6 +10,8 @@ from app.schemas.api import (
     NoteBody,
     ReasonBody,
     TranslationApprove,
+    TranslationBackfill,
+    TranslationTargets,
     TranslationUpsert,
 )
 from app.security.auth import AuthUser, require_admin, require_staff
@@ -72,6 +74,21 @@ def reject_announcement(announcement_id: str, body: ReasonBody, svc: Services = 
 def cancel_announcement(announcement_id: str, body: ReasonBody, svc: Services = Depends(get_services),
                         user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
     return svc.announcements.cancel(announcement_id, user, body.reason)
+
+
+@router.put("/announcements/{announcement_id}/translation-targets")
+def set_translation_targets(announcement_id: str, body: TranslationTargets, background: BackgroundTasks,
+                            svc: Services = Depends(get_services),
+                            user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
+    """Choose the machine-translation languages (ko / en / id, never the original). Saved with the announcement and
+    used when it is approved; for a published announcement the missing drafts of these languages are queued now
+    (approved, current translations and a reviewer's work are never replaced)."""
+    out = svc.announcements.set_translation_targets(announcement_id, body.languages, user)
+    queued: list[dict] = []  # type: ignore[type-arg]
+    if out["publication_status"] == "published":
+        queued = svc.announcement_translator.on_published(announcement_id, user.id, background)
+    return out | {"queued": [dict(job_id=j["id"], language=(j.get("payload") or {}).get("language"),
+                                  status=j["status"]) for j in queued]}
 
 
 @router.get("/announcements/{announcement_id}/history")
@@ -140,6 +157,16 @@ def translation_share_text(announcement_id: str, language: Lang, svc: Services =
                            user: AuthUser = Depends(require_staff)) -> dict:  # type: ignore[type-arg]
     """Approved translation formatted for posting in the language's KakaoTalk group (copy-paste; nothing is sent)."""
     return svc.translations.share_text(announcement_id, language, user)
+
+
+@router.post("/translations/backfill")
+def backfill_translations(body: TranslationBackfill, svc: Services = Depends(get_services),
+                          user: AuthUser = Depends(require_admin)) -> dict:  # type: ignore[type-arg]
+    """Missing / outdated machine drafts of PUBLISHED announcements: ``dry_run`` lists them; otherwise at most ``limit``
+    jobs are queued (oldest first). Approved current translations, a reviewer's work and translations made from the
+    same text (content hash) are skipped, so repeating it queues nothing twice."""
+    return svc.announcement_translator.backfill(user.id, languages=body.languages, limit=body.limit,
+                                                dry_run=body.dry_run)
 
 
 @router.get("/translations")

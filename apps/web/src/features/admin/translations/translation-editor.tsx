@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { AlertTriangle, ArrowLeft, Bot, Check, ClipboardCopy, MessageSquareWarning, RotateCcw, Save, Send, XCircle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Bot, Check, ClipboardCopy, MessageSquareWarning, RefreshCw, RotateCcw, Save, Send, XCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +16,7 @@ import { api, ApiError, errorMessage } from "@/lib/api";
 import { LOCALE_LABELS } from "@/lib/constants";
 import { useAction } from "@/lib/use-action";
 import { useApi } from "@/lib/use-api";
+import { isAdminRole, useMe } from "@/features/admin/shell/admin-context";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import type { LanguageCode, MachineTranslationInfo, TranslationDetail } from "@/types/api";
 
@@ -36,15 +37,36 @@ export function TranslationEditor({ announcementId, language }: { announcementId
   const [done, setDone] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const action = useAction();
+  const me = useMe();
+  // what the server sent last: a refresh (while the machine works) replaces the fields only if nobody typed meanwhile
+  const loaded = useRef<{ title: string; body: string } | null>(null);
+  const lastState = useRef<string | null>(null);
 
   useEffect(() => {
     if (data?.translation) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- the loaded draft fills the editor
-      setTitle(data.translation.title);
-      setBody(data.translation.body);
+      const prev = loaded.current;
+      const next = { title: data.translation.title, body: data.translation.body };
+      const changed = !prev || prev.title !== next.title || prev.body !== next.body;
+      setTitle((cur) => (!prev || cur === prev.title ? next.title : cur));
+      setBody((cur) => (!prev || cur === prev.body ? next.body : cur));
+      loaded.current = next;
+      if (changed) setVerified(false);
     }
-    setVerified(false);
-  }, [data]);
+    const state = data?.machine?.state ?? null;
+    if (lastState.current && (lastState.current === "processing" || lastState.current === "pending")
+        && (state === "completed" || state === "needs_review")) {
+      setDone(t("machine.ready"));
+    }
+    lastState.current = state;
+  }, [data, t]);
+
+  // the server says how often to look again while it works (queued / translating / waiting for the GPU worker)
+  const poll = data?.machine?.poll_seconds ?? null;
+  useEffect(() => {
+    if (!poll) return;
+    const timer = setInterval(() => reload(), poll * 1000);
+    return () => clearInterval(timer);
+  }, [poll, reload]);
 
   if (loading && !data) return <LoadingState rows={4} />;
   if (error && !data) {
@@ -130,16 +152,17 @@ export function TranslationEditor({ announcementId, language }: { announcementId
       {action.error && <Alert variant="destructive">{errorMessage(action.error)}</Alert>}
       {done && <Alert variant="success" className="whitespace-pre-wrap">{done}</Alert>}
       {data.machine && original.language !== language && (
-        <MachinePanel info={data.machine} canRun={permissions.can_edit || permissions.can_review}
-          published={original.publication_status === "published"} busy={action.busy}
-          onRun={async () => {
+        <MachinePanel info={data.machine} canRun={permissions.can_edit || permissions.can_review || isAdminRole(me.role)}
+          canReplace={permissions.can_review || me.role === "super_admin"} busy={action.busy}
+          onRun={async (force: boolean) => {
             setDone(null);
-            const res = await action.run(() => api.post(`${base}/machine-translate`));
+            const res = await action.run(() => api.post(`${base}/machine-translate${force ? "?force=true" : ""}`));
             if (res) {
               setDone(t("machine.queued"));
               reload();
             }
-          }} />
+          }}
+          onRefresh={reload} />
       )}
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -255,7 +278,7 @@ export function TranslationEditor({ announcementId, language }: { announcementId
               {revisions.map((r) => (
                 <li key={r.id} className="rounded-md border border-border p-2">
                   <p className="font-medium">
-                    {t(`action.${r.action}`)} · {r.actor_name || t("system")}
+                    {t.has(`action.${r.action}`) ? t(`action.${r.action}`) : r.action} · {r.actor_name || t("system")}
                   </p>
                   <p className="text-xs text-muted-foreground">{formatDateTime(r.created_at, locale)}</p>
                   {r.note && <p className="mt-1 whitespace-pre-wrap text-xs">{r.note}</p>}
@@ -297,14 +320,58 @@ export function TranslationEditor({ announcementId, language }: { announcementId
   );
 }
 
-/** Automatic machine translation for this language: status, model, automated checks and a retry button. */
-function MachinePanel({ info, canRun, published, busy, onRun }: {
-  info: MachineTranslationInfo; canRun: boolean; published: boolean; busy: boolean; onRun: () => void;
+const RUNNING = ["pending", "processing", "waiting_worker", "quota", "retrying"];
+
+/** Machine translation for this language: where it runs, what the job is doing right now, why a request is not
+ *  possible, automated checks, and the actions that are safe in this state. */
+function MachinePanel({ info, canRun, canReplace, busy, onRun, onRefresh }: {
+  info: MachineTranslationInfo; canRun: boolean; canReplace: boolean; busy: boolean;
+  onRun: (force: boolean) => void; onRefresh: () => void;
 }) {
   const t = useTranslations("admin.trreview.machine");
   const tw = useTranslations("admin.doctr.warning");
   const locale = useLocale();
-  const running = info.state === "pending" || info.state === "processing";
+  const [confirm, setConfirm] = useState(false);
+  const job = info.job;
+  const model = info.configured?.model ?? info.model ?? "—";
+  const blocked = info.blocked ?? null;
+  const running = RUNNING.includes(info.state);
+  const when = (d?: string | null) => (d ? formatDateTime(d, locale) : "—");
+  // the first request, and a new attempt after a failure or a changed original
+  const canAsk = !blocked && canRun && ["ready", "missing", "failed", "outdated"].includes(info.state);
+  // replace a machine draft (or a person's draft: reviewers only, with confirmation)
+  const canRegenerate = !blocked && canRun && canReplace && ["completed", "needs_review", "human_draft"].includes(info.state);
+  const explain = () => {
+    switch (info.state) {
+      case "ready":
+      case "missing":
+        return t("explain.ready", { model });
+      case "pending":
+        return info.executor === "gpu" ? t("explain.pendingGpu", { model, date: when(job?.created_at) }) : t("explain.pending", { date: when(job?.created_at) });
+      case "processing":
+        return t("explain.processing", { model, date: when(job?.started_at) });
+      case "waiting_worker":
+        return info.worker?.last_seen_at ? t("explain.waitingWorker", { date: when(info.worker.last_seen_at) }) : t("explain.waitingWorkerNever");
+      case "stalled":
+        return t("explain.stalled");
+      case "quota":
+        return t("explain.quota", { date: when(job?.run_after), error: job?.error_message ?? job?.error_code ?? "" });
+      case "retrying":
+        return t("explain.retrying", { date: when(job?.run_after), error: job?.error_message ?? job?.error_code ?? "" });
+      case "completed":
+        return t("explain.completed");
+      case "needs_review":
+        return t("explain.needsReview");
+      case "failed":
+        return t("explain.failed", { error: job?.error_message ?? job?.error_code ?? "?" });
+      case "outdated":
+        return t("explain.outdated");
+      case "approved":
+        return t("explain.approved");
+      default:
+        return t("explain.humanDraft");
+    }
+  };
   return (
     <Card data-testid="machine-panel">
       <CardHeader className="pb-2">
@@ -314,28 +381,66 @@ function MachinePanel({ info, canRun, published, busy, onRun }: {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2 text-sm">
+        <p data-testid="machine-explain" className={info.state === "failed" || info.state === "stalled" ? "text-destructive" : undefined}>{explain()}</p>
+        <p className="text-xs text-muted-foreground" data-testid="machine-route">
+          {info.configured?.route === "gpu_worker" ? t("routeGpu", { model })
+            : info.configured?.route === "server" ? t("routeServer", { model }) : t("routeNone")}
+          {info.worker?.enabled && ` · ${info.worker.online ? t("workerOnline") : t("workerOffline")}`}
+        </p>
+        {job && (
+          <p className="text-xs text-muted-foreground" data-testid="machine-job">
+            {t("jobLine", { status: job.status, attempts: job.attempts ?? 0, max: job.max_attempts ?? 0, date: when(job.created_at) })}
+            {job.usage && job.usage.model_calls > 0 && ` · ${t("usage", { input: job.usage.input_tokens, output: job.usage.output_tokens })}`}
+          </p>
+        )}
         {info.generated_at && (
           <p className="text-muted-foreground">
             {t("generated", { date: formatDateTime(info.generated_at, locale), model: info.model ?? info.provider ?? "?" })}
           </p>
-        )}
-        {info.job?.status === "failed" && info.job.error_message && (
-          <p className="text-destructive">{t("failed", { error: info.job.error_message })}</p>
-        )}
-        {info.job?.status === "queued" && info.job.error_code && (
-          <p className="text-muted-foreground">{t("waiting", { error: info.job.error_message ?? info.job.error_code })}</p>
         )}
         {info.warnings.length > 0 && (
           <ul className="list-disc space-y-0.5 pl-5 text-amber-800 dark:text-amber-300">
             {info.warnings.map((w, i) => <li key={i}>{tw.has(w.type) ? tw(w.type, { value: w.value }) : `${w.type}: ${w.value}`}</li>)}
           </ul>
         )}
-        {!info.llm_enabled ? (
-          <p className="text-muted-foreground">{t("disabled")}</p>
-        ) : canRun && published && info.state !== "approved" && info.state !== "human_draft" && (
-          <Button size="sm" variant="outline" disabled={busy || running} onClick={onRun} data-testid="machine-run">
-            <RotateCcw /> {info.state === "missing" || (info.state === "pending" && !info.job) ? t("run") : t("retry")}
-          </Button>
+        {blocked && (
+          <p className="text-muted-foreground" data-testid="machine-blocked">
+            {t.has(`blocked.${blocked.code}`) ? t(`blocked.${blocked.code}`) : blocked.message}
+          </p>
+        )}
+        {!canRun && !blocked && <p className="text-muted-foreground">{t("noPermission")}</p>}
+        <div className="flex flex-wrap gap-2">
+          {canAsk && (
+            <Button size="sm" variant="outline" disabled={busy} onClick={() => onRun(false)} data-testid="machine-run">
+              <RotateCcw /> {info.state === "ready" || info.state === "missing" ? t("run") : t("retry")}
+            </Button>
+          )}
+          {info.state === "stalled" && canRun && (
+            <Button size="sm" variant="outline" disabled={busy} onClick={() => onRun(false)} data-testid="machine-resume">
+              <RefreshCw /> {t("resume")}
+            </Button>
+          )}
+          {running && (
+            <Button size="sm" variant="ghost" disabled={busy} onClick={onRefresh} data-testid="machine-refresh">
+              <RefreshCw /> {t("refresh")}
+            </Button>
+          )}
+          {canRegenerate && !confirm && (
+            <Button size="sm" variant="ghost" disabled={busy} onClick={() => setConfirm(true)} data-testid="machine-regenerate">
+              <RotateCcw /> {t("regenerate")}
+            </Button>
+          )}
+        </div>
+        {confirm && (
+          <Alert variant="warning">
+            <AlertDescription className="space-y-2">
+              <p>{info.state === "human_draft" ? t("regenerateHuman") : t("regenerateMachine")}</p>
+              <div className="flex gap-2">
+                <Button size="sm" variant="destructive" disabled={busy} onClick={() => { setConfirm(false); onRun(true); }}>{t("regenerateConfirm")}</Button>
+                <Button size="sm" variant="outline" onClick={() => setConfirm(false)}>{t("regenerateCancel")}</Button>
+              </div>
+            </AlertDescription>
+          </Alert>
         )}
       </CardContent>
     </Card>

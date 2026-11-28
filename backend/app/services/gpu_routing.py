@@ -30,3 +30,30 @@ def available_workers(store: Store, settings: Settings) -> list[dict[str, Any]]:
 def gpu_executor(store: Store, settings: Settings, job_type: str) -> str | None:
     """'gpu' when a job of this type is left to the GPU worker; None = the server's own worker."""
     return "gpu" if job_type in routed_types(settings) and available_workers(store, settings) else None
+
+
+ANNOUNCEMENT = "translate_announcement"
+
+
+def gemini_fallback(settings: Settings) -> bool:
+    """TRANSLATION_FALLBACK_TO_GEMINI: may announcement translations use the server's own (paid) model at all?"""
+    return bool(settings.translation_fallback_to_gemini)
+
+
+def announcement_route(store: Store, settings: Settings, llm_enabled: bool) -> tuple[str | None, str | None]:
+    """Where a NEW announcement translation job runs: ('gpu' | 'local', None) or (None, reason it cannot run).
+
+    * GPU worker on for announcements: always 'gpu' - the job waits while the worker is offline. Only with
+      TRANSLATION_FALLBACK_TO_GEMINI and no usable worker does it go to the server's model.
+    * GPU worker off: the server's model only with TRANSLATION_FALLBACK_TO_GEMINI, else it cannot run."""
+    on = ANNOUNCEMENT in routed_types(settings)
+    fallback = gemini_fallback(settings) and llm_enabled
+    if on:
+        if fallback and not available_workers(store, settings):
+            return "local", None
+        return "gpu", None
+    if fallback:
+        return "local", None
+    if gemini_fallback(settings):
+        return None, "llm_disabled"
+    return None, "translation_worker_disabled"

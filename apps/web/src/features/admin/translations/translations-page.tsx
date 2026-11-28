@@ -11,12 +11,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs } from "@/components/ui/tabs";
 import { EmptyState, ErrorState, LoadingState, PageHeader, Pagination } from "@/components/shared/states";
 import { TranslationStateBadge } from "@/features/admin/translations/translation-state-badge";
-import { api } from "@/lib/api";
+import { api, errorMessage } from "@/lib/api";
+import { useAction } from "@/lib/use-action";
+import { isAdminRole, useMe } from "@/features/admin/shell/admin-context";
+import { ANNOUNCEMENT_MACHINE_LANGUAGES } from "@/lib/constants";
 import { LOCALES, LOCALE_LABELS } from "@/lib/constants";
 import { useApi } from "@/lib/use-api";
 import { formatDateTime } from "@/lib/utils";
 import { DOC_TR_VARIANT, docTranslationState } from "@/lib/doc-translation";
-import type { DocTranslationStatus, DocTranslationTask, Page, TranslationStatus, TranslationTask } from "@/types/api";
+import type { DocTranslationStatus, DocTranslationTask, LanguageCode, Page, TranslationBackfillResult, TranslationStatus,
+  TranslationTask } from "@/types/api";
 
 const STATUSES: TranslationStatus[] = ["todo", "machine_draft", "needs_review", "in_review", "changes_requested", "human_approved", "rejected"];
 
@@ -71,11 +75,14 @@ function AnnouncementTranslations() {
     api.get<Page<TranslationTask>>("/api/v1/admin/translations", query),
   );
 
+  const me = useMe();
+  const tm = useTranslations("admin.trreview.machine");
   return (
     <div>
       <Alert variant="info" className="mb-4">
         <AlertDescription>{t("separationNote")}</AlertDescription>
       </Alert>
+      {isAdminRole(me.role) && <BackfillPanel onDone={reload} />}
       <div className="mb-4 grid gap-3 sm:grid-cols-3 lg:max-w-3xl">
         <div>
           <Label htmlFor="tr-f-status" className="mb-1.5 block">
@@ -126,6 +133,7 @@ function AnnouncementTranslations() {
                 <TableHead>{t("announcement")}</TableHead>
                 <TableHead>{t("language")}</TableHead>
                 <TableHead>{t("status")}</TableHead>
+                <TableHead>{t("machineCol")}</TableHead>
                 <TableHead>{t("lastChange")}</TableHead>
                 <TableHead>
                   <span className="sr-only">{t("open")}</span>
@@ -152,6 +160,22 @@ function AnnouncementTranslations() {
                   <TableCell>
                     <TranslationStateBadge translation={tr} />
                   </TableCell>
+                  <TableCell className="text-xs" data-testid="machine-cell">
+                    {tr.machine ? (
+                      <>
+                        <span className="font-medium">{tm(`state.${tr.machine.state}`)}</span>
+                        {(tr.machine.model || tr.machine.executor === "gpu") && (
+                          <div className="text-muted-foreground">{tr.machine.model ?? tm("gpuWorker")}</div>
+                        )}
+                        {tr.machine.last_attempt_at && (
+                          <div className="text-muted-foreground">{tm("lastAttempt", { date: formatDateTime(tr.machine.last_attempt_at, locale) })}</div>
+                        )}
+                        {tr.machine.job_status === "failed" && tr.machine.error_message && (
+                          <div className="text-destructive">{tr.machine.error_message}</div>
+                        )}
+                      </>
+                    ) : "—"}
+                  </TableCell>
                   <TableCell className="text-xs">
                     {tr.reviewed_by_name ?? tr.last_edited_by_name ?? "—"}
                     <div className="text-muted-foreground">{formatDateTime(tr.reviewed_at ?? tr.last_edited_at, locale)}</div>
@@ -174,6 +198,62 @@ function AnnouncementTranslations() {
   );
 }
 
+/** Admins: machine drafts for EXISTING published announcements, bounded (preview first). Approved, current
+ *  translations, reviewers' work and drafts of the same text are skipped by the server, so repeating it is safe. */
+function BackfillPanel({ onDone }: { onDone: () => void }) {
+  const t = useTranslations("admin.trreview.backfill");
+  const [langs, setLangs] = useState<LanguageCode[]>(["en", "id"]);
+  const [limit, setLimit] = useState(10);
+  const [result, setResult] = useState<TranslationBackfillResult | null>(null);
+  const action = useAction();
+  async function run(dryRun: boolean) {
+    const res = await action.run(() => api.post<TranslationBackfillResult>("/api/v1/admin/translations/backfill",
+      { languages: langs, limit, dry_run: dryRun }));
+    if (res) {
+      setResult(res);
+      if (!dryRun) onDone();
+    }
+  }
+  return (
+    <details className="mb-4 rounded-lg border border-border p-4" data-testid="backfill-panel">
+      <summary className="cursor-pointer text-sm font-semibold">{t("title")}</summary>
+      <p className="mt-2 text-xs text-muted-foreground">{t("body")}</p>
+      <div className="mt-3 flex flex-wrap items-end gap-4 text-sm">
+        {ANNOUNCEMENT_MACHINE_LANGUAGES.map((l) => (
+          <label key={l} className="flex items-center gap-2">
+            <input type="checkbox" checked={langs.includes(l)}
+              onChange={(ev) => setLangs((c) => (ev.target.checked ? [...c, l] : c.filter((x) => x !== l)))} />
+            {LOCALE_LABELS[l]}
+          </label>
+        ))}
+        <div>
+          <Label htmlFor="bf-limit" className="mb-1 block text-xs">{t("limit")}</Label>
+          <Select id="bf-limit" value={String(limit)} onChange={(ev) => setLimit(Number(ev.target.value))}>
+            {[5, 10, 20, 50].map((n) => <option key={n} value={n}>{n}</option>)}
+          </Select>
+        </div>
+        <Button size="sm" variant="outline" disabled={action.busy || langs.length === 0} onClick={() => run(true)}>{t("preview")}</Button>
+        <Button size="sm" disabled={action.busy || langs.length === 0 || !result || result.missing === 0} onClick={() => run(false)}
+          data-testid="backfill-run">
+          {t("run", { count: Math.min(limit, result?.missing ?? 0) })}
+        </Button>
+      </div>
+      {result && (
+        <div className="mt-3 space-y-1 text-xs" data-testid="backfill-result">
+          <p>{result.dry_run ? t("previewResult", { missing: result.missing, queued: result.already_queued })
+            : t("queuedResult", { count: result.queued.length, missing: result.missing })}</p>
+          {result.worker.enabled && !result.worker.online && <p className="text-amber-800 dark:text-amber-300">{t("workerOffline")}</p>}
+          {result.dry_run && result.next.length > 0 && (
+            <ul className="list-disc pl-5 text-muted-foreground">
+              {result.next.map((n) => <li key={`${n.id}:${n.language}`}>{n.title} → {LOCALE_LABELS[n.language]}</li>)}
+            </ul>
+          )}
+        </div>
+      )}
+      {action.error && <Alert variant="destructive" className="mt-2">{errorMessage(action.error)}</Alert>}
+    </details>
+  );
+}
 
 const DOC_STATUSES: DocTranslationStatus[] = ["todo", "machine_draft", "needs_review", "draft", "in_review", "changes_requested", "human_approved", "rejected"];
 

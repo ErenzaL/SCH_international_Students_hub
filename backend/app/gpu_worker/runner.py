@@ -167,7 +167,9 @@ class Worker:
         if not self.model_ready():
             return "no_model"
         try:
-            r = self.hub.post("/claim", {"lease_token": str(uuid.uuid4())}, deadline=120.0, stop=self.stop)
+            # the server hands announcement jobs only to a worker that runs the configured translation model
+            r = self.hub.post("/claim", {"lease_token": str(uuid.uuid4()), "model": self.llm.model}, deadline=120.0,
+                              stop=self.stop)
         except CredentialRejected:
             raise
         except HubError as exc:

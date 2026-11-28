@@ -56,6 +56,12 @@ class Lease(Strict):
     lease_token: UUID
 
 
+class Claim(Lease):
+    """The worker says which model it runs: announcement jobs only go to the configured translation model."""
+
+    model: Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9._:/-]{1,100}$")] | None = None
+
+
 class Complete(Lease):
     title: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=500)]
     body: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80_000)]
@@ -84,10 +90,10 @@ class Fail(Lease):
 
 # ----------------------------------------------------------------------------- worker
 @router.post("/claim")
-def claim(body: Lease, svc: Services = Depends(enabled), w: dict = Depends(worker)) -> dict:  # type: ignore[type-arg]
+def claim(body: Claim, svc: Services = Depends(enabled), w: dict = Depends(worker)) -> dict:  # type: ignore[type-arg]
     """The next job, or ``job: null`` with state ``idle`` | ``paused``. Repeating a request with the same
     ``lease_token`` returns the same job."""
-    return svc.gpu.claim(w, str(body.lease_token))
+    return svc.gpu.claim(w, str(body.lease_token), body.model)
 
 
 @router.post("/jobs/{job_id}/heartbeat")

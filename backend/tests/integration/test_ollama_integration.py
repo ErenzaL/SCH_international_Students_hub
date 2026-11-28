@@ -54,6 +54,7 @@ def local(env):  # type: ignore[no-untyped-def]
         svc.llm = svc.conversations.llm = svc.conversations.engine.llm = p
         bg = BudgetedLLM(p, lambda: budget.take("background", 1000))
         svc.doc_translations.llm = svc.announcement_translator.llm = svc.discovery.llm = bg
+        env.settings.translation_fallback_to_gemini = True    # announcements may use the server's model (here Ollama)
         return mock
 
     yield use

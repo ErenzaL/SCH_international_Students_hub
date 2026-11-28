@@ -38,7 +38,7 @@ class FakeTranslator(KoreanEnglishFake):
         word = next(w for lang, w in WORDS.items() if lang in re.search(r"into ([A-Z]\w+(?: \w+)?)", prompt).group(1))  # type: ignore[union-attr]
         out = re.sub(r"[가-힣]+", f" {word} ", src)
         return self.mutate(out) if self.mutate else out
-MODEL = "qwen2.5:7b-instruct"
+MODEL = "translategemma:12b"   # the announcement translation model (the server refuses others for announcements)
 BACKEND = Path(__file__).resolve().parents[2]
 
 

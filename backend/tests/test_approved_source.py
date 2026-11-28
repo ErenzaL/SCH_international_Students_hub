@@ -21,6 +21,7 @@ def model(env):  # type: ignore[no-untyped-def]
     p = ScriptedLLMProvider(lambda s, x: "Scholarship guide 2026-12-01 intl@example.ac.kr")
     svc = env.app.state.services
     svc.announcement_translator.llm = svc.doc_translations.llm = p
+    env.settings.translation_fallback_to_gemini = True    # the server's own model is used for announcements: opt-in
     return p
 
 

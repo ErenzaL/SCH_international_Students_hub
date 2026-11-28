@@ -119,7 +119,8 @@ class TranslationReviewService:
             names = self._names([r.get("actor_id") for r in rows])
             revs = [{**r, "actor_name": names.get(r.get("actor_id") or "")} for r in rows]
         return dict(original=orig, translation=self.view(t, orig) if t else None, revisions=revs, permissions=perms,
-                    language=language, machine=self.auto.admin_info(t) if self.auto is not None else None)
+                    language=language, machine=self.auto.admin_info(t, self.ann._get(announcement_id), language)
+                    if self.auto is not None else None)
 
     def tasks(self, user: AuthUser, status: str | None, language: str | None, outdated: bool | None, page: int,
               size: int) -> tuple[list[dict[str, Any]], int]:
@@ -137,6 +138,7 @@ class TranslationReviewService:
             q.eq["is_outdated"] = outdated
         rows, total = self.store.select("announcement_translations", q, count=True)
         anns = get_many(self.store, "announcements", [r["announcement_id"] for r in rows])
+        machine = self._machine_summaries(rows, anns)
         names = self._names([x for r in rows for x in (r.get("reviewed_by"), r.get("last_edited_by"))])
         out = []
         origs: dict[str, dict[str, Any]] = {}
@@ -148,10 +150,42 @@ class TranslationReviewService:
                 origs[a["id"]] = self.original(a["id"])
             item = self.view(r, origs[a["id"]], names)
             item.update(announcement_title=a["title"], announcement_status=a["publication_status"],
-                        original_language=a["original_language"], **{f"can_{k}": v for k, v in
-                                                                      self.permissions(user, r["language_code"]).items()})
+                        original_language=a["original_language"], machine=machine.get(r["id"]),
+                        **{f"can_{k}": v for k, v in self.permissions(user, r["language_code"]).items()})
             out.append(item)
         return out, total or 0
+
+    def _machine_summaries(self, rows: list[dict[str, Any]], anns: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+        """Per translation row: machine state, model, last attempt and its error - one query for the whole page."""
+        if self.auto is None or not rows:
+            return {}
+        from app.services.translation.auto import automation_state, machine_languages
+
+        offered = machine_languages(self.auto.settings)
+
+        jobs, _ = self.store.select("ingestion_jobs", Query(
+            eq={"job_type": "translate_announcement"}, in_={"payload->>translation_id": [r["id"] for r in rows]},
+            order=[("created_at", True)], limit=500))     # all columns: executor / lease_* exist only from 0016
+        last: dict[str, dict[str, Any]] = {}
+        for j in jobs:                                     # newest first: the first one per translation wins
+            last.setdefault(str((j.get("payload") or {}).get("translation_id")), j)
+        online = self.auto.worker_status()["online"]
+        out = {}
+        for r in rows:
+            j = last.get(r["id"])
+            a = anns.get(r["announcement_id"]) or {}
+            state = automation_state(r, j, self.auto.settings)
+            if state == "ready" and (r["language_code"] not in offered or a.get("original_language") not in offered):
+                state = "manual"                           # Release 1: no machine drafts in this language pair
+            if j and j.get("executor") == "gpu" and j["status"] == "queued" and state in ("pending", "stalled") \
+                    and not online:
+                state = "waiting_worker"
+            out[r["id"]] = dict(state=state, provider=r.get("provider"), model=r.get("model"),
+                                warnings=len(r.get("warnings") or []), executor=(j or {}).get("executor"),
+                                last_attempt_at=(j or {}).get("started_at") or (j or {}).get("created_at"),
+                                job_status=(j or {}).get("status"), error_code=(j or {}).get("error_code"),
+                                error_message=(j or {}).get("error_message"))
+        return out
 
     # ------------------------------------------------------------------ writes
     def save(self, announcement_id: str, language: str, data: dict[str, Any], user: AuthUser) -> dict[str, Any]:

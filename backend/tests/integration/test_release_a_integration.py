@@ -45,6 +45,7 @@ def test_published_announcement_is_translated_from_the_approved_text(it: IT):
     a, svc, tag = it.auth("admin"), it.app.state.services, uuid.uuid4().hex[:8]
     p = ScriptedLLMProvider(lambda s, x: f"Scholarship guide 2026-12-01 {tag}")
     svc.announcement_translator.llm = p
+    it.settings.translation_fallback_to_gemini = True       # the server's own model for an announcement: opt-in
     ann = it.client.post("/api/v1/admin/announcements", headers=a, json=dict(
         title=f"장학금 안내 {tag}", body=f"신청 기간은 2026-12-01부터입니다. {tag}", category="scholarships",
         source_type="manual_text", submit=True, evidence_note="integration test")).json()

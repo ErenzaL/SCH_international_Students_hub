@@ -28,7 +28,7 @@ class Config:
     hub_url: str
     token_file: Path
     ollama_url: str = "http://127.0.0.1:11434"
-    model: str = "qwen2.5:7b-instruct"
+    model: str = "translategemma:12b"   # the evaluated announcement translation model (TRANSLATION-EVALUATION.md)
     num_ctx: int = 16384
     model_timeout: float = 180.0
     idle_min: float = 300.0        # wait after an empty queue; doubles up to idle_max

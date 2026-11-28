@@ -1,6 +1,6 @@
 # Environment variables
 
-Generated from the code by `scripts/env_inventory.py`; do not edit by hand. 186 variables of the **API service**. Whether a value is set on
+Generated from the code by `scripts/env_inventory.py`; do not edit by hand. 189 variables of the **API service**. Whether a value is set on
 Render cannot be seen from here: check with `python -m app.cli doctor` (prints "set" or "not set", never a value) or in the dashboard.
 
 After changing a variable on Render the service restarts by itself (choose *Save, rebuild and deploy* only for the web variables).
@@ -163,6 +163,9 @@ The worker refuses to start when a Supabase, Gemini or cron secret is set on tha
 | `GPU_WORKER_ENABLED` | setting | optional | `False` | .env.example | GPU worker on the university server (docs/gpu-worker.md). OFF: no endpoint exists and nothing is routed to it. When on, these translation jobs wait for the worker instead |
 | `GPU_WORKER_JOB_TYPES` | setting | optional | `translate_announcement,translate_document` | — |  |
 | `GPU_WORKER_MODELS` | setting | optional | `qwen2.5:7b-instruct,translategemma:12b` | — | models whose results are accepted (translategemma:12b: selected in docs/research/TRANSLATION-EVALUATION.md) |
+| `ANNOUNCEMENT_TRANSLATION_MODEL` | setting | optional | `translategemma:12b` | — | Announcements are translated by the university GPU worker with this model ONLY: it gets no announcement job while it reports another model, and drafts of another model ar |
+| `TRANSLATION_FALLBACK_TO_GEMINI` | setting | optional | `False` | — | true = when the GPU worker is switched off or has not contacted the server, announcement translations use the server's Gemini (TRANSLATION_MODEL, never the chatbot's fall |
+| `TRANSLATION_STALL_SECONDS` | setting | optional | `120` | — | a queued job the API's own worker has not started after this long is shown as stalled (with a safe "resume") |
 | `GPU_WORKER_MAX_RUNNING` | setting | optional | `1` | — | jobs leased at the same time, all workers together |
 | `GPU_WORKER_LEASE_SECONDS` | setting | optional | `180` | — | renewed by the worker; a lost worker's job is re-queued after this |
 | `GPU_WORKER_JOB_MAX_SECONDS` | setting | optional | `1800` | — | a lease is not renewed beyond this |
@@ -189,7 +192,7 @@ The worker refuses to start when a Supabase, Gemini or cron secret is set on tha
 | `AUTO_TRANSLATE_ANNOUNCEMENTS` | setting | optional | `False` | — | queue machine translations when an announcement is published |
 | `AUTO_TRANSLATE_LANGUAGES` | setting | optional | `ko,en,id` | — | target languages generated automatically (others: by request) |
 | `ANNOUNCEMENT_MACHINE_LANGUAGES` | setting | optional | `ko,en,id` | — | Release 1: machine drafts of ANNOUNCEMENTS only in these languages (automatic and on request). Existing approved translations in other languages stay visible; the chatbot |
-| `TRANSLATION_MODEL` | setting | optional | — | — | Gemini model for translation jobs ("" = the assistant's models) |
+| `TRANSLATION_MODEL` | setting | optional | — | — | "" = the assistant's primary model (never its fallback model) |
 | `TRANSLATION_FULL_MAX_CHARS` | setting | optional | `12000` | — | longer documents: title + AI summary only (labelled as summary) |
 | `TRANSLATION_SUMMARY_SOURCE_CHARS` | setting | optional | `40000` | — | text given to the summarizer (plus all section headings) |
 | `TRANSLATION_MAX_REQUESTS_PER_JOB` | setting | optional | `6` | — | model calls per job (title + parts); longer -> human translation |

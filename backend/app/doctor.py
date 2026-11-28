@@ -99,8 +99,20 @@ class Doctor:
                                ("GPU_WORKER_ENABLED", s.gpu_worker_enabled, "translation jobs may wait for a GPU worker"),
                                ("AUTO_TRANSLATE_ANNOUNCEMENTS", s.auto_translate_announcements, "announcements are machine-translated at publication"),
                                ("AUTO_TRANSLATE_DOCUMENTS", s.auto_translate_documents, "documents are machine-translated at approval"),
-                               ("PUBLIC_MACHINE_TRANSLATIONS", s.public_machine_translations, "students may see machine translations")):
+                               ("PUBLIC_MACHINE_TRANSLATIONS", s.public_machine_translations, "students may see machine translations"),
+                               ("TRANSLATION_FALLBACK_TO_GEMINI", s.translation_fallback_to_gemini,
+                                "announcement translations may use the server's paid Gemini")):
             self.add(a, flag, WARN if on else PASS, "on: " + text if on else "off")
+        # where announcement translations run (TranslateGemma on the GPU worker; Gemini only with the fallback)
+        if s.gpu_worker_enabled and "translate_announcement" in s.gpu_worker_job_types:
+            self.add(a, "announcement translation", PASS, f"GPU worker ({s.announcement_translation_model})"
+                     + (", Gemini fallback ON" if s.translation_fallback_to_gemini else ", no paid fallback"))
+        elif s.translation_fallback_to_gemini:
+            self.add(a, "announcement translation", WARN, "server's Gemini (TRANSLATION_FALLBACK_TO_GEMINI=true)",
+                     "the GPU worker is off: every announcement translation is a paid Gemini call")
+        else:
+            self.add(a, "announcement translation", WARN, "off: GPU_WORKER_ENABLED=false and no Gemini fallback",
+                     "Machine-translate says why; reviewers translate by hand until the GPU worker is switched on")
 
     def exposure(self) -> None:
         a = "secrets"

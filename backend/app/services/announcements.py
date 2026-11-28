@@ -13,6 +13,7 @@ from app.security.auth import AuthUser
 from app.services.indexing import IndexingService
 from app.services.ingestion.normalize import content_hash, normalize_text
 from app.services.ingestion.privacy import redact_personal_info
+from app.services.translation.auto import clean_targets
 
 KST = timezone(timedelta(hours=9))
 SUBMISSION_SOURCES = {
@@ -60,6 +61,9 @@ def excerpt(text: str, n: int = 220) -> str:
 
 
 class AnnouncementService:
+    #: languages in which announcements get machine drafts (set from ANNOUNCEMENT_MACHINE_LANGUAGES by the container)
+    machine_languages: list[str] = ["ko", "en", "id"]
+
     def __init__(self, store: Store, indexer: IndexingService):
         self.store = store
         self.indexer = indexer
@@ -116,6 +120,44 @@ class AnnouncementService:
             reviewed_by_name=names.get(r.get("reviewed_by") or ""), reviewed_at=r.get("reviewed_at"),
             is_machine_translated=r["translation_status"] == "machine_draft") for r in rows]
 
+    # ------------------------------------------------------------ translation targets
+    def translation_targets(self, a: dict[str, Any]) -> list[str] | None:
+        """The machine-translation languages chosen for ``a`` (None = never chosen: the server default applies)."""
+        doc = get_one(self.store, "source_documents", id=a["document_id"]) or {}
+        chosen = (doc.get("metadata") or {}).get("translation_targets")
+        return clean_targets(chosen, a["original_language"], self.machine_languages) if isinstance(chosen, list) else None
+
+    def _save_targets(self, a: dict[str, Any], targets: list[str] | None, original: str | None = None) -> list[str] | None:
+        """Stored with the announcement's document (``source_documents.metadata``, no migration): it survives every
+        step of the approval workflow and is read when the approved version is published."""
+        doc = get_one(self.store, "source_documents", id=a["document_id"]) or {}
+        meta = dict(doc.get("metadata") or {})
+        original = original or a["original_language"]
+        if targets is None:
+            if not isinstance(meta.get("translation_targets"), list):
+                return None
+            targets = meta["translation_targets"]          # re-clean the saved choice (the original may have changed)
+        meta["translation_targets"] = clean_targets(targets, original, self.machine_languages)
+        self.store.update("source_documents", {"metadata": meta}, {"id": a["document_id"]})
+        return meta["translation_targets"]
+
+    def set_translation_targets(self, announcement_id: str, languages: list[str], user: AuthUser) -> dict[str, Any]:
+        a = self._get(announcement_id)
+        self._check_access(a, user)
+        st = a["publication_status"]
+        if st == "canceled":
+            raise InvalidState("Canceled announcements are not translated.")
+        if st in ("pending_approval", "published") and user.role not in ADMIN_ROLES:
+            raise Forbidden("Only administrators change the translation languages of a submitted announcement.")
+        bad = [x for x in languages if x not in self.machine_languages or x == a["original_language"]]
+        if bad:
+            raise ValidationFailed(f"Machine translation is offered only into {', '.join(self.machine_languages)} "
+                                   f"(not the original language): {', '.join(bad)}.")
+        saved = self._save_targets(a, languages)
+        self.store.insert("audit_log", dict(action="announcement.translation_targets", entity_type="announcement",
+                                            entity_id=a["id"], actor_id=user.id, details={"languages": saved}))
+        return self.admin_view(a)
+
     def admin_view(self, a: dict[str, Any]) -> dict[str, Any]:
         v = self._open_or_latest_version(a["document_id"])
         names = self._names([a.get("created_by"), a.get("approved_by")])
@@ -128,7 +170,8 @@ class AnnouncementService:
             created_by=a.get("created_by"), created_by_name=names.get(a.get("created_by") or ""),
             created_at=a["created_at"], submitted_at=a.get("submitted_at"), approved_by=a.get("approved_by"),
             approved_at=a.get("approved_at"), rejection_reason=a.get("rejection_reason"),
-            is_test_data=a["is_test_data"], translations=self._translations(a["id"]))
+            is_test_data=a["is_test_data"], translations=self._translations(a["id"]),
+            translation_targets=self.translation_targets(a), machine_languages=self.machine_languages)
 
     def _get(self, announcement_id: str) -> dict[str, Any]:
         a = get_one(self.store, "announcements", id=announcement_id)
@@ -190,9 +233,12 @@ class AnnouncementService:
             raise Forbidden("Staff role required.")
         text = self._prepare_text(data["body"], data["source_type"], data.get("authorized_by_supporter", False))
         source = self._submission_source(data["source_type"], user.id)
+        targets = data.get("translation_targets")
         doc = self.store.insert("source_documents", dict(
             source_id=source["id"], external_id=f"announcement-{_uuid()}", title=data["title"],
-            language=data["original_language"], document_type="announcement"))
+            language=data["original_language"], document_type="announcement",
+            metadata={} if targets is None else {
+                "translation_targets": clean_targets(targets, data["original_language"], self.machine_languages)}))
         self.store.insert("document_versions", dict(
             document_id=doc["id"], version_number=1, extracted_text=text, content_hash=content_hash(text),
             source_published_at=_iso(data.get("source_published_at")), verification_status="draft",
@@ -206,7 +252,8 @@ class AnnouncementService:
             evidence_note=data.get("evidence_note"), evidence_url=data.get("evidence_url"), created_by=user.id,
             publication_status="draft"))
         self.store.insert("audit_log", dict(action="announcement.create", entity_type="announcement", entity_id=a["id"],
-                                            actor_id=user.id, details={"source_type": data["source_type"]}))
+                                            actor_id=user.id, details={"source_type": data["source_type"],
+                                                                       "translation_targets": self.translation_targets(a)}))
         if data.get("submit"):
             return self.submit(a["id"], user)
         return self.admin_view(a)
@@ -220,6 +267,12 @@ class AnnouncementService:
         clearable = ("target_audience", "event_date", "deadline", "valid_from", "evidence_note", "evidence_url")
         # explicit null clears an optional field; required fields (title/body/category) ignore null
         fields = {k: v for k, v in patch.items() if v is not None or k in clearable}
+        targets = fields.pop("translation_targets", None)
+        if "original_language" in fields or targets is not None:
+            original = fields.get("original_language") or a["original_language"]
+            if "original_language" in fields:
+                self.store.update("source_documents", {"language": original}, {"id": a["document_id"]})
+            self._save_targets(a, targets, original)
         new_deadline = _d(fields.get("deadline", a.get("deadline")))
         new_from = _d(fields.get("valid_from", a.get("valid_from")))
         if new_deadline and new_from and new_deadline < new_from:

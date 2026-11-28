@@ -333,6 +333,105 @@ J.gpu = async () => {   // token in the browser -> worker process -> draft -> la
   await sa.ctx.close();
 };
 
+J.autotr = async () => {   // Admin chooses EN + ID while publishing -> TranslateGemma on the GPU worker -> review -> students
+  const name = `autotr-${Date.now() % 1000000}`;
+  const w = await api("super_admin", "POST", "/admin/gpu/workers", { name });
+  check("a worker credential for this journey", w.status === 201 && /^schgw_/.test(w.data?.token ?? ""), w.status);
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gpuw-"));
+  fs.writeFileSync(path.join(dir, "token"), w.data.token, { mode: 0o600 });
+  const worker = (...args) => new Promise((res) => { let log = ""; const p = spawn(WPY, ["-m", "app.gpu_worker", ...args], { cwd: BACKEND, env: { PATH: process.env.PATH, HOME: dir, GPU_WORKER_HUB_URL: info.api, GPU_WORKER_TOKEN_FILE: path.join(dir, "token"), GPU_WORKER_IDLE_MIN_SECONDS: "5", OLLAMA_MODEL: GPU_MODEL } });
+    p.stdout.on("data", (d) => (log += d)); p.stderr.on("data", (d) => (log += d)); p.on("close", (code) => res({ code, log })); });
+  // 1. the admin writes a Korean notice and chooses English + Indonesian in "Automatic translation"
+  const queueSize = async () => (await api("super_admin", "GET", "/admin/gpu/status")).data.queue.queued;
+  const before = await queueSize();
+  const adm = await context("admin");
+  await adm.page.goto(`${WEB}/admin/announcements/new`);
+  const title = `[가상] 기숙사 입사 안내 ${Date.now() % 10000}`;
+  await adm.page.getByLabel("Title").fill(title);
+  await adm.page.getByLabel("Original text").fill("2027년 2월 24일(수) 10:00부터 기숙사 입사가 시작됩니다.\n\n준비물: 여권, 외국인등록증, 기숙사 계약서. 기숙사비 1,250,000원은 2월 20일까지 납부하세요.\n\n신청: https://sch.ac.kr/dorm  문의: dorm@sch.ac.kr, 041-530-1234");
+  check("the original language is not offered as a target", await adm.page.getByTestId("auto-tr-ko").isDisabled());
+  await adm.page.getByTestId("auto-tr-en").check();
+  await adm.page.getByTestId("auto-tr-id").check();
+  await adm.page.getByTestId("auto-translation").scrollIntoViewIfNeeded();
+  await shot(adm.page, "autotr-1-form-languages");
+  await adm.page.getByRole("button", { name: /Submit for approval/ }).click();
+  await adm.page.waitForURL(/\/admin\/announcements\/[0-9a-f-]{36}$/, { timeout: 20000 });
+  const aid = adm.page.url().split("/").pop();
+  check("nothing is queued before approval", (await queueSize()) === before, `${before} -> ${await queueSize()}`);
+  // 2. approval publishes it and queues exactly the two chosen languages for the GPU worker
+  await adm.page.getByRole("button", { name: "Approve & publish" }).click();
+  await adm.page.getByTestId("auto-tr-save").getByText("Save and translate missing").waitFor({ timeout: 15000 });   // published
+  await adm.page.getByTestId("auto-translation-card").scrollIntoViewIfNeeded();
+  await shot(adm.page, "autotr-2-published-card");
+  const mine = async () => (await api("super_admin", "GET", `/admin/translations?page_size=100`)).data.items.filter((i) => i.announcement_id === aid);
+  const queued = await until(async () => { const m = await mine(); const q = m.filter((i) => i.machine?.job_status === "queued"); return q.length === 2 ? q : null; }, 30);
+  check("publication queued English and Indonesian once, for the GPU worker", queued && queued.every((i) => i.machine.executor === "gpu") && queued.map((i) => i.language_code).sort().join() === "en,id" && (await queueSize()) === before + 2, JSON.stringify((await mine()).map((i) => [i.language_code, i.machine])));
+  // 3. the reviewer sees the honest waiting state (no worker has contacted this server for this credential yet)
+  const rev = await context("reviewer_id");
+  await rev.page.goto(`${WEB}/admin/translations/${aid}/id`);
+  await rev.page.getByTestId("machine-panel").waitFor({ timeout: 20000 });
+  const state0 = await rev.page.getByTestId("machine-state").innerText();
+  check("the panel shows the real job state, not a disabled button", /Queued|Waiting for the GPU worker/.test(state0) && (await rev.page.getByTestId("machine-run").count()) === 0, state0);
+  await shot(rev.page, "autotr-3-waiting-for-gpu");
+  // 4. the university GPU worker (this workstation, loopback stack only) runs TranslateGemma 12B
+  const chk = await worker("--check");
+  check(`worker --check with ${GPU_MODEL}`, chk.code === 0, chk.log.slice(-300));
+  const t0 = Date.now();
+  let run = null;
+  for (let i = 0; i < 3; i++) {
+    run = await worker("--drain");
+    const m = await mine();
+    if (m.filter((x) => ["en", "id"].includes(x.language_code)).every((x) => x.translation_status === "needs_review")) break;
+    await sleep(5000);
+  }
+  console.log(`      drain: ${((Date.now() - t0) / 1000).toFixed(1)} s`);
+  const after = await mine();
+  check("both drafts were made by TranslateGemma and wait for review", ["en", "id"].every((l) => { const x = after.find((i) => i.language_code === l); return x?.translation_status === "needs_review" && x?.machine?.model === GPU_MODEL; }), JSON.stringify(after.map((i) => [i.language_code, i.translation_status, i.machine?.model, i.machine?.error_code])) + run?.log.slice(-300));
+  const idDraft = (await api("reviewer_id", "GET", `/admin/announcements/${aid}/translations/id`)).data;
+  const draftBody = idDraft?.translation?.body ?? idDraft?.body ?? "";
+  console.log("      id:", draftBody.replace(/\s+/g, " ").slice(0, 240));
+  check("the Indonesian draft keeps the date, time, fee, link, e-mail and phone", /2027/.test(draftBody) && /10[:.]00/.test(draftBody) && /1[.,]250[.,]000/.test(draftBody) && draftBody.includes("https://sch.ac.kr/dorm") && draftBody.includes("dorm@sch.ac.kr") && draftBody.includes("041-530-1234"), draftBody.slice(0, 300));
+  check("students do not see an unreviewed draft", (await api(null, "GET", `/announcements/${aid}?lang=id`)).data.translation === null);
+  await rev.page.reload();
+  await rev.page.getByTestId("machine-state").waitFor({ timeout: 20000 });
+  check("the reviewer's editor is filled with the draft", (await rev.page.locator("#tre-body").inputValue()).length > 40);
+  await shot(rev.page, "autotr-4-draft-for-review");
+  // 5. the Indonesian reviewer approves; a reviewer of another language cannot
+  const other = await api("supporter_vi", "POST", `/admin/announcements/${aid}/translations/id/approve`, { original_verified: true });
+  check("a reviewer of another language cannot approve it", other.status === 403, other.status);
+  await rev.page.getByRole("checkbox", { name: /I verified this translation/ }).check();
+  await rev.page.getByRole("button", { name: "Approve & publish" }).last().click();
+  check("the reviewer approves", await until(async () => (await api(null, "GET", `/announcements/${aid}?lang=id`)).data.translation?.status === "verified", 20));
+  await shot(rev.page, "autotr-5-approved");
+  // 6. students: Indonesian shows the approved text, English (unreviewed) shows the original with a note
+  const reader = await context("visitor");
+  await lang(reader.page, "id");
+  await reader.page.goto(`${WEB}/announcements/${aid}`);
+  await reader.page.getByTestId("announcement-body").waitFor({ timeout: 20000 });
+  check("the Indonesian page shows the reviewed translation", (await reader.page.getByTestId("announcement-body").innerText()).includes(draftBody.slice(0, 20)));
+  await shot(reader.page, "autotr-6-student-indonesian");
+  await lang(reader.page, "en");
+  await reader.page.goto(`${WEB}/announcements/${aid}`);
+  await reader.page.getByTestId("fallback-notice").waitFor({ timeout: 20000 });
+  check("English: the original with 'not available yet' (the draft is not reviewed)", (await reader.page.getByTestId("announcement-body").innerText()).includes("2027년"));
+  await shot(reader.page, "autotr-7-student-english-original");
+  await reader.ctx.close();
+  // 7. the list says where each draft is; the bounded backfill for existing announcements previews first
+  const sa = await context("super_admin");
+  await sa.page.goto(`${WEB}/admin/translations`);
+  await sa.page.getByTestId("machine-cell").first().waitFor({ timeout: 20000 });
+  await sa.page.getByTestId("backfill-panel").locator("summary").click();
+  await sa.page.getByTestId("backfill-panel").getByRole("button", { name: "Preview" }).click();
+  await sa.page.getByTestId("backfill-result").waitFor({ timeout: 20000 });
+  await shot(sa.page, "autotr-8-list-and-backfill");
+  const again = await api("admin", "POST", `/admin/announcements/${aid}/translations/en/machine-translate`);
+  check("asking again for the unchanged English draft creates no job and no inference", again.status === 202 && (await mine()).filter((i) => i.language_code === "en").length === 1, JSON.stringify(again.data));
+  await sa.ctx.close();
+  await rev.ctx.close();
+  await adm.ctx.close();
+  await api("super_admin", "PATCH", `/admin/gpu/workers/${w.data.id}`, { status: "revoked" });
+};
+
 J.escalation = async () => {   // student -> Sumin -> consent -> supporter inbox -> answer -> status; other students see nothing
   const { page, ctx } = await context("student");
   await desk(page, "supporter-lead");
