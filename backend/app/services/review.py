@@ -15,6 +15,25 @@ from app.services.indexing import IndexingService
 from app.services.ingestion.normalize import content_hash, normalize_text
 
 OPEN_STATES = ("draft", "pending_review")
+# The text of an announcement is a document version too. Its review state must only change through the announcement
+# workflow (submit / approve / reject / cancel), which keeps the announcement and its text in step. Approving or
+# sending back that version through document review left the announcement "pending approval" with no pending
+# version, and its approval then failed with "no pending version" (production, 2026-11).
+# A published announcement's later edits ARE reviewed here (Release A: pending edit of approved source), so only the
+# states in which the announcement workflow owns its text are refused.
+ANNOUNCEMENT_OWNED_STATES = ["draft", "pending_approval", "rejected"]
+ANNOUNCEMENT_TEXT = ("This text belongs to an announcement that is not published yet. Approve, reject or send it back "
+                     "under Admin → Announcements, so that the announcement and its text stay in step.")
+
+
+def announcement_owned_documents(store: Store, document_ids: list[str]) -> set[str]:
+    """The documents among ``document_ids`` whose text is reviewed through the announcement workflow."""
+    if not document_ids:
+        return set()
+    rows, _c = store.select("announcements", Query(in_={"document_id": list(document_ids),
+                                                        "publication_status": ANNOUNCEMENT_OWNED_STATES},
+                                                   cols="id,document_id"))
+    return {r["document_id"] for r in rows}
 
 
 def diff_versions(old: str, new: str) -> dict[str, Any]:
@@ -255,11 +274,18 @@ class ReviewService:
                                                                         "new_hash": upd.get("content_hash", v["content_hash"])}))
         return self.get_version_view(version_id)
 
+    def _refuse_announcement_text(self, version_id: str) -> None:
+        v = get_one(self.store, "document_versions", id=version_id)
+        if v and announcement_owned_documents(self.store, [v["document_id"]]):
+            raise InvalidState(ANNOUNCEMENT_TEXT, code="announcement_text")
+
     def submit(self, version_id: str, actor: AuthUser) -> dict[str, Any]:
+        self._refuse_announcement_text(version_id)
         self.store.rpc("submit_version_for_review", dict(p_version_id=version_id, p_actor=actor.id))
         return self.get_version_view(version_id)
 
     def request_changes(self, version_id: str, actor: AuthUser, note: str) -> dict[str, Any]:
+        self._refuse_announcement_text(version_id)
         self.store.rpc("request_version_changes", dict(p_version_id=version_id, p_actor=actor.id, p_note=note))
         return self.get_version_view(version_id)
 
@@ -268,6 +294,7 @@ class ReviewService:
         v = get_one(self.store, "document_versions", id=version_id)
         if v is None:
             raise NotFound("Version not found.")
+        self._refuse_announcement_text(version_id)
         if v["verification_status"] != "pending_review":
             raise InvalidState(f"Only versions in 'pending_review' can be approved (this one is '{v['verification_status']}').")
         meta, sd = v.get("extraction_meta") or {}, v.get("structured_data") or {}
@@ -280,6 +307,7 @@ class ReviewService:
         return v
 
     def reject(self, version_id: str, actor: AuthUser, reason: str) -> dict[str, Any]:
+        self._refuse_announcement_text(version_id)
         self.store.rpc("reject_document_version", dict(p_version_id=version_id, p_actor=actor.id, p_reason=reason))
         return self.get_version_view(version_id)
 

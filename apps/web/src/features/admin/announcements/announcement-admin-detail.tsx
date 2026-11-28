@@ -149,7 +149,8 @@ export function AnnouncementAdminDetail({ id }: { id: string }) {
                       <X /> {t("reject")}
                     </Button>
                   )}
-                  {admin && a.publication_status === "published" && (
+                  {/* pending too: withdraws an announcement whose text is already searchable (approved in document review) */}
+                  {admin && (a.publication_status === "published" || a.publication_status === "pending_approval") && (
                     <Button variant="outline" disabled={action.busy} onClick={() => run("cancel", { reason: note.trim() }, t("canceledDone"), true)}>
                       <Ban /> {t("cancel")}
                     </Button>

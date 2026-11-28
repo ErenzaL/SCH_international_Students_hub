@@ -22,6 +22,8 @@ the RAG reliability work, and small-budget AI defaults. **Not yet deployed** (DE
 - Weekly, staggered discovery schedules prepared but **off** (0019); Work24 job API connector (needs a key).
 - Optional GPU worker for free draft translations on the school computer (TranslateGemma 12B; **off**, 0016).
 - Read-only `doctor` configuration check; owner manual and checklists.
+- Fix: an announcement is reviewed in one place only (Admin → Announcements). Announcements stuck with
+  "no pending version" can be published or cancelled again (docs/final-release/INCIDENT-NO-PENDING-VERSION.md).
 
 ## Defaults changed in this release
 - Daily AI caps: 60 generated answers in total (was 1,500), 20 per signed-in student (150), 10 per anonymous visitor (40).
@@ -35,5 +37,5 @@ final test), agent schedules, the GPU worker, automatic announcement drafting, e
 Migrations 0016–0019 are new and additive. The release runs without them (tested); apply after a backup.
 
 ## Verification (local)
-1,072 backend unit tests, 100 PostgreSQL integration tests, 15 SQL behaviour suites, 261 web unit tests, type check and
+1,082 backend unit tests, 104 PostgreSQL integration tests, 15 SQL behaviour suites, 261 web unit tests, type check and
 lint clean; browser journeys: see DEPLOYMENT-STATUS.md; RAG reliability study: `docs/research/rag-v2/`.
